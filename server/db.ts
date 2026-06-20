@@ -132,6 +132,21 @@ export async function getUserById(userId: number) {
   return result[0];
 }
 
+export async function createUser(data: { name: string; email: string; role: "admin" | "staff" | "customer_admin" | "customer_viewer"; clientId?: number | null }) {
+  const db = await getDb();
+  if (!db) throw new Error("Database unavailable");
+  // Generate a placeholder openId — will be replaced when user logs in via OAuth
+  const placeholderOpenId = `pre_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
+  const [row] = await db.insert(users).values({
+    openId: placeholderOpenId,
+    name: data.name,
+    email: data.email,
+    role: data.role,
+    clientId: data.clientId ?? null,
+  });
+  return { id: (row as any).insertId as number };
+}
+
 // ─── Packages ─────────────────────────────────────────────────────────────────
 export async function listPackages() {
   const db = await getDb();

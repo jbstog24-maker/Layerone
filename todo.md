@@ -230,9 +230,7 @@
 - [x] Replace Client Documents table with mobile-friendly card list on small screens (md:hidden/hidden md:block)
 
 ## Welcome Email on First Login
-- [ ] Detect first-time login in OAuth callback (user.createdAt === user.lastSignedIn or isNewUser flag)
-- [ ] Send detailed welcome email via owner notification system with next steps, portal link, and support info
-- [ ] Welcome email covers: account setup, linking to client, portal features, support contact, onboarding timeline
+- [x] Superseded by Resend Welcome Email section above — welcome email now fires on inquiry form submit via Resend (branded HTML, NSDS logo, next steps, onboarding timeline, portal link, support contact)
 
 ## Document Repository Mobile Fix
 - [x] Make header stack vertically on mobile (title on top, action buttons below)
@@ -247,3 +245,12 @@
 - [x] Wire sendWelcomeEmail into inquiry.submit mutation
 - [x] Welcome email includes: NSDS logo, next steps, onboarding timeline, portal link, support contact
 - [x] Write vitest tests for email helper (4 tests)
+
+## Users Page Improvements
+- [x] Add "Add New User" button to header — opens create dialog (name, email, role, linked client, phone, notes)
+- [x] createUser DB helper inserts pre-provisioned row with placeholder openId (replaced on first OAuth login)
+- [x] users.create tRPC procedure (admin-only) with validation
+- [x] Remove button always visible for all non-self users (no hidden on mobile)
+- [x] Edit dialog expanded: name, email, role, linked client, phone, internal notes
+- [x] Info banner updated to explain pre-provision + OAuth activation flow
+- [x] 43 tests passing, 0 TypeScript errors

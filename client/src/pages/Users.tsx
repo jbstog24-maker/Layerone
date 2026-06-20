@@ -1,8 +1,8 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
@@ -10,112 +10,177 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Separator } from "@/components/ui/separator";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
-import { Users as UsersIcon, Search, Plus, Pencil, Trash2, Shield, User, Building2, Clock } from "lucide-react";
+import { Users as UsersIcon, Search, Plus, Pencil, Trash2, Shield, User, Building2, Clock, Mail, Phone, StickyNote } from "lucide-react";
 import { useAuth } from "@/_core/hooks/useAuth";
 
-const ROLE_CONFIG: Record<string, { label: string; color: string }> = {
-  admin:           { label: "Admin",           color: "bg-red-500/20 text-red-300 border-red-500/30" },
-  staff:           { label: "Staff",           color: "bg-blue-500/20 text-blue-300 border-blue-500/30" },
-  customer_admin:  { label: "Customer Admin",  color: "bg-green-500/20 text-green-300 border-green-500/30" },
-  customer_viewer: { label: "Customer Viewer", color: "bg-slate-500/20 text-slate-300 border-slate-500/30" },
+const ROLE_CONFIG: Record<string, { label: string; color: string; dot: string }> = {
+  admin:           { label: "Admin",           color: "bg-red-500/20 text-red-300 border-red-500/30",    dot: "bg-red-400" },
+  staff:           { label: "Staff",           color: "bg-blue-500/20 text-blue-300 border-blue-500/30",  dot: "bg-blue-400" },
+  customer_admin:  { label: "Customer Admin",  color: "bg-green-500/20 text-green-300 border-green-500/30", dot: "bg-green-400" },
+  customer_viewer: { label: "Customer Viewer", color: "bg-slate-500/20 text-slate-300 border-slate-500/30", dot: "bg-slate-400" },
 };
 
 function RoleBadge({ role }: { role: string }) {
-  const cfg = ROLE_CONFIG[role] ?? { label: role, color: "bg-slate-500/20 text-slate-300" };
-  return (
-    <Badge variant="outline" className={`text-xs ${cfg.color}`}>{cfg.label}</Badge>
-  );
+  const cfg = ROLE_CONFIG[role] ?? { label: role, color: "bg-slate-500/20 text-slate-300 border-slate-500/30", dot: "bg-slate-400" };
+  return <Badge variant="outline" className={`text-xs ${cfg.color}`}>{cfg.label}</Badge>;
 }
 
-type EditState = {
-  id: number;
+type FormState = {
+  id: number;          // 0 = create mode
   name: string;
   email: string;
   role: string;
   clientId: number | null;
+  phone: string;
+  notes: string;
 };
 
-// ─── Edit/Add User Dialog ─────────────────────────────────────────────────────
+const EMPTY_FORM: FormState = { id: 0, name: "", email: "", role: "customer_viewer", clientId: null, phone: "", notes: "" };
+
+// ─── Add / Edit User Dialog ────────────────────────────────────────────────────
 function UserDialog({
-  open, onClose, user, clients, onSuccess,
+  open, onClose, initial, clients, onSuccess,
 }: {
   open: boolean;
   onClose: () => void;
-  user: EditState | null; // null = create mode (not used for now — users are created via OAuth)
+  initial: FormState | null;   // null → create mode
   clients: { id: number; companyName: string }[];
   onSuccess: () => void;
 }) {
-  const [form, setForm] = useState<EditState>(
-    user ?? { id: 0, name: "", email: "", role: "customer_viewer", clientId: null }
-  );
+  const isCreate = !initial || initial.id === 0;
+  const [form, setForm] = useState<FormState>(initial ?? EMPTY_FORM);
 
-  // Keep form in sync when user prop changes
-  const resetForm = (u: EditState | null) =>
-    setForm(u ?? { id: 0, name: "", email: "", role: "customer_viewer", clientId: null });
+  useEffect(() => {
+    setForm(initial ?? EMPTY_FORM);
+  }, [initial, open]);
+
+  const utils = trpc.useUtils();
+
+  const createMut = trpc.users.create.useMutation({
+    onSuccess: () => {
+      toast.success("User account created. They can now log in via the portal.");
+      utils.users.list.invalidate();
+      onSuccess();
+      onClose();
+    },
+    onError: (e) => toast.error(e.message),
+  });
 
   const updateMut = trpc.users.update.useMutation({
-    onSuccess: () => { toast.success("User updated"); onSuccess(); onClose(); },
+    onSuccess: () => {
+      toast.success("User updated successfully.");
+      utils.users.list.invalidate();
+      onSuccess();
+      onClose();
+    },
     onError: (e) => toast.error(e.message),
   });
 
   const isCustomer = form.role === "customer_admin" || form.role === "customer_viewer";
+  const isPending = createMut.isPending || updateMut.isPending;
+
+  const handleSave = () => {
+    if (!form.name.trim()) { toast.error("Full name is required"); return; }
+    if (!form.email.trim()) { toast.error("Email address is required"); return; }
+
+    if (isCreate) {
+      createMut.mutate({
+        name: form.name.trim(),
+        email: form.email.trim(),
+        role: form.role as any,
+        clientId: isCustomer ? form.clientId : null,
+      });
+    } else {
+      updateMut.mutate({
+        userId: form.id,
+        name: form.name.trim() || undefined,
+        email: form.email.trim() || undefined,
+        role: form.role as any,
+        clientId: isCustomer ? form.clientId : null,
+      });
+    }
+  };
 
   return (
-    <Dialog open={open} onOpenChange={(o) => { if (!o) { onClose(); resetForm(user); } }}>
-      <DialogContent className="max-w-md bg-[#07111f] border-[#1e3a5f] text-white">
+    <Dialog open={open} onOpenChange={(o) => { if (!o) onClose(); }}>
+      <DialogContent className="max-w-lg bg-[#07111f] border-[#1e3a5f] text-white max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-white">{user ? "Edit User" : "Add User"}</DialogTitle>
+          <DialogTitle className="text-white text-lg">
+            {isCreate ? "Add New User" : "Edit User"}
+          </DialogTitle>
+          <DialogDescription className="text-slate-400 text-sm">
+            {isCreate
+              ? "Create a pre-provisioned account. The user logs in via the portal using this email to activate it."
+              : "Update this user's profile, role, and linked client account."}
+          </DialogDescription>
         </DialogHeader>
-        <div className="space-y-4 py-2">
-          <div>
-            <Label className="text-slate-300">Full Name</Label>
-            <Input
-              value={form.name}
-              onChange={(e) => setForm({ ...form, name: e.target.value })}
-              placeholder="Jane Smith"
-              className="mt-1 bg-[#0d1f35] border-[#1e3a5f] text-white placeholder:text-slate-500"
-            />
+
+        <div className="space-y-4 py-1">
+          {/* Basic Info */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <Label className="text-slate-300 text-xs uppercase tracking-wide">Full Name *</Label>
+              <Input
+                value={form.name}
+                onChange={(e) => setForm({ ...form, name: e.target.value })}
+                placeholder="Jane Smith"
+                className="mt-1 bg-[#0d1f35] border-[#1e3a5f] text-white placeholder:text-slate-500"
+              />
+            </div>
+            <div>
+              <Label className="text-slate-300 text-xs uppercase tracking-wide">Email Address *</Label>
+              <Input
+                value={form.email}
+                onChange={(e) => setForm({ ...form, email: e.target.value })}
+                placeholder="jane@company.com"
+                type="email"
+                className="mt-1 bg-[#0d1f35] border-[#1e3a5f] text-white placeholder:text-slate-500"
+              />
+            </div>
           </div>
-          <div>
-            <Label className="text-slate-300">Email Address</Label>
-            <Input
-              value={form.email}
-              onChange={(e) => setForm({ ...form, email: e.target.value })}
-              placeholder="jane@example.com"
-              type="email"
-              className="mt-1 bg-[#0d1f35] border-[#1e3a5f] text-white placeholder:text-slate-500"
-            />
-            <p className="text-xs text-slate-500 mt-1">
-              The user must log in via the Manus OAuth portal using this email to activate their account.
-            </p>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <Label className="text-slate-300 text-xs uppercase tracking-wide">Phone (optional)</Label>
+              <Input
+                value={form.phone}
+                onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                placeholder="(555) 000-0000"
+                type="tel"
+                className="mt-1 bg-[#0d1f35] border-[#1e3a5f] text-white placeholder:text-slate-500"
+              />
+            </div>
+            <div>
+              <Label className="text-slate-300 text-xs uppercase tracking-wide">Role *</Label>
+              <Select value={form.role} onValueChange={(v) => setForm({ ...form, role: v, clientId: null })}>
+                <SelectTrigger className="mt-1 bg-[#0d1f35] border-[#1e3a5f] text-white">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-[#0d1f35] border-[#1e3a5f]">
+                  <SelectItem value="admin">Admin — Full access</SelectItem>
+                  <SelectItem value="staff">Staff — Operations access</SelectItem>
+                  <SelectItem value="customer_admin">Customer Admin — Portal (manage)</SelectItem>
+                  <SelectItem value="customer_viewer">Customer Viewer — Portal (read-only)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
-          <div>
-            <Label className="text-slate-300">Role</Label>
-            <Select value={form.role} onValueChange={(v) => setForm({ ...form, role: v, clientId: null })}>
-              <SelectTrigger className="mt-1 bg-[#0d1f35] border-[#1e3a5f] text-white">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent className="bg-[#0d1f35] border-[#1e3a5f]">
-                <SelectItem value="admin">Admin — Full access</SelectItem>
-                <SelectItem value="staff">Staff — Operations access</SelectItem>
-                <SelectItem value="customer_admin">Customer Admin — Client portal (manage)</SelectItem>
-                <SelectItem value="customer_viewer">Customer Viewer — Client portal (read-only)</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+
           {isCustomer && (
             <div>
-              <Label className="text-slate-300">Linked Client Account</Label>
+              <Label className="text-slate-300 text-xs uppercase tracking-wide">Linked Client Account</Label>
               <Select
-                value={form.clientId?.toString() ?? ""}
-                onValueChange={(v) => setForm({ ...form, clientId: v ? parseInt(v) : null })}
+                value={form.clientId?.toString() ?? "none"}
+                onValueChange={(v) => setForm({ ...form, clientId: v && v !== "none" ? parseInt(v) : null })}
               >
                 <SelectTrigger className="mt-1 bg-[#0d1f35] border-[#1e3a5f] text-white">
                   <SelectValue placeholder="Select a client…" />
                 </SelectTrigger>
                 <SelectContent className="bg-[#0d1f35] border-[#1e3a5f]">
+                  <SelectItem value="none">— No client linked —</SelectItem>
                   {clients.map((c) => (
                     <SelectItem key={c.id} value={c.id.toString()}>{c.companyName}</SelectItem>
                   ))}
@@ -126,23 +191,28 @@ function UserDialog({
               </p>
             </div>
           )}
+
+          <Separator className="bg-[#1e3a5f]" />
+
+          <div>
+            <Label className="text-slate-300 text-xs uppercase tracking-wide">Internal Notes (optional)</Label>
+            <textarea
+              value={form.notes}
+              onChange={(e) => setForm({ ...form, notes: e.target.value })}
+              placeholder="e.g. Primary contact for Acme Networks, prefers email…"
+              rows={3}
+              className="mt-1 w-full rounded-md bg-[#0d1f35] border border-[#1e3a5f] text-white placeholder:text-slate-500 text-sm px-3 py-2 resize-none focus:outline-none focus:ring-1 focus:ring-blue-500"
+            />
+            <p className="text-xs text-slate-500 mt-1">Not visible to the user — for staff reference only.</p>
+          </div>
         </div>
-        <DialogFooter>
-          <Button variant="outline" onClick={onClose} className="border-[#1e3a5f] text-slate-300">
+
+        <DialogFooter className="gap-2 pt-2">
+          <Button variant="outline" onClick={onClose} disabled={isPending} className="border-[#1e3a5f] text-slate-300">
             Cancel
           </Button>
-          <Button
-            onClick={() => updateMut.mutate({
-              userId: form.id,
-              name: form.name || undefined,
-              email: form.email || undefined,
-              role: form.role as any,
-              clientId: isCustomer ? form.clientId : null,
-            })}
-            disabled={updateMut.isPending}
-            className="bg-blue-600 hover:bg-blue-700"
-          >
-            {updateMut.isPending ? "Saving…" : "Save Changes"}
+          <Button onClick={handleSave} disabled={isPending} className="bg-blue-600 hover:bg-blue-700">
+            {isPending ? (isCreate ? "Creating…" : "Saving…") : (isCreate ? "Create User" : "Save Changes")}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -155,15 +225,20 @@ export default function Users() {
   const { user: me } = useAuth();
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState("all");
-  const [editUser, setEditUser] = useState<EditState | null>(null);
+  const [dialogUser, setDialogUser] = useState<FormState | null | undefined>(undefined); // undefined = closed, null = create, FormState = edit
   const [deleteId, setDeleteId] = useState<number | null>(null);
+  const [deleteName, setDeleteName] = useState("");
 
   const utils = trpc.useUtils();
   const { data: users, isLoading } = trpc.users.list.useQuery();
   const { data: clients = [] } = trpc.clients.list.useQuery({});
 
   const deleteMut = trpc.users.delete.useMutation({
-    onSuccess: () => { toast.success("User removed"); utils.users.list.invalidate(); setDeleteId(null); },
+    onSuccess: () => {
+      toast.success("User account removed.");
+      utils.users.list.invalidate();
+      setDeleteId(null);
+    },
     onError: (e) => toast.error(e.message),
   });
 
@@ -186,7 +261,12 @@ export default function Users() {
   }, [clients]);
 
   const handleEdit = (u: any) => {
-    setEditUser({ id: u.id, name: u.name ?? "", email: u.email ?? "", role: u.role, clientId: u.clientId ?? null });
+    setDialogUser({ id: u.id, name: u.name ?? "", email: u.email ?? "", role: u.role, clientId: u.clientId ?? null, phone: "", notes: "" });
+  };
+
+  const handleDelete = (u: any) => {
+    setDeleteId(u.id);
+    setDeleteName(u.name ?? u.email ?? `User #${u.id}`);
   };
 
   const roleCounts = useMemo(() => {
@@ -200,6 +280,7 @@ export default function Users() {
   return (
     <DashboardLayout>
       <div className="p-4 sm:p-6 space-y-6">
+
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>
@@ -208,20 +289,24 @@ export default function Users() {
               User Management
             </h1>
             <p className="text-slate-400 text-sm mt-1">
-              Manage user accounts, roles, and client access
+              Add, edit, and remove user accounts and portal access
             </p>
           </div>
-          <p className="text-xs text-slate-500 sm:text-right max-w-xs">
-            New users are created automatically when they log in via the Manus OAuth portal. Use this page to assign roles and link them to client accounts.
-          </p>
+          <Button
+            onClick={() => setDialogUser(null)}
+            className="bg-blue-600 hover:bg-blue-700 gap-2 self-start sm:self-auto"
+          >
+            <Plus className="w-4 h-4" />
+            Add New User
+          </Button>
         </div>
 
-        {/* Stats row */}
+        {/* Role stats */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {Object.entries(ROLE_CONFIG).map(([role, cfg]) => (
             <Card key={role} className="bg-[#0d1f35] border-[#1e3a5f]">
               <CardContent className="p-3 flex items-center gap-2">
-                <div className={`w-2 h-2 rounded-full ${cfg.color.includes("red") ? "bg-red-400" : cfg.color.includes("blue") ? "bg-blue-400" : cfg.color.includes("green") ? "bg-green-400" : "bg-slate-400"}`} />
+                <div className={`w-2 h-2 rounded-full shrink-0 ${cfg.dot}`} />
                 <div>
                   <p className="text-lg font-bold text-white">{roleCounts[role] ?? 0}</p>
                   <p className="text-xs text-slate-400">{cfg.label}</p>
@@ -260,7 +345,7 @@ export default function Users() {
         {isLoading ? (
           <div className="space-y-3">
             {[...Array(4)].map((_, i) => (
-              <Skeleton key={i} className="h-16 w-full rounded-xl bg-[#0d1f35]" />
+              <Skeleton key={i} className="h-20 w-full rounded-xl bg-[#0d1f35]" />
             ))}
           </div>
         ) : filtered.length === 0 ? (
@@ -271,7 +356,7 @@ export default function Users() {
               <p className="text-sm text-center">
                 {search || roleFilter !== "all"
                   ? "Try adjusting your search or filter."
-                  : "Users appear here automatically after they log in via the portal."}
+                  : "Click \"Add New User\" to create the first account."}
               </p>
             </CardContent>
           </Card>
@@ -283,7 +368,7 @@ export default function Users() {
                   <div className="flex items-start gap-3">
                     <Avatar className="w-10 h-10 shrink-0 border border-[#1e3a5f]">
                       <AvatarFallback className="text-sm font-semibold bg-blue-500/20 text-blue-300">
-                        {u.name?.slice(0, 2).toUpperCase() ?? "?"}
+                        {u.name?.slice(0, 2).toUpperCase() ?? "??"}
                       </AvatarFallback>
                     </Avatar>
                     <div className="flex-1 min-w-0">
@@ -297,7 +382,7 @@ export default function Users() {
                       <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-400">
                         {u.email && (
                           <span className="flex items-center gap-1">
-                            <User className="w-3 h-3" /> {u.email}
+                            <Mail className="w-3 h-3" /> {u.email}
                           </span>
                         )}
                         {u.clientId && clientMap[u.clientId] && (
@@ -310,25 +395,26 @@ export default function Users() {
                         </span>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2 shrink-0 ml-2">
+                    {/* Action buttons — always visible */}
+                    <div className="flex items-center gap-2 shrink-0 ml-1">
                       <Button
                         size="sm"
                         variant="outline"
                         onClick={() => handleEdit(u)}
-                        className="border-[#1e3a5f] text-slate-300 hover:text-white gap-1 h-8 px-2"
+                        className="border-[#1e3a5f] text-slate-300 hover:text-white gap-1 h-8 px-3"
                       >
-                        <Pencil className="w-3 h-3" />
-                        <span className="hidden sm:inline">Edit</span>
+                        <Pencil className="w-3.5 h-3.5" />
+                        <span>Edit</span>
                       </Button>
                       {u.id !== me?.id && (
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => setDeleteId(u.id)}
-                          className="border-red-500/30 text-red-400 hover:text-red-300 hover:border-red-400 gap-1 h-8 px-2"
+                          onClick={() => handleDelete(u)}
+                          className="border-red-500/30 text-red-400 hover:text-red-300 hover:border-red-400 gap-1 h-8 px-3"
                         >
-                          <Trash2 className="w-3 h-3" />
-                          <span className="hidden sm:inline">Remove</span>
+                          <Trash2 className="w-3.5 h-3.5" />
+                          <span>Remove</span>
                         </Button>
                       )}
                     </div>
@@ -345,19 +431,21 @@ export default function Users() {
             <Shield className="w-5 h-5 text-blue-400 shrink-0 mt-0.5" />
             <div className="text-sm text-slate-400">
               <p className="text-white font-medium mb-1">How user accounts work</p>
-              <p>Users are created automatically the first time they log in via the Manus OAuth portal. Use this page to assign them a role and link customer accounts to a specific client. Passwords are managed by Manus OAuth — they cannot be set or changed here.</p>
+              <p>
+                Use <strong className="text-slate-300">Add New User</strong> to pre-provision an account with a name, email, role, and linked client. The user then logs in via the portal using that email to activate their account — no password is set here, as authentication is handled by the Manus OAuth portal. Use <strong className="text-slate-300">Edit</strong> to update any details at any time, and <strong className="text-slate-300">Remove</strong> to permanently revoke access.
+              </p>
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Edit Dialog */}
+      {/* Add / Edit Dialog */}
       <UserDialog
-        open={!!editUser}
-        onClose={() => setEditUser(null)}
-        user={editUser}
+        open={dialogUser !== undefined}
+        onClose={() => setDialogUser(undefined)}
+        initial={dialogUser ?? null}
         clients={clients as any}
-        onSuccess={() => utils.users.list.invalidate()}
+        onSuccess={() => {}}
       />
 
       {/* Delete Confirm */}
@@ -366,7 +454,7 @@ export default function Users() {
           <AlertDialogHeader>
             <AlertDialogTitle className="text-white">Remove User</AlertDialogTitle>
             <AlertDialogDescription className="text-slate-400">
-              This will permanently remove the user account from the portal. The user will no longer be able to log in. This action cannot be undone.
+              This will permanently remove <strong className="text-white">{deleteName}</strong> from the portal. They will no longer be able to log in. This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

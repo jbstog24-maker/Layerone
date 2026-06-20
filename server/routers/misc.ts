@@ -3,7 +3,7 @@ import { z } from "zod";
 import {
   createPhoto, getDashboardStats, getClientUsage, getClient, getPackage,
   listActivityLogs, listPhotosByClient, listPhotos, listUsers, logActivity,
-  updateUserRole, updateUser, deleteUser, getUserById,
+  updateUserRole, updateUser, deleteUser, getUserById, createUser,
 } from "../db";
 import { storagePut } from "../storage";
 import { protectedProcedure, router } from "../_core/trpc";
@@ -150,5 +150,19 @@ export const usersRouter = router({
       await deleteUser(input.userId);
       await logActivity({ userId: ctx.user.id, action: `Deleted user #${input.userId}`, entityType: "user", entityId: input.userId });
       return { success: true };
+    }),
+
+  create: protectedProcedure
+    .input(z.object({
+      name: z.string().min(1, "Name is required"),
+      email: z.string().email("Valid email required"),
+      role: z.enum(["admin", "staff", "customer_admin", "customer_viewer"]),
+      clientId: z.number().nullable().optional(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      if (!isAdmin(ctx.user.role)) throw new TRPCError({ code: "FORBIDDEN" });
+      const result = await createUser(input);
+      await logActivity({ userId: ctx.user.id, action: `Pre-provisioned user ${input.email} with role ${input.role}`, entityType: "user", entityId: result.id });
+      return result;
     }),
 });
