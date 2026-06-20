@@ -194,6 +194,7 @@ function DashboardLayoutContent({
   const [isResizing, setIsResizing] = useState(false);
   const sidebarRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
+  const showLabels = !isCollapsed && !isMobile;
   const role = (user as any)?.role ?? "customer_viewer";
   const isAdminOrStaff = role === "admin" || role === "staff";
 
@@ -279,8 +280,8 @@ function DashboardLayoutContent({
               const visibleItems = group.items.filter(canSee);
               if (visibleItems.length === 0) return null;
               return (
-                <SidebarGroup key={group.label} className="py-0">
-                  {!isCollapsed && (
+                <SidebarGroup key={group.label} className="py-1">
+                  {showLabels && (
                     <SidebarGroupLabel className="text-xs text-sidebar-foreground/40 uppercase tracking-widest px-3 py-1.5 truncate overflow-hidden">
                       {group.label}
                     </SidebarGroupLabel>
