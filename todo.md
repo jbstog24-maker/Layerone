@@ -214,3 +214,35 @@
 - [x] Add messages.myUnread tRPC procedure (customer-facing: counts unread staff replies for their own thread)
 - [x] Wire unread badge on Clients nav item in customer portal sidebar (polls every 30s)
 - [x] Write vitest tests for myUnread procedure (3 new tests, 35 total passing)
+
+## Users Management Page (Admin Console)
+- [ ] Add listUsers, updateUser (role/clientId/name), deleteUser, createUser DB helpers
+- [ ] Add users.list, users.update, users.delete, users.create tRPC procedures (admin-only)
+- [ ] Build Users admin page (/users) with table, search, role filter, add/edit/delete dialogs
+- [ ] Ensure Users nav item is visible in admin sidebar
+- [ ] Write vitest tests for user management procedures
+
+## Document Repository Mobile Fix
+- [x] Make header stack vertically on mobile (title on top, action buttons below)
+- [x] Make NSDS branding banner stack vertically on mobile
+- [x] Make tabs full-width on mobile
+- [x] Replace Client Documents table with mobile-friendly card list on small screens (md:hidden/hidden md:block)
+
+## Welcome Email on First Login
+- [ ] Detect first-time login in OAuth callback (user.createdAt === user.lastSignedIn or isNewUser flag)
+- [ ] Send detailed welcome email via owner notification system with next steps, portal link, and support info
+- [ ] Welcome email covers: account setup, linking to client, portal features, support contact, onboarding timeline
+
+## Document Repository Mobile Fix
+- [x] Make header stack vertically on mobile (title on top, action buttons below)
+- [x] Make NSDS branding banner stack vertically on mobile
+- [x] Make tabs full-width on mobile
+- [x] Replace Client Documents table with mobile-friendly card list on small screens (md:hidden/hidden md:block)
+
+## Resend Welcome Email
+- [x] Install resend npm package
+- [x] Add RESEND_API_KEY and RESEND_FROM_EMAIL secrets
+- [x] Build server/email.ts with sendWelcomeEmail helper (branded HTML template)
+- [x] Wire sendWelcomeEmail into inquiry.submit mutation
+- [x] Welcome email includes: NSDS logo, next steps, onboarding timeline, portal link, support contact
+- [x] Write vitest tests for email helper (4 tests)

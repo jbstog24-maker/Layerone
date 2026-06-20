@@ -3,7 +3,7 @@ import { z } from "zod";
 import {
   createPhoto, getDashboardStats, getClientUsage, getClient, getPackage,
   listActivityLogs, listPhotosByClient, listPhotos, listUsers, logActivity,
-  updateUserRole,
+  updateUserRole, updateUser, deleteUser, getUserById,
 } from "../db";
 import { storagePut } from "../storage";
 import { protectedProcedure, router } from "../_core/trpc";
@@ -106,6 +106,13 @@ export const usersRouter = router({
     return listUsers();
   }),
 
+  getById: protectedProcedure
+    .input(z.object({ userId: z.number() }))
+    .query(async ({ ctx, input }) => {
+      if (!isAdmin(ctx.user.role)) throw new TRPCError({ code: "FORBIDDEN" });
+      return getUserById(input.userId);
+    }),
+
   updateRole: protectedProcedure
     .input(z.object({
       userId: z.number(),
@@ -116,6 +123,32 @@ export const usersRouter = router({
       if (!isAdmin(ctx.user.role)) throw new TRPCError({ code: "FORBIDDEN" });
       await updateUserRole(input.userId, input.role, input.clientId);
       await logActivity({ userId: ctx.user.id, action: `Updated user #${input.userId} role to ${input.role}`, entityType: "user", entityId: input.userId });
+      return { success: true };
+    }),
+
+  update: protectedProcedure
+    .input(z.object({
+      userId: z.number(),
+      name: z.string().optional(),
+      email: z.string().email().optional(),
+      role: z.enum(["admin", "staff", "customer_admin", "customer_viewer"]).optional(),
+      clientId: z.number().nullable().optional(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      if (!isAdmin(ctx.user.role)) throw new TRPCError({ code: "FORBIDDEN" });
+      const { userId, ...data } = input;
+      await updateUser(userId, data);
+      await logActivity({ userId: ctx.user.id, action: `Updated user #${userId} profile`, entityType: "user", entityId: userId });
+      return { success: true };
+    }),
+
+  delete: protectedProcedure
+    .input(z.object({ userId: z.number() }))
+    .mutation(async ({ ctx, input }) => {
+      if (!isAdmin(ctx.user.role)) throw new TRPCError({ code: "FORBIDDEN" });
+      if (input.userId === ctx.user.id) throw new TRPCError({ code: "BAD_REQUEST", message: "You cannot delete your own account" });
+      await deleteUser(input.userId);
+      await logActivity({ userId: ctx.user.id, action: `Deleted user #${input.userId}`, entityType: "user", entityId: input.userId });
       return { success: true };
     }),
 });

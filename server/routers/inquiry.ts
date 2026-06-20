@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { publicProcedure, protectedProcedure, router } from "../_core/trpc";
 import { notifyOwner } from "../_core/notification";
+import { sendWelcomeEmail } from "../email";
 import {
   getDb,
   listInquiries,
@@ -58,6 +59,14 @@ export const inquiryRouter = router({
       await notifyOwner({
         title: `New Package Inquiry — ${tierLabel} (${input.company})`,
         content,
+      }).catch(() => {});
+
+      // Send branded welcome email to the prospect
+      await sendWelcomeEmail({
+        to: input.email,
+        name: input.name,
+        company: input.company,
+        tier: input.tier,
       }).catch(() => {});
 
       return { success: true };

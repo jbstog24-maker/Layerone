@@ -113,6 +113,25 @@ export async function updateUserRole(userId: number, role: "admin" | "staff" | "
   await db.update(users).set({ role, clientId: clientId ?? null }).where(eq(users.id, userId));
 }
 
+export async function updateUser(userId: number, data: { name?: string; email?: string; role?: "admin" | "staff" | "customer_admin" | "customer_viewer"; clientId?: number | null }) {
+  const db = await getDb();
+  if (!db) return;
+  await db.update(users).set(data).where(eq(users.id, userId));
+}
+
+export async function deleteUser(userId: number) {
+  const db = await getDb();
+  if (!db) return;
+  await db.delete(users).where(eq(users.id, userId));
+}
+
+export async function getUserById(userId: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(users).where(eq(users.id, userId)).limit(1);
+  return result[0];
+}
+
 // ─── Packages ─────────────────────────────────────────────────────────────────
 export async function listPackages() {
   const db = await getDb();

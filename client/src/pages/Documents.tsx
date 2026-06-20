@@ -389,7 +389,7 @@ export default function Documents() {
     <DashboardLayout>
       <div className="p-6 space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="text-2xl font-bold text-white flex items-center gap-3">
               <FileText className="w-7 h-7 text-blue-400" />
@@ -397,30 +397,30 @@ export default function Documents() {
             </h1>
             <p className="text-slate-400 text-sm mt-1">Manage templates, send documents to clients, and track signature status</p>
           </div>
-          <div className="flex gap-2">
-            <Button onClick={() => setShowAutoDraft(true)} className="bg-green-600 hover:bg-green-700 gap-2">
-              <Wand2 className="w-4 h-4" /> Auto-Draft MSA
+          <div className="flex flex-wrap gap-2">
+            <Button onClick={() => setShowAutoDraft(true)} className="bg-green-600 hover:bg-green-700 gap-2 text-sm">
+              <Wand2 className="w-4 h-4" /> <span className="hidden xs:inline">Auto-Draft </span>MSA
             </Button>
-            <Button onClick={() => { setSendTemplateId(undefined); setSendTemplateName(undefined); setShowSend(true); }} variant="outline" className="border-blue-500/40 text-blue-300 hover:bg-blue-500/10 gap-2">
-              <Send className="w-4 h-4" /> Send Document
+            <Button onClick={() => { setSendTemplateId(undefined); setSendTemplateName(undefined); setShowSend(true); }} variant="outline" className="border-blue-500/40 text-blue-300 hover:bg-blue-500/10 gap-2 text-sm">
+              <Send className="w-4 h-4" /> Send
             </Button>
-            <Button onClick={() => setShowUpload(true)} className="bg-blue-600 hover:bg-blue-700 gap-2">
-              <Upload className="w-4 h-4" /> Upload Template
+            <Button onClick={() => setShowUpload(true)} className="bg-blue-600 hover:bg-blue-700 gap-2 text-sm">
+              <Upload className="w-4 h-4" /> Upload
             </Button>
           </div>
         </div>
 
         {/* NSDS Branding Banner */}
-        <div className="bg-gradient-to-r from-[#0d1f35] to-[#07111f] border border-[#1e3a5f] rounded-xl p-4 flex items-center gap-4">
-          <div dangerouslySetInnerHTML={{ __html: NSDS_LOGO_SVG }} className="w-44 flex-shrink-0" />
-          <div className="border-l border-[#1e3a5f] pl-4 text-sm text-slate-400">
+        <div className="bg-gradient-to-r from-[#0d1f35] to-[#07111f] border border-[#1e3a5f] rounded-xl p-4 flex flex-col sm:flex-row items-start sm:items-center gap-4">
+          <div dangerouslySetInnerHTML={{ __html: NSDS_LOGO_SVG }} className="w-36 sm:w-44 flex-shrink-0" />
+          <div className="sm:border-l sm:border-[#1e3a5f] sm:pl-4 text-sm text-slate-400">
             <p className="text-white font-semibold">All documents include the NSDS logo and branding</p>
             <p>Auto-generated MSAs, SOWs, and forms are branded with your logo and company details. Documents are stored securely and linked to each client's account.</p>
           </div>
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-1 bg-[#0d1f35] border border-[#1e3a5f] rounded-lg p-1 w-fit">
+        <div className="flex gap-1 bg-[#0d1f35] border border-[#1e3a5f] rounded-lg p-1 w-full sm:w-fit">
           {[
             { key: "templates", label: "Document Templates", icon: <FileText className="w-4 h-4" /> },
             { key: "all_docs", label: "Client Documents", icon: <Building2 className="w-4 h-4" /> },
@@ -428,9 +428,9 @@ export default function Documents() {
             <button
               key={tab.key}
               onClick={() => setActiveTab(tab.key as any)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all ${activeTab === tab.key ? "bg-blue-600 text-white" : "text-slate-400 hover:text-white"}`}
+              className={`flex flex-1 sm:flex-none items-center justify-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all ${activeTab === tab.key ? "bg-blue-600 text-white" : "text-slate-400 hover:text-white"}`}
             >
-              {tab.icon} {tab.label}
+              {tab.icon} <span className="hidden xs:inline sm:inline">{tab.label}</span><span className="xs:hidden sm:hidden">{tab.key === "templates" ? "Templates" : "Client Docs"}</span>
             </button>
           ))}
         </div>
@@ -509,40 +509,69 @@ export default function Documents() {
                 </CardContent>
               </Card>
             ) : (
-              <div className="overflow-x-auto rounded-xl border border-[#1e3a5f]">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b border-[#1e3a5f] bg-[#0d1f35]">
-                      {["Document", "Client", "Status", "Sent To", "Sent", "Signed", "Expires", "Actions"].map(h => (
-                        <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider">{h}</th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {allDocs.map((doc: any) => (
-                      <tr key={doc.id} className="border-b border-[#1e3a5f]/50 hover:bg-[#0d1f35]/50 transition-colors">
-                        <td className="px-4 py-3">
-                          <div className="flex items-center gap-2">
-                            <FileText className="w-4 h-4 text-blue-400 flex-shrink-0" />
-                            <span className="text-white font-medium text-xs max-w-[180px] truncate">{doc.name}</span>
-                          </div>
-                        </td>
-                        <td className="px-4 py-3 text-slate-300 text-xs">{doc.clientName ?? `#${doc.clientId}`}</td>
-                        <td className="px-4 py-3"><DocStatusBadge status={doc.status} /></td>
-                        <td className="px-4 py-3 text-slate-400 text-xs">{doc.sentToEmail ?? "—"}</td>
-                        <td className="px-4 py-3 text-slate-400 text-xs">{doc.sentAt ? new Date(doc.sentAt).toLocaleDateString() : "—"}</td>
-                        <td className="px-4 py-3 text-slate-400 text-xs">{doc.signedAt ? new Date(doc.signedAt).toLocaleDateString() : "—"}</td>
-                        <td className="px-4 py-3 text-slate-400 text-xs">{doc.expiresAt ? new Date(doc.expiresAt).toLocaleDateString() : "—"}</td>
-                        <td className="px-4 py-3">
-                          <Button size="sm" variant="outline" onClick={() => setPreviewDoc(doc)} className="border-[#1e3a5f] text-slate-300 hover:text-white gap-1 text-xs">
-                            <Eye className="w-3 h-3" /> View
-                          </Button>
-                        </td>
+              <>
+                {/* Desktop table */}
+                <div className="hidden md:block overflow-x-auto rounded-xl border border-[#1e3a5f]">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-[#1e3a5f] bg-[#0d1f35]">
+                        {["Document", "Client", "Status", "Sent To", "Sent", "Signed", "Expires", "Actions"].map(h => (
+                          <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider">{h}</th>
+                        ))}
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                    </thead>
+                    <tbody>
+                      {allDocs.map((doc: any) => (
+                        <tr key={doc.id} className="border-b border-[#1e3a5f]/50 hover:bg-[#0d1f35]/50 transition-colors">
+                          <td className="px-4 py-3">
+                            <div className="flex items-center gap-2">
+                              <FileText className="w-4 h-4 text-blue-400 flex-shrink-0" />
+                              <span className="text-white font-medium text-xs max-w-[180px] truncate">{doc.name}</span>
+                            </div>
+                          </td>
+                          <td className="px-4 py-3 text-slate-300 text-xs">{doc.clientName ?? `#${doc.clientId}`}</td>
+                          <td className="px-4 py-3"><DocStatusBadge status={doc.status} /></td>
+                          <td className="px-4 py-3 text-slate-400 text-xs">{doc.sentToEmail ?? "—"}</td>
+                          <td className="px-4 py-3 text-slate-400 text-xs">{doc.sentAt ? new Date(doc.sentAt).toLocaleDateString() : "—"}</td>
+                          <td className="px-4 py-3 text-slate-400 text-xs">{doc.signedAt ? new Date(doc.signedAt).toLocaleDateString() : "—"}</td>
+                          <td className="px-4 py-3 text-slate-400 text-xs">{doc.expiresAt ? new Date(doc.expiresAt).toLocaleDateString() : "—"}</td>
+                          <td className="px-4 py-3">
+                            <Button size="sm" variant="outline" onClick={() => setPreviewDoc(doc)} className="border-[#1e3a5f] text-slate-300 hover:text-white gap-1 text-xs">
+                              <Eye className="w-3 h-3" /> View
+                            </Button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                {/* Mobile card list */}
+                <div className="md:hidden space-y-3">
+                  {allDocs.map((doc: any) => (
+                    <Card key={doc.id} className="bg-[#0d1f35] border-[#1e3a5f]">
+                      <CardContent className="p-4 space-y-3">
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="flex items-center gap-2 min-w-0">
+                            <FileText className="w-4 h-4 text-blue-400 flex-shrink-0" />
+                            <span className="text-white font-medium text-sm truncate">{doc.name}</span>
+                          </div>
+                          <DocStatusBadge status={doc.status} />
+                        </div>
+                        <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
+                          <div><span className="text-slate-500">Client: </span><span className="text-slate-300">{doc.clientName ?? `#${doc.clientId}`}</span></div>
+                          {doc.sentToEmail && <div className="col-span-2"><span className="text-slate-500">Sent to: </span><span className="text-slate-300 break-all">{doc.sentToEmail}</span></div>}
+                          {doc.sentAt && <div><span className="text-slate-500">Sent: </span><span className="text-slate-300">{new Date(doc.sentAt).toLocaleDateString()}</span></div>}
+                          {doc.signedAt && <div><span className="text-slate-500">Signed: </span><span className="text-slate-300">{new Date(doc.signedAt).toLocaleDateString()}</span></div>}
+                          {doc.expiresAt && <div><span className="text-slate-500">Expires: </span><span className="text-slate-300">{new Date(doc.expiresAt).toLocaleDateString()}</span></div>}
+                        </div>
+                        <Button size="sm" variant="outline" onClick={() => setPreviewDoc(doc)} className="w-full border-[#1e3a5f] text-slate-300 hover:text-white gap-1 text-xs">
+                          <Eye className="w-3 h-3" /> View Details
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </>
             )}
           </div>
         )}
