@@ -187,3 +187,16 @@
 - [x] Add Warehouse Assignment form to ClientDetail page (admin/staff only)
 - [x] Add onboarding timeline card to ClientDetail (contract signed, go-live date, warehouse assigned)
 - [x] Embed NSDS logo in all document previews and print views
+
+## Sidebar Mobile Fix
+- [x] Fix overlapping group labels and nav items in sidebar on mobile (switched -mt-8 to hidden for collapsed state)
+
+## Client Messaging System
+- [x] Add clientMessages table (id, clientId, senderId, senderRole, senderName, body, readAt, createdAt)
+- [x] Run Drizzle migration and apply SQL
+- [x] Add DB helpers: listClientMessages, sendClientMessage, markClientMessagesRead, countUnreadClientMessages
+- [x] Build messages tRPC router with list, send, markRead, countUnread procedures (role-gated)
+- [x] Build ClientMessageThread component with bubble UI, auto-scroll, 15s polling, Enter-to-send composer
+- [x] Insert Messages section into ClientDetail page (visible to all roles)
+- [x] Owner notification when customer sends a message
+- [x] Write vitest tests for messages router (4 new tests, 26 total passing)

@@ -12,6 +12,7 @@ import { billingRouter } from "./routers/billing";
 import { photosRouter, activityRouter, dashboardRouter, usersRouter } from "./routers/misc";
 import { inquiryRouter } from "./routers/inquiry";
 import { documentsRouter } from "./routers/documents";
+import { messagesRouter } from "./routers/messages";
 
 export const appRouter = router({
   system: systemRouter,
@@ -39,6 +40,7 @@ export const appRouter = router({
   users: usersRouter,
   inquiry: inquiryRouter,
   documents: documentsRouter,
+  messages: messagesRouter,
 });
 
 export type AppRouter = typeof appRouter;

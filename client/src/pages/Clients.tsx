@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useLocation, useRoute } from "wouter";
 import DashboardLayout from "@/components/DashboardLayout";
 import { PageHeader } from "@/components/PageHeader";
@@ -13,7 +12,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
-import { Building2, Plus, Search, ChevronRight, Mail, Phone, FileText, Warehouse, Calendar, CheckCircle, Clock, AlertCircle, Send, CreditCard, Download } from "lucide-react";
+import { Building2, Plus, Search, ChevronRight, Mail, Phone, FileText, Warehouse, Calendar, CheckCircle, Clock, AlertCircle, Send, CreditCard, Download, MessageSquare, User } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -327,6 +327,142 @@ function OnboardingTimeline({ client }: { client: any }) {
   );
 }
 
+// ─── Client Message Thread ───────────────────────────────────────────────────
+function ClientMessageThread({ clientId, isAdminOrStaff }: { clientId: number; isAdminOrStaff: boolean }) {
+  const { user } = useAuth();
+  const utils = trpc.useUtils();
+  const [body, setBody] = useState("");
+  const bottomRef = useRef<HTMLDivElement>(null);
+
+  const { data: messages = [], isLoading, isError, refetch } = trpc.messages.list.useQuery(
+    { clientId },
+    { refetchInterval: 15_000 },
+  );
+
+  const sendMsg = trpc.messages.send.useMutation({
+    onSuccess: () => {
+      setBody("");
+      utils.messages.list.invalidate({ clientId });
+    },
+    onError: (e) => toast.error(e.message),
+  });
+
+  // Mark messages as read when thread is opened
+  const markRead = trpc.messages.markRead.useMutation();
+  useEffect(() => {
+    if (messages.length > 0) {
+      markRead.mutate({ clientId });
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [clientId, messages.length]);
+
+  // Auto-scroll to bottom on new messages
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages.length]);
+
+  const handleSend = () => {
+    const trimmed = body.trim();
+    if (!trimmed || sendMsg.isPending) return;
+    sendMsg.mutate({ clientId, body: trimmed });
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
+    }
+  };
+
+  const isStaffMsg = (role: string) => role === "admin" || role === "staff";
+
+  return (
+    <Card className="bg-card/60 border-border/50 mb-4">
+      <CardHeader className="flex flex-row items-center gap-2 pb-3">
+        <MessageSquare className="w-4 h-4 text-blue-400" />
+        <CardTitle className="text-sm">Messages</CardTitle>
+        <span className="text-xs text-muted-foreground ml-auto">Shift+Enter for new line · Enter to send</span>
+      </CardHeader>
+      <CardContent className="p-0">
+        {/* Thread */}
+        <div className="h-80 overflow-y-auto px-4 py-2 space-y-3 border-t border-border/30">
+          {isLoading ? (
+            <div className="flex items-center justify-center h-full">
+              <div className="w-5 h-5 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+            </div>
+          ) : isError ? (
+            <div className="flex flex-col items-center justify-center h-full text-center">
+              <MessageSquare className="w-8 h-8 text-destructive/40 mb-2" />
+              <p className="text-sm text-muted-foreground">Could not load messages</p>
+              <Button size="sm" variant="outline" className="mt-2 text-xs" onClick={() => refetch()}>Retry</Button>
+            </div>
+          ) : messages.length === 0 ? (
+            <div className="flex flex-col items-center justify-center h-full text-center">
+              <MessageSquare className="w-8 h-8 text-muted-foreground/30 mb-2" />
+              <p className="text-sm text-muted-foreground">No messages yet</p>
+              <p className="text-xs text-muted-foreground/60 mt-1">Start the conversation below.</p>
+            </div>
+          ) : (
+            (messages as any[]).map((msg) => {
+              const fromStaff = isStaffMsg(msg.senderRole);
+              const isOwn = fromStaff === isAdminOrStaff;
+              return (
+                <div key={msg.id} className={`flex gap-2 ${isOwn ? "flex-row-reverse" : "flex-row"}`}>
+                  <div className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 text-xs font-bold ${
+                    fromStaff ? "bg-blue-500/20 text-blue-300" : "bg-slate-500/20 text-slate-300"
+                  }`}>
+                    {fromStaff ? <User className="w-3.5 h-3.5" /> : msg.senderName?.charAt(0)?.toUpperCase() ?? "C"}
+                  </div>
+                  <div className={`max-w-[75%] ${isOwn ? "items-end" : "items-start"} flex flex-col gap-0.5`}>
+                    <div className={`flex items-center gap-1.5 text-xs text-muted-foreground ${isOwn ? "flex-row-reverse" : ""}`}>
+                      <span className="font-medium">{msg.senderName}</span>
+                      <span>·</span>
+                      <span>{new Date(msg.createdAt).toLocaleString([], { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}</span>
+                      {msg.readAt && isOwn && <span className="text-blue-400/60">✓ Read</span>}
+                    </div>
+                    <div className={`px-3 py-2 rounded-2xl text-sm leading-relaxed whitespace-pre-wrap break-words ${
+                      isOwn
+                        ? "bg-primary/20 text-primary-foreground rounded-tr-sm"
+                        : "bg-muted/50 text-foreground rounded-tl-sm"
+                    }`}>
+                      {msg.body}
+                    </div>
+                  </div>
+                </div>
+              );
+            })
+          )}
+          <div ref={bottomRef} />
+        </div>
+
+        {/* Composer */}
+        <div className="border-t border-border/30 p-3 flex gap-2 items-end">
+          <Textarea
+            value={body}
+            onChange={(e) => setBody(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder={isAdminOrStaff ? "Reply to client…" : "Message NSDS team…"}
+            className="resize-none min-h-[60px] max-h-32 text-sm bg-background/50"
+            rows={2}
+          />
+          <Button
+            size="sm"
+            onClick={handleSend}
+            disabled={!body.trim() || sendMsg.isPending}
+            className="h-10 px-3 shrink-0"
+          >
+            {sendMsg.isPending ? (
+              <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+            ) : (
+              <Send className="w-4 h-4" />
+            )}
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
 export function ClientDetail() {
   const [, params] = useRoute("/clients/:id");
   const id = parseInt(params?.id ?? "0");
@@ -422,6 +558,9 @@ export function ClientDetail() {
           </CardContent>
         </Card>
       )}
+
+      {/* Messages Thread */}
+      <ClientMessageThread clientId={id} isAdminOrStaff={isAdminOrStaff} />
 
       {/* Documents Tab (admin/staff only) */}
       {isAdminOrStaff && (

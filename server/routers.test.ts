@@ -56,6 +56,27 @@ vi.mock("./db", () => ({
   getClientUsage: vi.fn().mockResolvedValue({ devices: 0, boxes: 0, pallets: 0, shipments: 0, stagingTasks: 0, deliveries: 0, receivingLogs: 0 }),
   logActivity: vi.fn().mockResolvedValue(undefined),
   generateInvoiceFromUsage: vi.fn().mockResolvedValue({ id: 1, invoiceNumber: "INV-001", status: "draft", subtotal: "0.00", tax: "0.00", total: "0.00", periodStart: new Date(), periodEnd: new Date(), createdAt: new Date(), updatedAt: new Date() }),
+  // Inquiry helpers
+  listInquiries: vi.fn().mockResolvedValue([]),
+  getInquiry: vi.fn().mockResolvedValue(null),
+  updateInquiryStatus: vi.fn().mockResolvedValue(undefined),
+  deleteInquiry: vi.fn().mockResolvedValue(undefined),
+  countNewInquiries: vi.fn().mockResolvedValue(0),
+  // Document helpers
+  listDocumentTemplates: vi.fn().mockResolvedValue([]),
+  getDocumentTemplate: vi.fn().mockResolvedValue(null),
+  createDocumentTemplate: vi.fn().mockResolvedValue({ id: 1 }),
+  updateDocumentTemplate: vi.fn().mockResolvedValue(undefined),
+  listClientDocuments: vi.fn().mockResolvedValue([]),
+  getClientDocument: vi.fn().mockResolvedValue(null),
+  createClientDocument: vi.fn().mockResolvedValue({ id: 1 }),
+  updateClientDocument: vi.fn().mockResolvedValue(undefined),
+  listAllClientDocuments: vi.fn().mockResolvedValue([]),
+  // Messaging helpers
+  listClientMessages: vi.fn().mockResolvedValue([]),
+  sendClientMessage: vi.fn().mockResolvedValue(undefined),
+  markClientMessagesRead: vi.fn().mockResolvedValue(undefined),
+  countUnreadClientMessages: vi.fn().mockResolvedValue(0),
 }));
 
 vi.mock("./storage", () => ({
@@ -222,5 +243,80 @@ describe("activity.list", () => {
     const caller = appRouter.createCaller(ctx);
     const result = await caller.activity.list({ limit: 10 });
     expect(Array.isArray(result)).toBe(true);
+  });
+});
+
+describe("messages.list", () => {
+  it("returns messages for admin", async () => {
+    const ctx = makeCtx("admin");
+    const caller = appRouter.createCaller(ctx);
+    const result = await caller.messages.list({ clientId: 1 });
+    expect(Array.isArray(result)).toBe(true);
+  });
+
+  it("throws FORBIDDEN for customer accessing another client's thread", async () => {
+    const ctx = makeCtx("customer_viewer", 2); // clientId=2 but querying clientId=1
+    const caller = appRouter.createCaller(ctx);
+    await expect(caller.messages.list({ clientId: 1 })).rejects.toThrow();
+  });
+});
+
+describe("messages.send", () => {
+  it("allows admin to send a message", async () => {
+    const ctx = makeCtx("admin");
+    const caller = appRouter.createCaller(ctx);
+    const result = await caller.messages.send({ clientId: 1, body: "Hello client!" });
+    expect(result.success).toBe(true);
+  });
+
+  it("throws FORBIDDEN for customer sending to another client's thread", async () => {
+    const ctx = makeCtx("customer_viewer", 2);
+    const caller = appRouter.createCaller(ctx);
+    await expect(caller.messages.send({ clientId: 1, body: "Hi" })).rejects.toThrow();
+  });
+});
+
+describe("messages.markRead", () => {
+  it("allows admin to mark messages as read", async () => {
+    const ctx = makeCtx("admin");
+    const caller = appRouter.createCaller(ctx);
+    const result = await caller.messages.markRead({ clientId: 1 });
+    expect(result.success).toBe(true);
+  });
+
+  it("throws FORBIDDEN for customer accessing another client's thread", async () => {
+    const ctx = makeCtx("customer_viewer", 2);
+    const caller = appRouter.createCaller(ctx);
+    await expect(caller.messages.markRead({ clientId: 1 })).rejects.toThrow();
+  });
+});
+
+describe("messages.countUnread", () => {
+  it("returns 0 for admin", async () => {
+    const ctx = makeCtx("admin");
+    const caller = appRouter.createCaller(ctx);
+    const result = await caller.messages.countUnread({ clientId: 1 });
+    expect(result).toBe(0);
+  });
+
+  it("throws FORBIDDEN for customer_viewer", async () => {
+    const ctx = makeCtx("customer_viewer", 1);
+    const caller = appRouter.createCaller(ctx);
+    await expect(caller.messages.countUnread({ clientId: 1 })).rejects.toThrow();
+  });
+});
+
+describe("inquiry.list", () => {
+  it("returns inquiries for admin", async () => {
+    const ctx = makeCtx("admin");
+    const caller = appRouter.createCaller(ctx);
+    const result = await caller.inquiry.list({});
+    expect(Array.isArray(result)).toBe(true);
+  });
+
+  it("throws FORBIDDEN for customer_viewer", async () => {
+    const ctx = makeCtx("customer_viewer", 1);
+    const caller = appRouter.createCaller(ctx);
+    await expect(caller.inquiry.list({})).rejects.toThrow();
   });
 });

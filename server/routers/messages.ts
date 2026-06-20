@@ -1,0 +1,91 @@
+import { z } from "zod";
+import { protectedProcedure, router } from "../_core/trpc";
+import {
+  listClientMessages,
+  sendClientMessage,
+  markClientMessagesRead,
+  countUnreadClientMessages,
+  getClient,
+} from "../db";
+import { TRPCError } from "@trpc/server";
+import { notifyOwner } from "../_core/notification";
+
+function isStaffOrAdmin(role: string | undefined) {
+  return role === "admin" || role === "staff";
+}
+
+export const messagesRouter = router({
+  // List all messages for a client thread
+  list: protectedProcedure
+    .input(z.object({ clientId: z.number() }))
+    .query(async ({ ctx, input }) => {
+      const role = ctx.user?.role;
+      // Staff/admin can see any client; customers can only see their own
+      if (!isStaffOrAdmin(role)) {
+        if (ctx.user?.clientId !== input.clientId) {
+          throw new TRPCError({ code: "FORBIDDEN" });
+        }
+      }
+      return listClientMessages(input.clientId);
+    }),
+
+  // Send a message in a client thread
+  send: protectedProcedure
+    .input(z.object({
+      clientId: z.number(),
+      body: z.string().min(1).max(5000),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const role = ctx.user?.role ?? "customer_viewer";
+      // Customers can only message on their own thread
+      if (!isStaffOrAdmin(role)) {
+        if (ctx.user?.clientId !== input.clientId) {
+          throw new TRPCError({ code: "FORBIDDEN" });
+        }
+      }
+
+      await sendClientMessage({
+        clientId: input.clientId,
+        senderId: ctx.user?.id ?? null,
+        senderRole: role as any,
+        senderName: ctx.user?.name ?? "Unknown",
+        body: input.body,
+      });
+
+      // Notify owner when a customer sends a message
+      if (!isStaffOrAdmin(role)) {
+        const client = await getClient(input.clientId);
+        await notifyOwner({
+          title: `New message from ${ctx.user?.name ?? "a client"} (${client?.companyName ?? "Unknown"})`,
+          content: input.body.slice(0, 500),
+        }).catch(() => {});
+      }
+
+
+      return { success: true };
+    }),
+
+  // Mark messages as read when staff opens the thread
+  markRead: protectedProcedure
+    .input(z.object({ clientId: z.number() }))
+    .mutation(async ({ ctx, input }) => {
+      const role = ctx.user?.role;
+      const forStaff = isStaffOrAdmin(role);
+      if (!forStaff && ctx.user?.clientId !== input.clientId) {
+        throw new TRPCError({ code: "FORBIDDEN" });
+      }
+      await markClientMessagesRead(input.clientId, forStaff);
+      return { success: true };
+    }),
+
+  // Count unread messages for a client thread (staff perspective)
+  countUnread: protectedProcedure
+    .input(z.object({ clientId: z.number() }))
+    .query(async ({ ctx, input }) => {
+      const role = ctx.user?.role;
+      if (!isStaffOrAdmin(role)) {
+        throw new TRPCError({ code: "FORBIDDEN" });
+      }
+      return countUnreadClientMessages(input.clientId, true);
+    }),
+});

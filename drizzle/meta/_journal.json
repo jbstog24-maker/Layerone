@@ -43,6 +43,13 @@
       "when": 1781981786653,
       "tag": "0005_uneven_edwin_jarvis",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1781987668557,
+      "tag": "0006_thin_tarot",
+      "breakpoints": true
     }
   ]
 }

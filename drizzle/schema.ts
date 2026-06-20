@@ -419,3 +419,20 @@ export const clientDocuments = mysqlTable("client_documents", {
 
 export type ClientDocument = typeof clientDocuments.$inferSelect;
 export type InsertClientDocument = typeof clientDocuments.$inferInsert;
+
+// ─── Client Messages ──────────────────────────────────────────────────────────
+export const clientMessages = mysqlTable("client_messages", {
+  id: int("id").autoincrement().primaryKey(),
+  clientId: int("clientId").notNull(),
+  // null senderId = sent by the client (customer); non-null = sent by staff/admin
+  senderId: int("senderId"),
+  senderRole: mysqlEnum("senderRole", ["admin", "staff", "customer_admin", "customer_viewer"]).notNull(),
+  senderName: varchar("senderName", { length: 200 }).notNull(),
+  body: text("body").notNull(),
+  // When the other side read the message (null = unread)
+  readAt: timestamp("readAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type ClientMessage = typeof clientMessages.$inferSelect;
+export type InsertClientMessage = typeof clientMessages.$inferInsert;

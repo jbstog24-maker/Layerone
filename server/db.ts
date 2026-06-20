@@ -37,6 +37,9 @@ import {
   type InsertClientDocument,
   packageInquiries,
   type PackageInquiry,
+  clientMessages,
+  type ClientMessage,
+  type InsertClientMessage,
 } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 import { nanoid } from "nanoid";
@@ -685,5 +688,61 @@ export async function countNewInquiries() {
     .select({ count: sql<number>`count(*)` })
     .from(packageInquiries)
     .where(eq(packageInquiries.status, "new"));
+  return Number(row?.count ?? 0);
+}
+
+// ─── Client Messages ──────────────────────────────────────────────────────────
+export async function listClientMessages(clientId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return db
+    .select()
+    .from(clientMessages)
+    .where(eq(clientMessages.clientId, clientId))
+    .orderBy(clientMessages.createdAt);
+}
+
+export async function sendClientMessage(data: InsertClientMessage) {
+  const db = await getDb();
+  if (!db) throw new Error("DB unavailable");
+  const result = await db.insert(clientMessages).values(data);
+  return result[0];
+}
+
+export async function markClientMessagesRead(clientId: number, readByStaff: boolean) {
+  // readByStaff=true → mark customer messages as read (staff opened thread)
+  // readByStaff=false → mark staff messages as read (customer opened thread)
+  const db = await getDb();
+  if (!db) return;
+  await db
+    .update(clientMessages)
+    .set({ readAt: new Date() })
+    .where(
+      and(
+        eq(clientMessages.clientId, clientId),
+        // Mark messages sent by the OTHER side as read
+        readByStaff
+          ? sql`${clientMessages.senderId} IS NULL OR ${clientMessages.senderRole} IN ('customer_admin','customer_viewer')`
+          : sql`${clientMessages.senderRole} IN ('admin','staff')`,
+        sql`${clientMessages.readAt} IS NULL`,
+      ),
+    );
+}
+
+export async function countUnreadClientMessages(clientId: number, forStaff: boolean) {
+  const db = await getDb();
+  if (!db) return 0;
+  const [row] = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(clientMessages)
+    .where(
+      and(
+        eq(clientMessages.clientId, clientId),
+        forStaff
+          ? sql`${clientMessages.senderRole} IN ('customer_admin','customer_viewer')`
+          : sql`${clientMessages.senderRole} IN ('admin','staff')`,
+        sql`${clientMessages.readAt} IS NULL`,
+      ),
+    );
   return Number(row?.count ?? 0);
 }
