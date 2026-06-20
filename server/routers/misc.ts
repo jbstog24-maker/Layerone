@@ -179,4 +179,21 @@ export const usersRouter = router({
       }).catch(() => {});
       return result;
     }),
+
+  resendInvite: protectedProcedure
+    .input(z.object({ userId: z.number() }))
+    .mutation(async ({ ctx, input }) => {
+      if (!isAdmin(ctx.user.role)) throw new TRPCError({ code: "FORBIDDEN" });
+      const user = await getUserById(input.userId);
+      if (!user) throw new TRPCError({ code: "NOT_FOUND", message: "User not found" });
+      if (!user.email) throw new TRPCError({ code: "BAD_REQUEST", message: "User has no email address" });
+      await sendPortalInviteEmail({
+        to: user.email,
+        name: user.name ?? user.email,
+        businessName: (user as any).businessName ?? null,
+        role: user.role,
+      });
+      await logActivity({ userId: ctx.user.id, action: `Resent portal invite to ${user.email}`, entityType: "user", entityId: user.id });
+      return { success: true };
+    }),
 });

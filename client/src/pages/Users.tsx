@@ -13,7 +13,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
-import { Users as UsersIcon, Search, Plus, Pencil, Trash2, Shield, User, Building2, Clock, Mail, Phone, StickyNote, MapPin } from "lucide-react";
+import { Users as UsersIcon, Search, Plus, Pencil, Trash2, Shield, User, Building2, Clock, Mail, Phone, StickyNote, MapPin, Send } from "lucide-react";
 import { useAuth } from "@/_core/hooks/useAuth";
 
 const ROLE_CONFIG: Record<string, { label: string; color: string; dot: string }> = {
@@ -300,6 +300,11 @@ export default function Users() {
     setDeleteName(u.name ?? u.email ?? `User #${u.id}`);
   };
 
+  const resendInvite = trpc.users.resendInvite.useMutation({
+    onSuccess: () => toast.success("Invite email sent successfully"),
+    onError: (err) => toast.error(err.message ?? "Failed to send invite"),
+  });
+
   const roleCounts = useMemo(() => {
     if (!users) return {};
     return users.reduce((acc: Record<string, number>, u) => {
@@ -442,7 +447,7 @@ export default function Users() {
                       </div>
                     </div>
                     {/* Action buttons — always visible */}
-                    <div className="flex items-center gap-2 shrink-0 ml-1">
+                    <div className="flex flex-wrap items-center gap-2 shrink-0 ml-1">
                       <Button
                         size="sm"
                         variant="outline"
@@ -452,6 +457,18 @@ export default function Users() {
                         <Pencil className="w-3.5 h-3.5" />
                         <span>Edit</span>
                       </Button>
+                      {u.email && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          disabled={resendInvite.isPending}
+                          onClick={() => resendInvite.mutate({ userId: u.id })}
+                          className="border-blue-500/30 text-blue-400 hover:text-blue-300 hover:border-blue-400 gap-1 h-8 px-3"
+                        >
+                          <Send className="w-3.5 h-3.5" />
+                          <span>Resend Invite</span>
+                        </Button>
+                      )}
                       {u.id !== me?.id && (
                         <Button
                           size="sm"

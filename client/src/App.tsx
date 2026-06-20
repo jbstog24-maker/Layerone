@@ -23,6 +23,7 @@ import Documents from "./pages/Documents";
 import Inquiries from "./pages/Inquiries";
 import Messages from "./pages/Messages";
 import SupportMessages from "./pages/SupportMessages";
+import MyDevices from "./pages/MyDevices";
 
 function Router() {
   return (
@@ -72,6 +73,7 @@ function Router() {
       <Route path="/inquiries" component={Inquiries} />
       <Route path="/messages" component={Messages} />
       <Route path="/support-messages" component={SupportMessages} />
+      <Route path="/my-devices" component={MyDevices} />
 
       {/* Package detail */}
       <Route path="/packages/:tier" component={PackageDetail} />

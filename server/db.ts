@@ -843,3 +843,83 @@ export async function countTotalUnread() {
     );
   return Number(row?.count ?? 0);
 }
+
+// ─── Forwarding Locations ─────────────────────────────────────────────────────
+
+export type ForwardingStatus = "pending" | "in_transit" | "delivered";
+
+export interface ForwardingUpdate {
+  forwardingAddress?: string | null;
+  forwardingContact?: string | null;
+  forwardingNotes?: string | null;
+  forwardingStatus?: ForwardingStatus;
+}
+
+/** Update forwarding info on a device. Returns the updated device row. */
+export async function updateDeviceForwarding(id: number, data: ForwardingUpdate) {
+  const db = await getDb();
+  if (!db) throw new Error("DB unavailable");
+  await db.update(devices).set({ ...data, forwardingUpdatedAt: new Date() }).where(eq(devices.id, id));
+  const result = await db.select().from(devices).where(eq(devices.id, id)).limit(1);
+  return result[0];
+}
+
+/** Update forwarding info on a box. Returns the updated box row. */
+export async function updateBoxForwarding(id: number, data: ForwardingUpdate) {
+  const db = await getDb();
+  if (!db) throw new Error("DB unavailable");
+  await db.update(boxes).set({ ...data, forwardingUpdatedAt: new Date() }).where(eq(boxes.id, id));
+  const result = await db.select().from(boxes).where(eq(boxes.id, id)).limit(1);
+  return result[0];
+}
+
+/** Update forwarding info on a pallet. Returns the updated pallet row. */
+export async function updatePalletForwarding(id: number, data: ForwardingUpdate) {
+  const db = await getDb();
+  if (!db) throw new Error("DB unavailable");
+  await db.update(pallets).set({ ...data, forwardingUpdatedAt: new Date() }).where(eq(pallets.id, id));
+  const result = await db.select().from(pallets).where(eq(pallets.id, id)).limit(1);
+  return result[0];
+}
+
+/** List all staged devices for a client (stagingStatus = staged/labeled/packed/ready_to_ship/shipped) */
+export async function listStagedDevicesForClient(clientId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(devices)
+    .where(
+      and(
+        eq(devices.clientId, clientId),
+        sql`${devices.stagingStatus} IN ('staged','labeled','packed','ready_to_ship','shipped','picked_up')`,
+      )
+    )
+    .orderBy(desc(devices.updatedAt));
+}
+
+/** List all staged boxes for a client */
+export async function listStagedBoxesForClient(clientId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(boxes)
+    .where(
+      and(
+        eq(boxes.clientId, clientId),
+        sql`${boxes.status} IN ('staging','packed','shipped')`,
+      )
+    )
+    .orderBy(desc(boxes.updatedAt));
+}
+
+/** List all staged pallets for a client */
+export async function listStagedPalletsForClient(clientId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(pallets)
+    .where(
+      and(
+        eq(pallets.clientId, clientId),
+        sql`${pallets.status} IN ('staging','ready_to_ship','shipped')`,
+      )
+    )
+    .orderBy(desc(pallets.updatedAt));
+}

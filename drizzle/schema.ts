@@ -147,6 +147,12 @@ export const pallets = mysqlTable("pallets", {
   status: mysqlEnum("status", ["received", "in_storage", "staging", "ready_to_ship", "shipped", "exception"]).default("received").notNull(),
   dateRemoved: timestamp("dateRemoved"),
   notes: text("notes"),
+  // Forwarding / outbound destination
+  forwardingAddress: text("forwardingAddress"),
+  forwardingContact: varchar("forwardingContact", { length: 256 }),
+  forwardingNotes: text("forwardingNotes"),
+  forwardingStatus: mysqlEnum("forwardingStatus", ["pending", "in_transit", "delivered"]).default("pending"),
+  forwardingUpdatedAt: timestamp("forwardingUpdatedAt"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
@@ -169,6 +175,12 @@ export const boxes = mysqlTable("boxes", {
   storageLocation: varchar("storageLocation", { length: 128 }),
   status: mysqlEnum("status", ["received", "in_storage", "staging", "packed", "shipped", "exception"]).default("received").notNull(),
   notes: text("notes"),
+  // Forwarding / outbound destination
+  forwardingAddress: text("forwardingAddress"),
+  forwardingContact: varchar("forwardingContact", { length: 256 }),
+  forwardingNotes: text("forwardingNotes"),
+  forwardingStatus: mysqlEnum("forwardingStatus", ["pending", "in_transit", "delivered"]).default("pending"),
+  forwardingUpdatedAt: timestamp("forwardingUpdatedAt"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
@@ -198,6 +210,12 @@ export const devices = mysqlTable("devices", {
   storageLocation: varchar("storageLocation", { length: 128 }),
   notes: text("notes"),
   receivingLogId: int("receivingLogId"),
+  // Forwarding / outbound destination
+  forwardingAddress: text("forwardingAddress"),
+  forwardingContact: varchar("forwardingContact", { length: 256 }),
+  forwardingNotes: text("forwardingNotes"),
+  forwardingStatus: mysqlEnum("forwardingStatus", ["pending", "in_transit", "delivered"]).default("pending"),
+  forwardingUpdatedAt: timestamp("forwardingUpdatedAt"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });

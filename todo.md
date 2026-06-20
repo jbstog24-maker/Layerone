@@ -265,3 +265,22 @@
 - [x] Added sendPortalInviteEmail (branded HTML, separate from inquiry welcome email)
 - [x] Wire sendPortalInviteEmail in users.create — fires when admin adds a new user
 - [x] 43 tests passing, 0 TypeScript errors
+
+## Resend Invite Feature
+- [x] Add users.resendInvite tRPC procedure (admin-only) — looks up user by ID, sends portal invite email
+- [x] Add "Resend Invite" button to each user card in Users.tsx (blue, only shown when user has email)
+- [x] Write vitest tests for resendInvite (3 tests: success, FORBIDDEN for staff, NOT_FOUND)
+- [x] 51 tests passing, 0 TypeScript errors
+
+## Forwarding Location Feature
+- [x] Add forwardingAddress, forwardingContact, forwardingNotes, forwardingStatus, forwardingUpdatedAt columns to devices, boxes, pallets tables
+- [x] Run Drizzle migration (0008_light_roland_deschain.sql) and apply SQL
+- [x] Add DB helpers: updateDeviceForwarding, updateBoxForwarding, updatePalletForwarding, listStagedDevicesForClient, listStagedBoxesForClient, listStagedPalletsForClient
+- [x] Build forwarding tRPC router: myItems (customer + admin), updateDevice, updateBox, updatePallet (role-gated ownership check)
+- [x] Register forwardingRouter in main routers.ts
+- [x] Build customer-facing My Devices page (/my-devices): summary cards (total/pending/in-transit/delivered), tabs for devices/boxes/pallets, item cards with forwarding badge + address, edit dialog with status/address/contact/notes fields
+- [x] Add "My Devices" nav item to customer "My Portal" sidebar group (renamed from "Support")
+- [x] Add Forwarding Location card to DeviceDetail page (visible to all roles) with inline edit dialog
+- [x] Wire /my-devices route in App.tsx
+- [x] Write vitest tests for forwarding router (8 tests: myItems x2, updateDevice x3, updateBox x1, updatePallet x1)
+- [x] 58 tests passing, 0 TypeScript errors

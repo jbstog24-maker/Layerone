@@ -57,6 +57,13 @@
       "when": 1781992707086,
       "tag": "0007_common_fat_cobra",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "5",
+      "when": 1781993316407,
+      "tag": "0008_light_roland_deschain",
+      "breakpoints": true
     }
   ]
 }

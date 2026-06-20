@@ -15,7 +15,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
-import { Server, Plus, ChevronRight, Search, Cpu } from "lucide-react";
+import { Server, Plus, ChevronRight, Search, Cpu, MapPin, CheckCircle2, Truck, Clock, Pencil } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { useAuth } from "@/_core/hooks/useAuth";
 
@@ -212,10 +212,21 @@ export function DevicesList() {
   );
 }
 
+const FWD_STATUS_CONFIG = {
+  pending:    { label: "Pending",    color: "bg-yellow-500/15 text-yellow-300 border-yellow-500/30",  icon: Clock },
+  in_transit: { label: "In Transit", color: "bg-blue-500/15 text-blue-300 border-blue-500/30",        icon: Truck },
+  delivered:  { label: "Delivered",  color: "bg-green-500/15 text-green-300 border-green-500/30",     icon: CheckCircle2 },
+} as const;
+
 export function DeviceDetail() {
   const [, params] = useRoute("/devices/:id");
   const id = parseInt(params?.id ?? "0");
   const [showEdit, setShowEdit] = useState(false);
+  const [showFwdEdit, setShowFwdEdit] = useState(false);
+  const [fwdAddress, setFwdAddress] = useState("");
+  const [fwdContact, setFwdContact] = useState("");
+  const [fwdNotes, setFwdNotes] = useState("");
+  const [fwdStatus, setFwdStatus] = useState<"pending"|"in_transit"|"delivered">("pending");
   const [, setLocation] = useLocation();
   const { user } = useAuth();
   const role = (user as any)?.role ?? "";
@@ -227,6 +238,17 @@ export function DeviceDetail() {
     onSuccess: () => { toast.success("Status updated"); utils.devices.get.invalidate({ id }); },
     onError: (e) => toast.error(e.message),
   });
+  const updateForwarding = trpc.forwarding.updateDevice.useMutation({
+    onSuccess: () => { toast.success("Forwarding info saved"); utils.devices.get.invalidate({ id }); setShowFwdEdit(false); },
+    onError: (e) => toast.error(e.message),
+  });
+  const openFwdEdit = () => {
+    setFwdAddress((device as any)?.forwardingAddress ?? "");
+    setFwdContact((device as any)?.forwardingContact ?? "");
+    setFwdNotes((device as any)?.forwardingNotes ?? "");
+    setFwdStatus(((device as any)?.forwardingStatus ?? "pending") as any);
+    setShowFwdEdit(true);
+  };
 
   if (isLoading) return <DashboardLayout><div className="animate-pulse h-32 bg-muted/50 rounded" /></DashboardLayout>;
   if (!device) return <DashboardLayout><EmptyState icon={Server} title="Device not found" /></DashboardLayout>;
@@ -282,13 +304,91 @@ export function DeviceDetail() {
           )}
         </div>
 
-        <Card className="bg-card/60 border-border/50">
-          <CardHeader><CardTitle className="text-sm">Photos</CardTitle></CardHeader>
-          <CardContent>
-            <PhotoGallery entityType="device" entityId={id} clientId={device.clientId} showUpload={isStaff} />
-          </CardContent>
-        </Card>
+        <div className="space-y-4">
+          {/* Forwarding Card */}
+          <Card className="bg-card/60 border-border/50">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm flex items-center gap-2">
+                <MapPin className="w-4 h-4 text-blue-400" /> Forwarding Location
+              </CardTitle>
+              <Button size="sm" variant="outline" onClick={openFwdEdit} className="h-7 px-2 text-xs gap-1">
+                <Pencil className="w-3 h-3" /> Edit
+              </Button>
+            </CardHeader>
+            <CardContent className="space-y-2 text-sm">
+              {(() => {
+                const fwdSt = ((device as any)?.forwardingStatus ?? "pending") as keyof typeof FWD_STATUS_CONFIG;
+                const cfg = FWD_STATUS_CONFIG[fwdSt];
+                const Icon = cfg.icon;
+                return (
+                  <>
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline" className={`text-xs gap-1 ${cfg.color}`}>
+                        <Icon className="w-3 h-3" />{cfg.label}
+                      </Badge>
+                    </div>
+                    <div className="flex items-start gap-1.5">
+                      <MapPin className="w-3.5 h-3.5 text-muted-foreground shrink-0 mt-0.5" />
+                      <div>
+                        {(device as any)?.forwardingAddress
+                          ? <p className="text-foreground whitespace-pre-line">{(device as any).forwardingAddress}</p>
+                          : <p className="text-muted-foreground italic text-xs">No forwarding address set</p>}
+                        {(device as any)?.forwardingContact && <p className="text-muted-foreground text-xs mt-0.5">{(device as any).forwardingContact}</p>}
+                        {(device as any)?.forwardingNotes && <p className="text-muted-foreground text-xs mt-1">{(device as any).forwardingNotes}</p>}
+                      </div>
+                    </div>
+                  </>
+                );
+              })()}
+            </CardContent>
+          </Card>
+
+          <Card className="bg-card/60 border-border/50">
+            <CardHeader><CardTitle className="text-sm">Photos</CardTitle></CardHeader>
+            <CardContent>
+              <PhotoGallery entityType="device" entityId={id} clientId={device.clientId} showUpload={isStaff} />
+            </CardContent>
+          </Card>
+        </div>
       </div>
+
+      {/* Forwarding Edit Dialog */}
+      <Dialog open={showFwdEdit} onOpenChange={setShowFwdEdit}>
+        <DialogContent className="max-w-md">
+          <DialogHeader><DialogTitle className="flex items-center gap-2"><MapPin className="w-4 h-4 text-blue-400" />Set Forwarding Location</DialogTitle></DialogHeader>
+          <div className="space-y-3">
+            <div>
+              <Label className="text-xs">Forwarding Status</Label>
+              <Select value={fwdStatus} onValueChange={(v) => setFwdStatus(v as any)}>
+                <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="pending">Pending</SelectItem>
+                  <SelectItem value="in_transit">In Transit</SelectItem>
+                  <SelectItem value="delivered">Delivered</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label className="text-xs">Forwarding Address</Label>
+              <Textarea value={fwdAddress} onChange={(e) => setFwdAddress(e.target.value)} rows={3} className="mt-1 resize-none" placeholder="123 Main St, Austin TX 78701" />
+            </div>
+            <div>
+              <Label className="text-xs">Contact at Destination</Label>
+              <Input value={fwdContact} onChange={(e) => setFwdContact(e.target.value)} className="mt-1" placeholder="John Smith — (512) 555-0100" />
+            </div>
+            <div>
+              <Label className="text-xs">Notes</Label>
+              <Textarea value={fwdNotes} onChange={(e) => setFwdNotes(e.target.value)} rows={2} className="mt-1 resize-none" placeholder="Delivery instructions…" />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowFwdEdit(false)}>Cancel</Button>
+            <Button onClick={() => updateForwarding.mutate({ deviceId: id, forwardingAddress: fwdAddress || null, forwardingContact: fwdContact || null, forwardingNotes: fwdNotes || null, forwardingStatus: fwdStatus })} disabled={updateForwarding.isPending}>
+              {updateForwarding.isPending ? "Saving…" : "Save"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={showEdit} onOpenChange={setShowEdit}>
         <DialogContent className="max-w-lg">

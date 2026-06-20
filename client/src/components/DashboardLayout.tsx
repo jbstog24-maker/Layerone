@@ -36,6 +36,7 @@ import {
   Inbox,
   LayoutDashboard,
   LogOut,
+  MapPin,
   MessageSquare,
   Package,
   PanelLeft,
@@ -107,9 +108,10 @@ const NAV_GROUPS: NavGroup[] = [
     ],
   },
   {
-    label: "Support",
+    label: "My Portal",
     roles: ["customer_admin", "customer_viewer"],
     items: [
+      { icon: MapPin, label: "My Devices", path: "/my-devices", roles: ["customer_admin", "customer_viewer"] },
       { icon: MessageSquare, label: "Messages", path: "/support-messages", roles: ["customer_admin", "customer_viewer"] },
     ],
   },

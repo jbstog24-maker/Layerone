@@ -84,6 +84,15 @@ vi.mock("./db", () => ({
   listAllThreads: vi.fn().mockResolvedValue([]),
   countTotalUnread: vi.fn().mockResolvedValue(0),
   // myUnread uses countUnreadClientMessages, already mocked above
+  // Forwarding helpers
+  getBox: vi.fn().mockResolvedValue({ id: 5, clientId: 1, boxCode: "BOX-005", status: "staging", condition: "good", createdAt: new Date(), updatedAt: new Date() }),
+  getPallet: vi.fn().mockResolvedValue({ id: 3, clientId: 2, palletCode: "PLT-003", status: "staging", dateReceived: new Date(), createdAt: new Date(), updatedAt: new Date() }),
+  updateDeviceForwarding: vi.fn().mockResolvedValue({ id: 1, deviceCode: "DEV-001", forwardingAddress: "123 Main St", forwardingStatus: "in_transit" }),
+  updateBoxForwarding: vi.fn().mockResolvedValue({ id: 5, boxCode: "BOX-005", forwardingAddress: "456 Oak Ave", forwardingStatus: "pending" }),
+  updatePalletForwarding: vi.fn().mockResolvedValue({ id: 3, palletCode: "PLT-003", forwardingAddress: "789 Pine Rd", forwardingStatus: "delivered" }),
+  listStagedDevicesForClient: vi.fn().mockResolvedValue([]),
+  listStagedBoxesForClient: vi.fn().mockResolvedValue([]),
+  listStagedPalletsForClient: vi.fn().mockResolvedValue([]),
 }));
 
 vi.mock("./storage", () => ({
@@ -464,5 +473,114 @@ describe("users.update with profile fields", () => {
       location: null,
     });
     expect(result).toEqual({ success: true });
+  });
+});
+
+describe("users.resendInvite", () => {
+  it("allows admin to resend invite to an existing user", async () => {
+    const ctx = makeCtx("admin");
+    const caller = appRouter.createCaller(ctx);
+    const result = await caller.users.resendInvite({ userId: 2 });
+    expect(result).toEqual({ success: true });
+  });
+
+  it("throws FORBIDDEN for non-admin (staff)", async () => {
+    const ctx = makeCtx("staff");
+    const caller = appRouter.createCaller(ctx);
+    await expect(caller.users.resendInvite({ userId: 2 })).rejects.toThrow();
+  });
+
+  it("throws NOT_FOUND when user does not exist", async () => {
+    const { getUserById } = await import("./db");
+    (getUserById as any).mockResolvedValueOnce(null);
+    const ctx = makeCtx("admin");
+    const caller = appRouter.createCaller(ctx);
+    await expect(caller.users.resendInvite({ userId: 9999 })).rejects.toThrow();
+  });
+});
+
+describe("forwarding.myItems", () => {
+  it("returns empty lists for customer with no clientId", async () => {
+    const ctx = makeCtx("customer_viewer"); // no clientId
+    const caller = appRouter.createCaller(ctx);
+    const result = await caller.forwarding.myItems();
+    expect(result.devices).toEqual([]);
+    expect(result.boxes).toEqual([]);
+    expect(result.pallets).toEqual([]);
+  });
+
+  it("returns items for admin (all items, no client filter)", async () => {
+    const ctx = makeCtx("admin");
+    const caller = appRouter.createCaller(ctx);
+    const result = await caller.forwarding.myItems();
+    expect(Array.isArray(result.devices)).toBe(true);
+    expect(Array.isArray(result.boxes)).toBe(true);
+    expect(Array.isArray(result.pallets)).toBe(true);
+  });
+});
+
+describe("forwarding.updateDevice", () => {
+  it("allows admin to update forwarding info on a device", async () => {
+    const { getDevice } = await import("./db");
+    (getDevice as any).mockResolvedValueOnce({ id: 1, clientId: 1, deviceCode: "DEV-001" });
+    const ctx = makeCtx("admin");
+    const caller = appRouter.createCaller(ctx);
+    const result = await caller.forwarding.updateDevice({
+      deviceId: 1,
+      forwardingAddress: "123 Main St, Austin TX",
+      forwardingContact: "John Smith",
+      forwardingStatus: "in_transit",
+    });
+    expect(result).toBeDefined();
+  });
+
+  it("throws FORBIDDEN for customer updating another client's device", async () => {
+    const { getDevice } = await import("./db");
+    (getDevice as any).mockResolvedValueOnce({ id: 1, clientId: 99, deviceCode: "DEV-001" }); // different clientId
+    const ctx = makeCtx("customer_admin", 1); // customer clientId = 1
+    const caller = appRouter.createCaller(ctx);
+    await expect(
+      caller.forwarding.updateDevice({ deviceId: 1, forwardingAddress: "Hacked", forwardingStatus: "delivered" })
+    ).rejects.toThrow();
+  });
+
+  it("throws NOT_FOUND when device does not exist", async () => {
+    const { getDevice } = await import("./db");
+    (getDevice as any).mockResolvedValueOnce(undefined);
+    const ctx = makeCtx("admin");
+    const caller = appRouter.createCaller(ctx);
+    await expect(
+      caller.forwarding.updateDevice({ deviceId: 9999, forwardingStatus: "pending" })
+    ).rejects.toThrow();
+  });
+});
+
+describe("forwarding.updateBox", () => {
+  it("allows customer_admin to update forwarding on their own box", async () => {
+    const { getBox } = await import("./db");
+    (getBox as any).mockResolvedValueOnce({ id: 5, clientId: 1, boxCode: "BOX-005" });
+    const ctx = makeCtx("customer_admin", 1);
+    const caller = appRouter.createCaller(ctx);
+    const result = await caller.forwarding.updateBox({
+      boxId: 5,
+      forwardingAddress: "456 Oak Ave, Dallas TX",
+      forwardingStatus: "pending",
+    });
+    expect(result).toBeDefined();
+  });
+});
+
+describe("forwarding.updatePallet", () => {
+  it("allows staff to update forwarding on a pallet", async () => {
+    const { getPallet } = await import("./db");
+    (getPallet as any).mockResolvedValueOnce({ id: 3, clientId: 2, palletCode: "PLT-003" });
+    const ctx = makeCtx("staff");
+    const caller = appRouter.createCaller(ctx);
+    const result = await caller.forwarding.updatePallet({
+      palletId: 3,
+      forwardingAddress: "789 Pine Rd, Houston TX",
+      forwardingStatus: "delivered",
+    });
+    expect(result).toBeDefined();
   });
 });
