@@ -52,6 +52,9 @@ vi.mock("./db", () => ({
   createPhoto: vi.fn().mockResolvedValue({ id: 1 }),
   listUsers: vi.fn().mockResolvedValue([]),
   updateUserRole: vi.fn().mockResolvedValue(undefined),
+  updateUser: vi.fn().mockResolvedValue(undefined),
+  deleteUser: vi.fn().mockResolvedValue(undefined),
+  getUserById: vi.fn().mockResolvedValue({ id: 2, name: "Test User", email: "test@example.com", role: "staff", clientId: null, openId: "oid_2", lastSignedIn: new Date(), createdAt: new Date() }),
   getDashboardStats: vi.fn().mockResolvedValue({ clients: 0, devices: 0, boxes: 0, pallets: 0, pendingTasks: 0, inProgressTasks: 0, pendingShipments: 0, draftInvoices: 0 }),
   getClientUsage: vi.fn().mockResolvedValue({ devices: 0, boxes: 0, pallets: 0, shipments: 0, stagingTasks: 0, deliveries: 0, receivingLogs: 0 }),
   logActivity: vi.fn().mockResolvedValue(undefined),
@@ -237,6 +240,34 @@ describe("users.list", () => {
     const ctx = makeCtx("staff");
     const caller = appRouter.createCaller(ctx);
     await expect(caller.users.list()).rejects.toThrow();
+  });
+});
+
+describe("users.update", () => {
+  it("allows admin to update another user's role", async () => {
+    const ctx = makeCtx("admin");
+    const caller = appRouter.createCaller(ctx);
+    await expect(caller.users.update({ userId: 2, role: "staff" })).resolves.not.toThrow();
+  });
+
+  it("throws FORBIDDEN for staff trying to update users", async () => {
+    const ctx = makeCtx("staff");
+    const caller = appRouter.createCaller(ctx);
+    await expect(caller.users.update({ userId: 2, role: "staff" })).rejects.toThrow();
+  });
+});
+
+describe("users.delete", () => {
+  it("allows admin to delete another user", async () => {
+    const ctx = makeCtx("admin");
+    const caller = appRouter.createCaller(ctx);
+    await expect(caller.users.delete({ userId: 2 })).resolves.not.toThrow();
+  });
+
+  it("throws BAD_REQUEST when admin tries to delete themselves", async () => {
+    const ctx = makeCtx("admin"); // ctx.user.id = 1, userId = 1
+    const caller = appRouter.createCaller(ctx);
+    await expect(caller.users.delete({ userId: 1 })).rejects.toThrow();
   });
 });
 
