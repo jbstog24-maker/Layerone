@@ -106,6 +106,13 @@ const NAV_GROUPS: NavGroup[] = [
     ],
   },
   {
+    label: "Support",
+    roles: ["customer_admin", "customer_viewer"],
+    items: [
+      { icon: MessageSquare, label: "Messages", path: "/support-messages", roles: ["customer_admin", "customer_viewer"] },
+    ],
+  },
+  {
     label: "Billing",
     roles: ["admin", "customer_admin", "customer_viewer"],
     items: [
@@ -194,6 +201,12 @@ function DashboardLayoutContent({
   const { data: totalUnread = 0 } = trpc.messages.totalUnread.useQuery(
     undefined,
     { enabled: isAdminOrStaff, refetchInterval: 30_000 },
+  );
+
+  // Customer-facing unread count (staff replies not yet read)
+  const { data: myUnread = 0 } = trpc.messages.myUnread.useQuery(
+    undefined,
+    { enabled: !isAdminOrStaff, refetchInterval: 30_000 },
   );
 
   const roleLabel: Record<string, string> = {
@@ -285,9 +298,16 @@ function DashboardLayoutContent({
                           >
                             <item.icon className={`h-4 w-4 shrink-0 ${isActive ? "text-primary" : ""}`} />
                             <span className="truncate overflow-hidden min-w-0 flex-1">{item.label}</span>
-                            {item.path === "/messages" && totalUnread > 0 && !isCollapsed && (
+                            {/* Admin/staff: total unread from customers */}
+                            {item.path === "/messages" && isAdminOrStaff && totalUnread > 0 && !isCollapsed && (
                               <span className="shrink-0 ml-auto min-w-[18px] h-[18px] rounded-full bg-primary text-primary-foreground text-[10px] flex items-center justify-center font-bold px-1">
                                 {totalUnread > 99 ? "99+" : totalUnread}
+                              </span>
+                            )}
+                            {/* Customer: unread staff replies */}
+                            {item.path === "/support-messages" && !isAdminOrStaff && myUnread > 0 && !isCollapsed && (
+                              <span className="shrink-0 ml-auto min-w-[18px] h-[18px] rounded-full bg-primary text-primary-foreground text-[10px] flex items-center justify-center font-bold px-1">
+                                {myUnread > 99 ? "99+" : myUnread}
                               </span>
                             )}
                           </SidebarMenuButton>

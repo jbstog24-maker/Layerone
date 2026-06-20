@@ -79,6 +79,7 @@ vi.mock("./db", () => ({
   countUnreadClientMessages: vi.fn().mockResolvedValue(0),
   listAllThreads: vi.fn().mockResolvedValue([]),
   countTotalUnread: vi.fn().mockResolvedValue(0),
+  // myUnread uses countUnreadClientMessages, already mocked above
 }));
 
 vi.mock("./storage", () => ({
@@ -350,5 +351,28 @@ describe("messages.totalUnread", () => {
     const ctx = makeCtx("customer_viewer", 1);
     const caller = appRouter.createCaller(ctx);
     await expect(caller.messages.totalUnread()).rejects.toThrow();
+  });
+});
+
+describe("messages.myUnread", () => {
+  it("returns 0 for a customer with no clientId", async () => {
+    const ctx = makeCtx("customer_viewer"); // no clientId
+    const caller = appRouter.createCaller(ctx);
+    const result = await caller.messages.myUnread();
+    expect(result).toBe(0);
+  });
+
+  it("returns 0 for admin (staff use totalUnread instead)", async () => {
+    const ctx = makeCtx("admin");
+    const caller = appRouter.createCaller(ctx);
+    const result = await caller.messages.myUnread();
+    expect(result).toBe(0);
+  });
+
+  it("returns unread count for a customer with a clientId", async () => {
+    const ctx = makeCtx("customer_admin", 1);
+    const caller = appRouter.createCaller(ctx);
+    const result = await caller.messages.myUnread();
+    expect(typeof result).toBe("number");
   });
 });

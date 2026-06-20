@@ -209,3 +209,8 @@
 - [x] Wire /messages route in App.tsx
 - [x] Unread badge polls every 30s and shows count on Messages sidebar item
 - [x] Write vitest tests for threads and totalUnread procedures (4 new tests, 32 total passing)
+
+## Customer Portal Unread Message Badge
+- [x] Add messages.myUnread tRPC procedure (customer-facing: counts unread staff replies for their own thread)
+- [x] Wire unread badge on Clients nav item in customer portal sidebar (polls every 30s)
+- [x] Write vitest tests for myUnread procedure (3 new tests, 35 total passing)

@@ -108,4 +108,15 @@ export const messagesRouter = router({
       }
       return countUnreadClientMessages(input.clientId, true);
     }),
+
+  // Count unread staff replies for the current customer's own thread
+  myUnread: protectedProcedure
+    .query(async ({ ctx }) => {
+      const role = ctx.user?.role;
+      // Only customers use this; staff/admin use totalUnread instead
+      if (isStaffOrAdmin(role)) return 0;
+      const clientId = ctx.user?.clientId;
+      if (!clientId) return 0;
+      return countUnreadClientMessages(clientId, false);
+    }),
 });
