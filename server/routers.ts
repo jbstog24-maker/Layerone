@@ -10,6 +10,7 @@ import { stagingRouter } from "./routers/staging";
 import { shipmentsRouter } from "./routers/shipments";
 import { billingRouter } from "./routers/billing";
 import { photosRouter, activityRouter, dashboardRouter, usersRouter } from "./routers/misc";
+import { inquiryRouter } from "./routers/inquiry";
 
 export const appRouter = router({
   system: systemRouter,
@@ -35,6 +36,7 @@ export const appRouter = router({
   activity: activityRouter,
   dashboard: dashboardRouter,
   users: usersRouter,
+  inquiry: inquiryRouter,
 });
 
 export type AppRouter = typeof appRouter;

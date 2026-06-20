@@ -317,3 +317,20 @@ export const activityLogs = mysqlTable("activity_logs", {
 
 export type ActivityLog = typeof activityLogs.$inferSelect;
 export type InsertActivityLog = typeof activityLogs.$inferInsert;
+
+// ─── Package Inquiries ────────────────────────────────────────────────────────
+export const packageInquiries = mysqlTable("package_inquiries", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 120 }).notNull(),
+  company: varchar("company", { length: 200 }).notNull(),
+  email: varchar("email", { length: 320 }).notNull(),
+  phone: varchar("phone", { length: 30 }),
+  tier: mysqlEnum("tier", ["basic", "standard", "professional", "enterprise", "custom"]).notNull(),
+  deviceVolume: varchar("deviceVolume", { length: 30 }),
+  message: text("message"),
+  status: mysqlEnum("status", ["new", "contacted", "closed"]).default("new").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type PackageInquiry = typeof packageInquiries.$inferSelect;
+export type InsertPackageInquiry = typeof packageInquiries.$inferInsert;

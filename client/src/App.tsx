@@ -18,6 +18,7 @@ import { ShipmentsList, ShipmentDetail } from "./pages/Shipments";
 import { InvoicesList, InvoiceDetail } from "./pages/Invoices";
 import ActivityLog from "./pages/ActivityLog";
 import Users from "./pages/Users";
+import PackageDetail from "./pages/PackageDetail";
 
 function Router() {
   return (
@@ -61,6 +62,9 @@ function Router() {
       {/* Admin */}
       <Route path="/activity" component={ActivityLog} />
       <Route path="/users" component={Users} />
+
+      {/* Package detail */}
+      <Route path="/packages/:tier" component={PackageDetail} />
 
       <Route path="/404" component={NotFound} />
       <Route component={NotFound} />

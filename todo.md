@@ -97,3 +97,12 @@
 - [x] Vitest: 18 tests across routers and auth
 - [x] TypeScript clean (0 errors)
 - [x] Checkpoint and deliver
+
+## Round 2: Bug Fixes & Package Detail Flow
+
+- [x] Fix nav "Go to Dashboard" button routing to / instead of /dashboard
+- [x] Fix sidebar text overlap on narrow/mobile viewports
+- [x] Build package detail page (/packages/:tier) with full tier info and comparison
+- [x] Build inquiry/request form on package detail page (name, company, email, message)
+- [x] Wire all landing page "Get Started" package buttons to /packages/:tier
+- [x] Add route for /packages/:tier in App.tsx

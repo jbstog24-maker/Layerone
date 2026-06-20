@@ -39,7 +39,7 @@ function NavBar() {
         <div className="flex items-center gap-3">
           {isAuthenticated ? (
             <button
-              onClick={() => setLocation("/")}
+              onClick={() => setLocation("/dashboard")}
               className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold bg-gradient-to-r from-[#39a7ff] to-[#6ee7b7] text-[#06111f] hover:-translate-y-0.5 transition-transform"
             >
               Go to Dashboard <ArrowRight className="w-3.5 h-3.5" />
@@ -275,6 +275,7 @@ function HowItWorks() {
 }
 
 function Packages() {
+  const [, setLocation] = useLocation();
   const tiers = [
     {
       name: "Basic",
@@ -347,8 +348,8 @@ function Packages() {
                   </li>
                 ))}
               </ul>
-              <a
-                href={getLoginUrl()}
+              <button
+                onClick={() => setLocation(`/packages/${t.name.toLowerCase()}`)}
                 className={`w-full flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-bold transition-all hover:-translate-y-0.5 ${
                   t.featured
                     ? "bg-gradient-to-r from-[#39a7ff] to-[#6ee7b7] text-[#06111f]"
@@ -356,7 +357,7 @@ function Packages() {
                 }`}
               >
                 Get Started <ArrowRight className="w-3 h-3" />
-              </a>
+              </button>
             </div>
           ))}
         </div>

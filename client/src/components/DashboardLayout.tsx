@@ -240,7 +240,7 @@ function DashboardLayoutContent({
                   <div className="w-6 h-6 rounded-md bg-primary/20 flex items-center justify-center shrink-0">
                     <Warehouse className="w-3.5 h-3.5 text-primary" />
                   </div>
-                  <span className="font-bold text-sm tracking-tight truncate text-sidebar-foreground">
+                  <span className="font-bold text-sm tracking-tight truncate overflow-hidden text-sidebar-foreground">
                     StagingOps
                   </span>
                 </div>
@@ -255,7 +255,7 @@ function DashboardLayoutContent({
               return (
                 <SidebarGroup key={group.label} className="py-0">
                   {!isCollapsed && (
-                    <SidebarGroupLabel className="text-xs text-sidebar-foreground/40 uppercase tracking-widest px-3 py-1.5">
+                    <SidebarGroupLabel className="text-xs text-sidebar-foreground/40 uppercase tracking-widest px-3 py-1.5 truncate overflow-hidden">
                       {group.label}
                     </SidebarGroupLabel>
                   )}
@@ -271,7 +271,7 @@ function DashboardLayoutContent({
                             className={`h-9 transition-all text-sm ${isActive ? "bg-sidebar-accent text-sidebar-primary font-medium" : "text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/50"}`}
                           >
                             <item.icon className={`h-4 w-4 shrink-0 ${isActive ? "text-primary" : ""}`} />
-                            <span>{item.label}</span>
+                            <span className="truncate overflow-hidden min-w-0">{item.label}</span>
                           </SidebarMenuButton>
                         </SidebarMenuItem>
                       );
