@@ -19,6 +19,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarProvider,
+  SidebarSeparator,
   SidebarTrigger,
   useSidebar,
 } from "@/components/ui/sidebar";
@@ -276,11 +277,17 @@ function DashboardLayoutContent({
           </SidebarHeader>
 
           <SidebarContent className="gap-0 py-2">
-            {NAV_GROUPS.filter(canSee).map((group) => {
+            {NAV_GROUPS.filter(canSee).map((group, groupIndex, filteredGroups) => {
               const visibleItems = group.items.filter(canSee);
               if (visibleItems.length === 0) return null;
+              // Find if any previous group had visible items (to know whether to show a separator)
+              const hasPrev = filteredGroups.slice(0, groupIndex).some(g => g.items.filter(canSee).length > 0);
               return (
-                <SidebarGroup key={group.label} className="py-1">
+                <div key={group.label}>
+                  {isMobile && hasPrev && (
+                    <SidebarSeparator className="mx-3 my-1" />
+                  )}
+                  <SidebarGroup className="py-1">
                   {showLabels && (
                     <SidebarGroupLabel className="text-xs text-sidebar-foreground/40 uppercase tracking-widest px-3 py-1.5 truncate overflow-hidden">
                       {group.label}
@@ -316,7 +323,8 @@ function DashboardLayoutContent({
                       );
                     })}
                   </SidebarMenu>
-                </SidebarGroup>
+                  </SidebarGroup>
+                </div>
               );
             })}
           </SidebarContent>
