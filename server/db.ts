@@ -1,11 +1,42 @@
-import { eq } from "drizzle-orm";
+import { and, desc, eq, like, or, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users } from "../drizzle/schema";
-import { ENV } from './_core/env';
+import {
+  InsertUser,
+  activityLogs,
+  boxes,
+  clients,
+  devices,
+  expectedDeliveries,
+  invoiceLineItems,
+  invoices,
+  outboundShipments,
+  packages,
+  pallets,
+  photos,
+  receivingLogs,
+  shipmentItems,
+  stagingTaskDevices,
+  stagingTasks,
+  users,
+  type InsertActivityLog,
+  type InsertBox,
+  type InsertClient,
+  type InsertDevice,
+  type InsertExpectedDelivery,
+  type InsertInvoice,
+  type InsertInvoiceLineItem,
+  type InsertOutboundShipment,
+  type InsertPackage,
+  type InsertPallet,
+  type InsertPhoto,
+  type InsertReceivingLog,
+  type InsertStagingTask,
+} from "../drizzle/schema";
+import { ENV } from "./_core/env";
+import { nanoid } from "nanoid";
 
 let _db: ReturnType<typeof drizzle> | null = null;
 
-// Lazily create the drizzle instance so local tooling can run without a DB.
 export async function getDb() {
   if (!_db && process.env.DATABASE_URL) {
     try {
@@ -18,75 +49,512 @@ export async function getDb() {
   return _db;
 }
 
+// ─── Users ────────────────────────────────────────────────────────────────────
 export async function upsertUser(user: InsertUser): Promise<void> {
-  if (!user.openId) {
-    throw new Error("User openId is required for upsert");
-  }
-
+  if (!user.openId) throw new Error("User openId is required for upsert");
   const db = await getDb();
-  if (!db) {
-    console.warn("[Database] Cannot upsert user: database not available");
-    return;
+  if (!db) return;
+
+  const values: InsertUser = { openId: user.openId };
+  const updateSet: Record<string, unknown> = {};
+
+  const textFields = ["name", "email", "loginMethod"] as const;
+  for (const field of textFields) {
+    const value = user[field];
+    if (value === undefined) continue;
+    const normalized = value ?? null;
+    values[field] = normalized;
+    updateSet[field] = normalized;
   }
 
-  try {
-    const values: InsertUser = {
-      openId: user.openId,
-    };
-    const updateSet: Record<string, unknown> = {};
-
-    const textFields = ["name", "email", "loginMethod"] as const;
-    type TextField = (typeof textFields)[number];
-
-    const assignNullable = (field: TextField) => {
-      const value = user[field];
-      if (value === undefined) return;
-      const normalized = value ?? null;
-      values[field] = normalized;
-      updateSet[field] = normalized;
-    };
-
-    textFields.forEach(assignNullable);
-
-    if (user.lastSignedIn !== undefined) {
-      values.lastSignedIn = user.lastSignedIn;
-      updateSet.lastSignedIn = user.lastSignedIn;
-    }
-    if (user.role !== undefined) {
-      values.role = user.role;
-      updateSet.role = user.role;
-    } else if (user.openId === ENV.ownerOpenId) {
-      values.role = 'admin';
-      updateSet.role = 'admin';
-    }
-
-    if (!values.lastSignedIn) {
-      values.lastSignedIn = new Date();
-    }
-
-    if (Object.keys(updateSet).length === 0) {
-      updateSet.lastSignedIn = new Date();
-    }
-
-    await db.insert(users).values(values).onDuplicateKeyUpdate({
-      set: updateSet,
-    });
-  } catch (error) {
-    console.error("[Database] Failed to upsert user:", error);
-    throw error;
+  if (user.lastSignedIn !== undefined) {
+    values.lastSignedIn = user.lastSignedIn;
+    updateSet.lastSignedIn = user.lastSignedIn;
   }
+  if (user.role !== undefined) {
+    values.role = user.role;
+    updateSet.role = user.role;
+  } else if (user.openId === ENV.ownerOpenId) {
+    values.role = "admin";
+    updateSet.role = "admin";
+  }
+
+  if (!values.lastSignedIn) values.lastSignedIn = new Date();
+  if (Object.keys(updateSet).length === 0) updateSet.lastSignedIn = new Date();
+
+  await db.insert(users).values(values).onDuplicateKeyUpdate({ set: updateSet });
 }
 
 export async function getUserByOpenId(openId: string) {
   const db = await getDb();
-  if (!db) {
-    console.warn("[Database] Cannot get user: database not available");
-    return undefined;
-  }
-
+  if (!db) return undefined;
   const result = await db.select().from(users).where(eq(users.openId, openId)).limit(1);
-
-  return result.length > 0 ? result[0] : undefined;
+  return result[0];
 }
 
-// TODO: add feature queries here as your schema grows.
+export async function listUsers() {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(users).orderBy(desc(users.createdAt));
+}
+
+export async function updateUserRole(userId: number, role: "admin" | "staff" | "customer_admin" | "customer_viewer", clientId?: number | null) {
+  const db = await getDb();
+  if (!db) return;
+  await db.update(users).set({ role, clientId: clientId ?? null }).where(eq(users.id, userId));
+}
+
+// ─── Packages ─────────────────────────────────────────────────────────────────
+export async function listPackages() {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(packages).orderBy(packages.basePrice);
+}
+
+export async function getPackage(id: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(packages).where(eq(packages.id, id)).limit(1);
+  return result[0];
+}
+
+export async function createPackage(data: InsertPackage) {
+  const db = await getDb();
+  if (!db) throw new Error("DB unavailable");
+  const result = await db.insert(packages).values(data);
+  return result[0];
+}
+
+export async function updatePackage(id: number, data: Partial<InsertPackage>) {
+  const db = await getDb();
+  if (!db) throw new Error("DB unavailable");
+  await db.update(packages).set(data).where(eq(packages.id, id));
+}
+
+// ─── Clients ──────────────────────────────────────────────────────────────────
+export async function listClients(search?: string) {
+  const db = await getDb();
+  if (!db) return [];
+  if (search) {
+    return db.select().from(clients).where(
+      or(like(clients.companyName, `%${search}%`), like(clients.contactEmail, `%${search}%`))
+    ).orderBy(desc(clients.createdAt));
+  }
+  return db.select().from(clients).orderBy(desc(clients.createdAt));
+}
+
+export async function getClient(id: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(clients).where(eq(clients.id, id)).limit(1);
+  return result[0];
+}
+
+export async function createClient(data: InsertClient) {
+  const db = await getDb();
+  if (!db) throw new Error("DB unavailable");
+  const result = await db.insert(clients).values(data);
+  return result[0];
+}
+
+export async function updateClient(id: number, data: Partial<InsertClient>) {
+  const db = await getDb();
+  if (!db) throw new Error("DB unavailable");
+  await db.update(clients).set(data).where(eq(clients.id, id));
+}
+
+// ─── Expected Deliveries ──────────────────────────────────────────────────────
+export async function listDeliveries(clientId?: number) {
+  const db = await getDb();
+  if (!db) return [];
+  if (clientId) {
+    return db.select().from(expectedDeliveries).where(eq(expectedDeliveries.clientId, clientId)).orderBy(desc(expectedDeliveries.createdAt));
+  }
+  return db.select().from(expectedDeliveries).orderBy(desc(expectedDeliveries.createdAt));
+}
+
+export async function getDelivery(id: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(expectedDeliveries).where(eq(expectedDeliveries.id, id)).limit(1);
+  return result[0];
+}
+
+export async function createDelivery(data: InsertExpectedDelivery) {
+  const db = await getDb();
+  if (!db) throw new Error("DB unavailable");
+  const result = await db.insert(expectedDeliveries).values(data);
+  return result[0];
+}
+
+export async function updateDelivery(id: number, data: Partial<InsertExpectedDelivery>) {
+  const db = await getDb();
+  if (!db) throw new Error("DB unavailable");
+  await db.update(expectedDeliveries).set(data).where(eq(expectedDeliveries.id, id));
+}
+
+// ─── Receiving Logs ───────────────────────────────────────────────────────────
+export async function listReceivingLogs(clientId?: number) {
+  const db = await getDb();
+  if (!db) return [];
+  if (clientId) {
+    return db.select().from(receivingLogs).where(eq(receivingLogs.clientId, clientId)).orderBy(desc(receivingLogs.receivedAt));
+  }
+  return db.select().from(receivingLogs).orderBy(desc(receivingLogs.receivedAt));
+}
+
+export async function getReceivingLog(id: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(receivingLogs).where(eq(receivingLogs.id, id)).limit(1);
+  return result[0];
+}
+
+export async function createReceivingLog(data: InsertReceivingLog) {
+  const db = await getDb();
+  if (!db) throw new Error("DB unavailable");
+  const result = await db.insert(receivingLogs).values(data);
+  return result[0];
+}
+
+export async function updateReceivingLog(id: number, data: Partial<InsertReceivingLog>) {
+  const db = await getDb();
+  if (!db) throw new Error("DB unavailable");
+  await db.update(receivingLogs).set(data).where(eq(receivingLogs.id, id));
+}
+
+// ─── Pallets ──────────────────────────────────────────────────────────────────
+function generateCode(prefix: string) {
+  return `${prefix}-${nanoid(8).toUpperCase()}`;
+}
+
+export async function listPallets(clientId?: number) {
+  const db = await getDb();
+  if (!db) return [];
+  if (clientId) {
+    return db.select().from(pallets).where(eq(pallets.clientId, clientId)).orderBy(desc(pallets.createdAt));
+  }
+  return db.select().from(pallets).orderBy(desc(pallets.createdAt));
+}
+
+export async function getPallet(id: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(pallets).where(eq(pallets.id, id)).limit(1);
+  return result[0];
+}
+
+export async function createPallet(data: Omit<InsertPallet, "palletCode">) {
+  const db = await getDb();
+  if (!db) throw new Error("DB unavailable");
+  const palletCode = generateCode("PLT");
+  const result = await db.insert(pallets).values({ ...data, palletCode });
+  return { insertId: result[0], palletCode };
+}
+
+export async function updatePallet(id: number, data: Partial<InsertPallet>) {
+  const db = await getDb();
+  if (!db) throw new Error("DB unavailable");
+  await db.update(pallets).set(data).where(eq(pallets.id, id));
+}
+
+// ─── Boxes ────────────────────────────────────────────────────────────────────
+export async function listBoxes(clientId?: number) {
+  const db = await getDb();
+  if (!db) return [];
+  if (clientId) {
+    return db.select().from(boxes).where(eq(boxes.clientId, clientId)).orderBy(desc(boxes.createdAt));
+  }
+  return db.select().from(boxes).orderBy(desc(boxes.createdAt));
+}
+
+export async function getBox(id: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(boxes).where(eq(boxes.id, id)).limit(1);
+  return result[0];
+}
+
+export async function createBox(data: Omit<InsertBox, "boxCode">) {
+  const db = await getDb();
+  if (!db) throw new Error("DB unavailable");
+  const boxCode = generateCode("BOX");
+  const result = await db.insert(boxes).values({ ...data, boxCode });
+  return { insertId: result[0], boxCode };
+}
+
+export async function updateBox(id: number, data: Partial<InsertBox>) {
+  const db = await getDb();
+  if (!db) throw new Error("DB unavailable");
+  await db.update(boxes).set(data).where(eq(boxes.id, id));
+}
+
+// ─── Devices ──────────────────────────────────────────────────────────────────
+export async function listDevices(clientId?: number, search?: string) {
+  const db = await getDb();
+  if (!db) return [];
+  const conditions = [];
+  if (clientId) conditions.push(eq(devices.clientId, clientId));
+  if (search) {
+    conditions.push(or(
+      like(devices.serialNumber, `%${search}%`),
+      like(devices.macAddress, `%${search}%`),
+      like(devices.model, `%${search}%`),
+      like(devices.deviceCode, `%${search}%`),
+      like(devices.assetTag, `%${search}%`)
+    ));
+  }
+  if (conditions.length > 0) {
+    return db.select().from(devices).where(and(...conditions)).orderBy(desc(devices.createdAt));
+  }
+  return db.select().from(devices).orderBy(desc(devices.createdAt));
+}
+
+export async function getDevice(id: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(devices).where(eq(devices.id, id)).limit(1);
+  return result[0];
+}
+
+export async function createDevice(data: Omit<InsertDevice, "deviceCode">) {
+  const db = await getDb();
+  if (!db) throw new Error("DB unavailable");
+  const deviceCode = generateCode("DEV");
+  const result = await db.insert(devices).values({ ...data, deviceCode });
+  return { insertId: result[0], deviceCode };
+}
+
+export async function updateDevice(id: number, data: Partial<InsertDevice>) {
+  const db = await getDb();
+  if (!db) throw new Error("DB unavailable");
+  await db.update(devices).set(data).where(eq(devices.id, id));
+}
+
+// ─── Staging Tasks ────────────────────────────────────────────────────────────
+export async function listStagingTasks(clientId?: number) {
+  const db = await getDb();
+  if (!db) return [];
+  if (clientId) {
+    return db.select().from(stagingTasks).where(eq(stagingTasks.clientId, clientId)).orderBy(desc(stagingTasks.createdAt));
+  }
+  return db.select().from(stagingTasks).orderBy(desc(stagingTasks.createdAt));
+}
+
+export async function getStagingTask(id: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(stagingTasks).where(eq(stagingTasks.id, id)).limit(1);
+  return result[0];
+}
+
+export async function createStagingTask(data: InsertStagingTask) {
+  const db = await getDb();
+  if (!db) throw new Error("DB unavailable");
+  const result = await db.insert(stagingTasks).values(data);
+  return result[0];
+}
+
+export async function updateStagingTask(id: number, data: Partial<InsertStagingTask>) {
+  const db = await getDb();
+  if (!db) throw new Error("DB unavailable");
+  await db.update(stagingTasks).set(data).where(eq(stagingTasks.id, id));
+}
+
+export async function getStagingTaskDevices(taskId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(stagingTaskDevices).where(eq(stagingTaskDevices.taskId, taskId));
+}
+
+export async function addDeviceToTask(taskId: number, deviceId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("DB unavailable");
+  await db.insert(stagingTaskDevices).values({ taskId, deviceId });
+}
+
+export async function removeDeviceFromTask(taskId: number, deviceId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("DB unavailable");
+  await db.delete(stagingTaskDevices).where(and(eq(stagingTaskDevices.taskId, taskId), eq(stagingTaskDevices.deviceId, deviceId)));
+}
+
+// ─── Outbound Shipments ───────────────────────────────────────────────────────
+export async function listShipments(clientId?: number) {
+  const db = await getDb();
+  if (!db) return [];
+  if (clientId) {
+    return db.select().from(outboundShipments).where(eq(outboundShipments.clientId, clientId)).orderBy(desc(outboundShipments.createdAt));
+  }
+  return db.select().from(outboundShipments).orderBy(desc(outboundShipments.createdAt));
+}
+
+export async function getShipment(id: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(outboundShipments).where(eq(outboundShipments.id, id)).limit(1);
+  return result[0];
+}
+
+export async function createShipment(data: Omit<InsertOutboundShipment, "shipmentCode">) {
+  const db = await getDb();
+  if (!db) throw new Error("DB unavailable");
+  const shipmentCode = generateCode("SHP");
+  const result = await db.insert(outboundShipments).values({ ...data, shipmentCode });
+  return { insertId: result[0], shipmentCode };
+}
+
+export async function updateShipment(id: number, data: Partial<InsertOutboundShipment>) {
+  const db = await getDb();
+  if (!db) throw new Error("DB unavailable");
+  await db.update(outboundShipments).set(data).where(eq(outboundShipments.id, id));
+}
+
+export async function getShipmentItems(shipmentId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(shipmentItems).where(eq(shipmentItems.shipmentId, shipmentId));
+}
+
+export async function addShipmentItem(shipmentId: number, itemType: "device" | "box" | "pallet", itemId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("DB unavailable");
+  await db.insert(shipmentItems).values({ shipmentId, itemType, itemId });
+}
+
+// ─── Invoices ─────────────────────────────────────────────────────────────────
+export async function listInvoices(clientId?: number) {
+  const db = await getDb();
+  if (!db) return [];
+  if (clientId) {
+    return db.select().from(invoices).where(eq(invoices.clientId, clientId)).orderBy(desc(invoices.createdAt));
+  }
+  return db.select().from(invoices).orderBy(desc(invoices.createdAt));
+}
+
+export async function getInvoice(id: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(invoices).where(eq(invoices.id, id)).limit(1);
+  return result[0];
+}
+
+export async function createInvoice(data: InsertInvoice) {
+  const db = await getDb();
+  if (!db) throw new Error("DB unavailable");
+  const result = await db.insert(invoices).values(data);
+  return result[0];
+}
+
+export async function updateInvoice(id: number, data: Partial<InsertInvoice>) {
+  const db = await getDb();
+  if (!db) throw new Error("DB unavailable");
+  await db.update(invoices).set(data).where(eq(invoices.id, id));
+}
+
+export async function getInvoiceLineItems(invoiceId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(invoiceLineItems).where(eq(invoiceLineItems.invoiceId, invoiceId));
+}
+
+export async function createLineItem(data: InsertInvoiceLineItem) {
+  const db = await getDb();
+  if (!db) throw new Error("DB unavailable");
+  await db.insert(invoiceLineItems).values(data);
+}
+
+export async function deleteLineItem(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("DB unavailable");
+  await db.delete(invoiceLineItems).where(eq(invoiceLineItems.id, id));
+}
+
+// ─── Photos ───────────────────────────────────────────────────────────────────
+export async function listPhotos(entityType: string, entityId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(photos).where(
+    and(eq(photos.entityType, entityType as any), eq(photos.entityId, entityId))
+  ).orderBy(desc(photos.createdAt));
+}
+
+export async function listPhotosByClient(clientId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(photos).where(eq(photos.clientId, clientId)).orderBy(desc(photos.createdAt));
+}
+
+export async function createPhoto(data: InsertPhoto) {
+  const db = await getDb();
+  if (!db) throw new Error("DB unavailable");
+  const result = await db.insert(photos).values(data);
+  return result[0];
+}
+
+// ─── Activity Logs ────────────────────────────────────────────────────────────
+export async function logActivity(data: InsertActivityLog) {
+  const db = await getDb();
+  if (!db) return;
+  await db.insert(activityLogs).values(data);
+}
+
+export async function listActivityLogs(clientId?: number, limit = 100) {
+  const db = await getDb();
+  if (!db) return [];
+  if (clientId) {
+    return db.select().from(activityLogs).where(eq(activityLogs.clientId, clientId)).orderBy(desc(activityLogs.createdAt)).limit(limit);
+  }
+  return db.select().from(activityLogs).orderBy(desc(activityLogs.createdAt)).limit(limit);
+}
+
+// ─── Usage / Dashboard Stats ──────────────────────────────────────────────────
+export async function getClientUsage(clientId: number) {
+  const db = await getDb();
+  if (!db) return null;
+
+  const [deviceCount] = await db.select({ count: sql<number>`count(*)` }).from(devices).where(eq(devices.clientId, clientId));
+  const [boxCount] = await db.select({ count: sql<number>`count(*)` }).from(boxes).where(eq(boxes.clientId, clientId));
+  const [palletCount] = await db.select({ count: sql<number>`count(*)` }).from(pallets).where(eq(pallets.clientId, clientId));
+  const [shipmentCount] = await db.select({ count: sql<number>`count(*)` }).from(outboundShipments).where(eq(outboundShipments.clientId, clientId));
+  const [stagingCount] = await db.select({ count: sql<number>`count(*)` }).from(stagingTasks).where(eq(stagingTasks.clientId, clientId));
+  const [deliveryCount] = await db.select({ count: sql<number>`count(*)` }).from(expectedDeliveries).where(eq(expectedDeliveries.clientId, clientId));
+  const [receivingCount] = await db.select({ count: sql<number>`count(*)` }).from(receivingLogs).where(eq(receivingLogs.clientId, clientId));
+
+  return {
+    devices: Number(deviceCount?.count ?? 0),
+    boxes: Number(boxCount?.count ?? 0),
+    pallets: Number(palletCount?.count ?? 0),
+    shipments: Number(shipmentCount?.count ?? 0),
+    stagingTasks: Number(stagingCount?.count ?? 0),
+    deliveries: Number(deliveryCount?.count ?? 0),
+    receivingLogs: Number(receivingCount?.count ?? 0),
+  };
+}
+
+export async function getDashboardStats() {
+  const db = await getDb();
+  if (!db) return null;
+
+  const [clientCount] = await db.select({ count: sql<number>`count(*)` }).from(clients);
+  const [deviceCount] = await db.select({ count: sql<number>`count(*)` }).from(devices);
+  const [boxCount] = await db.select({ count: sql<number>`count(*)` }).from(boxes);
+  const [palletCount] = await db.select({ count: sql<number>`count(*)` }).from(pallets);
+  const [pendingTasks] = await db.select({ count: sql<number>`count(*)` }).from(stagingTasks).where(eq(stagingTasks.status, "pending"));
+  const [inProgressTasks] = await db.select({ count: sql<number>`count(*)` }).from(stagingTasks).where(eq(stagingTasks.status, "in_progress"));
+  const [pendingShipments] = await db.select({ count: sql<number>`count(*)` }).from(outboundShipments).where(eq(outboundShipments.status, "requested"));
+  const [draftInvoices] = await db.select({ count: sql<number>`count(*)` }).from(invoices).where(eq(invoices.status, "draft"));
+  const [deliveryCount] = await db.select({ count: sql<number>`count(*)` }).from(expectedDeliveries);
+
+  return {
+    clients: Number(clientCount?.count ?? 0),
+    devices: Number(deviceCount?.count ?? 0),
+    boxes: Number(boxCount?.count ?? 0),
+    pallets: Number(palletCount?.count ?? 0),
+    pendingTasks: Number(pendingTasks?.count ?? 0),
+    inProgressTasks: Number(inProgressTasks?.count ?? 0),
+    pendingShipments: Number(pendingShipments?.count ?? 0),
+    draftInvoices: Number(draftInvoices?.count ?? 0),
+    deliveries: Number(deliveryCount?.count ?? 0),
+  };
+}

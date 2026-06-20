@@ -1,0 +1,1 @@
+ALTER TABLE `packages` MODIFY COLUMN `tier` enum('basic','standard','professional','enterprise','custom') NOT NULL;
