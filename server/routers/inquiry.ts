@@ -1,10 +1,25 @@
 import { z } from "zod";
-import { publicProcedure, router } from "../_core/trpc";
+import { publicProcedure, protectedProcedure, router } from "../_core/trpc";
 import { notifyOwner } from "../_core/notification";
-import { getDb } from "../db";
+import {
+  getDb,
+  listInquiries,
+  getInquiry,
+  updateInquiryStatus,
+  deleteInquiry,
+  countNewInquiries,
+} from "../db";
 import { packageInquiries } from "../../drizzle/schema";
+import { TRPCError } from "@trpc/server";
+
+function requireStaffOrAdmin(role: string | undefined) {
+  if (role !== "admin" && role !== "staff") {
+    throw new TRPCError({ code: "FORBIDDEN", message: "Admin or staff access required" });
+  }
+}
 
 export const inquiryRouter = router({
+  // ── Public: submit inquiry from landing page ──────────────────────────────
   submit: publicProcedure
     .input(z.object({
       name: z.string().min(1).max(120),
@@ -29,24 +44,78 @@ export const inquiryRouter = router({
         });
       }
 
-      // Notify the owner via Manus notification service
+      const tierLabel = input.tier.charAt(0).toUpperCase() + input.tier.slice(1);
       const content = [
         `**Name:** ${input.name}`,
         `**Company:** ${input.company}`,
         `**Email:** ${input.email}`,
         input.phone ? `**Phone:** ${input.phone}` : null,
-        `**Package:** ${input.tier.charAt(0).toUpperCase() + input.tier.slice(1)}`,
+        `**Package:** ${tierLabel}`,
         input.deviceVolume ? `**Device Volume:** ${input.deviceVolume}` : null,
         input.message ? `**Message:** ${input.message}` : null,
       ].filter(Boolean).join("\n");
 
       await notifyOwner({
-        title: `New Package Inquiry — ${input.tier.charAt(0).toUpperCase() + input.tier.slice(1)} (${input.company})`,
+        title: `New Package Inquiry — ${tierLabel} (${input.company})`,
         content,
-      }).catch(() => {
-        // Non-fatal: inquiry is already persisted in DB
-      });
+      }).catch(() => {});
 
       return { success: true };
+    }),
+
+  // ── Admin/Staff: list inquiries with optional filters ─────────────────────
+  list: protectedProcedure
+    .input(z.object({
+      status: z.enum(["new", "contacted", "closed"]).optional(),
+      tier: z.enum(["basic", "standard", "professional", "enterprise", "custom"]).optional(),
+      search: z.string().max(200).optional(),
+    }).optional())
+    .query(async ({ ctx, input }) => {
+      requireStaffOrAdmin(ctx.user?.role);
+      return listInquiries({
+        status: input?.status,
+        tier: input?.tier,
+        search: input?.search,
+      });
+    }),
+
+  // ── Admin/Staff: get single inquiry ──────────────────────────────────────
+  get: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .query(async ({ ctx, input }) => {
+      requireStaffOrAdmin(ctx.user?.role);
+      const row = await getInquiry(input.id);
+      if (!row) throw new TRPCError({ code: "NOT_FOUND" });
+      return row;
+    }),
+
+  // ── Admin/Staff: update status ────────────────────────────────────────────
+  updateStatus: protectedProcedure
+    .input(z.object({
+      id: z.number(),
+      status: z.enum(["new", "contacted", "closed"]),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      requireStaffOrAdmin(ctx.user?.role);
+      await updateInquiryStatus(input.id, input.status);
+      return { success: true };
+    }),
+
+  // ── Admin only: delete inquiry ────────────────────────────────────────────
+  delete: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ ctx, input }) => {
+      if (ctx.user?.role !== "admin") {
+        throw new TRPCError({ code: "FORBIDDEN", message: "Admin access required" });
+      }
+      await deleteInquiry(input.id);
+      return { success: true };
+    }),
+
+  // ── Admin/Staff: count new inquiries (for badge) ──────────────────────────
+  countNew: protectedProcedure
+    .query(async ({ ctx }) => {
+      requireStaffOrAdmin(ctx.user?.role);
+      return countNewInquiries();
     }),
 });

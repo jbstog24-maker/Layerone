@@ -35,6 +35,8 @@ import {
   clientDocuments,
   type InsertDocumentTemplate,
   type InsertClientDocument,
+  packageInquiries,
+  type PackageInquiry,
 } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 import { nanoid } from "nanoid";
@@ -624,4 +626,64 @@ export async function listAllClientDocuments() {
   const db = await getDb();
   if (!db) return [];
   return db.select().from(clientDocuments).orderBy(desc(clientDocuments.createdAt));
+}
+
+// ─── Package Inquiries ────────────────────────────────────────────────────────
+export async function listInquiries(opts?: {
+  status?: "new" | "contacted" | "closed";
+  tier?: string;
+  search?: string;
+}) {
+  const db = await getDb();
+  if (!db) return [];
+
+  const conditions: ReturnType<typeof eq>[] = [];
+  if (opts?.status) conditions.push(eq(packageInquiries.status, opts.status));
+  if (opts?.tier) conditions.push(eq(packageInquiries.tier, opts.tier as PackageInquiry["tier"]));
+
+  let query = db.select().from(packageInquiries).$dynamic();
+  if (conditions.length > 0) query = query.where(and(...conditions));
+
+  const rows = await query.orderBy(desc(packageInquiries.createdAt));
+
+  if (opts?.search) {
+    const q = opts.search.toLowerCase();
+    return rows.filter(
+      r =>
+        r.name.toLowerCase().includes(q) ||
+        r.company.toLowerCase().includes(q) ||
+        r.email.toLowerCase().includes(q) ||
+        (r.message ?? "").toLowerCase().includes(q),
+    );
+  }
+  return rows;
+}
+
+export async function getInquiry(id: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const [row] = await db.select().from(packageInquiries).where(eq(packageInquiries.id, id));
+  return row;
+}
+
+export async function updateInquiryStatus(id: number, status: "new" | "contacted" | "closed") {
+  const db = await getDb();
+  if (!db) throw new Error("DB unavailable");
+  await db.update(packageInquiries).set({ status }).where(eq(packageInquiries.id, id));
+}
+
+export async function deleteInquiry(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("DB unavailable");
+  await db.delete(packageInquiries).where(eq(packageInquiries.id, id));
+}
+
+export async function countNewInquiries() {
+  const db = await getDb();
+  if (!db) return 0;
+  const [row] = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(packageInquiries)
+    .where(eq(packageInquiries.status, "new"));
+  return Number(row?.count ?? 0);
 }

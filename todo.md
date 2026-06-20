@@ -171,6 +171,13 @@
 - [x] Show warehouse details card on client profile once assigned
 - [x] Show warehouse assignment step in onboarding progress tracker
 
+## Inquiries Inbox
+- [x] Add list/get/updateStatus/delete/countNew procedures to inquiry router (admin/staff protected)
+- [x] Add DB helpers: listInquiries, getInquiry, updateInquiryStatus, deleteInquiry, countNewInquiries
+- [x] Build Inquiries inbox page (/inquiries) with summary cards, search, status/tier filters, table, quick-action buttons, and detail dialog
+- [x] Add Inquiries nav item to admin/staff sidebar
+- [x] Wire /inquiries route in App.tsx
+
 ## Landing Page FAQ
 - [x] Add detailed FAQ section to landing page with 15 questions across 5 categories (Services, Pricing & Packages, Onboarding, Security & Facility, Portal & Tracking)
 - [x] Add FAQ nav link to landing page navbar

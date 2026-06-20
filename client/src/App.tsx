@@ -20,6 +20,7 @@ import ActivityLog from "./pages/ActivityLog";
 import Users from "./pages/Users";
 import PackageDetail from "./pages/PackageDetail";
 import Documents from "./pages/Documents";
+import Inquiries from "./pages/Inquiries";
 
 function Router() {
   return (
@@ -66,6 +67,7 @@ function Router() {
       {/* Admin */}
       <Route path="/activity" component={ActivityLog} />
       <Route path="/users" component={Users} />
+      <Route path="/inquiries" component={Inquiries} />
 
       {/* Package detail */}
       <Route path="/packages/:tier" component={PackageDetail} />
