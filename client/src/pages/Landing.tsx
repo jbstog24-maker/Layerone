@@ -1,0 +1,586 @@
+import { useAuth } from "@/_core/hooks/useAuth";
+import { getLoginUrl } from "@/const";
+import { useLocation } from "wouter";
+import {
+  Shield, Truck, Server, Package, Warehouse, Box,
+  ArrowRight, CheckCircle, ChevronRight, Zap, Lock,
+  BarChart3, FileText, Camera, Activity
+} from "lucide-react";
+
+const LOGO_URL = "/manus-storage/nsds-logo_ab936943.svg";
+
+function NsdsLogo({ className = "" }: { className?: string }) {
+  return (
+    <img
+      src={LOGO_URL}
+      alt="NSDS — Network Staging & Deployment Solutions"
+      className={className}
+      style={{ height: 48, width: "auto" }}
+    />
+  );
+}
+
+function NavBar() {
+  const { isAuthenticated } = useAuth();
+  const [, setLocation] = useLocation();
+
+  return (
+    <header className="fixed top-0 left-0 right-0 z-50 border-b border-white/10 bg-[#07111f]/80 backdrop-blur-xl">
+      <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+        <NsdsLogo />
+        <nav className="hidden md:flex items-center gap-7 text-sm text-[#b7c5d5]">
+          <a href="#services" className="hover:text-white transition-colors">Services</a>
+          <a href="#how-it-works" className="hover:text-white transition-colors">How It Works</a>
+          <a href="#packages" className="hover:text-white transition-colors">Packages</a>
+          <a href="#portal" className="hover:text-white transition-colors">Customer Portal</a>
+        </nav>
+        <div className="flex items-center gap-3">
+          {isAuthenticated ? (
+            <button
+              onClick={() => setLocation("/")}
+              className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold bg-gradient-to-r from-[#39a7ff] to-[#6ee7b7] text-[#06111f] hover:-translate-y-0.5 transition-transform"
+            >
+              Go to Dashboard <ArrowRight className="w-3.5 h-3.5" />
+            </button>
+          ) : (
+            <>
+              <a
+                href={getLoginUrl()}
+                className="text-sm text-[#b7c5d5] hover:text-white transition-colors px-3 py-2"
+              >
+                Sign In
+              </a>
+              <a
+                href="#packages"
+                className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold bg-gradient-to-r from-[#39a7ff] to-[#6ee7b7] text-[#06111f] hover:-translate-y-0.5 transition-transform"
+              >
+                Get Started
+              </a>
+            </>
+          )}
+        </div>
+      </div>
+    </header>
+  );
+}
+
+function Hero() {
+  const { isAuthenticated } = useAuth();
+  return (
+    <section className="relative pt-32 pb-24 overflow-hidden">
+      {/* Background glows */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-0 left-1/4 w-[600px] h-[600px] rounded-full bg-[#39a7ff]/10 blur-[120px]" />
+        <div className="absolute top-20 right-1/4 w-[400px] h-[400px] rounded-full bg-[#6ee7b7]/8 blur-[100px]" />
+      </div>
+
+      <div className="relative max-w-6xl mx-auto px-6">
+        <div className="grid md:grid-cols-2 gap-12 items-center">
+          {/* Left */}
+          <div>
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/15 bg-white/5 text-[#b7c5d5] text-xs mb-6">
+              <span className="w-2 h-2 rounded-full bg-[#6ee7b7] shadow-[0_0_0_5px_rgba(110,231,183,0.15)]" />
+              Now serving Dallas-area MSPs &amp; IT teams
+            </div>
+            <h1 className="text-5xl md:text-6xl font-black leading-[0.95] tracking-[-2.5px] mb-6">
+              <span className="bg-gradient-to-r from-white via-[#a7d8ff] to-[#a7f3d0] bg-clip-text text-transparent">
+                Secure network staging
+              </span>
+              <br />
+              <span className="text-white">before the truck rolls.</span>
+            </h1>
+            <p className="text-[#b7c5d5] text-lg leading-relaxed mb-8 max-w-lg">
+              NSDS handles receiving, organizing, staging, packing, shipping, and deployment-prep for MSPs, cabling contractors, security installers, and rollout teams — with full customer visibility through our portal.
+            </p>
+            <div className="flex flex-wrap gap-3 mb-8">
+              <a
+                href={isAuthenticated ? "/" : getLoginUrl()}
+                className="flex items-center gap-2 px-5 py-3 rounded-xl font-bold bg-gradient-to-r from-[#39a7ff] to-[#6ee7b7] text-[#06111f] hover:-translate-y-0.5 transition-transform shadow-[0_14px_34px_rgba(57,167,255,0.24)]"
+              >
+                {isAuthenticated ? "Open Dashboard" : "Access Your Portal"} <ArrowRight className="w-4 h-4" />
+              </a>
+              <a
+                href="#packages"
+                className="flex items-center gap-2 px-5 py-3 rounded-xl font-bold border border-white/15 bg-white/5 text-white hover:-translate-y-0.5 transition-transform"
+              >
+                View Packages
+              </a>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {["Secure receiving", "Organize & stage", "Packing & shipping", "Customer portal", "Photo documentation", "Billing & invoicing"].map(b => (
+                <span key={b} className="px-3 py-1 rounded-full border border-white/12 bg-white/6 text-[#b7c5d5] text-xs">{b}</span>
+              ))}
+            </div>
+          </div>
+
+          {/* Right — visual card stack */}
+          <div className="relative hidden md:block">
+            <div className="relative rounded-2xl border border-white/12 bg-white/5 p-6 shadow-[0_24px_70px_rgba(0,0,0,0.4)]">
+              <div className="flex items-center gap-3 mb-5">
+                <div className="w-10 h-10 rounded-xl bg-[#39a7ff]/15 border border-[#39a7ff]/25 flex items-center justify-center">
+                  <Activity className="w-5 h-5 text-[#39a7ff]" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-white">Live Operations Dashboard</p>
+                  <p className="text-xs text-[#b7c5d5]">Real-time visibility for your team</p>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3 mb-4">
+                {[
+                  { label: "Devices Staged", value: "247", color: "text-[#39a7ff]" },
+                  { label: "Shipments Out", value: "38", color: "text-[#6ee7b7]" },
+                  { label: "Active Tasks", value: "12", color: "text-yellow-400" },
+                  { label: "Clients Served", value: "9", color: "text-violet-400" },
+                ].map(s => (
+                  <div key={s.label} className="rounded-xl bg-white/5 border border-white/8 p-3">
+                    <p className={`text-2xl font-black ${s.color}`}>{s.value}</p>
+                    <p className="text-xs text-[#b7c5d5] mt-0.5">{s.label}</p>
+                  </div>
+                ))}
+              </div>
+              <div className="space-y-2">
+                {[
+                  { action: "Received 3 pallets — Acme Networks", time: "2 min ago", dot: "bg-[#6ee7b7]" },
+                  { action: "Staging task completed — Rack A-07", time: "18 min ago", dot: "bg-[#39a7ff]" },
+                  { action: "Shipment dispatched — FedEx #7823", time: "1 hr ago", dot: "bg-yellow-400" },
+                ].map(a => (
+                  <div key={a.action} className="flex items-start gap-2.5 py-2 border-b border-white/8 last:border-0">
+                    <div className={`w-1.5 h-1.5 rounded-full ${a.dot} mt-1.5 shrink-0`} />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs text-white truncate">{a.action}</p>
+                      <p className="text-xs text-[#b7c5d5]">{a.time}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            {/* Floating badge */}
+            <div className="absolute -bottom-4 -left-4 rounded-xl border border-[#6ee7b7]/30 bg-[#07111f]/90 backdrop-blur px-4 py-3 shadow-lg">
+              <div className="flex items-center gap-2">
+                <CheckCircle className="w-4 h-4 text-[#6ee7b7]" />
+                <span className="text-xs font-semibold text-white">NSDS-managed only</span>
+              </div>
+              <p className="text-xs text-[#b7c5d5] mt-0.5">Full chain-of-custody tracking</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Services() {
+  const services = [
+    {
+      icon: Truck,
+      title: "Secure Receiving",
+      desc: "We accept inbound shipments on your behalf, log every pallet, box, and device with photos, and flag any damage immediately.",
+      color: "bg-blue-500/10 border-blue-500/20 text-blue-400",
+    },
+    {
+      icon: Server,
+      title: "Organize & Stage",
+      desc: "Devices are sorted, labeled, configured, and staged to your exact project specifications — ready for deployment day.",
+      color: "bg-violet-500/10 border-violet-500/20 text-violet-400",
+    },
+    {
+      icon: Package,
+      title: "Pack & Ship",
+      desc: "We professionally pack and ship outbound to your job sites, with carrier tracking and delivery confirmation.",
+      color: "bg-green-500/10 border-green-500/20 text-green-400",
+    },
+    {
+      icon: Camera,
+      title: "Photo Documentation",
+      desc: "Every step is photographed — inbound condition, staging progress, and outbound packing — all visible in your portal.",
+      color: "bg-pink-500/10 border-pink-500/20 text-pink-400",
+    },
+    {
+      icon: BarChart3,
+      title: "Inventory Tracking",
+      desc: "Hierarchical tracking across pallets, boxes, and individual devices with QR-ready IDs and real-time status badges.",
+      color: "bg-yellow-500/10 border-yellow-500/20 text-yellow-400",
+    },
+    {
+      icon: FileText,
+      title: "Billing & Invoicing",
+      desc: "Transparent line-item invoices based on your package tier, with automatic overage calculation and draft review.",
+      color: "bg-orange-500/10 border-orange-500/20 text-orange-400",
+    },
+  ];
+
+  return (
+    <section id="services" className="py-20">
+      <div className="max-w-6xl mx-auto px-6">
+        <div className="mb-12">
+          <h2 className="text-4xl font-black tracking-[-1.5px] text-white mb-3">
+            Everything your deployment needs,<br />
+            <span className="bg-gradient-to-r from-[#39a7ff] to-[#6ee7b7] bg-clip-text text-transparent">handled before the truck rolls.</span>
+          </h2>
+          <p className="text-[#b7c5d5] text-lg max-w-2xl">
+            NSDS is a fully managed staging and logistics operation. We don't offer self-service — every project is handled by our team with full accountability.
+          </p>
+        </div>
+        <div className="grid md:grid-cols-3 gap-4">
+          {services.map(s => (
+            <div key={s.title} className="rounded-2xl border border-white/10 bg-white/5 p-5 hover:border-white/20 hover:bg-white/8 transition-all group">
+              <div className={`w-10 h-10 rounded-xl border flex items-center justify-center mb-4 ${s.color}`}>
+                <s.icon className="w-5 h-5" />
+              </div>
+              <h3 className="text-base font-bold text-white mb-2">{s.title}</h3>
+              <p className="text-sm text-[#b7c5d5] leading-relaxed">{s.desc}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function HowItWorks() {
+  const steps = [
+    { n: "01", title: "Submit Expected Delivery", desc: "Log your inbound shipment details through the portal so we know what's coming." },
+    { n: "02", title: "We Receive & Document", desc: "Our team receives, counts, photographs, and logs every pallet, box, and device." },
+    { n: "03", title: "Stage to Your Specs", desc: "Devices are organized, labeled, and staged according to your project requirements." },
+    { n: "04", title: "Pack & Ship Out", desc: "We pack outbound shipments and dispatch with full carrier tracking." },
+    { n: "05", title: "Portal Visibility", desc: "Track every step in real-time through your customer portal — photos, status, and invoices included." },
+  ];
+
+  return (
+    <section id="how-it-works" className="py-20 border-t border-white/8">
+      <div className="max-w-6xl mx-auto px-6">
+        <div className="mb-12">
+          <h2 className="text-4xl font-black tracking-[-1.5px] text-white mb-3">How it works</h2>
+          <p className="text-[#b7c5d5] text-lg">A simple, transparent process from first shipment to final delivery.</p>
+        </div>
+        <div className="grid md:grid-cols-5 gap-4">
+          {steps.map((s, i) => (
+            <div key={s.n} className="relative rounded-2xl border border-white/10 bg-white/5 p-5">
+              {i < steps.length - 1 && (
+                <ChevronRight className="hidden md:block absolute -right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/20 z-10" />
+              )}
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#39a7ff] to-[#6ee7b7] flex items-center justify-center text-[#06111f] text-xs font-black mb-4">
+                {s.n}
+              </div>
+              <h3 className="text-sm font-bold text-white mb-2">{s.title}</h3>
+              <p className="text-xs text-[#b7c5d5] leading-relaxed">{s.desc}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Packages() {
+  const tiers = [
+    {
+      name: "Basic",
+      price: "Contact us",
+      desc: "For small teams with occasional staging needs.",
+      features: ["Up to 50 devices/mo", "5 pallets storage", "10 boxes included", "Email support", "Customer portal access"],
+      featured: false,
+    },
+    {
+      name: "Standard",
+      price: "Contact us",
+      desc: "For growing MSPs with regular project volume.",
+      features: ["Up to 150 devices/mo", "15 pallets storage", "30 boxes included", "Priority support", "Photo documentation", "Activity log"],
+      featured: false,
+    },
+    {
+      name: "Professional",
+      price: "Contact us",
+      desc: "For active rollout teams with high throughput.",
+      features: ["Up to 400 devices/mo", "40 pallets storage", "75 boxes included", "Dedicated coordinator", "Rush staging available", "Full billing dashboard"],
+      featured: true,
+    },
+    {
+      name: "Enterprise",
+      price: "Contact us",
+      desc: "For large-scale deployments with custom SLAs.",
+      features: ["Unlimited devices", "Unlimited storage", "Custom box allotment", "24/7 support", "Custom workflows", "API access"],
+      featured: false,
+    },
+    {
+      name: "Custom",
+      price: "Let's talk",
+      desc: "Tailored to your exact project requirements.",
+      features: ["Fully custom limits", "Dedicated team", "White-glove service", "On-site options", "Custom integrations", "Executive reporting"],
+      featured: false,
+    },
+  ];
+
+  return (
+    <section id="packages" className="py-20 border-t border-white/8">
+      <div className="max-w-6xl mx-auto px-6">
+        <div className="mb-12">
+          <h2 className="text-4xl font-black tracking-[-1.5px] text-white mb-3">Managed service packages</h2>
+          <p className="text-[#b7c5d5] text-lg max-w-2xl">
+            Every package includes full portal access, photo documentation, and transparent billing. All pricing is custom — contact us for a quote.
+          </p>
+        </div>
+        <div className="grid md:grid-cols-3 lg:grid-cols-5 gap-4">
+          {tiers.map(t => (
+            <div
+              key={t.name}
+              className={`rounded-2xl border p-5 flex flex-col transition-all ${
+                t.featured
+                  ? "border-[#6ee7b7]/40 bg-gradient-to-b from-[#6ee7b7]/8 to-white/5 shadow-[0_20px_60px_rgba(110,231,183,0.12)]"
+                  : "border-white/10 bg-white/5 hover:border-white/20"
+              }`}
+            >
+              {t.featured && (
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#6ee7b7]/15 border border-[#6ee7b7]/30 text-[#6ee7b7] text-xs font-bold mb-3 self-start">
+                  <Zap className="w-3 h-3" /> Most Popular
+                </div>
+              )}
+              <h3 className="text-lg font-black text-white mb-1">{t.name}</h3>
+              <p className="text-xs text-[#b7c5d5] mb-4 leading-relaxed">{t.desc}</p>
+              <ul className="space-y-2 flex-1 mb-5">
+                {t.features.map(f => (
+                  <li key={f} className="flex items-start gap-2 text-xs text-[#b7c5d5]">
+                    <CheckCircle className="w-3.5 h-3.5 text-[#6ee7b7] shrink-0 mt-0.5" />
+                    {f}
+                  </li>
+                ))}
+              </ul>
+              <a
+                href={getLoginUrl()}
+                className={`w-full flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-bold transition-all hover:-translate-y-0.5 ${
+                  t.featured
+                    ? "bg-gradient-to-r from-[#39a7ff] to-[#6ee7b7] text-[#06111f]"
+                    : "border border-white/15 bg-white/5 text-white"
+                }`}
+              >
+                Get Started <ArrowRight className="w-3 h-3" />
+              </a>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function PortalSection() {
+  const features = [
+    { icon: Warehouse, label: "Live inventory status", desc: "Track every pallet, box, and device in real time." },
+    { icon: Camera, label: "Photo gallery", desc: "View photos from receiving, staging, and shipping." },
+    { icon: Truck, label: "Shipment tracking", desc: "Monitor outbound shipments with carrier info." },
+    { icon: FileText, label: "Invoices & billing", desc: "Review line-item invoices and usage against your package." },
+    { icon: Activity, label: "Activity log", desc: "Full audit trail of every action taken on your account." },
+    { icon: Lock, label: "Role-based access", desc: "Admin and viewer roles for your team members." },
+  ];
+
+  return (
+    <section id="portal" className="py-20 border-t border-white/8">
+      <div className="max-w-6xl mx-auto px-6">
+        <div className="grid md:grid-cols-2 gap-12 items-center">
+          <div>
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/15 bg-white/5 text-[#b7c5d5] text-xs mb-6">
+              <Shield className="w-3.5 h-3.5 text-[#39a7ff]" /> Customer Portal
+            </div>
+            <h2 className="text-4xl font-black tracking-[-1.5px] text-white mb-4">
+              Full visibility into<br />
+              <span className="bg-gradient-to-r from-[#39a7ff] to-[#6ee7b7] bg-clip-text text-transparent">your operations.</span>
+            </h2>
+            <p className="text-[#b7c5d5] text-lg leading-relaxed mb-8">
+              Every NSDS client gets access to a dedicated customer portal. Track your inventory, view photos, monitor shipments, and review invoices — all in one place, in real time.
+            </p>
+            <div className="grid grid-cols-2 gap-3">
+              {features.map(f => (
+                <div key={f.label} className="flex items-start gap-3 p-3 rounded-xl border border-white/8 bg-white/4">
+                  <div className="w-7 h-7 rounded-lg bg-[#39a7ff]/12 border border-[#39a7ff]/20 flex items-center justify-center shrink-0">
+                    <f.icon className="w-3.5 h-3.5 text-[#39a7ff]" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-semibold text-white">{f.label}</p>
+                    <p className="text-xs text-[#b7c5d5] mt-0.5 leading-relaxed">{f.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Portal preview card */}
+          <div className="rounded-2xl border border-white/12 bg-white/5 p-5 shadow-[0_24px_70px_rgba(0,0,0,0.4)]">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <p className="text-sm font-bold text-white">Your Package Usage</p>
+                <p className="text-xs text-[#b7c5d5]">Professional tier · June 2026</p>
+              </div>
+              <span className="px-2.5 py-1 rounded-full bg-[#6ee7b7]/12 border border-[#6ee7b7]/25 text-[#6ee7b7] text-xs font-bold">Professional</span>
+            </div>
+            <div className="space-y-4">
+              {[
+                { label: "Devices", used: 312, max: 400, color: "bg-[#39a7ff]" },
+                { label: "Pallets", used: 28, max: 40, color: "bg-violet-500" },
+                { label: "Boxes", used: 61, max: 75, color: "bg-[#6ee7b7]" },
+                { label: "Storage (GB)", used: 18, max: 50, color: "bg-yellow-400" },
+              ].map(m => {
+                const pct = Math.round((m.used / m.max) * 100);
+                const textColor = pct > 90 ? "text-red-400" : pct > 70 ? "text-yellow-400" : "text-[#6ee7b7]";
+                return (
+                  <div key={m.label}>
+                    <div className="flex justify-between text-xs mb-1.5">
+                      <span className="text-[#b7c5d5]">{m.label}</span>
+                      <span className={textColor}>{m.used} / {m.max}</span>
+                    </div>
+                    <div className="h-1.5 rounded-full bg-white/10">
+                      <div className={`h-full rounded-full ${m.color}`} style={{ width: `${pct}%` }} />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            <div className="mt-5 pt-4 border-t border-white/10 grid grid-cols-3 gap-3 text-center">
+              {[
+                { label: "Active Tasks", value: "4", color: "text-yellow-400" },
+                { label: "Shipments", value: "7", color: "text-[#39a7ff]" },
+                { label: "Open Invoices", value: "1", color: "text-pink-400" },
+              ].map(s => (
+                <div key={s.label}>
+                  <p className={`text-xl font-black ${s.color}`}>{s.value}</p>
+                  <p className="text-xs text-[#b7c5d5] mt-0.5">{s.label}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function WhoWeServe() {
+  const clients = [
+    "Managed Service Providers (MSPs)",
+    "Cabling & low-voltage contractors",
+    "Security system installers",
+    "IT consultants & VARs",
+    "Network rollout teams",
+    "Technology deployment firms",
+  ];
+
+  return (
+    <section className="py-20 border-t border-white/8">
+      <div className="max-w-6xl mx-auto px-6">
+        <div className="grid md:grid-cols-2 gap-12 items-center">
+          <div>
+            <h2 className="text-4xl font-black tracking-[-1.5px] text-white mb-4">
+              Built for the teams that<br />
+              <span className="bg-gradient-to-r from-[#39a7ff] to-[#6ee7b7] bg-clip-text text-transparent">deploy the network.</span>
+            </h2>
+            <p className="text-[#b7c5d5] text-lg leading-relaxed mb-6">
+              NSDS is purpose-built for the professionals who handle network equipment at scale — from single-site installs to multi-location rollouts across the Dallas metro.
+            </p>
+            <ul className="space-y-3">
+              {clients.map(c => (
+                <li key={c} className="flex items-center gap-3 text-[#b7c5d5] text-sm">
+                  <CheckCircle className="w-4 h-4 text-[#6ee7b7] shrink-0" />
+                  {c}
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            {[
+              { icon: Shield, title: "Chain of Custody", desc: "Every item is logged, photographed, and tracked from receipt to dispatch.", color: "text-[#39a7ff]", bg: "bg-[#39a7ff]/10 border-[#39a7ff]/20" },
+              { icon: Zap, title: "Rush Staging", desc: "Need it fast? Rush staging is available on Professional and Enterprise plans.", color: "text-yellow-400", bg: "bg-yellow-500/10 border-yellow-500/20" },
+              { icon: Lock, title: "Secure Facility", desc: "Your equipment is stored in a secure, access-controlled Dallas-area facility.", color: "text-violet-400", bg: "bg-violet-500/10 border-violet-500/20" },
+              { icon: BarChart3, title: "Transparent Billing", desc: "No surprises — every charge is itemized and reviewable before invoicing.", color: "text-[#6ee7b7]", bg: "bg-[#6ee7b7]/10 border-[#6ee7b7]/20" },
+            ].map(f => (
+              <div key={f.title} className="rounded-2xl border border-white/10 bg-white/5 p-5">
+                <div className={`w-9 h-9 rounded-xl border flex items-center justify-center mb-3 ${f.bg}`}>
+                  <f.icon className={`w-4.5 h-4.5 ${f.color}`} />
+                </div>
+                <h3 className="text-sm font-bold text-white mb-1.5">{f.title}</h3>
+                <p className="text-xs text-[#b7c5d5] leading-relaxed">{f.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function CTA() {
+  const { isAuthenticated } = useAuth();
+  return (
+    <section className="py-20 border-t border-white/8">
+      <div className="max-w-6xl mx-auto px-6">
+        <div className="relative rounded-3xl border border-white/12 bg-gradient-to-br from-white/8 to-white/4 p-12 text-center overflow-hidden shadow-[0_24px_70px_rgba(0,0,0,0.4)]">
+          <div className="absolute inset-0 pointer-events-none">
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[500px] h-[300px] rounded-full bg-[#39a7ff]/10 blur-[80px]" />
+          </div>
+          <div className="relative">
+            <h2 className="text-4xl md:text-5xl font-black tracking-[-2px] text-white mb-4">
+              Ready to stage smarter?
+            </h2>
+            <p className="text-[#b7c5d5] text-lg max-w-xl mx-auto mb-8">
+              Sign in to access your NSDS customer portal, or contact us to discuss a package for your team.
+            </p>
+            <div className="flex flex-wrap gap-3 justify-center">
+              <a
+                href={isAuthenticated ? "/" : getLoginUrl()}
+                className="flex items-center gap-2 px-6 py-3.5 rounded-xl font-bold bg-gradient-to-r from-[#39a7ff] to-[#6ee7b7] text-[#06111f] hover:-translate-y-0.5 transition-transform shadow-[0_14px_34px_rgba(57,167,255,0.24)]"
+              >
+                {isAuthenticated ? "Open Dashboard" : "Sign In to Portal"} <ArrowRight className="w-4 h-4" />
+              </a>
+              <a
+                href="mailto:hello@nsds.com"
+                className="flex items-center gap-2 px-6 py-3.5 rounded-xl font-bold border border-white/15 bg-white/5 text-white hover:-translate-y-0.5 transition-transform"
+              >
+                Contact Us
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Footer() {
+  return (
+    <footer className="border-t border-white/10 py-10">
+      <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4">
+        <NsdsLogo />
+        <p className="text-[#b7c5d5] text-sm text-center">
+          © {new Date().getFullYear()} Network Staging &amp; Deployment Solutions · Dallas, TX
+        </p>
+        <div className="flex gap-5 text-sm text-[#b7c5d5]">
+          <a href="#services" className="hover:text-white transition-colors">Services</a>
+          <a href="#packages" className="hover:text-white transition-colors">Packages</a>
+          <a href={getLoginUrl()} className="hover:text-white transition-colors">Portal Login</a>
+        </div>
+      </div>
+    </footer>
+  );
+}
+
+export default function Landing() {
+  return (
+    <div
+      className="min-h-screen"
+      style={{
+        background: "radial-gradient(circle at top left, rgba(57,167,255,0.18) 0%, transparent 35%), radial-gradient(circle at 80% 20%, rgba(110,231,183,0.10) 0%, transparent 30%), linear-gradient(135deg, #07111f, #0d1f35)",
+        color: "#f5f8fc",
+      }}
+    >
+      <NavBar />
+      <main>
+        <Hero />
+        <Services />
+        <HowItWorks />
+        <Packages />
+        <PortalSection />
+        <WhoWeServe />
+        <CTA />
+      </main>
+      <Footer />
+    </div>
+  );
+}

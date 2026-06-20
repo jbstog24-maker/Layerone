@@ -10,6 +10,7 @@ import {
   Truck, Server, Archive, Ship, FileText,
   Package, Warehouse, Box, ArrowRight, Loader2
 } from "lucide-react";
+import { useEffect } from "react";
 import { useLocation } from "wouter";
 
 function StatCard({ icon: Icon, label, value, sub, color, href }: {
@@ -174,6 +175,13 @@ function CustomerDashboard() {
 export default function Home() {
   const { user, loading, isAuthenticated } = useAuth();
   const role = (user as any)?.role ?? "";
+  const [, setLocation] = useLocation();
+
+  useEffect(() => {
+    if (!loading && !isAuthenticated) {
+      setLocation("/");
+    }
+  }, [loading, isAuthenticated, setLocation]);
 
   if (loading) {
     return (
@@ -185,19 +193,8 @@ export default function Home() {
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-background gap-6 px-4">
-        <div className="text-center space-y-3">
-          <div className="w-16 h-16 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center mx-auto">
-            <Server className="w-8 h-8 text-primary" />
-          </div>
-          <h1 className="text-3xl font-bold tracking-tight">StagingOps Portal</h1>
-          <p className="text-muted-foreground max-w-sm">
-            Network staging, receiving, inventory, and logistics — all in one place.
-          </p>
-        </div>
-        <Button size="lg" onClick={() => window.location.href = getLoginUrl()}>
-          Sign In to Continue
-        </Button>
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
     );
   }
