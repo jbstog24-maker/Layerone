@@ -33,6 +33,7 @@ function NavBar() {
           <a href="#services" className="hover:text-white transition-colors">Services</a>
           <a href="#how-it-works" className="hover:text-white transition-colors">How It Works</a>
           <a href="#packages" className="hover:text-white transition-colors">Packages</a>
+          <a href="#addons" className="hover:text-white transition-colors">Add-ons</a>
           <a href="#facility" className="hover:text-white transition-colors">Facility</a>
           <a href="#portal" className="hover:text-white transition-colors">Customer Portal</a>
         </nav>
@@ -279,37 +280,42 @@ function Packages() {
   const tiers = [
     {
       name: "Basic",
-      price: "Contact us",
-      desc: "For small teams with occasional staging needs.",
-      features: ["Up to 50 devices/mo", "5 pallets storage", "10 boxes included", "Email support", "Customer portal access"],
+      price: "$499",
+      priceSuffix: "/project",
+      desc: "First-time customers testing the service on a small deployment.",
+      features: ["One project, up to 14 days", "Up to 5 active devices", "Up to 5 boxes received", "Intake photos & serial/MAC capture", "1 outbound shipment coordination", "Staging labor billed separately"],
       featured: false,
     },
     {
       name: "Standard",
-      price: "Contact us",
-      desc: "For growing MSPs with regular project volume.",
-      features: ["Up to 150 devices/mo", "15 pallets storage", "30 boxes included", "Priority support", "Photo documentation", "Activity log"],
+      price: "$750",
+      priceSuffix: "/month starting",
+      desc: "Light recurring receiving, organization, and short-term storage.",
+      features: ["Up to 10 active devices stored", "Up to 10 boxes/month", "Up to 1 pallet/month", "30-day storage per item", "3 outbound shipment coordinations/mo", "Monthly usage summary"],
       featured: false,
     },
     {
       name: "Professional",
-      price: "Contact us",
-      desc: "For active rollout teams with high throughput.",
-      features: ["Up to 400 devices/mo", "40 pallets storage", "75 boxes included", "Dedicated coordinator", "Rush staging available", "Full billing dashboard"],
+      price: "$1,500",
+      priceSuffix: "/month starting",
+      desc: "Recurring deployment work with more receiving volume and organized staging capacity.",
+      features: ["Up to 30 active devices stored", "Up to 25 boxes/month", "Up to 2 pallets/month", "30-day storage per item", "8 outbound shipment coordinations/mo", "Dock/ramp coordination available"],
       featured: true,
     },
     {
       name: "Enterprise",
-      price: "Contact us",
-      desc: "For large-scale deployments with custom SLAs.",
-      features: ["Unlimited devices", "Unlimited storage", "Custom box allotment", "24/7 support", "Custom workflows", "API access"],
+      price: "$3,500",
+      priceSuffix: "/month starting",
+      desc: "Dedicated staging zone with higher volume and a dedicated NSDS-managed workflow.",
+      features: ["Up to 75 active devices stored", "Up to 75 boxes/month", "Up to 6 pallets/month", "45-day storage per item", "20 outbound shipment coordinations/mo", "Weekly inventory report + 1 project call/mo"],
       featured: false,
     },
     {
       name: "Custom",
-      price: "Let's talk",
-      desc: "Tailored to your exact project requirements.",
-      features: ["Fully custom limits", "Dedicated team", "White-glove service", "On-site options", "Custom integrations", "Executive reporting"],
+      price: "Custom",
+      priceSuffix: "/project or month",
+      desc: "Multi-site deployments, national rollouts, POS, security, and franchise tech rollouts.",
+      features: ["Up to 150 active devices stored", "Up to 200 boxes/month", "Up to 20 pallets/month", "60-day storage per item", "50 outbound shipment coordinations/mo", "Chain-of-custody tracking & custom labor"],
       featured: false,
     },
   ];
@@ -339,6 +345,10 @@ function Packages() {
                 </div>
               )}
               <h3 className="text-lg font-black text-white mb-1">{t.name}</h3>
+              <div className="mb-3">
+                <span className="text-2xl font-black text-[#39a7ff]">{t.price}</span>
+                <span className="text-xs text-[#b7c5d5] ml-1">{t.priceSuffix}</span>
+              </div>
               <p className="text-xs text-[#b7c5d5] mb-4 leading-relaxed">{t.desc}</p>
               <ul className="space-y-2 flex-1 mb-5">
                 {t.features.map(f => (
@@ -360,6 +370,63 @@ function Packages() {
               </button>
             </div>
           ))}
+        </div>
+
+        {/* Pricing note */}
+        <p className="mt-6 text-xs text-[#b7c5d5]/60 text-center">
+          Final pricing depends on selected DFW facility, storage footprint, receiving volume, and exact work scope. 3, 6, or 12-month terms available.
+        </p>
+      </div>
+    </section>
+  );
+}
+
+function AddOns() {
+  const addons = [
+    { item: "Extra device stored", rate: "$15–$35/device/mo", note: "When stored device count exceeds package limit" },
+    { item: "Extra parcel received", rate: "$10–$25/box", note: "Includes intake logging, photos & project assignment" },
+    { item: "Extra pallet", rate: "$100–$250/pallet", note: "Rate depends on facility, size, handling & storage duration" },
+    { item: "Extended storage", rate: "$10–$25/day", note: "After included duration: 14d Pilot · 30d Shelf/Bay · 45d Dedicated · 60d Rollout" },
+    { item: "Extra outbound shipment", rate: "$25–$75/shipment", note: "Packing coordination, labels, carrier handoff & documentation" },
+    { item: "Inventory & asset capture", rate: "$15/device", note: "Model, serial, MAC address, asset photo & inventory log" },
+    { item: "Site-kit assembly", rate: "$250+/site kit", note: "Devices, patch cables, labels, packing list & install notes" },
+    { item: "NSDS staging technician", rate: "$95–$125/hr", note: "Labeling, firmware checks, packing, site-kit prep & approved staging tasks" },
+    { item: "Senior network technician", rate: "$135–$175/hr", note: "Switch, firewall, VLAN, VPN, IP plan & deployment readiness review" },
+    { item: "Rush / weekend / after-hours", rate: "1.5×–2× rate", note: "Minimum labor block may apply" },
+  ];
+
+  return (
+    <section id="addons" className="py-20 border-t border-white/8">
+      <div className="max-w-6xl mx-auto px-6">
+        <div className="mb-10">
+          <h2 className="text-4xl font-black tracking-[-1.5px] text-white mb-3">Overages &amp; add-on services</h2>
+          <p className="text-[#b7c5d5] text-lg max-w-2xl">
+            Package limits keep pricing predictable. Any volume or work outside the included allowance is billed as an overage or add-on after approval.
+          </p>
+        </div>
+        <div className="rounded-2xl border border-white/10 overflow-hidden">
+          <div className="grid grid-cols-3 bg-white/8 px-5 py-3 text-xs font-bold text-[#b7c5d5] uppercase tracking-widest">
+            <span>Service / Overage</span>
+            <span>Starting Rate</span>
+            <span>Notes</span>
+          </div>
+          {addons.map((a, i) => (
+            <div
+              key={a.item}
+              className={`grid grid-cols-3 px-5 py-4 text-sm gap-4 ${
+                i % 2 === 0 ? "bg-white/[0.03]" : "bg-transparent"
+              } border-t border-white/6`}
+            >
+              <span className="font-semibold text-white">{a.item}</span>
+              <span className="text-[#39a7ff] font-bold">{a.rate}</span>
+              <span className="text-[#b7c5d5] text-xs leading-relaxed">{a.note}</span>
+            </div>
+          ))}
+        </div>
+        <div className="mt-5 rounded-xl border border-[#fbbf24]/25 bg-[#fbbf24]/8 px-5 py-4">
+          <p className="text-[#ffe7a8] text-sm leading-relaxed">
+            <span className="font-bold">Not included by default:</span> unlimited storage, unlimited dock usage, free packing materials, shipping carrier costs, advanced configuration labor, troubleshooting, disposal/recycling, or insurance for unusually high-value equipment — unless added in writing.
+          </p>
         </div>
       </div>
     </section>
@@ -688,6 +755,7 @@ export default function Landing() {
         <Services />
         <HowItWorks />
         <Packages />
+        <AddOns />
         <PortalSection />
         <WhoWeServe />
         <FacilityGallery />
