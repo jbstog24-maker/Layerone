@@ -200,3 +200,12 @@
 - [x] Insert Messages section into ClientDetail page (visible to all roles)
 - [x] Owner notification when customer sends a message
 - [x] Write vitest tests for messages router (4 new tests, 26 total passing)
+
+## Global Messages Inbox
+- [x] Add DB helpers: listAllThreads (latest msg per client + unread count), countTotalUnread
+- [x] Add messages.threads and messages.totalUnread tRPC procedures
+- [x] Build global Messages inbox page (/messages) with thread list, search, unread filter, and inline reply panel
+- [x] Add Messages nav item to admin/staff sidebar with live unread count badge
+- [x] Wire /messages route in App.tsx
+- [x] Unread badge polls every 30s and shows count on Messages sidebar item
+- [x] Write vitest tests for threads and totalUnread procedures (4 new tests, 32 total passing)

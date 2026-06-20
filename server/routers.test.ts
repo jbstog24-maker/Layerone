@@ -77,6 +77,8 @@ vi.mock("./db", () => ({
   sendClientMessage: vi.fn().mockResolvedValue(undefined),
   markClientMessagesRead: vi.fn().mockResolvedValue(undefined),
   countUnreadClientMessages: vi.fn().mockResolvedValue(0),
+  listAllThreads: vi.fn().mockResolvedValue([]),
+  countTotalUnread: vi.fn().mockResolvedValue(0),
 }));
 
 vi.mock("./storage", () => ({
@@ -318,5 +320,35 @@ describe("inquiry.list", () => {
     const ctx = makeCtx("customer_viewer", 1);
     const caller = appRouter.createCaller(ctx);
     await expect(caller.inquiry.list({})).rejects.toThrow();
+  });
+});
+
+describe("messages.threads", () => {
+  it("returns thread list for admin", async () => {
+    const ctx = makeCtx("admin");
+    const caller = appRouter.createCaller(ctx);
+    const result = await caller.messages.threads();
+    expect(Array.isArray(result)).toBe(true);
+  });
+
+  it("throws FORBIDDEN for customer_viewer", async () => {
+    const ctx = makeCtx("customer_viewer", 1);
+    const caller = appRouter.createCaller(ctx);
+    await expect(caller.messages.threads()).rejects.toThrow();
+  });
+});
+
+describe("messages.totalUnread", () => {
+  it("returns 0 for admin", async () => {
+    const ctx = makeCtx("admin");
+    const caller = appRouter.createCaller(ctx);
+    const result = await caller.messages.totalUnread();
+    expect(result).toBe(0);
+  });
+
+  it("throws FORBIDDEN for customer_viewer", async () => {
+    const ctx = makeCtx("customer_viewer", 1);
+    const caller = appRouter.createCaller(ctx);
+    await expect(caller.messages.totalUnread()).rejects.toThrow();
   });
 });

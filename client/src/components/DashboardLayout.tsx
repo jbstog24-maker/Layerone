@@ -35,6 +35,7 @@ import {
   Inbox,
   LayoutDashboard,
   LogOut,
+  MessageSquare,
   Package,
   PanelLeft,
   Server,
@@ -44,6 +45,7 @@ import {
   Users,
   Warehouse,
 } from "lucide-react";
+import { trpc } from "@/lib/trpc";
 import { CSSProperties, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
 import { DashboardLayoutSkeleton } from "./DashboardLayoutSkeleton";
@@ -77,6 +79,7 @@ const NAV_GROUPS: NavGroup[] = [
       { icon: Package, label: "Packages", path: "/packages", roles: ["admin"] },
       { icon: FileText, label: "Documents", path: "/documents", roles: ["admin", "staff"] },
       { icon: Inbox, label: "Inquiries", path: "/inquiries", roles: ["admin", "staff"] },
+      { icon: MessageSquare, label: "Messages", path: "/messages", roles: ["admin", "staff"] },
       { icon: Users, label: "Users", path: "/users", roles: ["admin"] },
     ],
   },
@@ -185,6 +188,13 @@ function DashboardLayoutContent({
   const sidebarRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
   const role = (user as any)?.role ?? "customer_viewer";
+  const isAdminOrStaff = role === "admin" || role === "staff";
+
+  // Unread message count for badge
+  const { data: totalUnread = 0 } = trpc.messages.totalUnread.useQuery(
+    undefined,
+    { enabled: isAdminOrStaff, refetchInterval: 30_000 },
+  );
 
   const roleLabel: Record<string, string> = {
     admin: "Admin",
@@ -274,7 +284,12 @@ function DashboardLayoutContent({
                             className={`h-9 transition-all text-sm ${isActive ? "bg-sidebar-accent text-sidebar-primary font-medium" : "text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/50"}`}
                           >
                             <item.icon className={`h-4 w-4 shrink-0 ${isActive ? "text-primary" : ""}`} />
-                            <span className="truncate overflow-hidden min-w-0">{item.label}</span>
+                            <span className="truncate overflow-hidden min-w-0 flex-1">{item.label}</span>
+                            {item.path === "/messages" && totalUnread > 0 && !isCollapsed && (
+                              <span className="shrink-0 ml-auto min-w-[18px] h-[18px] rounded-full bg-primary text-primary-foreground text-[10px] flex items-center justify-center font-bold px-1">
+                                {totalUnread > 99 ? "99+" : totalUnread}
+                              </span>
+                            )}
                           </SidebarMenuButton>
                         </SidebarMenuItem>
                       );

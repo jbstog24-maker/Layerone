@@ -5,6 +5,8 @@ import {
   sendClientMessage,
   markClientMessagesRead,
   countUnreadClientMessages,
+  listAllThreads,
+  countTotalUnread,
   getClient,
 } from "../db";
 import { TRPCError } from "@trpc/server";
@@ -76,6 +78,24 @@ export const messagesRouter = router({
       }
       await markClientMessagesRead(input.clientId, forStaff);
       return { success: true };
+    }),
+
+  // List all client threads (admin/staff only)
+  threads: protectedProcedure
+    .query(async ({ ctx }) => {
+      if (!isStaffOrAdmin(ctx.user?.role)) {
+        throw new TRPCError({ code: "FORBIDDEN" });
+      }
+      return listAllThreads();
+    }),
+
+  // Total unread count across all threads (admin/staff only)
+  totalUnread: protectedProcedure
+    .query(async ({ ctx }) => {
+      if (!isStaffOrAdmin(ctx.user?.role)) {
+        throw new TRPCError({ code: "FORBIDDEN" });
+      }
+      return countTotalUnread();
     }),
 
   // Count unread messages for a client thread (staff perspective)

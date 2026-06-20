@@ -746,3 +746,63 @@ export async function countUnreadClientMessages(clientId: number, forStaff: bool
     );
   return Number(row?.count ?? 0);
 }
+
+// Returns one row per client that has at least one message, with latest message preview and unread count (for staff)
+export async function listAllThreads() {
+  const db = await getDb();
+  if (!db) return [];
+
+  // Get all clients that have messages, with latest message info
+  const rows = await db
+    .select({
+      clientId: clientMessages.clientId,
+      latestBody: sql<string>`(SELECT body FROM client_messages cm2 WHERE cm2.clientId = ${clientMessages.clientId} ORDER BY cm2.createdAt DESC LIMIT 1)`,
+      latestAt: sql<Date>`(SELECT createdAt FROM client_messages cm2 WHERE cm2.clientId = ${clientMessages.clientId} ORDER BY cm2.createdAt DESC LIMIT 1)`,
+      latestSenderRole: sql<string>`(SELECT senderRole FROM client_messages cm2 WHERE cm2.clientId = ${clientMessages.clientId} ORDER BY cm2.createdAt DESC LIMIT 1)`,
+      latestSenderName: sql<string>`(SELECT senderName FROM client_messages cm2 WHERE cm2.clientId = ${clientMessages.clientId} ORDER BY cm2.createdAt DESC LIMIT 1)`,
+      unreadCount: sql<number>`SUM(CASE WHEN ${clientMessages.senderRole} IN ('customer_admin','customer_viewer') AND ${clientMessages.readAt} IS NULL THEN 1 ELSE 0 END)`,
+      totalMessages: sql<number>`COUNT(*)`,
+    })
+    .from(clientMessages)
+    .groupBy(clientMessages.clientId)
+    .orderBy(sql`latestAt DESC`);
+
+  // Fetch client names for the thread list
+  const clientIds = rows.map((r) => r.clientId);
+  if (clientIds.length === 0) return [];
+
+  const clientRows = await db
+    .select({ id: clients.id, companyName: clients.companyName, contactName: clients.contactName, status: clients.status })
+    .from(clients)
+    .where(sql`${clients.id} IN (${sql.join(clientIds.map((id) => sql`${id}`), sql`, `)})`);
+
+  const clientMap = Object.fromEntries(clientRows.map((c) => [c.id, c]));
+
+  return rows.map((r) => ({
+    clientId: r.clientId,
+    companyName: clientMap[r.clientId]?.companyName ?? "Unknown",
+    contactName: clientMap[r.clientId]?.contactName ?? null,
+    clientStatus: clientMap[r.clientId]?.status ?? "active",
+    latestBody: r.latestBody,
+    latestAt: r.latestAt,
+    latestSenderRole: r.latestSenderRole,
+    latestSenderName: r.latestSenderName,
+    unreadCount: Number(r.unreadCount ?? 0),
+    totalMessages: Number(r.totalMessages ?? 0),
+  }));
+}
+
+export async function countTotalUnread() {
+  const db = await getDb();
+  if (!db) return 0;
+  const [row] = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(clientMessages)
+    .where(
+      and(
+        sql`${clientMessages.senderRole} IN ('customer_admin','customer_viewer')`,
+        sql`${clientMessages.readAt} IS NULL`,
+      ),
+    );
+  return Number(row?.count ?? 0);
+}

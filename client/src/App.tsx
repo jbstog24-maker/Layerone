@@ -21,6 +21,7 @@ import Users from "./pages/Users";
 import PackageDetail from "./pages/PackageDetail";
 import Documents from "./pages/Documents";
 import Inquiries from "./pages/Inquiries";
+import Messages from "./pages/Messages";
 
 function Router() {
   return (
@@ -68,6 +69,7 @@ function Router() {
       <Route path="/activity" component={ActivityLog} />
       <Route path="/users" component={Users} />
       <Route path="/inquiries" component={Inquiries} />
+      <Route path="/messages" component={Messages} />
 
       {/* Package detail */}
       <Route path="/packages/:tier" component={PackageDetail} />
