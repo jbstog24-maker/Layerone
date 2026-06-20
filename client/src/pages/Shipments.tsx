@@ -14,9 +14,10 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
-import { Ship, Plus, ChevronRight, Package } from "lucide-react";
+import { Ship, Plus, ChevronRight, Package, FileText } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { useAuth } from "@/_core/hooks/useAuth";
+import ShipmentDocuments from "@/components/ShipmentDocuments";
 
 function ShipmentForm({ onClose }: { onClose: () => void }) {
   const utils = trpc.useUtils();
@@ -229,12 +230,26 @@ export function ShipmentDetail() {
           )}
         </div>
 
-        <Card className="bg-card/60 border-border/50">
-          <CardHeader><CardTitle className="text-sm">Photos</CardTitle></CardHeader>
-          <CardContent>
-            <PhotoGallery entityType="shipment" entityId={id} clientId={shipment.clientId} showUpload={isStaff} />
-          </CardContent>
-        </Card>
+        <div className="space-y-4">
+          <Card className="bg-card/60 border-border/50">
+            <CardHeader><CardTitle className="text-sm">Photos</CardTitle></CardHeader>
+            <CardContent>
+              <PhotoGallery entityType="shipment" entityId={id} clientId={shipment.clientId} showUpload={isStaff} />
+            </CardContent>
+          </Card>
+
+          <Card className="bg-card/60 border-border/50">
+            <CardHeader>
+              <CardTitle className="text-sm flex items-center gap-2">
+                <FileText className="w-4 h-4 text-blue-400" />
+                Documents
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ShipmentDocuments shipmentId={id} clientId={shipment.clientId} />
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </DashboardLayout>
   );

@@ -14,6 +14,7 @@ import { inquiryRouter } from "./routers/inquiry";
 import { documentsRouter } from "./routers/documents";
 import { messagesRouter } from "./routers/messages";
 import { forwardingRouter } from "./routers/forwarding";
+import { shipmentDocsRouter } from "./routers/shipmentDocs";
 
 export const appRouter = router({
   system: systemRouter,
@@ -43,6 +44,7 @@ export const appRouter = router({
   documents: documentsRouter,
   messages: messagesRouter,
   forwarding: forwardingRouter,
+  shipmentDocs: shipmentDocsRouter,
 });
 
 export type AppRouter = typeof appRouter;

@@ -457,3 +457,22 @@ export const clientMessages = mysqlTable("client_messages", {
 
 export type ClientMessage = typeof clientMessages.$inferSelect;
 export type InsertClientMessage = typeof clientMessages.$inferInsert;
+
+// ─── Shipment Documents ───────────────────────────────────────────────────────
+export const shipmentDocuments = mysqlTable("shipment_documents", {
+  id: int("id").autoincrement().primaryKey(),
+  shipmentId: int("shipmentId").notNull(),
+  clientId: int("clientId").notNull(),
+  uploadedById: int("uploadedById").notNull(), // user.id who uploaded
+  uploadedByName: varchar("uploadedByName", { length: 200 }),
+  filename: varchar("filename", { length: 512 }).notNull(),
+  mimeType: varchar("mimeType", { length: 128 }).notNull(),
+  fileSize: int("fileSize"), // bytes
+  fileKey: varchar("fileKey", { length: 1024 }).notNull(),
+  fileUrl: varchar("fileUrl", { length: 2048 }).notNull(),
+  label: varchar("label", { length: 256 }), // optional user-provided label
+  notes: text("notes"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type ShipmentDocument = typeof shipmentDocuments.$inferSelect;
+export type InsertShipmentDocument = typeof shipmentDocuments.$inferInsert;

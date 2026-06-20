@@ -284,3 +284,14 @@
 - [x] Wire /my-devices route in App.tsx
 - [x] Write vitest tests for forwarding router (8 tests: myItems x2, updateDevice x3, updateBox x1, updatePallet x1)
 - [x] 58 tests passing, 0 TypeScript errors
+
+## Shipment Document Uploads (Customer + Admin/Staff)
+- [x] Add shipmentDocuments table (id, shipmentId, clientId, uploadedById, filename, mimeType, fileKey, fileUrl, label, notes, createdAt)
+- [x] Run Drizzle migration and apply SQL
+- [x] Add DB helpers: listShipmentDocuments, addShipmentDocument, deleteShipmentDocument
+- [x] Add S3 presigned upload URL endpoint (POST /api/shipment-docs/upload)
+- [x] Build shipmentDocs tRPC router: list, getUploadUrl, confirmUpload, delete (customer ownership-gated)
+- [x] Build ShipmentDocuments component: drag-and-drop upload zone, document list with file type icons, download/delete actions
+- [x] Add Documents tab/section to ShipmentDetail page (visible to customer + admin/staff)
+- [x] Wire upload URL → S3 PUT → confirm save flow
+- [x] Write Vitest tests for shipmentDocs router

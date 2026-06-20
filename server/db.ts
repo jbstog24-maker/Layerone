@@ -40,6 +40,7 @@ import {
   clientMessages,
   type ClientMessage,
   type InsertClientMessage,
+  shipmentDocuments,
 } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 import { nanoid } from "nanoid";
@@ -922,4 +923,50 @@ export async function listStagedPalletsForClient(clientId: number) {
       )
     )
     .orderBy(desc(pallets.updatedAt));
+}
+
+// ─── Shipment Documents ───────────────────────────────────────────────────────
+
+export async function listShipmentDocuments(shipmentId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(shipmentDocuments)
+    .where(eq(shipmentDocuments.shipmentId, shipmentId))
+    .orderBy(desc(shipmentDocuments.createdAt));
+}
+
+export async function addShipmentDocument(data: {
+  shipmentId: number;
+  clientId: number;
+  uploadedById: number;
+  uploadedByName?: string;
+  filename: string;
+  mimeType: string;
+  fileSize?: number;
+  fileKey: string;
+  fileUrl: string;
+  label?: string;
+  notes?: string;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("DB unavailable");
+  const result = await db.insert(shipmentDocuments).values(data);
+  const [row] = await db.select().from(shipmentDocuments)
+    .where(eq(shipmentDocuments.id, (result as any).insertId))
+    .limit(1);
+  return row;
+}
+
+export async function getShipmentDocument(id: number) {
+  const db = await getDb();
+  if (!db) return null;
+  const [row] = await db.select().from(shipmentDocuments)
+    .where(eq(shipmentDocuments.id, id)).limit(1);
+  return row ?? null;
+}
+
+export async function deleteShipmentDocument(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("DB unavailable");
+  await db.delete(shipmentDocuments).where(eq(shipmentDocuments.id, id));
 }

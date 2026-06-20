@@ -93,11 +93,17 @@ vi.mock("./db", () => ({
   listStagedDevicesForClient: vi.fn().mockResolvedValue([]),
   listStagedBoxesForClient: vi.fn().mockResolvedValue([]),
   listStagedPalletsForClient: vi.fn().mockResolvedValue([]),
+  // Shipment document helpers
+  listShipmentDocuments: vi.fn().mockResolvedValue([]),
+  addShipmentDocument: vi.fn().mockResolvedValue({ id: 10, shipmentId: 1, clientId: 1, uploadedById: 1, uploadedByName: "Test User", filename: "doc.pdf", mimeType: "application/pdf", fileSize: 1024, fileKey: "test-key", fileUrl: "/manus-storage/test-key", label: null, notes: null, createdAt: new Date() }),
+  getShipmentDocument: vi.fn().mockResolvedValue(null),
+  deleteShipmentDocument: vi.fn().mockResolvedValue(undefined),
 }));
 
 vi.mock("./storage", () => ({
   storagePut: vi.fn().mockResolvedValue({ key: "test-key", url: "https://example.com/photo.jpg" }),
   storageGet: vi.fn().mockResolvedValue({ key: "test-key", url: "https://example.com/photo.jpg" }),
+  storageGetSignedUrl: vi.fn().mockResolvedValue("https://example.com/signed-url"),
 }));
 
 function makeCtx(role: string, clientId?: number): TrpcContext {
@@ -582,5 +588,129 @@ describe("forwarding.updatePallet", () => {
       forwardingStatus: "delivered",
     });
     expect(result).toBeDefined();
+  });
+});
+
+// ─── shipmentDocs tests ───────────────────────────────────────────────────────
+describe("shipmentDocs.list", () => {
+  it("returns documents for admin", async () => {
+    const ctx = makeCtx("admin");
+    const caller = appRouter.createCaller(ctx);
+    const result = await caller.shipmentDocs.list({ shipmentId: 1 });
+    expect(Array.isArray(result)).toBe(true);
+  });
+
+  it("returns documents for customer_admin on their own shipment", async () => {
+    const ctx = makeCtx("customer_admin", 1);
+    const caller = appRouter.createCaller(ctx);
+    const result = await caller.shipmentDocs.list({ shipmentId: 1 });
+    expect(Array.isArray(result)).toBe(true);
+  });
+
+  it("returns documents for customer_viewer", async () => {
+    const ctx = makeCtx("customer_viewer", 1);
+    const caller = appRouter.createCaller(ctx);
+    const result = await caller.shipmentDocs.list({ shipmentId: 1 });
+    expect(Array.isArray(result)).toBe(true);
+  });
+});
+
+describe("shipmentDocs.upload", () => {
+  it("allows customer_admin to upload a document to their own shipment", async () => {
+    const ctx = makeCtx("customer_admin", 1);
+    const caller = appRouter.createCaller(ctx);
+    const result = await caller.shipmentDocs.upload({
+      shipmentId: 1,
+      clientId: 1,
+      filename: "packing-list.pdf",
+      mimeType: "application/pdf",
+      fileSize: 2048,
+      fileDataBase64: Buffer.from("fake-pdf-content").toString("base64"),
+      label: "Packing List",
+    });
+    expect(result).toHaveProperty("id");
+    expect(result.filename).toBe("doc.pdf"); // from mock
+  });
+
+  it("throws FORBIDDEN when customer uploads to another client's shipment", async () => {
+    const ctx = makeCtx("customer_admin", 2); // clientId=2 but uploading to clientId=1
+    const caller = appRouter.createCaller(ctx);
+    await expect(
+      caller.shipmentDocs.upload({
+        shipmentId: 1,
+        clientId: 1,
+        filename: "doc.pdf",
+        mimeType: "application/pdf",
+        fileDataBase64: Buffer.from("content").toString("base64"),
+      })
+    ).rejects.toThrow();
+  });
+
+  it("allows staff to upload a document to any shipment", async () => {
+    const ctx = makeCtx("staff");
+    const caller = appRouter.createCaller(ctx);
+    const result = await caller.shipmentDocs.upload({
+      shipmentId: 5,
+      clientId: 3,
+      filename: "bol.pdf",
+      mimeType: "application/pdf",
+      fileDataBase64: Buffer.from("bol-content").toString("base64"),
+    });
+    expect(result).toHaveProperty("id");
+  });
+});
+
+describe("shipmentDocs.getDownloadUrl", () => {
+  it("throws NOT_FOUND when document does not exist", async () => {
+    const { getShipmentDocument } = await import("./db");
+    (getShipmentDocument as any).mockResolvedValueOnce(null);
+    const ctx = makeCtx("admin");
+    const caller = appRouter.createCaller(ctx);
+    await expect(caller.shipmentDocs.getDownloadUrl({ docId: 999 })).rejects.toThrow();
+  });
+
+  it("returns signed URL for admin", async () => {
+    const { getShipmentDocument } = await import("./db");
+    (getShipmentDocument as any).mockResolvedValueOnce({ id: 10, shipmentId: 1, clientId: 1, uploadedById: 1, filename: "doc.pdf", mimeType: "application/pdf", fileKey: "test-key", fileUrl: "/manus-storage/test-key", createdAt: new Date() });
+    const ctx = makeCtx("admin");
+    const caller = appRouter.createCaller(ctx);
+    const result = await caller.shipmentDocs.getDownloadUrl({ docId: 10 });
+    expect(result.url).toBe("https://example.com/signed-url");
+    expect(result.filename).toBe("doc.pdf");
+  });
+
+  it("throws FORBIDDEN when customer accesses another client's document", async () => {
+    const { getShipmentDocument } = await import("./db");
+    (getShipmentDocument as any).mockResolvedValueOnce({ id: 10, shipmentId: 1, clientId: 2, uploadedById: 5, filename: "doc.pdf", mimeType: "application/pdf", fileKey: "test-key", fileUrl: "/manus-storage/test-key", createdAt: new Date() });
+    const ctx = makeCtx("customer_admin", 1); // clientId=1 but doc belongs to clientId=2
+    const caller = appRouter.createCaller(ctx);
+    await expect(caller.shipmentDocs.getDownloadUrl({ docId: 10 })).rejects.toThrow();
+  });
+});
+
+describe("shipmentDocs.delete", () => {
+  it("allows admin to delete any document", async () => {
+    const { getShipmentDocument } = await import("./db");
+    (getShipmentDocument as any).mockResolvedValueOnce({ id: 10, shipmentId: 1, clientId: 1, uploadedById: 5, filename: "doc.pdf", mimeType: "application/pdf", fileKey: "test-key", fileUrl: "/manus-storage/test-key", createdAt: new Date() });
+    const ctx = makeCtx("admin");
+    const caller = appRouter.createCaller(ctx);
+    const result = await caller.shipmentDocs.delete({ docId: 10 });
+    expect(result.success).toBe(true);
+  });
+
+  it("throws FORBIDDEN when customer tries to delete another user's document", async () => {
+    const { getShipmentDocument } = await import("./db");
+    (getShipmentDocument as any).mockResolvedValueOnce({ id: 10, shipmentId: 1, clientId: 1, uploadedById: 99, filename: "doc.pdf", mimeType: "application/pdf", fileKey: "test-key", fileUrl: "/manus-storage/test-key", createdAt: new Date() });
+    const ctx = makeCtx("customer_admin", 1); // uploadedById=99, but ctx.user.id=1
+    const caller = appRouter.createCaller(ctx);
+    await expect(caller.shipmentDocs.delete({ docId: 10 })).rejects.toThrow();
+  });
+
+  it("throws NOT_FOUND when document does not exist", async () => {
+    const { getShipmentDocument } = await import("./db");
+    (getShipmentDocument as any).mockResolvedValueOnce(null);
+    const ctx = makeCtx("admin");
+    const caller = appRouter.createCaller(ctx);
+    await expect(caller.shipmentDocs.delete({ docId: 999 })).rejects.toThrow();
   });
 });
