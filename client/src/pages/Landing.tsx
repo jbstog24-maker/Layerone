@@ -4,7 +4,8 @@ import { useLocation } from "wouter";
 import {
   Shield, Truck, Server, Package, Warehouse, Box,
   ArrowRight, CheckCircle, ChevronRight, Zap, Lock,
-  BarChart3, FileText, Camera, Activity
+  BarChart3, FileText, Camera, Activity,
+  Thermometer, Video, Dock, MapPin
 } from "lucide-react";
 
 const LOGO_URL = "/manus-storage/nsds-logo_ab936943.svg";
@@ -32,6 +33,7 @@ function NavBar() {
           <a href="#services" className="hover:text-white transition-colors">Services</a>
           <a href="#how-it-works" className="hover:text-white transition-colors">How It Works</a>
           <a href="#packages" className="hover:text-white transition-colors">Packages</a>
+          <a href="#facility" className="hover:text-white transition-colors">Facility</a>
           <a href="#portal" className="hover:text-white transition-colors">Customer Portal</a>
         </nav>
         <div className="flex items-center gap-3">
@@ -94,7 +96,7 @@ function Hero() {
             </p>
             <div className="flex flex-wrap gap-3 mb-8">
               <a
-                href={isAuthenticated ? "/" : getLoginUrl()}
+                href={isAuthenticated ? "/dashboard" : getLoginUrl()}
                 className="flex items-center gap-2 px-5 py-3 rounded-xl font-bold bg-gradient-to-r from-[#39a7ff] to-[#6ee7b7] text-[#06111f] hover:-translate-y-0.5 transition-transform shadow-[0_14px_34px_rgba(57,167,255,0.24)]"
               >
                 {isAuthenticated ? "Open Dashboard" : "Access Your Portal"} <ArrowRight className="w-4 h-4" />
@@ -506,6 +508,115 @@ function WhoWeServe() {
   );
 }
 
+const FACILITY_IMAGES = [
+  {
+    src: "/manus-storage/facility-shelving-enhanced_6e6d074b.png",
+    title: "Secure Inventory Storage",
+    desc: "Network equipment organized on industrial pallet racking — Cisco, Dell, Juniper, and HP gear stored safely until deployment.",
+    callouts: [
+      { icon: Video, label: "24/7 Camera Surveillance", pos: "top-4 left-4" },
+      { icon: Thermometer, label: "Climate Controlled · 68°F", pos: "top-4 right-4" },
+    ],
+  },
+  {
+    src: "/manus-storage/facility-corridor-enhanced_ce9b4877.png",
+    title: "Secure Access Corridor",
+    desc: "Individual secured units line the main corridor — each client's equipment is isolated, labeled, and access-controlled.",
+    callouts: [
+      { icon: Video, label: "Multi-Camera Coverage", pos: "top-4 left-4" },
+      { icon: Shield, label: "Keypad-Secured Units", pos: "bottom-4 left-4" },
+    ],
+  },
+  {
+    src: "/manus-storage/facility-staging-unit-enhanced_6f9fc568.png",
+    title: "Dedicated Staging Bay",
+    desc: "Each staging unit has a dedicated ESD-safe workbench for configuring switches, routers, and servers to your exact specs.",
+    callouts: [
+      { icon: Video, label: "In-Unit Camera", pos: "top-4 right-4" },
+      { icon: Thermometer, label: "Climate Sensor · 68°F", pos: "bottom-4 left-4" },
+    ],
+  },
+  {
+    src: "/manus-storage/facility-dock-enhanced_40a695dc.png",
+    title: "Dock Access for Deliveries",
+    desc: "Roll-up dock doors with yellow safety bumpers accept palletized freight from any carrier — FedEx, UPS, LTL, and white-glove.",
+    callouts: [
+      { icon: Truck, label: "Dock-Height Access", pos: "bottom-4 right-4" },
+      { icon: Video, label: "Dock Camera", pos: "top-4 left-4" },
+    ],
+  },
+];
+
+function FacilityGallery() {
+  return (
+    <section id="facility" className="py-20 border-t border-white/8">
+      <div className="max-w-6xl mx-auto px-6">
+        <div className="mb-12">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/15 bg-white/5 text-[#b7c5d5] text-xs mb-6">
+            <MapPin className="w-3.5 h-3.5 text-[#39a7ff]" /> North Richland Hills, TX — Dallas Metro
+          </div>
+          <h2 className="text-4xl font-black tracking-[-1.5px] text-white mb-3">
+            Our facility, built for<br />
+            <span className="bg-gradient-to-r from-[#39a7ff] to-[#6ee7b7] bg-clip-text text-transparent">professional-grade staging.</span>
+          </h2>
+          <p className="text-[#b7c5d5] text-lg max-w-2xl">
+            Climate-controlled, camera-monitored, and dock-accessible — every square foot is purpose-built for receiving, staging, and shipping network equipment.
+          </p>
+        </div>
+
+        {/* Feature badges row */}
+        <div className="flex flex-wrap gap-3 mb-10">
+          {[
+            { icon: Video, label: "24/7 Video Surveillance" },
+            { icon: Thermometer, label: "Climate Controlled" },
+            { icon: Truck, label: "Dock Access" },
+            { icon: Shield, label: "Keypad-Secured Units" },
+            { icon: Lock, label: "Access-Controlled Entry" },
+          ].map(b => (
+            <div key={b.label} className="flex items-center gap-2 px-3.5 py-2 rounded-full border border-white/12 bg-white/5 text-[#b7c5d5] text-xs font-medium">
+              <b.icon className="w-3.5 h-3.5 text-[#39a7ff]" />
+              {b.label}
+            </div>
+          ))}
+        </div>
+
+        {/* 2x2 photo grid with callout overlays */}
+        <div className="grid md:grid-cols-2 gap-5">
+          {FACILITY_IMAGES.map(img => (
+            <div key={img.title} className="group relative rounded-2xl overflow-hidden border border-white/10 shadow-[0_12px_40px_rgba(0,0,0,0.4)]">
+              {/* Photo */}
+              <img
+                src={img.src}
+                alt={img.title}
+                className="w-full h-72 object-cover object-center group-hover:scale-[1.02] transition-transform duration-500"
+              />
+              {/* Dark gradient overlay */}
+              <div className="absolute inset-0 bg-gradient-to-t from-[#07111f]/90 via-[#07111f]/20 to-transparent" />
+
+              {/* Callout badges */}
+              {img.callouts.map(c => (
+                <div
+                  key={c.label}
+                  className={`absolute ${c.pos} flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-white/20 bg-[#07111f]/80 backdrop-blur-sm text-xs font-semibold text-white shadow-lg`}
+                >
+                  <c.icon className="w-3.5 h-3.5 text-[#39a7ff] shrink-0" />
+                  {c.label}
+                </div>
+              ))}
+
+              {/* Bottom caption */}
+              <div className="absolute bottom-0 left-0 right-0 p-5">
+                <h3 className="text-base font-bold text-white mb-1">{img.title}</h3>
+                <p className="text-xs text-[#b7c5d5] leading-relaxed">{img.desc}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function CTA() {
   const { isAuthenticated } = useAuth();
   return (
@@ -524,7 +635,7 @@ function CTA() {
             </p>
             <div className="flex flex-wrap gap-3 justify-center">
               <a
-                href={isAuthenticated ? "/" : getLoginUrl()}
+                href={isAuthenticated ? "/dashboard" : getLoginUrl()}
                 className="flex items-center gap-2 px-6 py-3.5 rounded-xl font-bold bg-gradient-to-r from-[#39a7ff] to-[#6ee7b7] text-[#06111f] hover:-translate-y-0.5 transition-transform shadow-[0_14px_34px_rgba(57,167,255,0.24)]"
               >
                 {isAuthenticated ? "Open Dashboard" : "Sign In to Portal"} <ArrowRight className="w-4 h-4" />
@@ -578,6 +689,7 @@ export default function Landing() {
         <Packages />
         <PortalSection />
         <WhoWeServe />
+        <FacilityGallery />
         <CTA />
       </main>
       <Footer />
