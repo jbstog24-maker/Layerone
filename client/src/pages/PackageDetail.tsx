@@ -7,7 +7,7 @@ import {
   Camera, Lock, Star, Phone, Mail, Building2, User, MessageSquare,
   Clock, BarChart3
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation, useParams } from "wouter";
 
 const LOGO_URL = "/manus-storage/nsds-logo_ab936943.svg";
@@ -397,6 +397,11 @@ export default function PackageDetail() {
   const { isAuthenticated } = useAuth();
   const tierId = params.tier?.toLowerCase() ?? "";
   const tier = TIERS[tierId];
+
+  // Scroll to top whenever the tier changes (navigating between package pages)
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "instant" });
+  }, [tierId]);
 
   if (!tier) {
     return (
