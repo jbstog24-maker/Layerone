@@ -252,3 +252,147 @@ export async function sendWelcomeEmail(params: WelcomeEmailParams): Promise<bool
     return false;
   }
 }
+
+// ─── Portal Invite Email (admin-provisioned users) ────────────────────────────
+
+export type PortalInviteEmailParams = {
+  to: string;
+  name: string;
+  businessName?: string | null;
+  role: string;
+  portalUrl?: string;
+};
+
+const ROLE_LABELS: Record<string, string> = {
+  admin: "Admin",
+  staff: "Staff",
+  customer_admin: "Customer Admin",
+  customer_viewer: "Customer Viewer",
+};
+
+function buildPortalInviteHtml(params: PortalInviteEmailParams): string {
+  const firstName = params.name.split(" ")[0] ?? params.name;
+  const portalUrl = params.portalUrl ?? ENV.portalUrl ?? "https://stagingops.manus.space";
+  const roleLabel = ROLE_LABELS[params.role] ?? params.role;
+  const supportEmail = ENV.supportEmail ?? "support@nsds.com";
+  const supportPhone = ENV.supportPhone ?? "(800) 000-0000";
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Your NSDS Portal Account is Ready</title>
+</head>
+<body style="margin:0;padding:0;background:#07111f;font-family:'Segoe UI',Arial,sans-serif;color:#e2e8f0;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#07111f;padding:32px 16px;">
+    <tr><td align="center">
+      <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;background:#0d1f35;border-radius:12px;border:1px solid #1e3a5f;overflow:hidden;">
+        <!-- Header -->
+        <tr><td style="background:linear-gradient(135deg,#0d1f35 0%,#0a2540 100%);padding:32px 40px;border-bottom:1px solid #1e3a5f;">
+          <table width="100%" cellpadding="0" cellspacing="0">
+            <tr>
+              <td>
+                <div style="display:flex;align-items:center;gap:12px;">
+                  <span style="font-size:22px;font-weight:800;color:#38bdf8;letter-spacing:-0.5px;">NSDS</span>
+                  <span style="color:#334155;font-size:18px;">|</span>
+                  <span style="font-size:13px;color:#64748b;letter-spacing:1px;text-transform:uppercase;">Network Staging & Deployment Solutions</span>
+                </div>
+              </td>
+            </tr>
+          </table>
+        </td></tr>
+
+        <!-- Body -->
+        <tr><td style="padding:36px 40px;">
+          <h1 style="margin:0 0 8px;font-size:26px;font-weight:700;color:#f1f5f9;">
+            Your portal account is ready, ${firstName}!
+          </h1>
+          <p style="margin:0 0 24px;color:#94a3b8;font-size:15px;line-height:1.6;">
+            An NSDS admin has created a portal account for you${params.businessName ? ` on behalf of <strong style="color:#e2e8f0;">${params.businessName}</strong>` : ""}. Your role is <strong style="color:#38bdf8;">${roleLabel}</strong>.
+          </p>
+
+          <!-- Access CTA -->
+          <table cellpadding="0" cellspacing="0" style="margin:0 0 28px;">
+            <tr><td style="background:linear-gradient(135deg,#0284c7,#0ea5e9);border-radius:8px;padding:14px 28px;">
+              <a href="${portalUrl}" style="color:#fff;font-size:15px;font-weight:600;text-decoration:none;display:block;text-align:center;">
+                Access Your Portal →
+              </a>
+            </td></tr>
+          </table>
+
+          <!-- Steps -->
+          <p style="margin:0 0 16px;font-size:14px;font-weight:600;color:#cbd5e1;text-transform:uppercase;letter-spacing:0.5px;">Getting Started</p>
+          <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:28px;">
+            ${[
+              ["1", "Sign In", `Visit <a href="${portalUrl}" style="color:#38bdf8;">${portalUrl}</a> and click <strong>Sign In</strong>. Use the email address this message was sent to.`],
+              ["2", "Explore Your Dashboard", "View your devices, staging tasks, shipments, and documents — all in one place."],
+              ["3", "Message Your Team", "Use the Support Messages section to communicate directly with NSDS staff."],
+              ["4", "Track Onboarding Progress", "Your onboarding timeline, go-live date, and warehouse assignment are visible on your profile."],
+            ].map(([num, title, desc]) => `
+            <tr><td style="padding:10px 0;border-bottom:1px solid #1e3a5f;">
+              <table cellpadding="0" cellspacing="0"><tr>
+                <td style="width:32px;height:32px;background:#0284c7;border-radius:50%;text-align:center;vertical-align:middle;font-size:13px;font-weight:700;color:#fff;">${num}</td>
+                <td style="padding-left:14px;vertical-align:top;">
+                  <p style="margin:0 0 2px;font-size:14px;font-weight:600;color:#e2e8f0;">${title}</p>
+                  <p style="margin:0;font-size:13px;color:#94a3b8;line-height:1.5;">${desc}</p>
+                </td>
+              </tr></table>
+            </td></tr>`).join("")}
+          </table>
+
+          <!-- Support -->
+          <table width="100%" cellpadding="0" cellspacing="0" style="background:#0a2540;border-radius:8px;border:1px solid #1e3a5f;padding:20px;">
+            <tr><td>
+              <p style="margin:0 0 8px;font-size:13px;font-weight:600;color:#cbd5e1;text-transform:uppercase;letter-spacing:0.5px;">Need Help?</p>
+              <p style="margin:0;font-size:13px;color:#94a3b8;">
+                Email us at <a href="mailto:${supportEmail}" style="color:#38bdf8;">${supportEmail}</a> or call <a href="tel:${supportPhone}" style="color:#38bdf8;">${supportPhone}</a>. You can also use the Support Messages feature inside the portal.
+              </p>
+            </td></tr>
+          </table>
+        </td></tr>
+
+        <!-- Footer -->
+        <tr><td style="padding:20px 40px;border-top:1px solid #1e3a5f;text-align:center;">
+          <p style="margin:0;font-size:12px;color:#475569;">
+            © ${new Date().getFullYear()} NSDS — Network Staging &amp; Deployment Solutions<br />
+            This email was sent because an admin created a portal account for you.
+          </p>
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`;
+}
+
+/**
+ * Sends a portal invite email to a user whose account was pre-provisioned by an admin.
+ */
+export async function sendPortalInviteEmail(params: PortalInviteEmailParams): Promise<boolean> {
+  if (!ENV.resendApiKey || !ENV.resendFromEmail) {
+    console.warn("[Email] RESEND_API_KEY or RESEND_FROM_EMAIL not configured — skipping portal invite email");
+    return false;
+  }
+
+  try {
+    const resend = getResend();
+    const { error } = await resend.emails.send({
+      from: ENV.resendFromEmail,
+      to: params.to,
+      subject: "Your NSDS Portal Account is Ready",
+      html: buildPortalInviteHtml(params),
+    });
+
+    if (error) {
+      console.warn("[Email] Resend error (portal invite):", error);
+      return false;
+    }
+
+    console.log(`[Email] Portal invite email sent to ${params.to}`);
+    return true;
+  } catch (err) {
+    console.warn("[Email] Failed to send portal invite email:", err);
+    return false;
+  }
+}

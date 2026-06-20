@@ -19,6 +19,9 @@ export const users = mysqlTable("users", {
   loginMethod: varchar("loginMethod", { length: 64 }),
   role: mysqlEnum("role", ["admin", "staff", "customer_admin", "customer_viewer"]).default("customer_viewer").notNull(),
   clientId: int("clientId"), // null for admin/staff
+  businessName: varchar("businessName", { length: 200 }),
+  phone: varchar("phone", { length: 30 }),
+  location: varchar("location", { length: 300 }),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
   lastSignedIn: timestamp("lastSignedIn").defaultNow().notNull(),

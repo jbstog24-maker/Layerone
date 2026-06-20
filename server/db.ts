@@ -113,7 +113,7 @@ export async function updateUserRole(userId: number, role: "admin" | "staff" | "
   await db.update(users).set({ role, clientId: clientId ?? null }).where(eq(users.id, userId));
 }
 
-export async function updateUser(userId: number, data: { name?: string; email?: string; role?: "admin" | "staff" | "customer_admin" | "customer_viewer"; clientId?: number | null }) {
+export async function updateUser(userId: number, data: { name?: string; email?: string; role?: "admin" | "staff" | "customer_admin" | "customer_viewer"; clientId?: number | null; businessName?: string | null; phone?: string | null; location?: string | null }) {
   const db = await getDb();
   if (!db) return;
   await db.update(users).set(data).where(eq(users.id, userId));
@@ -132,7 +132,7 @@ export async function getUserById(userId: number) {
   return result[0];
 }
 
-export async function createUser(data: { name: string; email: string; role: "admin" | "staff" | "customer_admin" | "customer_viewer"; clientId?: number | null }) {
+export async function createUser(data: { name: string; email: string; role: "admin" | "staff" | "customer_admin" | "customer_viewer"; clientId?: number | null; businessName?: string | null; phone?: string | null; location?: string | null }) {
   const db = await getDb();
   if (!db) throw new Error("Database unavailable");
   // Generate a placeholder openId — will be replaced when user logs in via OAuth
@@ -143,6 +143,9 @@ export async function createUser(data: { name: string; email: string; role: "adm
     email: data.email,
     role: data.role,
     clientId: data.clientId ?? null,
+    businessName: data.businessName ?? null,
+    phone: data.phone ?? null,
+    location: data.location ?? null,
   });
   return { id: (row as any).insertId as number };
 }

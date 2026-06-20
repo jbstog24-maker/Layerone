@@ -55,6 +55,7 @@ vi.mock("./db", () => ({
   updateUser: vi.fn().mockResolvedValue(undefined),
   deleteUser: vi.fn().mockResolvedValue(undefined),
   getUserById: vi.fn().mockResolvedValue({ id: 2, name: "Test User", email: "test@example.com", role: "staff", clientId: null, openId: "oid_2", lastSignedIn: new Date(), createdAt: new Date() }),
+  createUser: vi.fn().mockResolvedValue({ id: 99, name: "Jane Doe", email: "jane@company.com", role: "customer_admin", businessName: "Acme Corp", phone: "555-1234", location: "Austin, TX", openId: "placeholder_99", createdAt: new Date() }),
   getDashboardStats: vi.fn().mockResolvedValue({ clients: 0, devices: 0, boxes: 0, pallets: 0, pendingTasks: 0, inProgressTasks: 0, pendingShipments: 0, draftInvoices: 0 }),
   getClientUsage: vi.fn().mockResolvedValue({ devices: 0, boxes: 0, pallets: 0, shipments: 0, stagingTasks: 0, deliveries: 0, receivingLogs: 0 }),
   logActivity: vi.fn().mockResolvedValue(undefined),
@@ -405,5 +406,63 @@ describe("messages.myUnread", () => {
     const caller = appRouter.createCaller(ctx);
     const result = await caller.messages.myUnread();
     expect(typeof result).toBe("number");
+  });
+});
+
+describe("users.create", () => {
+  it("allows admin to create a user with all profile fields", async () => {
+    const ctx = makeCtx("admin");
+    const caller = appRouter.createCaller(ctx);
+    const result = await caller.users.create({
+      name: "Jane Doe",
+      email: "jane@company.com",
+      role: "customer_admin",
+      businessName: "Acme Corp",
+      phone: "555-1234",
+      location: "Austin, TX",
+    });
+    expect(result).toBeDefined();
+  });
+
+  it("throws FORBIDDEN for non-admin", async () => {
+    const ctx = makeCtx("staff");
+    const caller = appRouter.createCaller(ctx);
+    await expect(
+      caller.users.create({ name: "X", email: "x@x.com", role: "staff" })
+    ).rejects.toThrow();
+  });
+
+  it("throws validation error for invalid email", async () => {
+    const ctx = makeCtx("admin");
+    const caller = appRouter.createCaller(ctx);
+    await expect(
+      caller.users.create({ name: "X", email: "not-an-email", role: "staff" })
+    ).rejects.toThrow();
+  });
+});
+
+describe("users.update with profile fields", () => {
+  it("allows admin to update businessName, phone, location", async () => {
+    const ctx = makeCtx("admin");
+    const caller = appRouter.createCaller(ctx);
+    const result = await caller.users.update({
+      userId: 2,
+      businessName: "New Corp",
+      phone: "555-9999",
+      location: "Dallas, TX",
+    });
+    expect(result).toEqual({ success: true });
+  });
+
+  it("allows admin to clear optional fields with null", async () => {
+    const ctx = makeCtx("admin");
+    const caller = appRouter.createCaller(ctx);
+    const result = await caller.users.update({
+      userId: 2,
+      businessName: null,
+      phone: null,
+      location: null,
+    });
+    expect(result).toEqual({ success: true });
   });
 });

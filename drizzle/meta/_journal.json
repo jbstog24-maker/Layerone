@@ -50,6 +50,13 @@
       "when": 1781987668557,
       "tag": "0006_thin_tarot",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "5",
+      "when": 1781992707086,
+      "tag": "0007_common_fat_cobra",
+      "breakpoints": true
     }
   ]
 }

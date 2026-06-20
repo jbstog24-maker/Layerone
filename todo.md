@@ -254,3 +254,14 @@
 - [x] Edit dialog expanded: name, email, role, linked client, phone, internal notes
 - [x] Info banner updated to explain pre-provision + OAuth activation flow
 - [x] 43 tests passing, 0 TypeScript errors
+
+## User Profile Fields (Business Name, Phone, Location)
+- [x] Add businessName, phone, location columns to users table in schema.ts
+- [x] Run Drizzle migration and apply SQL
+- [x] Update createUser and updateUser DB helpers to include new fields
+- [x] Update users.create and users.update tRPC procedures with new fields
+- [x] Add businessName, phone, location fields to Add New User and Edit User dialogs
+- [x] Display businessName, phone, location on user cards
+- [x] Added sendPortalInviteEmail (branded HTML, separate from inquiry welcome email)
+- [x] Wire sendPortalInviteEmail in users.create — fires when admin adds a new user
+- [x] 43 tests passing, 0 TypeScript errors

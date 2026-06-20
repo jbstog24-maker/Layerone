@@ -7,6 +7,7 @@ import {
 } from "../db";
 import { storagePut } from "../storage";
 import { protectedProcedure, router } from "../_core/trpc";
+import { sendPortalInviteEmail } from "../email";
 
 const isAdmin = (role: string) => role === "admin";
 const isStaffOrAdmin = (role: string) => role === "admin" || role === "staff";
@@ -133,6 +134,9 @@ export const usersRouter = router({
       email: z.string().email().optional(),
       role: z.enum(["admin", "staff", "customer_admin", "customer_viewer"]).optional(),
       clientId: z.number().nullable().optional(),
+      businessName: z.string().nullable().optional(),
+      phone: z.string().nullable().optional(),
+      location: z.string().nullable().optional(),
     }))
     .mutation(async ({ ctx, input }) => {
       if (!isAdmin(ctx.user.role)) throw new TRPCError({ code: "FORBIDDEN" });
@@ -158,11 +162,21 @@ export const usersRouter = router({
       email: z.string().email("Valid email required"),
       role: z.enum(["admin", "staff", "customer_admin", "customer_viewer"]),
       clientId: z.number().nullable().optional(),
+      businessName: z.string().nullable().optional(),
+      phone: z.string().nullable().optional(),
+      location: z.string().nullable().optional(),
     }))
     .mutation(async ({ ctx, input }) => {
       if (!isAdmin(ctx.user.role)) throw new TRPCError({ code: "FORBIDDEN" });
       const result = await createUser(input);
       await logActivity({ userId: ctx.user.id, action: `Pre-provisioned user ${input.email} with role ${input.role}`, entityType: "user", entityId: result.id });
+      // Send portal invite email to the newly created user
+      await sendPortalInviteEmail({
+        to: input.email,
+        name: input.name,
+        businessName: input.businessName,
+        role: input.role,
+      }).catch(() => {});
       return result;
     }),
 });

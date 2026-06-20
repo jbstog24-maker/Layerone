@@ -13,7 +13,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
-import { Users as UsersIcon, Search, Plus, Pencil, Trash2, Shield, User, Building2, Clock, Mail, Phone, StickyNote } from "lucide-react";
+import { Users as UsersIcon, Search, Plus, Pencil, Trash2, Shield, User, Building2, Clock, Mail, Phone, StickyNote, MapPin } from "lucide-react";
 import { useAuth } from "@/_core/hooks/useAuth";
 
 const ROLE_CONFIG: Record<string, { label: string; color: string; dot: string }> = {
@@ -34,11 +34,13 @@ type FormState = {
   email: string;
   role: string;
   clientId: number | null;
+  businessName: string;
   phone: string;
+  location: string;
   notes: string;
 };
 
-const EMPTY_FORM: FormState = { id: 0, name: "", email: "", role: "customer_viewer", clientId: null, phone: "", notes: "" };
+const EMPTY_FORM: FormState = { id: 0, name: "", email: "", role: "customer_viewer", clientId: null, businessName: "", phone: "", location: "", notes: "" };
 
 // ─── Add / Edit User Dialog ────────────────────────────────────────────────────
 function UserDialog({
@@ -92,6 +94,9 @@ function UserDialog({
         email: form.email.trim(),
         role: form.role as any,
         clientId: isCustomer ? form.clientId : null,
+        businessName: form.businessName.trim() || null,
+        phone: form.phone.trim() || null,
+        location: form.location.trim() || null,
       });
     } else {
       updateMut.mutate({
@@ -100,6 +105,9 @@ function UserDialog({
         email: form.email.trim() || undefined,
         role: form.role as any,
         clientId: isCustomer ? form.clientId : null,
+        businessName: form.businessName.trim() || null,
+        phone: form.phone.trim() || null,
+        location: form.location.trim() || null,
       });
     }
   };
@@ -142,7 +150,17 @@ function UserDialog({
             </div>
           </div>
 
+          {/* Business Name + Phone */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <Label className="text-slate-300 text-xs uppercase tracking-wide">Business Name (optional)</Label>
+              <Input
+                value={form.businessName}
+                onChange={(e) => setForm({ ...form, businessName: e.target.value })}
+                placeholder="Acme Networks LLC"
+                className="mt-1 bg-[#0d1f35] border-[#1e3a5f] text-white placeholder:text-slate-500"
+              />
+            </div>
             <div>
               <Label className="text-slate-300 text-xs uppercase tracking-wide">Phone (optional)</Label>
               <Input
@@ -150,6 +168,19 @@ function UserDialog({
                 onChange={(e) => setForm({ ...form, phone: e.target.value })}
                 placeholder="(555) 000-0000"
                 type="tel"
+                className="mt-1 bg-[#0d1f35] border-[#1e3a5f] text-white placeholder:text-slate-500"
+              />
+            </div>
+          </div>
+
+          {/* Location + Role */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <Label className="text-slate-300 text-xs uppercase tracking-wide">Location (optional)</Label>
+              <Input
+                value={form.location}
+                onChange={(e) => setForm({ ...form, location: e.target.value })}
+                placeholder="Dallas, TX"
                 className="mt-1 bg-[#0d1f35] border-[#1e3a5f] text-white placeholder:text-slate-500"
               />
             </div>
@@ -261,7 +292,7 @@ export default function Users() {
   }, [clients]);
 
   const handleEdit = (u: any) => {
-    setDialogUser({ id: u.id, name: u.name ?? "", email: u.email ?? "", role: u.role, clientId: u.clientId ?? null, phone: "", notes: "" });
+    setDialogUser({ id: u.id, name: u.name ?? "", email: u.email ?? "", role: u.role, clientId: u.clientId ?? null, businessName: u.businessName ?? "", phone: u.phone ?? "", location: u.location ?? "", notes: "" });
   };
 
   const handleDelete = (u: any) => {
@@ -383,6 +414,21 @@ export default function Users() {
                         {u.email && (
                           <span className="flex items-center gap-1">
                             <Mail className="w-3 h-3" /> {u.email}
+                          </span>
+                        )}
+                        {(u as any).businessName && (
+                          <span className="flex items-center gap-1">
+                            <Building2 className="w-3 h-3" /> {(u as any).businessName}
+                          </span>
+                        )}
+                        {(u as any).phone && (
+                          <span className="flex items-center gap-1">
+                            <Phone className="w-3 h-3" /> {(u as any).phone}
+                          </span>
+                        )}
+                        {(u as any).location && (
+                          <span className="flex items-center gap-1">
+                            <MapPin className="w-3 h-3" /> {(u as any).location}
                           </span>
                         )}
                         {u.clientId && clientMap[u.clientId] && (
