@@ -1,0 +1,43 @@
+CREATE TABLE `client_documents` (
+	`id` int AUTO_INCREMENT NOT NULL,
+	`clientId` int NOT NULL,
+	`templateId` int,
+	`name` varchar(200) NOT NULL,
+	`status` enum('draft','sent','viewed','signed','approved','rejected','expired') NOT NULL DEFAULT 'draft',
+	`sentAt` timestamp,
+	`sentByUserId` int,
+	`sentToEmail` varchar(320),
+	`sentMessage` text,
+	`signedAt` timestamp,
+	`signedByName` varchar(200),
+	`signedByEmail` varchar(320),
+	`approvedAt` timestamp,
+	`approvedByUserId` int,
+	`rejectedAt` timestamp,
+	`rejectionReason` text,
+	`expiresAt` timestamp,
+	`signedFileKey` varchar(512),
+	`signedFileUrl` text,
+	`notes` text,
+	`createdAt` timestamp NOT NULL DEFAULT (now()),
+	`updatedAt` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
+	CONSTRAINT `client_documents_id` PRIMARY KEY(`id`)
+);
+--> statement-breakpoint
+CREATE TABLE `document_templates` (
+	`id` int AUTO_INCREMENT NOT NULL,
+	`name` varchar(200) NOT NULL,
+	`category` enum('agreement','onboarding','sow','nda','authorization','checklist','other') NOT NULL DEFAULT 'other',
+	`description` text,
+	`fileKey` varchar(512) NOT NULL,
+	`fileUrl` text NOT NULL,
+	`mimeType` varchar(128) NOT NULL DEFAULT 'application/pdf',
+	`fileName` varchar(255) NOT NULL,
+	`fileSizeBytes` bigint DEFAULT 0,
+	`version` varchar(32) DEFAULT '1.0',
+	`isActive` boolean NOT NULL DEFAULT true,
+	`createdByUserId` int,
+	`createdAt` timestamp NOT NULL DEFAULT (now()),
+	`updatedAt` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
+	CONSTRAINT `document_templates_id` PRIMARY KEY(`id`)
+);

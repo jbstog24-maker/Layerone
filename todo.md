@@ -106,3 +106,77 @@
 - [x] Build inquiry/request form on package detail page (name, company, email, message)
 - [x] Wire all landing page "Get Started" package buttons to /packages/:tier
 - [x] Add route for /packages/:tier in App.tsx
+
+## Document Repository Module
+- [x] Add documentTemplates table (id, name, category, description, fileKey, fileUrl, mimeType, version, createdBy, createdAt)
+- [x] Add clientDocuments table (id, clientId, templateId, status, sentAt, signedAt, signedByName, signedByEmail, notes, fileKey, fileUrl)
+- [x] Run Drizzle migration and apply SQL
+- [x] Build documents tRPC router (template CRUD, send to client, update status, list by client)
+- [x] Build admin Document Library page (/documents) with template upload, categories, and send-to-client flow
+- [x] Build send document dialog: select client, add message, track via email notification
+- [x] Build client Documents tab on ClientDetail page showing all linked docs with status badges
+- [x] Add Documents nav item to admin sidebar
+- [x] Add document status badge colors (draft/sent/viewed/signed/approved/rejected)
+- [x] Write vitest tests for documents router
+
+## Document Automation (Auto-Draft & Send)
+- [x] Build documents tRPC router (template CRUD, getPresignedUploadUrl, send to client, update status, list by client)
+- [x] Auto-draft MSA when client is assigned a package (server-side trigger in clients router)
+- [x] Auto-send drafted document to client email via owner notification system
+- [x] Pre-seed 5 MSA document templates (one per package tier) with add-on clause placeholders
+- [x] Build admin Document Library page (/documents): template list, upload, categories, send dialog
+- [x] Build SendDocumentDialog: select client, select template, add message, preview, send
+- [x] Build client Documents tab on ClientDetail page: status timeline, download, approve/reject actions
+- [x] Add Documents nav item to admin/staff sidebar
+- [x] Add document status badge colors (draft/sent/viewed/signed/approved/rejected/expired)
+- [x] Wire /documents route in App.tsx
+- [x] Write vitest tests for documents router
+
+## Onboarding / Setup Period
+- [x] Add goLiveDate field to clients table (timestamp, nullable, set when contract is signed)
+- [x] When document status changes to 'signed', auto-calculate goLiveDate = signedAt + 14 days
+- [x] Show onboarding countdown / go-live date on client profile page
+- [x] Include go-live date in auto-sent confirmation notification to client
+- [x] Show "Onboarding in Progress" status badge on client card when goLiveDate is in the future
+- [x] Add goLiveDate column to clients table migration
+
+## Stripe Payment + Full Onboarding Flow
+- [x] Add Stripe feature via webdev_add_feature
+- [x] Add contractSignedAt, goLiveDate, onboardingNotes, stripeCustomerId, stripeSubscriptionId, paymentStatus fields to clients table
+- [x] Run schema migration for new client fields
+- [x] Create Stripe products/prices for each package tier (basic $499, standard $750/mo, professional $1500/mo, enterprise $3500/mo)
+- [x] Build Stripe checkout session endpoint (POST /api/stripe/checkout) per package tier
+- [x] Handle Stripe webhook: payment confirmed → set paymentStatus=paid, start onboarding clock (goLiveDate = now + 14 days)
+- [x] Build documents router: template CRUD, auto-draft MSA on package assign, send to client email, update status
+- [x] When document signed → auto-trigger Stripe checkout link to client email
+- [x] Build admin Document Library page (/documents): template list, upload, categories
+- [x] Build SendDocumentDialog: select client, select template, add message, send
+- [x] Build client Documents tab on ClientDetail: status timeline, download, approve/reject
+- [x] Show onboarding countdown + go-live date on client profile
+- [x] Show "Onboarding in Progress" status badge when goLiveDate is in the future
+- [x] Add Documents nav item to admin/staff sidebar
+- [x] Wire /documents route in App.tsx
+- [x] Write vitest tests for documents and Stripe routers
+
+## Logo in Documents
+- [x] Embed NSDS logo SVG in all auto-generated MSA documents and printable forms
+- [x] Include logo header in document preview/print views
+- [x] Add logo to Document Library page header and send dialog
+
+## Warehouse Space Assignment
+- [x] Add warehouseUnitNumber, warehouseAddress, warehouseAccessCode, warehouseDimensions, warehouseNotes, assignedTechIds, warehouseAssignedAt fields to clients table
+- [x] Build assignWarehouseSpace mutation in clients router
+- [x] When warehouse is assigned → auto-send email notification to client with all space details
+- [x] Build WarehouseAssignmentForm on ClientDetail page (admin/staff only)
+- [x] Show warehouse details card on client profile once assigned
+- [x] Show warehouse assignment step in onboarding progress tracker
+
+## Landing Page FAQ
+- [x] Add detailed FAQ section to landing page with 15 questions across 5 categories (Services, Pricing & Packages, Onboarding, Security & Facility, Portal & Tracking)
+- [x] Add FAQ nav link to landing page navbar
+
+## Document Module Remaining
+- [x] Add Documents tab to ClientDetail page with linked documents and status timeline
+- [x] Add Warehouse Assignment form to ClientDetail page (admin/staff only)
+- [x] Add onboarding timeline card to ClientDetail (contract signed, go-live date, warehouse assigned)
+- [x] Embed NSDS logo in all document previews and print views

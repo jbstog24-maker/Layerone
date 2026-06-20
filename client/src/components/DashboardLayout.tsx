@@ -74,6 +74,7 @@ const NAV_GROUPS: NavGroup[] = [
     items: [
       { icon: Building2, label: "Clients", path: "/clients", roles: ["admin", "staff"] },
       { icon: Package, label: "Packages", path: "/packages", roles: ["admin"] },
+      { icon: FileText, label: "Documents", path: "/documents", roles: ["admin", "staff"] },
       { icon: Users, label: "Users", path: "/users", roles: ["admin"] },
     ],
   },

@@ -13,8 +13,11 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
-import { Building2, Plus, Search, ChevronRight, Mail, Phone } from "lucide-react";
+import { Building2, Plus, Search, ChevronRight, Mail, Phone, FileText, Warehouse, Calendar, CheckCircle, Clock, AlertCircle, Send, CreditCard, Download } from "lucide-react";
 import { useForm } from "react-hook-form";
+import { useAuth } from "@/_core/hooks/useAuth";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
 
 function ClientForm({ onClose, clientId }: { onClose: () => void; clientId?: number }) {
   const utils = trpc.useUtils();
@@ -191,17 +194,164 @@ export function ClientsList() {
   );
 }
 
+// Warehouse Assignment Form
+function WarehouseAssignmentForm({ clientId, client, onSuccess }: { clientId: number; client: any; onSuccess: () => void }) {
+  const utils = trpc.useUtils();
+  const { register, handleSubmit, formState: { isSubmitting } } = useForm({
+    defaultValues: {
+      warehouseUnitNumber: (client as any).warehouseUnitNumber ?? "",
+      warehouseAddress: (client as any).warehouseAddress ?? "",
+      warehouseAccessCode: (client as any).warehouseAccessCode ?? "",
+      warehouseDimensions: (client as any).warehouseDimensions ?? "",
+      warehouseNotes: (client as any).warehouseNotes ?? "",
+    },
+  });
+  const assignMut = trpc.clients.update.useMutation({
+    onSuccess: () => {
+      toast.success("Warehouse space assigned — client notification sent");
+      utils.clients.get.invalidate({ id: clientId });
+      onSuccess();
+    },
+    onError: (e) => toast.error(e.message),
+  });
+
+  const onSubmit = (data: any) => {
+    assignMut.mutate({ id: clientId, ...data, warehouseAssignedAt: new Date().toISOString() });
+  };
+
+  return (
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <Label>Unit / Bay Number *</Label>
+          <Input {...register("warehouseUnitNumber")} placeholder="Unit 101" className="mt-1" />
+        </div>
+        <div>
+          <Label>Access Code</Label>
+          <Input {...register("warehouseAccessCode")} placeholder="1234#" className="mt-1" />
+        </div>
+        <div className="col-span-2">
+          <Label>Facility Address</Label>
+          <Input {...register("warehouseAddress")} placeholder="123 Warehouse Blvd, North Richland Hills, TX" className="mt-1" />
+        </div>
+        <div>
+          <Label>Dimensions (sq ft / dimensions)</Label>
+          <Input {...register("warehouseDimensions")} placeholder="10x20 ft / 200 sq ft" className="mt-1" />
+        </div>
+        <div className="col-span-2">
+          <Label>Notes for Client</Label>
+          <Textarea {...register("warehouseNotes")} placeholder="Loading dock hours, special instructions, etc." className="mt-1 h-20" />
+        </div>
+      </div>
+      <div className="flex justify-end gap-2">
+        <Button type="submit" disabled={isSubmitting} className="gap-2">
+          <Send className="w-4 h-4" />
+          {isSubmitting ? "Saving..." : "Assign & Notify Client"}
+        </Button>
+      </div>
+    </form>
+  );
+}
+
+// Onboarding Timeline Card
+function OnboardingTimeline({ client }: { client: any }) {
+  const steps = [
+    {
+      key: "inquiry",
+      label: "Inquiry Received",
+      done: true,
+      date: client.createdAt,
+      icon: CheckCircle,
+      color: "text-green-400",
+    },
+    {
+      key: "contract",
+      label: "Contract Signed",
+      done: !!(client as any).contractSignedAt,
+      date: (client as any).contractSignedAt,
+      icon: (client as any).contractSignedAt ? CheckCircle : Clock,
+      color: (client as any).contractSignedAt ? "text-green-400" : "text-yellow-400",
+    },
+    {
+      key: "payment",
+      label: "First Payment",
+      done: (client as any).paymentStatus === "paid",
+      date: null,
+      icon: (client as any).paymentStatus === "paid" ? CheckCircle : CreditCard,
+      color: (client as any).paymentStatus === "paid" ? "text-green-400" : "text-slate-400",
+    },
+    {
+      key: "warehouse",
+      label: "Warehouse Assigned",
+      done: !!(client as any).warehouseAssignedAt,
+      date: (client as any).warehouseAssignedAt,
+      icon: (client as any).warehouseAssignedAt ? CheckCircle : Warehouse,
+      color: (client as any).warehouseAssignedAt ? "text-green-400" : "text-slate-400",
+    },
+    {
+      key: "golive",
+      label: "Go-Live Date",
+      done: !!(client as any).goLiveDate && new Date((client as any).goLiveDate) <= new Date(),
+      date: (client as any).goLiveDate,
+      icon: (client as any).goLiveDate ? Calendar : AlertCircle,
+      color: (client as any).goLiveDate ? "text-blue-400" : "text-slate-400",
+    },
+  ];
+
+  return (
+    <Card className="bg-card/60 border-border/50">
+      <CardHeader><CardTitle className="text-sm">Onboarding Progress</CardTitle></CardHeader>
+      <CardContent>
+        <div className="space-y-3">
+          {steps.map((step, i) => {
+            const Icon = step.icon;
+            return (
+              <div key={step.key} className="flex items-start gap-3">
+                <div className="flex flex-col items-center">
+                  <Icon className={`w-4 h-4 mt-0.5 ${step.color}`} />
+                  {i < steps.length - 1 && <div className={`w-px h-6 mt-1 ${step.done ? "bg-green-400/40" : "bg-border/40"}`} />}
+                </div>
+                <div className="flex-1 pb-1">
+                  <p className={`text-sm font-medium ${step.done ? "text-foreground" : "text-muted-foreground"}`}>{step.label}</p>
+                  {step.date && <p className="text-xs text-muted-foreground">{new Date(step.date).toLocaleDateString()}</p>}
+                  {!step.done && step.key === "golive" && (client as any).contractSignedAt && (
+                    <p className="text-xs text-blue-400">Est. {new Date(new Date((client as any).contractSignedAt).getTime() + 14 * 86400000).toLocaleDateString()}</p>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
 export function ClientDetail() {
   const [, params] = useRoute("/clients/:id");
   const id = parseInt(params?.id ?? "0");
   const [showEdit, setShowEdit] = useState(false);
+  const [showWarehouse, setShowWarehouse] = useState(false);
   const [, setLocation] = useLocation();
-  const { data: client, isLoading } = trpc.clients.get.useQuery({ id });
+  const { user } = useAuth();
+  const isAdminOrStaff = user?.role === "admin" || user?.role === "staff";
+  const { data: client, isLoading, refetch: refetchClient } = trpc.clients.get.useQuery({ id });
   const { data: packages } = trpc.packages.list.useQuery();
+  const { data: clientDocs } = trpc.documents.clientDocs.list.useQuery({ clientId: id }, { enabled: isAdminOrStaff });
   const pkg = packages?.find(p => p.id === client?.packageId);
 
   if (isLoading) return <DashboardLayout><div className="animate-pulse space-y-4"><div className="h-8 bg-muted/50 rounded w-48" /><div className="h-32 bg-muted/50 rounded" /></div></DashboardLayout>;
   if (!client) return <DashboardLayout><EmptyState icon={Building2} title="Client not found" /></DashboardLayout>;
+
+  const docStatusColor: Record<string, string> = {
+    draft: "bg-slate-500/20 text-slate-300",
+    sent: "bg-blue-500/20 text-blue-300",
+    viewed: "bg-yellow-500/20 text-yellow-300",
+    signed: "bg-green-500/20 text-green-300",
+    approved: "bg-emerald-500/20 text-emerald-300",
+    rejected: "bg-red-500/20 text-red-300",
+    expired: "bg-orange-500/20 text-orange-300",
+  };
 
   return (
     <DashboardLayout>
@@ -211,11 +361,13 @@ export function ClientDetail() {
         action={
           <div className="flex gap-2">
             <Button variant="outline" size="sm" onClick={() => setLocation("/clients")}>Back</Button>
+            {isAdminOrStaff && <Button variant="outline" size="sm" onClick={() => setShowWarehouse(true)} className="gap-1"><Warehouse className="w-4 h-4" />Assign Space</Button>}
             <Button size="sm" onClick={() => setShowEdit(true)}>Edit</Button>
           </div>
         }
       />
-      <div className="grid md:grid-cols-3 gap-4">
+
+      <div className="grid md:grid-cols-3 gap-4 mb-4">
         <Card className="bg-card/60 border-border/50 md:col-span-2">
           <CardHeader><CardTitle className="text-sm">Client Details</CardTitle></CardHeader>
           <CardContent className="grid grid-cols-2 gap-4 text-sm">
@@ -231,29 +383,108 @@ export function ClientDetail() {
             )}
           </CardContent>
         </Card>
-        <Card className="bg-card/60 border-border/50">
-          <CardHeader><CardTitle className="text-sm">Quick Links</CardTitle></CardHeader>
-          <CardContent className="space-y-2">
-            {[
-              { label: "Deliveries", path: `/deliveries?clientId=${id}` },
-              { label: "Devices", path: `/devices?clientId=${id}` },
-              { label: "Staging Tasks", path: `/staging?clientId=${id}` },
-              { label: "Shipments", path: `/shipments?clientId=${id}` },
-              { label: "Invoices", path: `/invoices?clientId=${id}` },
-            ].map(({ label, path }) => (
-              <button key={path} onClick={() => setLocation(path)} className="w-full flex items-center justify-between p-2.5 rounded-lg border border-border/50 hover:border-primary/40 hover:bg-primary/5 transition-all text-sm">
-                <span>{label}</span>
-                <ChevronRight className="w-4 h-4 text-muted-foreground" />
-              </button>
-            ))}
-          </CardContent>
-        </Card>
+        <div className="space-y-4">
+          <OnboardingTimeline client={client} />
+          <Card className="bg-card/60 border-border/50">
+            <CardHeader><CardTitle className="text-sm">Quick Links</CardTitle></CardHeader>
+            <CardContent className="space-y-2">
+              {[
+                { label: "Deliveries", path: `/deliveries?clientId=${id}` },
+                { label: "Devices", path: `/devices?clientId=${id}` },
+                { label: "Staging Tasks", path: `/staging?clientId=${id}` },
+                { label: "Shipments", path: `/shipments?clientId=${id}` },
+                { label: "Invoices", path: `/invoices?clientId=${id}` },
+              ].map(({ label, path }) => (
+                <button key={path} onClick={() => setLocation(path)} className="w-full flex items-center justify-between p-2.5 rounded-lg border border-border/50 hover:border-primary/40 hover:bg-primary/5 transition-all text-sm">
+                  <span>{label}</span>
+                  <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                </button>
+              ))}
+            </CardContent>
+          </Card>
+        </div>
       </div>
 
+      {/* Warehouse Details (if assigned) */}
+      {(client as any).warehouseUnitNumber && (
+        <Card className="bg-card/60 border-border/50 mb-4">
+          <CardHeader className="flex flex-row items-center justify-between">
+            <CardTitle className="text-sm flex items-center gap-2"><Warehouse className="w-4 h-4 text-blue-400" />Assigned Warehouse Space</CardTitle>
+            {isAdminOrStaff && <Button size="sm" variant="outline" onClick={() => setShowWarehouse(true)}>Update</Button>}
+          </CardHeader>
+          <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+            <div><p className="text-muted-foreground text-xs mb-1">Unit / Bay</p><p className="font-mono font-bold text-blue-300">{(client as any).warehouseUnitNumber}</p></div>
+            <div><p className="text-muted-foreground text-xs mb-1">Access Code</p><p className="font-mono">{(client as any).warehouseAccessCode ?? "—"}</p></div>
+            <div><p className="text-muted-foreground text-xs mb-1">Dimensions</p><p>{(client as any).warehouseDimensions ?? "—"}</p></div>
+            <div><p className="text-muted-foreground text-xs mb-1">Assigned</p><p>{(client as any).warehouseAssignedAt ? new Date((client as any).warehouseAssignedAt).toLocaleDateString() : "—"}</p></div>
+            {(client as any).warehouseAddress && <div className="col-span-2 md:col-span-4"><p className="text-muted-foreground text-xs mb-1">Address</p><p>{(client as any).warehouseAddress}</p></div>}
+            {(client as any).warehouseNotes && <div className="col-span-2 md:col-span-4"><p className="text-muted-foreground text-xs mb-1">Notes</p><p className="text-muted-foreground">{(client as any).warehouseNotes}</p></div>}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Documents Tab (admin/staff only) */}
+      {isAdminOrStaff && (
+        <Card className="bg-card/60 border-border/50">
+          <CardHeader className="flex flex-row items-center justify-between">
+            <CardTitle className="text-sm flex items-center gap-2"><FileText className="w-4 h-4 text-blue-400" />Documents & Agreements</CardTitle>
+            <Button size="sm" variant="outline" onClick={() => setLocation("/documents")} className="gap-1"><Plus className="w-3 h-3" />Manage</Button>
+          </CardHeader>
+          <CardContent>
+            {!clientDocs || clientDocs.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                <FileText className="w-8 h-8 mx-auto mb-2 opacity-30" />
+                <p className="text-sm">No documents linked to this client yet.</p>
+                <p className="text-xs mt-1">Go to the Document Library to send or auto-draft an MSA.</p>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {clientDocs.map((doc: any) => (
+                  <div key={doc.id} className="flex items-center justify-between p-3 rounded-lg border border-border/50 hover:border-primary/20 transition-colors">
+                    <div className="flex items-center gap-3">
+                      <FileText className="w-4 h-4 text-blue-400 shrink-0" />
+                      <div>
+                        <p className="text-sm font-medium">{doc.documentName ?? "Document"}</p>
+                        <p className="text-xs text-muted-foreground">
+                          Sent {doc.sentAt ? new Date(doc.sentAt).toLocaleDateString() : "—"}
+                          {doc.signedAt && ` · Signed ${new Date(doc.signedAt).toLocaleDateString()}`}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${docStatusColor[doc.status] ?? "bg-slate-500/20 text-slate-300"}`}>
+                        {doc.status.charAt(0).toUpperCase() + doc.status.slice(1)}
+                      </span>
+                      {doc.fileUrl && (
+                        <a href={doc.fileUrl} target="_blank" rel="noopener noreferrer">
+                          <Button size="sm" variant="outline" className="h-7 px-2 text-xs gap-1">
+                            <Download className="w-3 h-3" />View
+                          </Button>
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Edit Client Dialog */}
       <Dialog open={showEdit} onOpenChange={setShowEdit}>
         <DialogContent className="max-w-lg">
           <DialogHeader><DialogTitle>Edit Client</DialogTitle></DialogHeader>
           <ClientForm onClose={() => setShowEdit(false)} clientId={id} />
+        </DialogContent>
+      </Dialog>
+
+      {/* Warehouse Assignment Dialog */}
+      <Dialog open={showWarehouse} onOpenChange={setShowWarehouse}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader><DialogTitle className="flex items-center gap-2"><Warehouse className="w-5 h-5" />Assign Warehouse Space</DialogTitle></DialogHeader>
+          <p className="text-sm text-muted-foreground -mt-2">Once saved, the client will automatically receive an email with their warehouse details.</p>
+          <WarehouseAssignmentForm clientId={id} client={client} onSuccess={() => { setShowWarehouse(false); void refetchClient(); }} />
         </DialogContent>
       </Dialog>
     </DashboardLayout>

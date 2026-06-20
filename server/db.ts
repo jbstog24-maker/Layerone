@@ -31,6 +31,10 @@ import {
   type InsertPhoto,
   type InsertReceivingLog,
   type InsertStagingTask,
+  documentTemplates,
+  clientDocuments,
+  type InsertDocumentTemplate,
+  type InsertClientDocument,
 } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 import { nanoid } from "nanoid";
@@ -557,4 +561,67 @@ export async function getDashboardStats() {
     draftInvoices: Number(draftInvoices?.count ?? 0),
     deliveries: Number(deliveryCount?.count ?? 0),
   };
+}
+
+// ─── Document Templates ───────────────────────────────────────────────────────
+export async function listDocumentTemplates(activeOnly = true) {
+  const db = await getDb();
+  if (!db) return [];
+  if (activeOnly) {
+    return db.select().from(documentTemplates).where(eq(documentTemplates.isActive, true)).orderBy(documentTemplates.category, documentTemplates.name);
+  }
+  return db.select().from(documentTemplates).orderBy(documentTemplates.category, documentTemplates.name);
+}
+
+export async function getDocumentTemplate(id: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(documentTemplates).where(eq(documentTemplates.id, id)).limit(1);
+  return result[0];
+}
+
+export async function createDocumentTemplate(data: InsertDocumentTemplate) {
+  const db = await getDb();
+  if (!db) throw new Error("DB unavailable");
+  const result = await db.insert(documentTemplates).values(data);
+  return result[0];
+}
+
+export async function updateDocumentTemplate(id: number, data: Partial<InsertDocumentTemplate>) {
+  const db = await getDb();
+  if (!db) throw new Error("DB unavailable");
+  await db.update(documentTemplates).set(data).where(eq(documentTemplates.id, id));
+}
+
+// ─── Client Documents ─────────────────────────────────────────────────────────
+export async function listClientDocuments(clientId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(clientDocuments).where(eq(clientDocuments.clientId, clientId)).orderBy(desc(clientDocuments.createdAt));
+}
+
+export async function getClientDocument(id: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(clientDocuments).where(eq(clientDocuments.id, id)).limit(1);
+  return result[0];
+}
+
+export async function createClientDocument(data: InsertClientDocument) {
+  const db = await getDb();
+  if (!db) throw new Error("DB unavailable");
+  const result = await db.insert(clientDocuments).values(data);
+  return result[0];
+}
+
+export async function updateClientDocument(id: number, data: Partial<InsertClientDocument>) {
+  const db = await getDb();
+  if (!db) throw new Error("DB unavailable");
+  await db.update(clientDocuments).set(data).where(eq(clientDocuments.id, id));
+}
+
+export async function listAllClientDocuments() {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(clientDocuments).orderBy(desc(clientDocuments.createdAt));
 }

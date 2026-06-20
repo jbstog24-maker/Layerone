@@ -19,6 +19,7 @@ import { InvoicesList, InvoiceDetail } from "./pages/Invoices";
 import ActivityLog from "./pages/ActivityLog";
 import Users from "./pages/Users";
 import PackageDetail from "./pages/PackageDetail";
+import Documents from "./pages/Documents";
 
 function Router() {
   return (
@@ -58,6 +59,9 @@ function Router() {
       {/* Billing */}
       <Route path="/invoices" component={InvoicesList} />
       <Route path="/invoices/:id" component={InvoiceDetail} />
+
+      {/* Documents */}
+      <Route path="/documents" component={Documents} />
 
       {/* Admin */}
       <Route path="/activity" component={ActivityLog} />

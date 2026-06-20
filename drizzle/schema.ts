@@ -62,6 +62,22 @@ export const clients = mysqlTable("clients", {
   status: mysqlEnum("status", ["active", "inactive", "onboarding", "suspended"]).default("onboarding").notNull(),
   projectNotes: text("projectNotes"),
   address: text("address"),
+  // Onboarding / contract
+  contractSignedAt: timestamp("contractSignedAt"),
+  goLiveDate: timestamp("goLiveDate"),
+  onboardingNotes: text("onboardingNotes"),
+  // Stripe
+  stripeCustomerId: varchar("stripeCustomerId", { length: 128 }),
+  stripeSubscriptionId: varchar("stripeSubscriptionId", { length: 128 }),
+  paymentStatus: mysqlEnum("paymentStatus", ["unpaid", "pending", "paid", "failed", "cancelled"]).default("unpaid").notNull(),
+  // Warehouse space assignment
+  warehouseUnitNumber: varchar("warehouseUnitNumber", { length: 64 }),
+  warehouseAddress: text("warehouseAddress"),
+  warehouseAccessCode: varchar("warehouseAccessCode", { length: 128 }),
+  warehouseDimensions: varchar("warehouseDimensions", { length: 128 }),
+  warehouseNotes: text("warehouseNotes"),
+  warehouseAssignedAt: timestamp("warehouseAssignedAt"),
+  assignedTechNames: text("assignedTechNames"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
@@ -334,3 +350,72 @@ export const packageInquiries = mysqlTable("package_inquiries", {
 
 export type PackageInquiry = typeof packageInquiries.$inferSelect;
 export type InsertPackageInquiry = typeof packageInquiries.$inferInsert;
+
+// ─── Document Templates ───────────────────────────────────────────────────────
+export const documentTemplates = mysqlTable("document_templates", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 200 }).notNull(),
+  category: mysqlEnum("category", [
+    "agreement",
+    "onboarding",
+    "sow",
+    "nda",
+    "authorization",
+    "checklist",
+    "other",
+  ]).notNull().default("other"),
+  description: text("description"),
+  fileKey: varchar("fileKey", { length: 512 }).notNull(),
+  fileUrl: text("fileUrl").notNull(),
+  mimeType: varchar("mimeType", { length: 128 }).notNull().default("application/pdf"),
+  fileName: varchar("fileName", { length: 255 }).notNull(),
+  fileSizeBytes: bigint("fileSizeBytes", { mode: "number" }).default(0),
+  version: varchar("version", { length: 32 }).default("1.0"),
+  isActive: boolean("isActive").default(true).notNull(),
+  createdByUserId: int("createdByUserId"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type DocumentTemplate = typeof documentTemplates.$inferSelect;
+export type InsertDocumentTemplate = typeof documentTemplates.$inferInsert;
+
+// ─── Client Documents (sent/linked instances) ─────────────────────────────────
+export const clientDocuments = mysqlTable("client_documents", {
+  id: int("id").autoincrement().primaryKey(),
+  clientId: int("clientId").notNull(),
+  templateId: int("templateId"), // null if custom upload (not from template)
+  name: varchar("name", { length: 200 }).notNull(), // display name for this instance
+  status: mysqlEnum("status", [
+    "draft",
+    "sent",
+    "viewed",
+    "signed",
+    "approved",
+    "rejected",
+    "expired",
+  ]).default("draft").notNull(),
+  // Sent metadata
+  sentAt: timestamp("sentAt"),
+  sentByUserId: int("sentByUserId"),
+  sentToEmail: varchar("sentToEmail", { length: 320 }),
+  sentMessage: text("sentMessage"),
+  // Signature/approval metadata
+  signedAt: timestamp("signedAt"),
+  signedByName: varchar("signedByName", { length: 200 }),
+  signedByEmail: varchar("signedByEmail", { length: 320 }),
+  approvedAt: timestamp("approvedAt"),
+  approvedByUserId: int("approvedByUserId"),
+  rejectedAt: timestamp("rejectedAt"),
+  rejectionReason: text("rejectionReason"),
+  expiresAt: timestamp("expiresAt"),
+  // Signed file (uploaded by staff after signing)
+  signedFileKey: varchar("signedFileKey", { length: 512 }),
+  signedFileUrl: text("signedFileUrl"),
+  notes: text("notes"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type ClientDocument = typeof clientDocuments.$inferSelect;
+export type InsertClientDocument = typeof clientDocuments.$inferInsert;
