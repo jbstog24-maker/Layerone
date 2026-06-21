@@ -295,3 +295,17 @@
 - [x] Add Documents tab/section to ShipmentDetail page (visible to customer + admin/staff)
 - [x] Wire upload URL → S3 PUT → confirm save flow
 - [x] Write Vitest tests for shipmentDocs router
+
+## Staging-Complete Notification (Ready to Ship)
+- [ ] Review device schema staging statuses and email patterns
+- [ ] Add stagingNotifications table (id, deviceId, clientId, notifiedAt, notifiedByUserId, message, acknowledgedAt)
+- [ ] Run Drizzle migration and apply SQL
+- [ ] Add DB helpers: createStagingNotification, listStagingNotifications, acknowledgeStagingNotification
+- [ ] Add sendStagingCompleteEmail function to email.ts
+- [ ] Build stagingNotify tRPC router: notifyDevice, notifyBulk, listForClient, acknowledge
+- [ ] Staff UI: "Mark Ready to Ship" button on Device Detail page
+- [ ] Staff UI: Bulk "Notify Ready to Ship" action on Devices list (checkbox select)
+- [ ] Customer UI: "Ready to Ship" badge on My Devices page
+- [ ] Customer UI: Notification banner on Device Detail page with acknowledge button
+- [ ] Customer UI: Unread notification count badge in sidebar
+- [ ] Write Vitest tests for stagingNotify router

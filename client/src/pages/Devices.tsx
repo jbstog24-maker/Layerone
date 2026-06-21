@@ -15,7 +15,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
-import { Server, Plus, ChevronRight, Search, Cpu, MapPin, CheckCircle2, Truck, Clock, Pencil } from "lucide-react";
+import { Server, Plus, ChevronRight, Search, Cpu, MapPin, CheckCircle2, Truck, Clock, Pencil, PackageCheck } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { useAuth } from "@/_core/hooks/useAuth";
 
@@ -227,6 +227,8 @@ export function DeviceDetail() {
   const [fwdContact, setFwdContact] = useState("");
   const [fwdNotes, setFwdNotes] = useState("");
   const [fwdStatus, setFwdStatus] = useState<"pending"|"in_transit"|"delivered">("pending");
+  const [showNotify, setShowNotify] = useState(false);
+  const [notifyMessage, setNotifyMessage] = useState("");
   const [, setLocation] = useLocation();
   const { user } = useAuth();
   const role = (user as any)?.role ?? "";
@@ -238,6 +240,16 @@ export function DeviceDetail() {
     onSuccess: () => { toast.success("Status updated"); utils.devices.get.invalidate({ id }); },
     onError: (e) => toast.error(e.message),
   });
+  const notifyMutation = trpc.stagingNotify.notifyDevice.useMutation({
+    onSuccess: () => {
+      toast.success("Customer notified — device marked Ready to Ship");
+      utils.devices.get.invalidate({ id });
+      setShowNotify(false);
+      setNotifyMessage("");
+    },
+    onError: (e) => toast.error(e.message),
+  });
+
   const updateForwarding = trpc.forwarding.updateDevice.useMutation({
     onSuccess: () => { toast.success("Forwarding info saved"); utils.devices.get.invalidate({ id }); setShowFwdEdit(false); },
     onError: (e) => toast.error(e.message),
@@ -262,6 +274,16 @@ export function DeviceDetail() {
           <div className="flex gap-2">
             <Button variant="outline" size="sm" onClick={() => setLocation("/devices")}>Back</Button>
             {isStaff && <Button size="sm" onClick={() => setShowEdit(true)}>Edit</Button>}
+            {isStaff && device.stagingStatus !== "ready_to_ship" && device.stagingStatus !== "shipped" && (
+              <Button size="sm" className="bg-emerald-600 hover:bg-emerald-500 text-white gap-1.5" onClick={() => setShowNotify(true)}>
+                <PackageCheck className="w-4 h-4" /> Mark Ready to Ship
+              </Button>
+            )}
+            {isStaff && device.stagingStatus === "ready_to_ship" && (
+              <Badge variant="outline" className="text-emerald-400 border-emerald-500/40 bg-emerald-500/10 gap-1 px-2 py-1">
+                <PackageCheck className="w-3.5 h-3.5" /> Ready to Ship
+              </Badge>
+            )}
           </div>
         }
       />
@@ -394,6 +416,46 @@ export function DeviceDetail() {
         <DialogContent className="max-w-lg">
           <DialogHeader><DialogTitle>Edit Device</DialogTitle></DialogHeader>
           <DeviceForm onClose={() => setShowEdit(false)} deviceId={id} />
+        </DialogContent>
+      </Dialog>
+
+      {/* Ready to Ship Notify Dialog */}
+      <Dialog open={showNotify} onOpenChange={setShowNotify}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <PackageCheck className="w-5 h-5 text-emerald-400" />
+              Mark Ready to Ship
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-lg p-3">
+              <p className="text-sm text-emerald-300 font-medium">{device.deviceCode}</p>
+              <p className="text-xs text-muted-foreground mt-0.5">{device.brand} {device.model} {device.serialNumber ? `— S/N: ${device.serialNumber}` : ""}</p>
+            </div>
+            <p className="text-sm text-muted-foreground">This will update the device status to <strong className="text-foreground">Ready to Ship</strong> and send an email notification to all users in this client account.</p>
+            <div>
+              <Label className="text-xs">Optional message to customer</Label>
+              <Textarea
+                value={notifyMessage}
+                onChange={(e) => setNotifyMessage(e.target.value)}
+                rows={3}
+                className="mt-1 resize-none"
+                placeholder="e.g. Your device has been fully staged and configured. Please confirm the shipping address in your portal."
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowNotify(false)}>Cancel</Button>
+            <Button
+              className="bg-emerald-600 hover:bg-emerald-500 text-white gap-1.5"
+              onClick={() => notifyMutation.mutate({ deviceId: id, message: notifyMessage || undefined })}
+              disabled={notifyMutation.isPending}
+            >
+              <PackageCheck className="w-4 h-4" />
+              {notifyMutation.isPending ? "Sending…" : "Notify Customer"}
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </DashboardLayout>

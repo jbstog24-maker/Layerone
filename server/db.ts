@@ -41,6 +41,8 @@ import {
   type ClientMessage,
   type InsertClientMessage,
   shipmentDocuments,
+  stagingNotifications,
+  type StagingNotification,
 } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 import { nanoid } from "nanoid";
@@ -969,4 +971,80 @@ export async function deleteShipmentDocument(id: number) {
   const db = await getDb();
   if (!db) throw new Error("DB unavailable");
   await db.delete(shipmentDocuments).where(eq(shipmentDocuments.id, id));
+}
+
+// ─── Staging Notifications (Ready to Ship) ───────────────────────────────────
+export async function createStagingNotification(data: {
+  deviceId: number;
+  clientId: number;
+  notifiedByUserId: number;
+  notifiedByName: string;
+  deviceCode: string;
+  message?: string | null;
+  emailSent?: boolean;
+}): Promise<StagingNotification> {
+  const db = await getDb();
+  if (!db) throw new Error("DB unavailable");
+  const result = await db.insert(stagingNotifications).values({
+    deviceId: data.deviceId,
+    clientId: data.clientId,
+    notifiedByUserId: data.notifiedByUserId,
+    notifiedByName: data.notifiedByName,
+    deviceCode: data.deviceCode,
+    message: data.message ?? null,
+    emailSent: data.emailSent ?? false,
+  });
+  const [row] = await db.select().from(stagingNotifications)
+    .where(eq(stagingNotifications.id, (result as any).insertId)).limit(1);
+  return row;
+}
+
+export async function listStagingNotifications(clientId: number): Promise<StagingNotification[]> {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(stagingNotifications)
+    .where(eq(stagingNotifications.clientId, clientId))
+    .orderBy(desc(stagingNotifications.createdAt));
+}
+
+export async function listAllStagingNotifications(): Promise<StagingNotification[]> {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(stagingNotifications)
+    .orderBy(desc(stagingNotifications.createdAt));
+}
+
+export async function getStagingNotification(id: number): Promise<StagingNotification | null> {
+  const db = await getDb();
+  if (!db) return null;
+  const [row] = await db.select().from(stagingNotifications)
+    .where(eq(stagingNotifications.id, id)).limit(1);
+  return row ?? null;
+}
+
+export async function acknowledgeStagingNotification(id: number, userId: number): Promise<void> {
+  const db = await getDb();
+  if (!db) throw new Error("DB unavailable");
+  await db.update(stagingNotifications)
+    .set({ acknowledgedAt: new Date(), acknowledgedByUserId: userId })
+    .where(eq(stagingNotifications.id, id));
+}
+
+export async function countUnacknowledgedNotifications(clientId: number): Promise<number> {
+  const db = await getDb();
+  if (!db) return 0;
+  const [row] = await db.select({ count: sql<number>`COUNT(*)` })
+    .from(stagingNotifications)
+    .where(and(
+      eq(stagingNotifications.clientId, clientId),
+      sql`${stagingNotifications.acknowledgedAt} IS NULL`
+    ));
+  return Number(row?.count ?? 0);
+}
+
+export async function getUsersByClientId(clientId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(users)
+    .where(eq(users.clientId, clientId));
 }

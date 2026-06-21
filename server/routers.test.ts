@@ -98,6 +98,14 @@ vi.mock("./db", () => ({
   addShipmentDocument: vi.fn().mockResolvedValue({ id: 10, shipmentId: 1, clientId: 1, uploadedById: 1, uploadedByName: "Test User", filename: "doc.pdf", mimeType: "application/pdf", fileSize: 1024, fileKey: "test-key", fileUrl: "/manus-storage/test-key", label: null, notes: null, createdAt: new Date() }),
   getShipmentDocument: vi.fn().mockResolvedValue(null),
   deleteShipmentDocument: vi.fn().mockResolvedValue(undefined),
+  // Staging notification helpers
+  createStagingNotification: vi.fn().mockResolvedValue({ id: 1, deviceId: 1, clientId: 1, notifiedByUserId: 1, notifiedByName: "Admin", deviceCode: "DEV-AAAA1111", message: null, emailSent: false, acknowledgedAt: null, acknowledgedByUserId: null, createdAt: new Date() }),
+  listStagingNotifications: vi.fn().mockResolvedValue([]),
+  listAllStagingNotifications: vi.fn().mockResolvedValue([]),
+  getStagingNotification: vi.fn().mockResolvedValue(null),
+  acknowledgeStagingNotification: vi.fn().mockResolvedValue(undefined),
+  countUnacknowledgedNotifications: vi.fn().mockResolvedValue(0),
+  getUsersByClientId: vi.fn().mockResolvedValue([]),
 }));
 
 vi.mock("./storage", () => ({
@@ -712,5 +720,121 @@ describe("shipmentDocs.delete", () => {
     const ctx = makeCtx("admin");
     const caller = appRouter.createCaller(ctx);
     await expect(caller.shipmentDocs.delete({ docId: 999 })).rejects.toThrow();
+  });
+});
+
+// ─── stagingNotify tests ──────────────────────────────────────────────────────
+
+describe("stagingNotify.notifyDevice", () => {
+  it("allows admin to mark a device ready to ship", async () => {
+    const { getDevice } = await import("./db");
+    (getDevice as any).mockResolvedValueOnce({
+      id: 1, clientId: 1, deviceCode: "DEV-AAAA1111", brand: "Cisco", model: "Switch", serialNumber: "SN001",
+      stagingStatus: "staged", configStatus: "complete", createdAt: new Date(),
+    });
+    const ctx = makeCtx("admin");
+    const caller = appRouter.createCaller(ctx);
+    const result = await caller.stagingNotify.notifyDevice({ deviceId: 1 });
+    expect(result.success).toBe(true);
+    expect(result.notificationId).toBe(1);
+  });
+
+  it("throws NOT_FOUND when device does not exist", async () => {
+    const { getDevice } = await import("./db");
+    (getDevice as any).mockResolvedValueOnce(null);
+    const ctx = makeCtx("admin");
+    const caller = appRouter.createCaller(ctx);
+    await expect(caller.stagingNotify.notifyDevice({ deviceId: 999 })).rejects.toThrow();
+  });
+
+  it("throws FORBIDDEN for customer role", async () => {
+    const ctx = makeCtx("customer_admin", 1);
+    const caller = appRouter.createCaller(ctx);
+    await expect(caller.stagingNotify.notifyDevice({ deviceId: 1 })).rejects.toThrow();
+  });
+});
+
+describe("stagingNotify.listForClient", () => {
+  it("returns notifications for admin viewing any client", async () => {
+    const ctx = makeCtx("admin");
+    const caller = appRouter.createCaller(ctx);
+    const result = await caller.stagingNotify.listForClient({ clientId: 1 });
+    expect(Array.isArray(result)).toBe(true);
+  });
+
+  it("returns notifications for customer viewing their own client", async () => {
+    const ctx = makeCtx("customer_admin", 1);
+    const caller = appRouter.createCaller(ctx);
+    const result = await caller.stagingNotify.listForClient({ clientId: 1 });
+    expect(Array.isArray(result)).toBe(true);
+  });
+
+  it("throws FORBIDDEN for customer viewing another client's notifications", async () => {
+    const ctx = makeCtx("customer_admin", 2); // clientId=2 but querying clientId=1
+    const caller = appRouter.createCaller(ctx);
+    await expect(caller.stagingNotify.listForClient({ clientId: 1 })).rejects.toThrow();
+  });
+});
+
+describe("stagingNotify.listAll", () => {
+  it("returns all notifications for admin", async () => {
+    const ctx = makeCtx("admin");
+    const caller = appRouter.createCaller(ctx);
+    const result = await caller.stagingNotify.listAll();
+    expect(Array.isArray(result)).toBe(true);
+  });
+
+  it("throws FORBIDDEN for customer role", async () => {
+    const ctx = makeCtx("customer_viewer", 1);
+    const caller = appRouter.createCaller(ctx);
+    await expect(caller.stagingNotify.listAll()).rejects.toThrow();
+  });
+});
+
+describe("stagingNotify.acknowledge", () => {
+  it("allows customer to acknowledge their own notification", async () => {
+    const { getStagingNotification } = await import("./db");
+    (getStagingNotification as any).mockResolvedValueOnce({
+      id: 1, deviceId: 1, clientId: 1, notifiedByUserId: 2, notifiedByName: "Staff",
+      deviceCode: "DEV-AAAA1111", message: null, emailSent: true, acknowledgedAt: null, acknowledgedByUserId: null, createdAt: new Date(),
+    });
+    const ctx = makeCtx("customer_admin", 1);
+    const caller = appRouter.createCaller(ctx);
+    const result = await caller.stagingNotify.acknowledge({ notificationId: 1 });
+    expect(result.success).toBe(true);
+  });
+
+  it("throws FORBIDDEN for customer acknowledging another client's notification", async () => {
+    const { getStagingNotification } = await import("./db");
+    (getStagingNotification as any).mockResolvedValueOnce({
+      id: 1, deviceId: 1, clientId: 2, notifiedByUserId: 2, notifiedByName: "Staff",
+      deviceCode: "DEV-AAAA1111", message: null, emailSent: true, acknowledgedAt: null, acknowledgedByUserId: null, createdAt: new Date(),
+    });
+    const ctx = makeCtx("customer_admin", 1); // clientId=1 but notification belongs to clientId=2
+    const caller = appRouter.createCaller(ctx);
+    await expect(caller.stagingNotify.acknowledge({ notificationId: 1 })).rejects.toThrow();
+  });
+
+  it("throws NOT_FOUND when notification does not exist", async () => {
+    const { getStagingNotification } = await import("./db");
+    (getStagingNotification as any).mockResolvedValueOnce(null);
+    const ctx = makeCtx("admin");
+    const caller = appRouter.createCaller(ctx);
+    await expect(caller.stagingNotify.acknowledge({ notificationId: 999 })).rejects.toThrow();
+  });
+});
+
+describe("stagingNotify.unreadCount", () => {
+  it("returns count for customer viewing their own client", async () => {
+    const ctx = makeCtx("customer_admin", 1);
+    const caller = appRouter.createCaller(ctx);
+    const result = await caller.stagingNotify.unreadCount({ clientId: 1 });
+    expect(typeof result).toBe("number");
+  });
+
+  it("throws FORBIDDEN for customer viewing another client's count", async () => {
+    const ctx = makeCtx("customer_viewer", 2);
+    const caller = appRouter.createCaller(ctx);
+    await expect(caller.stagingNotify.unreadCount({ clientId: 1 })).rejects.toThrow();
   });
 });

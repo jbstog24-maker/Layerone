@@ -28,11 +28,13 @@ import {
   Clock,
   Layers,
   MapPin,
+  PackageCheck,
   Pencil,
   Server,
   Truck,
 } from "lucide-react";
 import { useState } from "react";
+import { useAuth } from "@/_core/hooks/useAuth";
 import { toast } from "sonner";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -268,7 +270,22 @@ function ItemCard({
 // ─── Main Page ────────────────────────────────────────────────────────────────
 export default function MyDevices() {
   const { data, isLoading } = trpc.forwarding.myItems.useQuery();
+  const { user } = useAuth();
+  const clientId = (user as any)?.clientId as number | undefined;
   const [editState, setEditState] = useState<ForwardingDialogState | null>(null);
+
+  // Staging notifications (Ready to Ship)
+  const { data: notifications, isLoading: notifLoading } = trpc.stagingNotify.listForClient.useQuery(
+    { clientId: clientId! },
+    { enabled: !!clientId }
+  );
+  const acknowledgeMutation = trpc.stagingNotify.acknowledge.useMutation({
+    onSuccess: () => utils.stagingNotify.listForClient.invalidate({ clientId: clientId! }),
+    onError: (e) => toast.error(e.message),
+  });
+  const utils = trpc.useUtils();
+
+  const unreadNotifs = (notifications ?? []).filter((n) => !n.acknowledgedAt);
 
   const devices = data?.devices ?? [];
   const boxes = data?.boxes ?? [];
@@ -289,6 +306,40 @@ export default function MyDevices() {
   return (
     <DashboardLayout>
       <div className="p-4 sm:p-6 space-y-6">
+
+        {/* Ready to Ship Notification Banners */}
+        {!notifLoading && unreadNotifs.length > 0 && (
+          <div className="space-y-2">
+            {unreadNotifs.map((n) => (
+              <div
+                key={n.id}
+                className="flex items-start gap-3 bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-4"
+              >
+                <PackageCheck className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-emerald-300">
+                    Device <span className="font-mono">{n.deviceCode}</span> is Ready to Ship!
+                  </p>
+                  {n.message && (
+                    <p className="text-xs text-slate-400 mt-0.5 italic">"{n.message}" — {n.notifiedByName}</p>
+                  )}
+                  <p className="text-xs text-slate-500 mt-0.5">
+                    {new Date(n.createdAt).toLocaleString()}
+                  </p>
+                </div>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="shrink-0 text-xs border-emerald-500/40 text-emerald-300 hover:bg-emerald-500/10 h-7"
+                  onClick={() => acknowledgeMutation.mutate({ notificationId: n.id })}
+                  disabled={acknowledgeMutation.isPending}
+                >
+                  Dismiss
+                </Button>
+              </div>
+            ))}
+          </div>
+        )}
 
         {/* Header */}
         <div>

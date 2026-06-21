@@ -396,3 +396,133 @@ export async function sendPortalInviteEmail(params: PortalInviteEmailParams): Pr
     return false;
   }
 }
+
+// ─── Staging Complete / Ready to Ship Email ───────────────────────────────────
+
+export type StagingCompleteEmailParams = {
+  to: string;
+  recipientName: string;
+  devices: Array<{ deviceCode: string; model?: string | null; serialNumber?: string | null }>;
+  staffName: string;
+  message?: string | null;
+  portalUrl?: string;
+};
+
+export async function sendStagingCompleteEmail(params: StagingCompleteEmailParams): Promise<boolean> {
+  if (!ENV.resendApiKey || !ENV.resendFromEmail) {
+    console.warn("[Email] RESEND_API_KEY or RESEND_FROM_EMAIL not configured — skipping staging complete email");
+    return false;
+  }
+
+  const firstName = params.recipientName.split(" ")[0] ?? params.recipientName;
+  const portalUrl = params.portalUrl ?? ENV.portalUrl ?? "https://stagingops-khmxpmyr.manus.space";
+  const deviceCount = params.devices.length;
+  const deviceWord = deviceCount === 1 ? "device" : "devices";
+
+  const deviceRows = params.devices.map(d => `
+    <tr>
+      <td style="padding:8px 12px;border-bottom:1px solid #1e3a5f;font-size:13px;color:#e2e8f0;font-family:monospace;">${d.deviceCode}</td>
+      <td style="padding:8px 12px;border-bottom:1px solid #1e3a5f;font-size:13px;color:#94a3b8;">${d.model ?? "—"}</td>
+      <td style="padding:8px 12px;border-bottom:1px solid #1e3a5f;font-size:13px;color:#64748b;">${d.serialNumber ?? "—"}</td>
+    </tr>`).join("");
+
+  const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Your ${deviceCount} ${deviceWord} ${deviceCount === 1 ? "is" : "are"} Ready to Ship</title>
+</head>
+<body style="margin:0;padding:0;background:#07111f;font-family:'Segoe UI',Arial,sans-serif;color:#e2e8f0;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#07111f;padding:32px 16px;">
+    <tr><td align="center">
+      <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;background:#0d1f35;border-radius:12px;border:1px solid #1e3a5f;overflow:hidden;">
+        <!-- Header -->
+        <tr><td style="background:linear-gradient(135deg,#0d1f35 0%,#0a2540 100%);padding:32px 40px;border-bottom:1px solid #1e3a5f;">
+          <p style="margin:0;font-size:22px;font-weight:800;color:#38bdf8;letter-spacing:3px;">NSDS</p>
+          <p style="margin:4px 0 0;font-size:10px;color:#64748b;letter-spacing:2px;text-transform:uppercase;">Network Staging &amp; Deployment Solutions</p>
+        </td></tr>
+
+        <!-- Alert Banner -->
+        <tr><td style="background:linear-gradient(135deg,#064e3b,#065f46);padding:20px 40px;border-bottom:1px solid #1e3a5f;">
+          <table cellpadding="0" cellspacing="0">
+            <tr>
+              <td style="padding-right:12px;font-size:28px;">✅</td>
+              <td>
+                <p style="margin:0;font-size:18px;font-weight:700;color:#6ee7b7;">Staging Complete — Ready to Ship</p>
+                <p style="margin:4px 0 0;font-size:13px;color:#a7f3d0;">${deviceCount} ${deviceWord} ${deviceCount === 1 ? "has" : "have"} been staged and ${deviceCount === 1 ? "is" : "are"} ready for outbound shipment.</p>
+              </td>
+            </tr>
+          </table>
+        </td></tr>
+
+        <!-- Body -->
+        <tr><td style="padding:32px 40px;">
+          <p style="margin:0 0 16px;font-size:16px;color:#e2e8f0;">Hi ${firstName},</p>
+          <p style="margin:0 0 20px;font-size:14px;color:#94a3b8;line-height:1.6;">
+            Great news — your ${deviceWord} ${deviceCount === 1 ? "has" : "have"} completed staging at the NSDS facility and ${deviceCount === 1 ? "is" : "are"} now <strong style="color:#6ee7b7;">ready to ship</strong>. Please log into your portal to set or confirm the forwarding address and request outbound shipment.
+          </p>
+
+          ${params.message ? `<div style="background:#07111f;border-left:3px solid #38bdf8;padding:12px 16px;margin:0 0 20px;border-radius:0 6px 6px 0;"><p style="margin:0;font-size:13px;color:#94a3b8;font-style:italic;">"${params.message}"</p><p style="margin:6px 0 0;font-size:12px;color:#475569;">— ${params.staffName}, NSDS</p></div>` : ""}
+
+          <!-- Device Table -->
+          <p style="margin:0 0 10px;font-size:13px;font-weight:700;color:#ffffff;text-transform:uppercase;letter-spacing:1px;">Staged ${deviceWord.charAt(0).toUpperCase() + deviceWord.slice(1)}</p>
+          <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #1e3a5f;border-radius:8px;overflow:hidden;margin-bottom:24px;">
+            <thead>
+              <tr style="background:#07111f;">
+                <th style="padding:8px 12px;text-align:left;font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:1px;">Device Code</th>
+                <th style="padding:8px 12px;text-align:left;font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:1px;">Model</th>
+                <th style="padding:8px 12px;text-align:left;font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:1px;">Serial #</th>
+              </tr>
+            </thead>
+            <tbody>${deviceRows}</tbody>
+          </table>
+
+          <!-- CTA -->
+          <table width="100%" cellpadding="0" cellspacing="0">
+            <tr><td align="center" style="padding:8px 0 24px;">
+              <a href="${portalUrl}/my-devices" style="display:inline-block;background:linear-gradient(135deg,#39a7ff,#6ee7b7);color:#07111f;font-weight:700;font-size:15px;padding:14px 36px;border-radius:8px;text-decoration:none;letter-spacing:0.5px;">View My Devices in Portal</a>
+            </td></tr>
+          </table>
+
+          <p style="margin:0;font-size:13px;color:#475569;line-height:1.6;">
+            If you have any questions or need to update the shipping destination, reply to this email or message us directly from your portal account.
+          </p>
+        </td></tr>
+
+        <!-- Footer -->
+        <tr><td style="padding:20px 40px;border-top:1px solid #1e3a5f;text-align:center;">
+          <p style="margin:0;font-size:12px;color:#475569;">© ${new Date().getFullYear()} Network Staging &amp; Deployment Solutions (NSDS). All rights reserved.</p>
+          <p style="margin:4px 0 0;font-size:12px;color:#475569;">StagingOps Portal — Warehouse &amp; Device Staging Management</p>
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`;
+
+  try {
+    const resend = getResend();
+    const subject = deviceCount === 1
+      ? `Device ${params.devices[0].deviceCode} is Ready to Ship — NSDS`
+      : `${deviceCount} Devices Ready to Ship — NSDS`;
+
+    const { error } = await resend.emails.send({
+      from: ENV.resendFromEmail,
+      to: params.to,
+      subject,
+      html,
+    });
+
+    if (error) {
+      console.warn("[Email] Resend error (staging complete):", error);
+      return false;
+    }
+
+    console.log(`[Email] Staging complete email sent to ${params.to} for ${deviceCount} device(s)`);
+    return true;
+  } catch (err) {
+    console.warn("[Email] Failed to send staging complete email:", err);
+    return false;
+  }
+}

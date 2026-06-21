@@ -71,6 +71,13 @@
       "when": 1781993927415,
       "tag": "0009_fixed_screwball",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "5",
+      "when": 1782003195675,
+      "tag": "0010_boring_grim_reaper",
+      "breakpoints": true
     }
   ]
 }

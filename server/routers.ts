@@ -15,6 +15,7 @@ import { documentsRouter } from "./routers/documents";
 import { messagesRouter } from "./routers/messages";
 import { forwardingRouter } from "./routers/forwarding";
 import { shipmentDocsRouter } from "./routers/shipmentDocs";
+import { stagingNotifyRouter } from "./routers/stagingNotify";
 
 export const appRouter = router({
   system: systemRouter,
@@ -45,6 +46,7 @@ export const appRouter = router({
   messages: messagesRouter,
   forwarding: forwardingRouter,
   shipmentDocs: shipmentDocsRouter,
+  stagingNotify: stagingNotifyRouter,
 });
 
 export type AppRouter = typeof appRouter;

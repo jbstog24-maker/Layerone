@@ -476,3 +476,20 @@ export const shipmentDocuments = mysqlTable("shipment_documents", {
 });
 export type ShipmentDocument = typeof shipmentDocuments.$inferSelect;
 export type InsertShipmentDocument = typeof shipmentDocuments.$inferInsert;
+
+// ─── Staging Notifications (Ready to Ship) ───────────────────────────────────
+export const stagingNotifications = mysqlTable("staging_notifications", {
+  id: int("id").autoincrement().primaryKey(),
+  deviceId: int("deviceId").notNull(),
+  clientId: int("clientId").notNull(),
+  notifiedByUserId: int("notifiedByUserId").notNull(),
+  notifiedByName: varchar("notifiedByName", { length: 200 }).notNull(),
+  deviceCode: varchar("deviceCode", { length: 128 }).notNull(),
+  message: text("message"),
+  emailSent: boolean("emailSent").default(false).notNull(),
+  acknowledgedAt: timestamp("acknowledgedAt"),
+  acknowledgedByUserId: int("acknowledgedByUserId"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type StagingNotification = typeof stagingNotifications.$inferSelect;
+export type InsertStagingNotification = typeof stagingNotifications.$inferInsert;
