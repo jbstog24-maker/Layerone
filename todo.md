@@ -297,18 +297,18 @@
 - [x] Write Vitest tests for shipmentDocs router
 
 ## Staging-Complete Notification (Ready to Ship)
-- [ ] Review device schema staging statuses and email patterns
-- [ ] Add stagingNotifications table (id, deviceId, clientId, notifiedAt, notifiedByUserId, message, acknowledgedAt)
-- [ ] Run Drizzle migration and apply SQL
-- [ ] Add DB helpers: createStagingNotification, listStagingNotifications, acknowledgeStagingNotification
-- [ ] Add sendStagingCompleteEmail function to email.ts
-- [ ] Build stagingNotify tRPC router: notifyDevice, notifyBulk, listForClient, acknowledge
-- [ ] Staff UI: "Mark Ready to Ship" button on Device Detail page
-- [ ] Staff UI: Bulk "Notify Ready to Ship" action on Devices list (checkbox select)
-- [ ] Customer UI: "Ready to Ship" badge on My Devices page
-- [ ] Customer UI: Notification banner on Device Detail page with acknowledge button
-- [ ] Customer UI: Unread notification count badge in sidebar
-- [ ] Write Vitest tests for stagingNotify router
+- [x] Review device schema staging statuses and email patterns
+- [x] Add stagingNotifications table (id, deviceId, clientId, notifiedAt, notifiedByUserId, message, acknowledgedAt)
+- [x] Run Drizzle migration and apply SQL
+- [x] Add DB helpers: createStagingNotification, listStagingNotifications, acknowledgeStagingNotification
+- [x] Add sendStagingCompleteEmail function to email.ts
+- [x] Build stagingNotify tRPC router: notifyDevice, notifyBulk, listForClient, acknowledge
+- [x] Staff UI: "Mark Ready to Ship" button on Device Detail page
+- [x] Staff UI: Bulk "Notify Ready to Ship" action on Devices list (checkbox select)
+- [x] Customer UI: "Ready to Ship" badge on My Devices page
+- [x] Customer UI: Notification banner on Device Detail page with acknowledge button
+- [x] Customer UI: Unread notification count badge in sidebar
+- [x] Write Vitest tests for stagingNotify router
 
 ## Bulk Mark Ready to Ship (Boxes & Pallets)
 - [x] Extend stagingNotify router to support boxes and pallets with itemType field
