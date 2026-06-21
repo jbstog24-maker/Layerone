@@ -309,3 +309,9 @@
 - [ ] Customer UI: Notification banner on Device Detail page with acknowledge button
 - [ ] Customer UI: Unread notification count badge in sidebar
 - [ ] Write Vitest tests for stagingNotify router
+
+## Bulk Mark Ready to Ship (Boxes & Pallets)
+- [x] Extend stagingNotify router to support boxes and pallets with itemType field
+- [x] Add bulk checkbox selection + Mark Ready to Ship toolbar to Boxes page
+- [x] Add bulk checkbox selection + Mark Ready to Ship toolbar to Pallets page
+- [x] Write Vitest tests for new bulk procedures

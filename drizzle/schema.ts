@@ -480,11 +480,14 @@ export type InsertShipmentDocument = typeof shipmentDocuments.$inferInsert;
 // ─── Staging Notifications (Ready to Ship) ───────────────────────────────────
 export const stagingNotifications = mysqlTable("staging_notifications", {
   id: int("id").autoincrement().primaryKey(),
-  deviceId: int("deviceId").notNull(),
+  // itemType + itemId replace the old deviceId-only approach
+  itemType: varchar("itemType", { length: 16 }).notNull().default("device"), // 'device' | 'box' | 'pallet'
+  itemId: int("itemId").notNull(),
+  deviceId: int("deviceId").notNull(), // kept for backwards compat (same as itemId when itemType='device')
   clientId: int("clientId").notNull(),
   notifiedByUserId: int("notifiedByUserId").notNull(),
   notifiedByName: varchar("notifiedByName", { length: 200 }).notNull(),
-  deviceCode: varchar("deviceCode", { length: 128 }).notNull(),
+  deviceCode: varchar("deviceCode", { length: 128 }).notNull(), // item code (boxCode / palletCode for non-device)
   message: text("message"),
   emailSent: boolean("emailSent").default(false).notNull(),
   acknowledgedAt: timestamp("acknowledgedAt"),

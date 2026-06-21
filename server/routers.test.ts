@@ -838,3 +838,43 @@ describe("stagingNotify.unreadCount", () => {
     await expect(caller.stagingNotify.unreadCount({ clientId: 1 })).rejects.toThrow();
   });
 });
+
+describe("stagingNotify.notifyBulkItems", () => {
+  it("allows staff to bulk mark boxes as ready to ship", async () => {
+    const { getBox } = await import("./db");
+    (getBox as any)
+      .mockResolvedValueOnce({ id: 1, clientId: 1, boxCode: "BOX-001", status: "staging", createdAt: new Date() })
+      .mockResolvedValueOnce({ id: 2, clientId: 1, boxCode: "BOX-002", status: "staging", createdAt: new Date() });
+    const ctx = makeCtx("staff");
+    const caller = appRouter.createCaller(ctx);
+    const result = await caller.stagingNotify.notifyBulkItems({ itemType: "box", itemIds: [1, 2] });
+    expect(result.results).toHaveLength(2);
+    expect(result.results.every((r: any) => r.success)).toBe(true);
+  });
+
+  it("allows admin to bulk mark pallets as ready to ship", async () => {
+    const { getPallet } = await import("./db");
+    (getPallet as any)
+      .mockResolvedValueOnce({ id: 3, clientId: 2, palletCode: "PAL-003", status: "staging", dateReceived: new Date(), createdAt: new Date() });
+    const ctx = makeCtx("admin");
+    const caller = appRouter.createCaller(ctx);
+    const result = await caller.stagingNotify.notifyBulkItems({ itemType: "pallet", itemIds: [3] });
+    expect(result.results).toHaveLength(1);
+    expect(result.results[0].success).toBe(true);
+  });
+
+  it("marks item as failed when item not found", async () => {
+    const { getBox } = await import("./db");
+    (getBox as any).mockResolvedValueOnce(null);
+    const ctx = makeCtx("admin");
+    const caller = appRouter.createCaller(ctx);
+    const result = await caller.stagingNotify.notifyBulkItems({ itemType: "box", itemIds: [999] });
+    expect(result.results[0].success).toBe(false);
+  });
+
+  it("throws FORBIDDEN for customer role", async () => {
+    const ctx = makeCtx("customer_admin", 1);
+    const caller = appRouter.createCaller(ctx);
+    await expect(caller.stagingNotify.notifyBulkItems({ itemType: "box", itemIds: [1] })).rejects.toThrow();
+  });
+});

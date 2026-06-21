@@ -975,6 +975,8 @@ export async function deleteShipmentDocument(id: number) {
 
 // ─── Staging Notifications (Ready to Ship) ───────────────────────────────────
 export async function createStagingNotification(data: {
+  itemType?: string;
+  itemId?: number;
   deviceId: number;
   clientId: number;
   notifiedByUserId: number;
@@ -986,6 +988,8 @@ export async function createStagingNotification(data: {
   const db = await getDb();
   if (!db) throw new Error("DB unavailable");
   const result = await db.insert(stagingNotifications).values({
+    itemType: data.itemType ?? "device",
+    itemId: data.itemId ?? data.deviceId,
     deviceId: data.deviceId,
     clientId: data.clientId,
     notifiedByUserId: data.notifiedByUserId,
