@@ -156,6 +156,7 @@ vi.mock("./email", () => ({
   sendPortalInviteEmail: vi.fn().mockResolvedValue(undefined),
   sendWelcomeEmail: vi.fn().mockResolvedValue(true),
   sendStagingCompleteEmail: vi.fn().mockResolvedValue(undefined),
+  sendIntroductionEmail: vi.fn().mockResolvedValue(true),
 }));
 
 vi.mock("./storage", () => ({
@@ -1145,5 +1146,93 @@ describe("content.generateCaptions", () => {
         includeEmoji: true,
       })
     ).rejects.toThrow();
+  });
+});
+
+// ─── leads.draftIntroEmail & leads.sendIntroEmail ────────────────────────────
+describe("leads intro email", () => {
+  it("drafts an intro email for a company name", async () => {
+    const { invokeLLM } = await import("./_core/llm");
+    (invokeLLM as any).mockResolvedValueOnce({
+      choices: [{
+        message: {
+          content: JSON.stringify({
+            subject: "Introduction: NSDS Staging Services for Acme IT",
+            body: "Hi there,\n\nWe wanted to reach out about NSDS...\n\nBest,\nNSDS Team",
+          }),
+        },
+      }],
+    });
+    const ctx = makeCtx("admin");
+    const caller = appRouter.createCaller(ctx);
+    const result = await caller.leads.draftIntroEmail({
+      companyName: "Acme IT",
+      city: "Plano",
+    });
+    expect(result.subject).toContain("Acme IT");
+    expect(result.body).toBeTruthy();
+  });
+
+  it("drafts an intro email for an existing lead", async () => {
+    const { getLead } = await import("./db");
+    const { invokeLLM } = await import("./_core/llm");
+    (getLead as any).mockResolvedValueOnce({
+      id: 1, companyName: "TechCorp MSP", industry: "MSP", city: "Dallas",
+      contactName: "John Smith", contactTitle: "IT Director",
+    });
+    (invokeLLM as any).mockResolvedValueOnce({
+      choices: [{ message: { content: JSON.stringify({ subject: "NSDS for TechCorp MSP", body: "Hi John,\n\nNSDS can help..." }) } }],
+    });
+    const ctx = makeCtx("admin");
+    const caller = appRouter.createCaller(ctx);
+    const result = await caller.leads.draftIntroEmail({ leadId: 1 });
+    expect(result.subject).toBeTruthy();
+    expect(result.body).toBeTruthy();
+  });
+
+  it("sends an intro email and marks lead as contacted", async () => {
+    const { getLead, createLeadMessage, updateLead } = await import("./db");
+    const { sendIntroductionEmail } = await import("./email");
+    (getLead as any).mockResolvedValueOnce({ id: 1, companyName: "TechCorp MSP" });
+    (sendIntroductionEmail as any).mockResolvedValueOnce(true);
+    (createLeadMessage as any).mockResolvedValueOnce({ id: 99 });
+    (updateLead as any).mockResolvedValueOnce(undefined);
+    const ctx = makeCtx("admin");
+    const caller = appRouter.createCaller(ctx);
+    const result = await caller.leads.sendIntroEmail({
+      leadId: 1,
+      subject: "NSDS Introduction",
+      body: "Hi there, we wanted to reach out...",
+      recipientEmail: "contact@techcorp.com",
+    });
+    expect(result.success).toBe(true);
+    expect(createLeadMessage).toHaveBeenCalled();
+    expect(updateLead).toHaveBeenCalled();
+  });
+
+  it("throws NOT_FOUND when lead does not exist on sendIntroEmail", async () => {
+    const { getLead, createLeadMessage, updateLead } = await import("./db");
+    const { sendIntroductionEmail } = await import("./email");
+    // Reset the default mock so this test gets null
+    (getLead as any).mockReset();
+    (getLead as any).mockResolvedValueOnce(null);
+    const ctx = makeCtx("admin");
+    const caller = appRouter.createCaller(ctx);
+    await expect(
+      caller.leads.sendIntroEmail({
+        leadId: 999,
+        subject: "Test",
+        body: "Test body",
+        recipientEmail: "test@example.com",
+      })
+    ).rejects.toThrow();
+    // Restore default mock for subsequent tests
+    (getLead as any).mockResolvedValue(null);
+  });
+
+  it("throws FORBIDDEN for customer role on draftIntroEmail", async () => {
+    const ctx = makeCtx("customer_admin", 1);
+    const caller = appRouter.createCaller(ctx);
+    await expect(caller.leads.draftIntroEmail({ companyName: "Test Co" })).rejects.toThrow();
   });
 });

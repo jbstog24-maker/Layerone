@@ -11,6 +11,7 @@ import {
 } from "../db";
 import { invokeLLM, Message } from "../_core/llm";
 import { makeRequest } from "../_core/map";
+import { sendIntroductionEmail } from "../email";
 
 export const leadsRouter = router({
   // ─── Leads CRUD ─────────────────────────────────────────────────────────────
@@ -249,18 +250,36 @@ ${isEmail ? 'Respond with JSON: {"subject":"<subject>","body":"<body with \\n fo
     .input(z.object({
       query: z.string().min(1),
       location: z.string().optional().default("32.7767,-96.7970"),
-      radius: z.number().optional().default(50000),
+      radius: z.number().optional().default(40000),
+      subRegion: z.string().optional(),
     }))
     .query(async ({ input }) => {
+      // Build a targeted query that anchors results to NSDS's DFW service area
+      // and appends the sub-region when specified for tighter geographic targeting.
+      const region = input.subRegion ? `${input.subRegion}, TX` : "Dallas-Fort Worth, TX";
+      const enrichedQuery = `${input.query} ${region}`;
+
       const result = await makeRequest<any>("/maps/api/place/textsearch/json", {
-        query: input.query,
+        query: enrichedQuery,
         location: input.location,
         radius: String(input.radius),
       });
       if (result.status !== "OK" && result.status !== "ZERO_RESULTS") {
         throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: `Places API: ${result.status}` });
       }
-      return (result.results ?? []) as Array<{
+
+      // Filter out place types that are clearly not B2B prospects
+      const EXCLUDED_TYPES = new Set([
+        "restaurant", "food", "cafe", "bar", "lodging", "gym", "spa",
+        "hair_care", "beauty_salon", "clothing_store", "shoe_store",
+        "grocery_or_supermarket", "convenience_store", "gas_station",
+        "car_wash", "car_repair", "church", "mosque", "synagogue",
+        "school", "university", "hospital", "pharmacy", "dentist",
+        "doctor", "veterinary_care", "amusement_park", "movie_theater",
+        "night_club", "casino", "park", "tourist_attraction",
+      ]);
+
+      const raw = (result.results ?? []) as Array<{
         place_id: string;
         name: string;
         formatted_address: string;
@@ -269,6 +288,14 @@ ${isEmail ? 'Respond with JSON: {"subject":"<subject>","body":"<body with \\n fo
         types?: string[];
         business_status?: string;
       }>;
+
+      // Keep only open/operational businesses that are not in the excluded list
+      return raw.filter((place) => {
+        if (place.business_status && place.business_status !== "OPERATIONAL") return false;
+        const types = place.types ?? [];
+        if (types.some((t) => EXCLUDED_TYPES.has(t))) return false;
+        return true;
+      });
     }),
 
   getPlaceDetails: adminProcedure
@@ -302,7 +329,9 @@ ${isEmail ? 'Respond with JSON: {"subject":"<subject>","body":"<body with \\n fo
       industry: z.string().optional(),
     }))
     .mutation(async ({ input }) => {
-      const city = input.address?.split(",")[1]?.trim() ?? "DFW";
+      // Parse city from formatted_address (e.g. "123 Main St, Plano, TX 75023, USA")
+      const parts = input.address?.split(",") ?? [];
+      const city = parts.length >= 2 ? parts[parts.length - 3]?.trim() ?? parts[1]?.trim() ?? "DFW" : "DFW";
       return createLead({
         companyName: input.name,
         phone: input.phone,
@@ -316,6 +345,109 @@ ${isEmail ? 'Respond with JSON: {"subject":"<subject>","body":"<body with \\n fo
         temperature: "cold",
         placeId: input.placeId,
       });
+    }),
+
+  // ─── Introduction Email ──────────────────────────────────────────────────────
+  draftIntroEmail: adminProcedure
+    .input(z.object({
+      leadId: z.number().optional(),
+      // For Lead Finder cards that haven't been imported yet
+      companyName: z.string().optional(),
+      industry: z.string().optional(),
+      city: z.string().optional(),
+    }))
+    .mutation(async ({ input }) => {
+      let companyName = input.companyName ?? "";
+      let industry = input.industry ?? "";
+      let city = input.city ?? "DFW area";
+      let contactName: string | null = null;
+      let contactTitle: string | null = null;
+
+      if (input.leadId) {
+        const lead = await getLead(input.leadId);
+        if (!lead) throw new TRPCError({ code: "NOT_FOUND" });
+        companyName = lead.companyName;
+        industry = lead.industry ?? industry;
+        city = lead.city ?? city;
+        contactName = lead.contactName ?? null;
+        contactTitle = lead.contactTitle ?? null;
+      }
+
+      if (!companyName) throw new TRPCError({ code: "BAD_REQUEST", message: "Company name is required" });
+
+      const greeting = contactName ? `${contactName.split(" ")[0]}` : "there";
+      const industryLine = industry ? `We work with a lot of ${industry} companies` : "We work with IT teams across many industries";
+
+      const prompt = `Write a professional introduction email from NSDS (Network Staging & Deployment Solutions) to a prospective client.
+
+NSDS is a DFW-based company that handles IT hardware staging, device imaging, warehouse logistics, and multi-site deployment prep for MSPs, IT VARs, cabling contractors, security integrators, and enterprise IT teams.
+
+Prospect details:
+- Company: ${companyName}
+- Industry: ${industry || "IT / Technology"}
+- City: ${city}
+- Contact: ${contactName ?? "Decision Maker"} (${contactTitle ?? "IT/Operations"})
+
+Email requirements:
+- Subject line: short, specific, not clickbait
+- Opening: address them by first name ("${greeting}"), mention their company and city
+- Body: briefly explain what NSDS does in plain language — no jargon, no buzzwords
+- ${industryLine} in the DFW area and understand their challenges around device deployment timelines and multi-site logistics
+- Mention 2-3 concrete things NSDS can do for them (e.g. receive and stage devices before the truck rolls, handle imaging and configuration, provide a customer portal for real-time tracking)
+- Closing: invite them to a short 15-minute call to see if it's a fit — no pressure, no hard sell
+- Tone: warm, informative, peer-to-peer — NOT salesy, NOT pushy, NOT full of exclamation points
+- Length: 150-200 words max
+- Sign off as: NSDS Team | Network Staging & Deployment Solutions | Dallas-Fort Worth, TX
+
+Respond with JSON: {"subject":"<subject line>","body":"<email body with \\n for line breaks>"}`;
+
+      const llmResult = await invokeLLM({ messages: [{ role: "user", content: prompt }], maxTokens: 600 });
+      const raw = (llmResult.choices[0]?.message?.content as string) ?? "";
+
+      let subject = `Introduction: NSDS Staging Services for ${companyName}`;
+      let body = raw;
+      try {
+        const m = raw.match(/\{[\s\S]*\}/);
+        const p = JSON.parse(m?.[0] ?? "{}");
+        if (p.subject) subject = p.subject;
+        if (p.body) body = p.body;
+      } catch { /* fallback to raw */ }
+
+      return { subject, body };
+    }),
+
+  sendIntroEmail: adminProcedure
+    .input(z.object({
+      leadId: z.number(),
+      subject: z.string().min(1),
+      body: z.string().min(1),
+      recipientEmail: z.string().email(),
+    }))
+    .mutation(async ({ input }) => {
+      const lead = await getLead(input.leadId);
+      if (!lead) throw new TRPCError({ code: "NOT_FOUND" });
+
+      const sent = await sendIntroductionEmail({
+        to: input.recipientEmail,
+        subject: input.subject,
+        body: input.body,
+        companyName: lead.companyName,
+      });
+
+      if (!sent) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Failed to send email — check Resend configuration" });
+
+      // Save the sent message to campaign history and mark lead as contacted
+      await createLeadMessage({
+        leadId: input.leadId,
+        type: "cold_email",
+        subject: input.subject,
+        body: input.body,
+        generatedByAi: true,
+        sentAt: new Date(),
+      });
+      await updateLead(input.leadId, { lastContactedAt: new Date(), status: "contacted" });
+
+      return { success: true };
     }),
 
   // ─── Drip Sequences ──────────────────────────────────────────────────────────

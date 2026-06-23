@@ -341,3 +341,24 @@
 - [x] Add content.generateCaptions tRPC procedure (LinkedIn, Instagram, Twitter/X, Facebook)
 - [x] Add Captions tab to ContentStudio.tsx with image picker from gallery + platform selector
 - [x] Write Vitest tests for generateCaptions procedure
+
+## Content Studio QA & Improvements
+- [ ] Image templates: clicking a template should also auto-fill the title field and show a visual selected state
+- [ ] Video templates: clicking a template should also auto-fill the title field and show a visual selected state
+- [ ] Image tab: add character counter on prompt textarea, clear-form button after generation
+- [ ] Video tab: move templates to left column (above generate button) so they're visible without scrolling
+- [ ] Captions tab: add caption templates (pre-built image descriptions for common NSDS scenarios)
+- [ ] Captions tab: improve platform toggle UX — prevent deselecting all platforms, add select-all button
+- [ ] Captions tab: show char count live as user types custom description
+- [ ] General: add a "Clear / Start Over" button to each tab
+- [ ] General: improve empty state messaging and pro tips for all three tabs
+
+## Lead Finder Improvements & Introduction Email
+- [x] Replace generic industry search with NSDS-specific prospect categories (MSPs, IT VARs, cabling contractors, security integrators, AV installers, enterprise IT depts)
+- [x] Add DFW sub-region filters (Dallas, Fort Worth, Plano, Irving, Frisco, Arlington, etc.)
+- [x] Add relevance scoring/filtering to only show businesses that match NSDS customer profile
+- [x] Add category badge on each result card
+- [x] Build draftIntroEmail + sendIntroEmail tRPC procedures: AI-drafts a professional intro email, sends via Resend
+- [x] Add Send Introduction Email button + preview modal on Lead Finder result cards
+- [x] Intro email saved to campaign history and lead marked as contacted on send
+- [x] Write Vitest tests for draftIntroEmail and sendIntroEmail procedures (5 new tests)

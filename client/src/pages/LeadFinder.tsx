@@ -3,10 +3,16 @@ import { trpc } from "@/lib/trpc";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent } from "@/components/ui/card";
+import { Textarea } from "@/components/ui/textarea";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Label } from "@/components/ui/label";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Search, MapPin, Phone, Globe, Plus, CheckCircle, Loader2, Building2 } from "lucide-react";
+import {
+  Search, MapPin, Phone, Globe, Plus, CheckCircle, Loader2, Building2,
+  Mail, Sparkles, Send, RefreshCw, ChevronRight, Target,
+} from "lucide-react";
 
 type PlaceResult = {
   place_id: string;
@@ -14,144 +20,378 @@ type PlaceResult = {
   formatted_address: string;
   rating?: number;
   types?: string[];
+  business_status?: string;
+};
+
+// ─── NSDS-specific prospect categories ───────────────────────────────────────
+const PROSPECT_CATEGORIES = [
+  {
+    group: "Core Targets",
+    color: "bg-blue-500/10 border-blue-500/30 text-blue-400",
+    items: [
+      { label: "Managed Service Providers", query: "managed service provider MSP IT services" },
+      { label: "IT VARs & Resellers", query: "IT value added reseller VAR technology solutions" },
+      { label: "IT Staffing & Consulting", query: "IT staffing consulting technology services" },
+    ],
+  },
+  {
+    group: "Installation & Integration",
+    color: "bg-purple-500/10 border-purple-500/30 text-purple-400",
+    items: [
+      { label: "Cabling Contractors", query: "network cabling contractor low voltage structured cabling" },
+      { label: "Security Integrators", query: "security systems integrator access control surveillance" },
+      { label: "AV & Low-Voltage", query: "audio visual AV integrator low voltage installation" },
+    ],
+  },
+  {
+    group: "Enterprise IT",
+    color: "bg-green-500/10 border-green-500/30 text-green-400",
+    items: [
+      { label: "Healthcare IT", query: "healthcare IT technology hospital clinic network" },
+      { label: "Financial Services IT", query: "financial services technology bank credit union IT" },
+      { label: "Logistics & Distribution", query: "logistics distribution warehouse technology IT" },
+    ],
+  },
+  {
+    group: "Other B2B",
+    color: "bg-orange-500/10 border-orange-500/30 text-orange-400",
+    items: [
+      { label: "Construction Tech", query: "construction technology IT services general contractor" },
+      { label: "Manufacturing IT", query: "manufacturing technology IT services industrial" },
+      { label: "Government & Education IT", query: "government municipality school district IT technology" },
+    ],
+  },
+];
+
+// ─── DFW sub-regions ──────────────────────────────────────────────────────────
+const DFW_REGIONS = [
+  { label: "All DFW", value: "" },
+  { label: "Dallas", value: "Dallas" },
+  { label: "Fort Worth", value: "Fort Worth" },
+  { label: "Plano", value: "Plano" },
+  { label: "Irving", value: "Irving" },
+  { label: "Frisco", value: "Frisco" },
+  { label: "McKinney", value: "McKinney" },
+  { label: "Arlington", value: "Arlington" },
+  { label: "Garland", value: "Garland" },
+  { label: "Richardson", value: "Richardson" },
+  { label: "Allen", value: "Allen" },
+  { label: "Carrollton", value: "Carrollton" },
+];
+
+// ─── DFW center coordinates ───────────────────────────────────────────────────
+const DFW_COORDS: Record<string, string> = {
+  "": "32.7767,-96.7970",
+  "Dallas": "32.7767,-96.7970",
+  "Fort Worth": "32.7555,-97.3308",
+  "Plano": "33.0198,-96.6989",
+  "Irving": "32.8140,-96.9489",
+  "Frisco": "33.1507,-96.8236",
+  "McKinney": "33.1972,-96.6397",
+  "Arlington": "32.7357,-97.1081",
+  "Garland": "32.9126,-96.6389",
+  "Richardson": "32.9483,-96.7299",
+  "Allen": "33.1032,-96.6705",
+  "Carrollton": "32.9537,-96.8903",
 };
 
 export default function LeadFinder() {
   const utils = trpc.useUtils();
-  const [industry, setIndustry] = useState("");
-  const [location, setLocation] = useState("Dallas, TX");
-  const [results, setResults] = useState<PlaceResult[]>([]);
+  const [customQuery, setCustomQuery] = useState("");
+  const [activeQuery, setActiveQuery] = useState<string | null>(null);
+  const [activeCategory, setActiveCategory] = useState<string | null>(null);
+  const [subRegion, setSubRegion] = useState("");
   const [importedIds, setImportedIds] = useState<string[]>([]);
 
-  const { mutate: searchPlaces, isPending: isSearching } = trpc.leads.searchPlaces.useQuery as unknown as { mutate: never; isPending: never };
+  // Intro email state
+  const [introDialogOpen, setIntroDialogOpen] = useState(false);
+  const [introTarget, setIntroTarget] = useState<PlaceResult | null>(null);
+  const [introLeadId, setIntroLeadId] = useState<number | null>(null);
+  const [introSubject, setIntroSubject] = useState("");
+  const [introBody, setIntroBody] = useState("");
+  const [introEmail, setIntroEmail] = useState("");
+  const [isDrafting, setIsDrafting] = useState(false);
 
-  // Use useQuery with enabled flag for search
-  const [searchQuery, setSearchQuery] = useState<string | null>(null);
   const { data: searchData, isFetching } = trpc.leads.searchPlaces.useQuery(
-    { query: searchQuery ?? "" },
     {
-      enabled: !!searchQuery,
-      onSuccess: (data: PlaceResult[]) => {
-        setResults(data ?? []);
-        if ((data?.length ?? 0) === 0) toast.info("No results found — try a different industry or location");
-      },
-    } as any
+      query: activeQuery ?? "",
+      location: DFW_COORDS[subRegion] ?? "32.7767,-96.7970",
+      subRegion: subRegion || undefined,
+    },
+    { enabled: !!activeQuery, staleTime: 60_000 }
   );
 
   const importMutation = trpc.leads.importPlace.useMutation({
-    onSuccess: (_: unknown, vars: { placeId: string; name: string; address?: string; phone?: string; website?: string; industry?: string }) => {
-      setImportedIds(prev => [...prev, vars.placeId]);
+    onSuccess: (data, vars) => {
+      setImportedIds((prev) => [...prev, vars.placeId]);
+      setIntroLeadId(data.id);
       utils.leads.list.invalidate();
-      utils.leads.stats.invalidate();
+      utils.leads.stats?.invalidate?.();
       toast.success("Lead imported to pipeline");
     },
-    onError: (e: { message: string }) => toast.error(e.message),
+    onError: (e) => toast.error(e.message),
   });
 
-  const doSearch = (q: string) => {
-    if (!q.trim()) return;
-    const query = `${q} in ${location}`;
-    setSearchQuery(query);
+  const draftIntroMut = trpc.leads.draftIntroEmail.useMutation({
+    onSuccess: (data) => {
+      setIntroSubject(data.subject);
+      setIntroBody(data.body);
+      setIsDrafting(false);
+    },
+    onError: (e) => {
+      toast.error(e.message);
+      setIsDrafting(false);
+    },
+  });
+
+  const sendIntroMut = trpc.leads.sendIntroEmail.useMutation({
+    onSuccess: () => {
+      toast.success("Introduction email sent!");
+      setIntroDialogOpen(false);
+      setIntroTarget(null);
+      setIntroLeadId(null);
+      setIntroSubject("");
+      setIntroBody("");
+      setIntroEmail("");
+    },
+    onError: (e) => toast.error(e.message),
+  });
+
+  const doSearch = (query: string, categoryLabel?: string) => {
+    if (!query.trim()) return;
+    setActiveQuery(query);
+    setActiveCategory(categoryLabel ?? null);
   };
 
-  const QUICK_INDUSTRIES = ["IT companies", "Healthcare", "Logistics", "Manufacturing", "Finance", "Retail", "Education", "Construction", "Real Estate", "Law Firms"];
-  const displayResults: PlaceResult[] = (searchData as PlaceResult[] | undefined) ?? results;
+  const openIntroDialog = async (place: PlaceResult) => {
+    setIntroTarget(place);
+    setIntroSubject("");
+    setIntroBody("");
+    setIntroEmail("");
+    setIntroDialogOpen(true);
+    setIsDrafting(true);
+
+    // Parse city from address
+    const parts = place.formatted_address.split(",");
+    const city = parts.length >= 2 ? parts[parts.length - 3]?.trim() ?? "DFW" : "DFW";
+
+    draftIntroMut.mutate({
+      companyName: place.name,
+      city,
+    });
+  };
+
+  const handleSendIntro = () => {
+    if (!introLeadId) {
+      toast.error("Import this lead to your pipeline first before sending an email");
+      return;
+    }
+    if (!introEmail.trim()) {
+      toast.error("Please enter the recipient's email address");
+      return;
+    }
+    sendIntroMut.mutate({
+      leadId: introLeadId,
+      subject: introSubject,
+      body: introBody,
+      recipientEmail: introEmail,
+    });
+  };
+
+  const displayResults: PlaceResult[] = (searchData as PlaceResult[] | undefined) ?? [];
 
   return (
     <DashboardLayout>
-      <div className="p-6 max-w-5xl mx-auto space-y-6">
-        <div>
-          <h1 className="text-2xl font-bold flex items-center gap-2"><MapPin className="h-6 w-6 text-primary" />Lead Finder</h1>
-          <p className="text-muted-foreground mt-1">Search for DFW businesses by industry using Google Maps. Import them directly into your pipeline.</p>
+      <div className="p-6 max-w-6xl mx-auto space-y-6">
+        {/* Header */}
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold flex items-center gap-2">
+              <Target className="h-6 w-6 text-primary" />
+              Lead Finder
+            </h1>
+            <p className="text-muted-foreground mt-1 text-sm">
+              Discover DFW businesses that match NSDS's customer profile — MSPs, IT VARs, cabling contractors, security integrators, and enterprise IT teams.
+            </p>
+          </div>
         </div>
 
-        {/* Search Bar */}
+        {/* Search + Sub-region */}
         <Card>
           <CardContent className="py-4 px-5 space-y-4">
             <div className="flex flex-col sm:flex-row gap-3">
               <div className="relative flex-1">
                 <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
-                  placeholder="Industry (e.g. IT companies, healthcare, logistics...)"
-                  value={industry}
-                  onChange={e => setIndustry(e.target.value)}
+                  placeholder="Custom search (e.g. network cabling contractor, IT support company...)"
+                  value={customQuery}
+                  onChange={(e) => setCustomQuery(e.target.value)}
                   className="pl-9"
-                  onKeyDown={e => { if (e.key === "Enter" && industry.trim()) doSearch(industry); }}
-                />
-              </div>
-              <div className="relative w-full sm:w-48">
-                <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Location"
-                  value={location}
-                  onChange={e => setLocation(e.target.value)}
-                  className="pl-9"
+                  onKeyDown={(e) => { if (e.key === "Enter" && customQuery.trim()) doSearch(customQuery); }}
                 />
               </div>
               <Button
-                disabled={!industry.trim() || isFetching}
-                onClick={() => doSearch(industry)}
+                disabled={!customQuery.trim() || isFetching}
+                onClick={() => doSearch(customQuery)}
                 className="shrink-0"
               >
                 {isFetching ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Search className="h-4 w-4 mr-2" />}
                 Search
               </Button>
             </div>
-            <div className="flex flex-wrap gap-2">
-              {QUICK_INDUSTRIES.map(q => (
-                <button
-                  key={q}
-                  className="text-xs px-2.5 py-1 rounded-full border hover:bg-primary hover:text-primary-foreground hover:border-primary transition-colors"
-                  onClick={() => { setIndustry(q); doSearch(q); }}
-                >
-                  {q}
-                </button>
-              ))}
+
+            {/* DFW Sub-region filter */}
+            <div className="space-y-2">
+              <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">DFW Area</p>
+              <div className="flex flex-wrap gap-2">
+                {DFW_REGIONS.map((r) => (
+                  <button
+                    key={r.value}
+                    onClick={() => setSubRegion(r.value)}
+                    className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${
+                      subRegion === r.value
+                        ? "bg-primary text-primary-foreground border-primary"
+                        : "border-border hover:bg-muted"
+                    }`}
+                  >
+                    {r.label}
+                  </button>
+                ))}
+              </div>
             </div>
           </CardContent>
         </Card>
 
+        {/* NSDS Prospect Categories */}
+        <div className="space-y-3">
+          <p className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+            NSDS Target Prospect Categories
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {PROSPECT_CATEGORIES.map((group) => (
+              <Card key={group.group} className="bg-card">
+                <CardHeader className="pb-2 pt-3 px-4">
+                  <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                    {group.group}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="px-4 pb-3 space-y-1.5">
+                  {group.items.map((item) => (
+                    <button
+                      key={item.label}
+                      onClick={() => doSearch(item.query, item.label)}
+                      disabled={isFetching}
+                      className={`w-full text-left flex items-center justify-between gap-2 px-3 py-2 rounded-lg border text-xs font-medium transition-colors ${
+                        activeCategory === item.label
+                          ? group.color
+                          : "bg-muted/30 border-border hover:bg-muted"
+                      }`}
+                    >
+                      <span>{item.label}</span>
+                      <ChevronRight className="h-3 w-3 shrink-0 opacity-50" />
+                    </button>
+                  ))}
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+
         {/* Results */}
-        {displayResults.length > 0 && (
+        {isFetching && (
+          <div className="flex items-center justify-center py-12 gap-3 text-muted-foreground">
+            <Loader2 className="h-5 w-5 animate-spin" />
+            <span className="text-sm">Searching {subRegion || "DFW"} for {activeCategory ?? "businesses"}...</span>
+          </div>
+        )}
+
+        {!isFetching && displayResults.length > 0 && (
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <p className="text-sm text-muted-foreground">{displayResults.length} results found</p>
+              <div className="flex items-center gap-2">
+                <p className="text-sm text-muted-foreground">
+                  <strong className="text-foreground">{displayResults.length}</strong> prospects found
+                  {activeCategory && <span className="ml-1">· {activeCategory}</span>}
+                  {subRegion && <span className="ml-1">· {subRegion}</span>}
+                </p>
+              </div>
               <Button
                 size="sm"
                 variant="outline"
                 disabled={importMutation.isPending}
                 onClick={() => {
-                  const unimported = displayResults.filter(r => !importedIds.includes(r.place_id));
-                  unimported.forEach(r => importMutation.mutate({ placeId: r.place_id, name: r.name, address: r.formatted_address, industry }));
+                  const unimported = displayResults.filter((r) => !importedIds.includes(r.place_id));
+                  unimported.forEach((r) =>
+                    importMutation.mutate({
+                      placeId: r.place_id,
+                      name: r.name,
+                      address: r.formatted_address,
+                      industry: activeCategory ?? customQuery,
+                    })
+                  );
                 }}
               >
-                <Plus className="h-3.5 w-3.5 mr-1.5" />Import All
+                <Plus className="h-3.5 w-3.5 mr-1.5" />
+                Import All
               </Button>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {displayResults.map(place => {
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              {displayResults.map((place) => {
                 const imported = importedIds.includes(place.place_id);
                 return (
-                  <Card key={place.place_id} className={imported ? "opacity-60" : ""}>
-                    <CardContent className="py-3 px-4 space-y-2">
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="flex-1 min-w-0">
-                          <p className="font-medium truncate">{place.name}</p>
-                          <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
-                            <MapPin className="h-3 w-3 shrink-0" /><span className="truncate">{place.formatted_address}</span>
-                          </p>
+                  <Card key={place.place_id} className={`transition-opacity ${imported ? "opacity-70" : ""}`}>
+                    <CardContent className="py-3 px-4 space-y-3">
+                      <div className="space-y-1">
+                        <div className="flex items-start justify-between gap-2">
+                          <p className="font-semibold text-sm leading-tight">{place.name}</p>
+                          {place.rating && (
+                            <Badge variant="outline" className="text-xs shrink-0">★ {place.rating}</Badge>
+                          )}
                         </div>
-                        {place.rating && <Badge variant="outline" className="text-xs shrink-0">★ {place.rating}</Badge>}
+                        <p className="text-xs text-muted-foreground flex items-start gap-1">
+                          <MapPin className="h-3 w-3 shrink-0 mt-0.5" />
+                          <span>{place.formatted_address}</span>
+                        </p>
+                        {activeCategory && (
+                          <Badge variant="secondary" className="text-xs">
+                            {activeCategory}
+                          </Badge>
+                        )}
                       </div>
-                      <Button
-                        size="sm"
-                        className="w-full h-7 text-xs"
-                        variant={imported ? "secondary" : "default"}
-                        disabled={imported || importMutation.isPending}
-                        onClick={() => importMutation.mutate({ placeId: place.place_id, name: place.name, address: place.formatted_address, industry })}
-                      >
-                        {imported ? <><CheckCircle className="h-3 w-3 mr-1" />Imported</> : <><Plus className="h-3 w-3 mr-1" />Import to Pipeline</>}
-                      </Button>
+
+                      <div className="flex gap-2">
+                        <Button
+                          size="sm"
+                          className="flex-1 h-7 text-xs"
+                          variant={imported ? "secondary" : "default"}
+                          disabled={imported || importMutation.isPending}
+                          onClick={() =>
+                            importMutation.mutate({
+                              placeId: place.place_id,
+                              name: place.name,
+                              address: place.formatted_address,
+                              industry: activeCategory ?? customQuery,
+                            })
+                          }
+                        >
+                          {imported ? (
+                            <><CheckCircle className="h-3 w-3 mr-1" />Imported</>
+                          ) : (
+                            <><Plus className="h-3 w-3 mr-1" />Import</>
+                          )}
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="h-7 px-2.5 text-xs gap-1"
+                          onClick={() => openIntroDialog(place)}
+                          title="Draft & send introduction email"
+                        >
+                          <Mail className="h-3 w-3" />
+                          Intro
+                        </Button>
+                      </div>
                     </CardContent>
                   </Card>
                 );
@@ -160,14 +400,122 @@ export default function LeadFinder() {
           </div>
         )}
 
-        {displayResults.length === 0 && !isFetching && (
+        {!isFetching && displayResults.length === 0 && !activeQuery && (
           <div className="text-center py-16 text-muted-foreground border-2 border-dashed rounded-lg">
-            <MapPin className="h-10 w-10 mx-auto mb-3 opacity-30" />
-            <p className="font-medium">Search for businesses above</p>
-            <p className="text-sm mt-1">Try "IT companies", "healthcare", or "logistics" in Dallas, TX</p>
+            <Target className="h-10 w-10 mx-auto mb-3 opacity-30" />
+            <p className="font-medium">Select a prospect category above or enter a custom search</p>
+            <p className="text-sm mt-1">Results are filtered to show only operational B2B businesses in the DFW area</p>
+          </div>
+        )}
+
+        {!isFetching && displayResults.length === 0 && activeQuery && (
+          <div className="text-center py-12 text-muted-foreground border-2 border-dashed rounded-lg">
+            <Search className="h-8 w-8 mx-auto mb-3 opacity-30" />
+            <p className="font-medium">No results found</p>
+            <p className="text-sm mt-1">Try a different category or sub-region</p>
           </div>
         )}
       </div>
+
+      {/* Introduction Email Dialog */}
+      <Dialog open={introDialogOpen} onOpenChange={setIntroDialogOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Mail className="h-5 w-5 text-primary" />
+              Send Introduction Email
+              {introTarget && <span className="text-muted-foreground font-normal">— {introTarget.name}</span>}
+            </DialogTitle>
+          </DialogHeader>
+
+          <div className="space-y-4 py-2">
+            {isDrafting ? (
+              <div className="flex flex-col items-center justify-center py-10 gap-3 text-muted-foreground">
+                <div className="relative">
+                  <div className="w-10 h-10 rounded-full border-2 border-primary/30 border-t-primary animate-spin" />
+                  <Sparkles className="h-4 w-4 text-primary absolute inset-0 m-auto" />
+                </div>
+                <p className="text-sm">AI is drafting a professional introduction...</p>
+              </div>
+            ) : (
+              <>
+                {!introLeadId && (
+                  <div className="flex items-start gap-2 p-3 bg-amber-500/10 border border-amber-500/30 rounded-lg text-xs text-amber-400">
+                    <span className="shrink-0 mt-0.5">⚠</span>
+                    <span>Import this lead to your pipeline first (click Import on the card) so the email is tracked in their record.</span>
+                  </div>
+                )}
+
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Recipient Email *</Label>
+                  <Input
+                    placeholder="contact@company.com"
+                    value={introEmail}
+                    onChange={(e) => setIntroEmail(e.target.value)}
+                    type="email"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-xs">Subject Line</Label>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="h-6 text-xs gap-1 text-muted-foreground"
+                      disabled={isDrafting || draftIntroMut.isPending}
+                      onClick={() => {
+                        if (!introTarget) return;
+                        setIsDrafting(true);
+                        const parts = introTarget.formatted_address.split(",");
+                        const city = parts.length >= 2 ? parts[parts.length - 3]?.trim() ?? "DFW" : "DFW";
+                        draftIntroMut.mutate({ companyName: introTarget.name, city });
+                      }}
+                    >
+                      <RefreshCw className="h-3 w-3" />
+                      Redraft
+                    </Button>
+                  </div>
+                  <Input
+                    value={introSubject}
+                    onChange={(e) => setIntroSubject(e.target.value)}
+                    placeholder="Subject line..."
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Email Body</Label>
+                  <Textarea
+                    value={introBody}
+                    onChange={(e) => setIntroBody(e.target.value)}
+                    rows={10}
+                    className="resize-none text-sm font-mono"
+                    placeholder="Email body..."
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    {introBody.split(" ").filter(Boolean).length} words — edit freely before sending
+                  </p>
+                </div>
+              </>
+            )}
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIntroDialogOpen(false)}>Cancel</Button>
+            <Button
+              onClick={handleSendIntro}
+              disabled={isDrafting || !introSubject || !introBody || !introEmail || sendIntroMut.isPending}
+              className="gap-2"
+            >
+              {sendIntroMut.isPending ? (
+                <><Loader2 className="h-4 w-4 animate-spin" />Sending...</>
+              ) : (
+                <><Send className="h-4 w-4" />Send Introduction</>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </DashboardLayout>
   );
 }

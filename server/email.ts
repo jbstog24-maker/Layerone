@@ -526,3 +526,81 @@ export async function sendStagingCompleteEmail(params: StagingCompleteEmailParam
     return false;
   }
 }
+
+// ─── Introduction Email (Lead Outreach) ──────────────────────────────────────
+
+export type IntroductionEmailParams = {
+  to: string;
+  subject: string;
+  body: string;
+  companyName: string;
+};
+
+/**
+ * Sends a professional introduction email to a prospective lead.
+ * The body is AI-drafted and passed in from the router.
+ * Returns true on success, false on failure (non-throwing).
+ */
+export async function sendIntroductionEmail(params: IntroductionEmailParams): Promise<boolean> {
+  if (!ENV.resendApiKey || !ENV.resendFromEmail) {
+    console.warn("[Email] RESEND_API_KEY or RESEND_FROM_EMAIL not configured — skipping intro email");
+    return false;
+  }
+
+  const bodyHtml = params.body
+    .split("\n")
+    .map((line) => `<p style="margin:0 0 10px;font-size:15px;line-height:1.6;color:#94a3b8;">${line || "&nbsp;"}</p>`)
+    .join("");
+
+  const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>${params.subject}</title>
+</head>
+<body style="margin:0;padding:0;background:#07111f;font-family:'Segoe UI',Arial,sans-serif;color:#e2e8f0;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#07111f;padding:32px 16px;">
+    <tr><td align="center">
+      <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;background:#0d1f35;border-radius:12px;border:1px solid #1e3a5f;overflow:hidden;">
+        <!-- Header -->
+        <tr><td style="background:linear-gradient(135deg,#0d1f35 0%,#0a2540 100%);padding:28px 40px;border-bottom:1px solid #1e3a5f;text-align:center;">
+          <span style="font-size:28px;font-weight:800;background:linear-gradient(90deg,#39a7ff,#6ee7b7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:3px;">NSDS</span>
+          <p style="margin:4px 0 0;font-size:10px;color:#64748b;letter-spacing:2px;text-transform:uppercase;">NETWORK STAGING &amp; DEPLOYMENT SOLUTIONS</p>
+        </td></tr>
+        <!-- Body -->
+        <tr><td style="padding:32px 40px;">
+          ${bodyHtml}
+        </td></tr>
+        <!-- Footer -->
+        <tr><td style="padding:20px 40px;border-top:1px solid #1e3a5f;text-align:center;">
+          <p style="margin:0;font-size:12px;color:#475569;">© ${new Date().getFullYear()} Network Staging &amp; Deployment Solutions (NSDS) · Dallas-Fort Worth, TX</p>
+          <p style="margin:4px 0 0;font-size:12px;color:#475569;">You are receiving this because NSDS identified your business as a potential fit for our services. To opt out, simply reply with "unsubscribe".</p>
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`;
+
+  try {
+    const resend = getResend();
+    const { error } = await resend.emails.send({
+      from: ENV.resendFromEmail,
+      to: params.to,
+      subject: params.subject,
+      html,
+    });
+
+    if (error) {
+      console.warn("[Email] Resend error (intro email):", error);
+      return false;
+    }
+
+    console.log(`[Email] Introduction email sent to ${params.to} for ${params.companyName}`);
+    return true;
+  } catch (err) {
+    console.warn("[Email] Failed to send introduction email:", err);
+    return false;
+  }
+}
