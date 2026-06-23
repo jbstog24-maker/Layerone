@@ -58,6 +58,7 @@ export type InsertPackage = typeof packages.$inferInsert;
 // ─── Clients ──────────────────────────────────────────────────────────────────
 export const clients = mysqlTable("clients", {
   id: int("id").autoincrement().primaryKey(),
+  accountNumber: varchar("accountNumber", { length: 32 }), // e.g. NSDS-00042, auto-generated on create
   companyName: varchar("companyName", { length: 256 }).notNull(),
   contactName: varchar("contactName", { length: 128 }),
   contactEmail: varchar("contactEmail", { length: 320 }),
@@ -84,6 +85,7 @@ export const clients = mysqlTable("clients", {
   warehouseNotes: text("warehouseNotes"),
   warehouseAssignedAt: timestamp("warehouseAssignedAt"),
   assignedTechNames: text("assignedTechNames"),
+  archivedAt: timestamp("archivedAt"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
@@ -652,3 +654,17 @@ export const supportTicketReplies = mysqlTable("support_ticket_replies", {
 });
 export type SupportTicketReply = typeof supportTicketReplies.$inferSelect;
 export type InsertSupportTicketReply = typeof supportTicketReplies.$inferInsert;
+
+// ─── Client Internal Notes (staff/admin only) ─────────────────────────────────
+export const clientNotes = mysqlTable("client_notes", {
+  id: int("id").autoincrement().primaryKey(),
+  clientId: int("clientId").notNull(),
+  authorId: int("authorId").notNull(),
+  authorName: varchar("authorName", { length: 256 }),
+  body: text("body").notNull(),
+  isPinned: boolean("isPinned").default(false).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type ClientNote = typeof clientNotes.$inferSelect;
+export type InsertClientNote = typeof clientNotes.$inferInsert;

@@ -12,7 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
-import { Building2, Plus, Search, ChevronRight, Mail, Phone, FileText, Warehouse, Calendar, CheckCircle, Clock, AlertCircle, Send, CreditCard, Download, MessageSquare, User } from "lucide-react";
+import { Building2, Plus, Search, ChevronRight, Mail, Phone, FileText, Warehouse, Calendar, CheckCircle, Clock, AlertCircle, Send, CreditCard, Download, MessageSquare, User, Archive, ArchiveRestore } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { useAuth } from "@/_core/hooks/useAuth";
@@ -116,10 +116,20 @@ function ClientForm({ onClose, clientId }: { onClose: () => void; clientId?: num
 }
 
 export function ClientsList() {
+  const [showArchived, setShowArchived] = useState(false);
   const [search, setSearch] = useState("");
   const [showCreate, setShowCreate] = useState(false);
   const [, setLocation] = useLocation();
-  const { data: clients, isLoading } = trpc.clients.list.useQuery({ search: search || undefined });
+  const { data: clients, isLoading } = trpc.clients.list.useQuery({ search: search || undefined, showArchived });
+  const utils = trpc.useUtils();
+  const archiveMut = trpc.clients.archive.useMutation({
+    onSuccess: () => { toast.success("Client archived"); utils.clients.list.invalidate(); },
+    onError: (e) => toast.error(e.message),
+  });
+  const unarchiveMut = trpc.clients.unarchive.useMutation({
+    onSuccess: () => { toast.success("Client restored"); utils.clients.list.invalidate(); },
+    onError: (e) => toast.error(e.message),
+  });
 
   return (
     <DashboardLayout>
@@ -127,9 +137,16 @@ export function ClientsList() {
         title="Clients"
         subtitle="Manage client accounts and company profiles"
         action={
-          <Button onClick={() => setShowCreate(true)} size="sm">
-            <Plus className="w-4 h-4 mr-1" /> New Client
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" onClick={() => setShowArchived(v => !v)}>
+              {showArchived ? <><ArchiveRestore className="w-4 h-4 mr-1" /> Active Clients</> : <><Archive className="w-4 h-4 mr-1" /> Archived</>}
+            </Button>
+            {!showArchived && (
+              <Button onClick={() => setShowCreate(true)} size="sm">
+                <Plus className="w-4 h-4 mr-1" /> New Client
+              </Button>
+            )}
+          </div>
         }
       />
       <div className="mb-4">
@@ -176,7 +193,17 @@ export function ClientsList() {
                   </td>
                   <td className="px-4 py-3"><StatusBadge status={c.status} /></td>
                   <td className="px-4 py-3 text-sm text-muted-foreground">{new Date(c.createdAt).toLocaleDateString()}</td>
-                  <td className="px-4 py-3"><ChevronRight className="w-4 h-4 text-muted-foreground" /></td>
+                  <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
+                    {showArchived ? (
+                      <Button size="sm" variant="ghost" className="h-7 px-2 text-xs" onClick={() => unarchiveMut.mutate({ id: c.id })} disabled={unarchiveMut.isPending}>
+                        <ArchiveRestore className="w-3.5 h-3.5 mr-1" /> Restore
+                      </Button>
+                    ) : (
+                      <Button size="sm" variant="ghost" className="h-7 px-2 text-xs text-muted-foreground hover:text-destructive" onClick={() => archiveMut.mutate({ id: c.id })} disabled={archiveMut.isPending}>
+                        <Archive className="w-3.5 h-3.5 mr-1" /> Archive
+                      </Button>
+                    )}
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -610,6 +637,9 @@ export function ClientDetail() {
         </Card>
       )}
 
+      {/* Internal Notes (staff/admin only) */}
+      {isAdminOrStaff && <ClientInternalNotes clientId={id} />}
+
       {/* Edit Client Dialog */}
       <Dialog open={showEdit} onOpenChange={setShowEdit}>
         <DialogContent className="max-w-lg">
@@ -627,5 +657,93 @@ export function ClientDetail() {
         </DialogContent>
       </Dialog>
     </DashboardLayout>
+  );
+}
+
+// ─── Client Internal Notes Component ──────────────────────────────────────────
+function ClientInternalNotes({ clientId }: { clientId: number }) {
+  const [newNote, setNewNote] = useState("");
+  const utils = trpc.useUtils();
+  const { data: notes, isLoading } = trpc.clients.listNotes.useQuery({ clientId });
+
+  const addMut = trpc.clients.addNote.useMutation({
+    onSuccess: () => { setNewNote(""); utils.clients.listNotes.invalidate({ clientId }); },
+    onError: (e) => toast.error(e.message),
+  });
+  const deleteMut = trpc.clients.deleteNote.useMutation({
+    onSuccess: () => utils.clients.listNotes.invalidate({ clientId }),
+    onError: (e) => toast.error(e.message),
+  });
+  const pinMut = trpc.clients.updateNote.useMutation({
+    onSuccess: () => utils.clients.listNotes.invalidate({ clientId }),
+    onError: (e) => toast.error(e.message),
+  });
+
+  return (
+    <Card className="bg-card/60 border-border/50">
+      <CardHeader>
+        <CardTitle className="text-sm flex items-center gap-2">
+          <FileText className="w-4 h-4 text-amber-400" /> Internal Notes
+          <span className="text-xs font-normal text-muted-foreground ml-1">(staff only — not visible to client)</span>
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        {/* Add note */}
+        <div className="flex gap-2">
+          <Textarea
+            value={newNote}
+            onChange={(e) => setNewNote(e.target.value)}
+            placeholder="Add an internal note..."
+            className="resize-none min-h-[60px] text-sm bg-background/50"
+            rows={2}
+          />
+          <Button
+            size="sm"
+            className="h-10 px-3 shrink-0 self-end"
+            onClick={() => { if (newNote.trim()) addMut.mutate({ clientId, body: newNote.trim() }); }}
+            disabled={!newNote.trim() || addMut.isPending}
+          >
+            <Send className="w-4 h-4" />
+          </Button>
+        </div>
+
+        {/* Notes list */}
+        {isLoading ? (
+          <div className="space-y-2">{[1, 2].map(i => <div key={i} className="h-12 bg-muted/30 rounded animate-pulse" />)}</div>
+        ) : notes?.length === 0 ? (
+          <p className="text-xs text-muted-foreground text-center py-4">No internal notes yet.</p>
+        ) : (
+          <div className="space-y-2">
+            {notes?.map(note => (
+              <div key={note.id} className={`rounded-lg border p-3 text-sm ${note.isPinned ? "border-amber-500/30 bg-amber-500/5" : "border-border/50 bg-muted/10"}`}>
+                <div className="flex items-start justify-between gap-2">
+                  <p className="flex-1 text-sm whitespace-pre-wrap">{note.body}</p>
+                  <div className="flex items-center gap-1 shrink-0">
+                    <button
+                      className={`p-1 rounded hover:bg-muted transition-colors ${note.isPinned ? "text-amber-400" : "text-muted-foreground"}`}
+                      onClick={() => pinMut.mutate({ id: note.id, isPinned: !note.isPinned })}
+                      title={note.isPinned ? "Unpin" : "Pin"}
+                    >
+                      <AlertCircle className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      className="p-1 rounded hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors"
+                      onClick={() => { if (confirm("Delete this note?")) deleteMut.mutate({ id: note.id }); }}
+                      title="Delete"
+                    >
+                      <Clock className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {note.authorName ?? "Staff"} · {new Date(note.createdAt).toLocaleString()}
+                  {note.isPinned && <span className="ml-2 text-amber-400 font-medium">Pinned</span>}
+                </p>
+              </div>
+            ))}
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 }

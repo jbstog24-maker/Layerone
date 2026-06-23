@@ -1,4 +1,4 @@
-import { and, desc, eq, like, or, sql } from "drizzle-orm";
+import { and, desc, eq, isNotNull, isNull, like, or, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import {
   InsertUser,
@@ -68,6 +68,9 @@ import {
   InsertSupportTicketReply,
   type MarketingAsset,
   type InsertMarketingAsset,
+  clientNotes,
+  type ClientNote,
+  type InsertClientNote,
 } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 import { nanoid } from "nanoid";
@@ -208,15 +211,16 @@ export async function updatePackage(id: number, data: Partial<InsertPackage>) {
 }
 
 // ─── Clients ──────────────────────────────────────────────────────────────────
-export async function listClients(search?: string) {
+export async function listClients(search?: string, showArchived?: boolean) {
   const db = await getDb();
   if (!db) return [];
+  const archiveFilter = showArchived ? isNotNull(clients.archivedAt) : isNull(clients.archivedAt);
   if (search) {
     return db.select().from(clients).where(
-      or(like(clients.companyName, `%${search}%`), like(clients.contactEmail, `%${search}%`))
+      and(archiveFilter, or(like(clients.companyName, `%${search}%`), like(clients.contactEmail, `%${search}%`)))
     ).orderBy(desc(clients.createdAt));
   }
-  return db.select().from(clients).orderBy(desc(clients.createdAt));
+  return db.select().from(clients).where(archiveFilter).orderBy(desc(clients.createdAt));
 }
 
 export async function getClient(id: number) {
@@ -230,6 +234,10 @@ export async function createClient(data: InsertClient) {
   const db = await getDb();
   if (!db) throw new Error("DB unavailable");
   const result = await db.insert(clients).values(data);
+  const insertId = (result[0] as any).insertId as number;
+  // Auto-generate accountNumber in format NSDS-XXXXX (zero-padded 5-digit)
+  const accountNumber = `NSDS-${String(insertId).padStart(5, "0")}`;
+  await db.update(clients).set({ accountNumber }).where(eq(clients.id, insertId));
   return result[0];
 }
 
@@ -1369,4 +1377,28 @@ export async function createTicketReply(data: InsertSupportTicketReply) {
   if (!db) throw new Error("DB unavailable");
   const result = await db.insert(supportTicketReplies).values(data);
   return result[0];
+}
+
+// ─── Client Internal Notes ────────────────────────────────────────────────────
+export async function listClientNotes(clientId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(clientNotes).where(eq(clientNotes.clientId, clientId))
+    .orderBy(desc(clientNotes.isPinned), desc(clientNotes.createdAt));
+}
+export async function createClientNote(data: InsertClientNote) {
+  const db = await getDb();
+  if (!db) throw new Error("DB unavailable");
+  const result = await db.insert(clientNotes).values(data);
+  return { id: (result as any)[0]?.insertId ?? 0 };
+}
+export async function updateClientNote(id: number, data: Partial<InsertClientNote>) {
+  const db = await getDb();
+  if (!db) throw new Error("DB unavailable");
+  await db.update(clientNotes).set(data).where(eq(clientNotes.id, id));
+}
+export async function deleteClientNote(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("DB unavailable");
+  await db.delete(clientNotes).where(eq(clientNotes.id, id));
 }

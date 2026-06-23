@@ -32,6 +32,8 @@ import DripSequences from "./pages/DripSequences";
 import ContentStudio from "./pages/ContentStudio";
 import ContentGallery from "./pages/ContentGallery";
 import SupportTickets from "./pages/SupportTickets";
+import AdminTickets from "./pages/AdminTickets";
+import AdminReports from "./pages/AdminReports";
 import { PalletDetail } from "./pages/Pallets";
 
 function Router() {
@@ -97,6 +99,10 @@ function Router() {
 
       {/* Support */}
       <Route path="/support" component={SupportTickets} />
+      <Route path="/admin/tickets" component={AdminTickets} />
+
+      {/* Reports */}
+      <Route path="/reports" component={AdminReports} />
 
       {/* Pallet Detail */}
       <Route path="/pallets/:id" component={PalletDetail} />

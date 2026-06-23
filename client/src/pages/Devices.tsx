@@ -15,7 +15,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
-import { Server, Plus, ChevronRight, Search, Cpu, MapPin, CheckCircle2, Truck, Clock, Pencil, PackageCheck } from "lucide-react";
+import { Server, Plus, ChevronRight, Search, Cpu, MapPin, CheckCircle2, Truck, Clock, Pencil, PackageCheck, Upload, FileText, AlertCircle } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { useAuth } from "@/_core/hooks/useAuth";
 
@@ -127,14 +127,84 @@ function DeviceForm({ onClose, deviceId }: { onClose: () => void; deviceId?: num
   );
 }
 
+function parseDeviceCSV(text: string): Array<Record<string, string>> {
+  const lines = text.trim().split(/\r?\n/);
+  if (lines.length < 2) return [];
+  const headers = lines[0].split(",").map(h => h.trim().toLowerCase().replace(/[^a-z0-9]/g, ""));
+  return lines.slice(1).filter(l => l.trim()).map(line => {
+    const vals = line.split(",").map(v => v.trim().replace(/^"|"$/g, ""));
+    const row: Record<string, string> = {};
+    headers.forEach((h, i) => { if (vals[i]) row[h] = vals[i]; });
+    return row;
+  });
+}
+
+const CSV_FIELD_MAP: Record<string, string> = {
+  devicetype: "deviceType", device_type: "deviceType", type: "deviceType",
+  brand: "brand", manufacturer: "brand",
+  model: "model",
+  serialnumber: "serialNumber", serial: "serialNumber", sn: "serialNumber",
+  macaddress: "macAddress", mac: "macAddress",
+  assettag: "assetTag", asset: "assetTag", tag: "assetTag",
+  sitename: "siteName", site: "siteName",
+  projectname: "projectName", project: "projectName",
+  notes: "notes",
+};
+
 export function DevicesList() {
   const [search, setSearch] = useState("");
   const [showCreate, setShowCreate] = useState(false);
+  const [showImport, setShowImport] = useState(false);
+  const [importClientId, setImportClientId] = useState("");
+  const [csvPreview, setCsvPreview] = useState<Array<Record<string, string>>>([]);
+  const [csvError, setCsvError] = useState("");
   const [, setLocation] = useLocation();
   const { user } = useAuth();
   const role = (user as any)?.role ?? "";
   const canCreate = role === "admin" || role === "staff";
   const { data: devices, isLoading } = trpc.devices.list.useQuery({ search: search || undefined });
+  const { data: clients } = trpc.clients.list.useQuery({}, { enabled: canCreate });
+  const utils = trpc.useUtils();
+
+  const batchImportMut = trpc.devices.batchImport.useMutation({
+    onSuccess: (res) => {
+      toast.success(`Imported ${res.imported} devices successfully`);
+      utils.devices.list.invalidate();
+      setShowImport(false);
+      setCsvPreview([]);
+      setImportClientId("");
+    },
+    onError: (e) => toast.error(e.message),
+  });
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.name.endsWith(".csv")) { setCsvError("Please select a .csv file"); return; }
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const text = ev.target?.result as string;
+      const rows = parseDeviceCSV(text);
+      if (rows.length === 0) { setCsvError("No data rows found in CSV"); return; }
+      if (rows.length > 500) { setCsvError("Maximum 500 devices per import"); return; }
+      setCsvError("");
+      setCsvPreview(rows);
+    };
+    reader.readAsText(file);
+  };
+
+  const handleImport = () => {
+    if (!importClientId || csvPreview.length === 0) return;
+    const mapped = csvPreview.map(row => {
+      const device: Record<string, string> = {};
+      Object.entries(row).forEach(([k, v]) => {
+        const field = CSV_FIELD_MAP[k];
+        if (field) device[field] = v;
+      });
+      return device;
+    });
+    batchImportMut.mutate({ clientId: parseInt(importClientId), devices: mapped });
+  };
 
   return (
     <DashboardLayout>
@@ -143,9 +213,14 @@ export function DevicesList() {
         subtitle="Track all network equipment by serial, MAC, and staging status"
         action={
           canCreate ? (
-            <Button onClick={() => setShowCreate(true)} size="sm">
-              <Plus className="w-4 h-4 mr-1" /> Add Device
-            </Button>
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" onClick={() => { setShowImport(true); setCsvPreview([]); setCsvError(""); }}>
+                <Upload className="w-4 h-4 mr-1" /> Import CSV
+              </Button>
+              <Button onClick={() => setShowCreate(true)} size="sm">
+                <Plus className="w-4 h-4 mr-1" /> Add Device
+              </Button>
+            </div>
           ) : undefined
         }
       />
@@ -206,6 +281,99 @@ export function DevicesList() {
         <DialogContent className="max-w-lg">
           <DialogHeader><DialogTitle>Add Device</DialogTitle></DialogHeader>
           <DeviceForm onClose={() => setShowCreate(false)} />
+        </DialogContent>
+      </Dialog>
+
+      {/* CSV Import Dialog */}
+      <Dialog open={showImport} onOpenChange={setShowImport}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Upload className="w-5 h-5" /> Bulk Import Devices from CSV
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            {/* Template download hint */}
+            <div className="bg-muted/30 rounded-lg p-3 text-xs text-muted-foreground">
+              <p className="font-medium mb-1 flex items-center gap-1.5"><FileText className="w-3.5 h-3.5" /> CSV Format</p>
+              <p>Accepted columns (case-insensitive): <code className="bg-muted px-1 rounded">deviceType, brand, model, serialNumber, macAddress, assetTag, siteName, projectName, notes</code></p>
+              <p className="mt-1">First row must be headers. Maximum 500 rows per import.</p>
+            </div>
+
+            {/* Client selector */}
+            <div>
+              <Label className="text-sm mb-1.5 block">Assign to Client *</Label>
+              <Select value={importClientId} onValueChange={setImportClientId}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select client..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {clients?.map(c => (
+                    <SelectItem key={c.id} value={c.id.toString()}>{c.companyName}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* File picker */}
+            <div>
+              <Label className="text-sm mb-1.5 block">CSV File *</Label>
+              <input
+                type="file"
+                accept=".csv"
+                onChange={handleFileChange}
+                className="block w-full text-sm text-muted-foreground file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border file:border-border file:text-xs file:font-medium file:bg-muted file:text-foreground hover:file:bg-muted/80 cursor-pointer"
+              />
+            </div>
+
+            {/* Error */}
+            {csvError && (
+              <div className="flex items-center gap-2 text-destructive text-sm">
+                <AlertCircle className="w-4 h-4" /> {csvError}
+              </div>
+            )}
+
+            {/* Preview */}
+            {csvPreview.length > 0 && (
+              <div>
+                <p className="text-sm font-medium mb-2">{csvPreview.length} device{csvPreview.length !== 1 ? "s" : ""} ready to import</p>
+                <div className="max-h-48 overflow-y-auto border border-border rounded-lg">
+                  <table className="w-full text-xs">
+                    <thead className="bg-muted/50 sticky top-0">
+                      <tr>
+                        {["Brand", "Model", "Serial", "MAC", "Site"].map(h => (
+                          <th key={h} className="text-left px-3 py-2 font-medium text-muted-foreground">{h}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {csvPreview.slice(0, 20).map((row, i) => (
+                        <tr key={i} className="border-t border-border/50">
+                          <td className="px-3 py-1.5">{row.brand ?? "—"}</td>
+                          <td className="px-3 py-1.5">{row.model ?? "—"}</td>
+                          <td className="px-3 py-1.5 font-mono">{row.serialNumber ?? row.sn ?? row.serial ?? "—"}</td>
+                          <td className="px-3 py-1.5 font-mono">{row.macAddress ?? row.mac ?? "—"}</td>
+                          <td className="px-3 py-1.5">{row.siteName ?? row.site ?? "—"}</td>
+                        </tr>
+                      ))}
+                      {csvPreview.length > 20 && (
+                        <tr><td colSpan={5} className="px-3 py-1.5 text-muted-foreground text-center">... and {csvPreview.length - 20} more</td></tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowImport(false)}>Cancel</Button>
+            <Button
+              onClick={handleImport}
+              disabled={!importClientId || csvPreview.length === 0 || batchImportMut.isPending}
+            >
+              {batchImportMut.isPending ? "Importing..." : `Import ${csvPreview.length} Device${csvPreview.length !== 1 ? "s" : ""}`}
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </DashboardLayout>

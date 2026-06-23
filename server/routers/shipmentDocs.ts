@@ -50,7 +50,7 @@ export const shipmentDocsRouter = router({
 
       // Decode base64 and upload to S3
       const buffer = Buffer.from(input.fileDataBase64, "base64");
-      const fileKey = `shipment-docs/${input.shipmentId}/${Date.now()}-${input.filename.replace(/[^a-zA-Z0-9._-]/g, "_")}`;
+      const fileKey = `clients/${input.clientId}/shipment-docs/${input.shipmentId}/${Date.now()}-${input.filename.replace(/[^a-zA-Z0-9._-]/g, "_")}`;
       const { key, url } = await storagePut(fileKey, buffer, input.mimeType);
 
       const doc = await addShipmentDocument({

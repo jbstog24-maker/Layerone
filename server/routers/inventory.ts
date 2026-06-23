@@ -307,4 +307,30 @@ export const devicesRouter = router({
 
       return { success: true };
     }),
+
+  batchImport: protectedProcedure
+    .input(z.object({
+      clientId: z.number(),
+      devices: z.array(z.object({
+        deviceType: z.string().optional(),
+        brand: z.string().optional(),
+        model: z.string().optional(),
+        serialNumber: z.string().optional(),
+        macAddress: z.string().optional(),
+        assetTag: z.string().optional(),
+        siteName: z.string().optional(),
+        projectName: z.string().optional(),
+        notes: z.string().optional(),
+      })).min(1).max(500),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      if (!isStaffOrAdmin(ctx.user.role)) throw new TRPCError({ code: "FORBIDDEN" });
+      const results = [];
+      for (const device of input.devices) {
+        const result = await createDevice({ ...device, clientId: input.clientId });
+        results.push(result);
+      }
+      await logActivity({ userId: ctx.user.id, clientId: input.clientId, action: `Bulk imported ${results.length} devices via CSV`, entityType: "device" });
+      return { imported: results.length, devices: results };
+    }),
 });

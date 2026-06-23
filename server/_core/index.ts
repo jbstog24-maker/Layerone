@@ -10,6 +10,26 @@ import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
 import { registerStripeRoutes } from "../stripe";
 import { handleMonthlyInvoices, handleDripAutoSend, handleLeadScoreDecay } from "../scheduledHandlers";
+import rateLimit from "express-rate-limit";
+
+// Rate limiters — disabled in development to avoid friction
+const apiLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 300,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "Too many requests, please try again later." },
+  skip: () => process.env.NODE_ENV === "development",
+});
+
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 30,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "Too many authentication attempts, please try again later." },
+  skip: () => process.env.NODE_ENV === "development",
+});
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -40,6 +60,9 @@ async function startServer() {
   app.use(express.urlencoded({ limit: "50mb", extended: true }));
   registerStorageProxy(app);
   registerOAuthRoutes(app);
+  // Apply rate limiting
+  app.use("/api/oauth", authLimiter);
+  app.use("/api/trpc", apiLimiter);
   // Scheduled heartbeat handlers (cron callbacks)
   app.post("/api/scheduled/monthly-invoices", handleMonthlyInvoices);
   app.post("/api/scheduled/drip-auto-send", handleDripAutoSend);

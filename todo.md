@@ -459,3 +459,109 @@
 - [x] Add Role Permissions Reference card showing all 4 roles and their access levels
 - [x] Add job title and department fields to Add/Edit User dialog (staff roles only)
 - [x] Add internal notes field to Add/Edit User dialog (staff-only, not visible to user)
+
+## Second-Pass Recommendations
+
+### Support Ticket Admin View
+- [ ] Build admin/staff support tickets inbox page (/admin/tickets): list all tickets, filter by status/priority/category, search
+- [ ] Add ticket detail view for staff: full thread, reply composer, status change (open/in-progress/resolved/closed)
+- [ ] Add Staff Tickets nav item to Operations group in sidebar
+- [ ] Add unread ticket badge to sidebar nav item
+- [ ] Write Vitest tests for admin ticket procedures
+
+### Shipment Tracking Number
+- [ ] Add carrier and trackingNumber fields to outbound_shipments table + migrate
+- [ ] Update shipments.update procedure to accept carrier and trackingNumber
+- [ ] Show tracking number + carrier badge on shipment detail page (staff and customer views)
+- [ ] Auto-send tracking notification email to client when tracking number is added
+
+### Bulk Device CSV Import
+- [ ] Build CSV import dialog on Devices page: drag-and-drop CSV upload, column mapping preview, validation errors
+- [ ] Add devices.importCsv tRPC procedure: parse CSV rows, validate, batch-insert devices
+- [ ] Show import results summary (X imported, Y skipped, Z errors)
+- [ ] Write Vitest tests for importCsv procedure
+
+### Soft Delete for Clients
+- [ ] Add archivedAt field to clients table + migrate
+- [ ] Update clients.delete to set archivedAt instead of hard delete
+- [ ] Add clients.restore procedure (admin only)
+- [ ] Filter archived clients out of all list queries by default
+- [ ] Add "Archived Clients" toggle on Clients list page to show/hide archived
+- [ ] Write Vitest tests for soft delete and restore
+
+### Sticky Internal Notes on Client Detail
+- [ ] Add client_notes table (id, clientId, authorId, authorName, body, createdAt, updatedAt, isPinned)
+- [ ] Run Drizzle migration for client_notes
+- [ ] Add DB helpers: listClientNotes, createClientNote, updateClientNote, deleteClientNote
+- [ ] Build clientNotes tRPC router: list, create, update, delete, pin (admin/staff only)
+- [ ] Add Internal Notes panel to ClientDetail page (staff/admin only, not visible to customer)
+
+### Admin Reports Page
+- [ ] Build /reports page with monthly throughput chart (devices received, staged, shipped per month)
+- [ ] Add revenue by client table (total invoiced, paid, outstanding)
+- [ ] Add pipeline conversion funnel (leads → qualified → proposal → won)
+- [ ] Add top clients by device volume card
+- [ ] Add Reports nav item to admin sidebar
+- [ ] Wire /reports route in App.tsx
+
+### Overdue Follow-Up Dashboard Widget
+- [ ] Add overdue leads count card to admin dashboard using leads.listOverdue procedure
+- [ ] Show top 3 overdue leads with follow-up date and quick-link to lead detail
+
+### Export to CSV
+- [ ] Add "Export CSV" button to Clients list page
+- [ ] Add "Export CSV" button to Devices list page
+- [ ] Add "Export CSV" button to Invoices list page
+- [ ] Add "Export CSV" button to Leads list page
+
+### Customer Portal Enhancements
+- [ ] Add shipment status timeline to customer shipment detail view (Requested → Approved → Packed → Dispatched → Delivered)
+- [ ] Add customer invoice PDF download button (same HTML export as admin)
+- [ ] Add device search bar to customer inventory view (filter by serial/model)
+
+### Sales Improvements
+- [ ] Add source field to leads table (Lead Finder, Manual, Referral, Inbound Inquiry, LinkedIn) + migrate
+- [ ] Add source selector to lead create/edit form
+- [ ] Add source badge to lead cards and detail page
+- [ ] Add sales activity log entries for: lead imported, intro email sent, drip enrolled, lead converted
+- [ ] Tag content assets to leads: add leadId field to marketing_assets table + migrate
+- [ ] Add "Tag to Lead" button on Asset Gallery cards
+
+### Reliability
+- [ ] Add server-side rate limiting to /api/trpc/inquiry.submit and /api/trpc/packages.request (max 5 per IP per hour)
+- [ ] Optimistic UI for device staging status toggle
+- [ ] Optimistic UI for lead status change in pipeline
+
+## Client ID / Account Number Scoping (File & Data Isolation)
+- [ ] Audit all DB tables that store files or user-generated content: photos, client_documents, marketing_assets, support_tickets, support_ticket_replies, client_messages
+- [ ] Enforce clientId scoping on photos router: customers can only fetch photos for their own clientId
+- [ ] Enforce clientId scoping on documents router: customers can only fetch documents linked to their clientId
+- [ ] Enforce clientId scoping on marketing_assets: add clientId column to marketing_assets table, scope all queries
+- [ ] Enforce clientId scoping on support_tickets: already scoped — verify and add test
+- [ ] Enforce clientId scoping on client_messages: already scoped — verify and add test
+- [ ] Add accountNumber field to clients table (auto-generated, e.g. NSDS-00042) for human-readable reference
+- [ ] Display accountNumber on Client Detail page header and customer dashboard
+- [ ] Prefix all S3 storage keys with clientId (e.g. clients/{clientId}/photos/...) to ensure physical file isolation
+- [ ] Write Vitest tests verifying cross-client data access is blocked (FORBIDDEN)
+
+## Second-Pass Improvements (Session 3)
+
+- [x] Auto-generate accountNumber on client create (NSDS-XXXXX format, padded)
+- [x] Register AdminTickets route in App.tsx and add Support Tickets nav item to sidebar
+- [x] Audit client ID scoping across all customer-facing router procedures
+- [x] Update S3 key prefixing in shipmentDocs to include clientId
+- [x] Confirm trackingNumber and carrier fields exist in outbound_shipments (already present)
+- [x] Add bulk device CSV import: batchImport tRPC procedure + CSV import dialog on Devices page
+- [x] Add archivedAt field to clients table (soft delete) + migration + SQL applied
+- [x] Add archive/unarchive tRPC procedures to clients router
+- [x] Add showArchived toggle + Archive/Restore buttons to ClientsList page
+- [x] Add client_notes table (sticky internal notes, staff/admin only) + migration + SQL applied
+- [x] Add listNotes/addNote/updateNote/deleteNote tRPC procedures to clients router
+- [x] Build ClientInternalNotes component on ClientDetail page (pinnable, deletable)
+- [x] Create AdminReports page (/reports) with device, shipment, and client CSV exports
+- [x] Add Reports nav item to Audit section in sidebar (admin/staff only)
+- [x] Wire /reports route in App.tsx
+- [x] Add KPI alert panel on Reports page (pending shipments, staging tasks, draft invoices)
+- [x] Install express-rate-limit and apply apiLimiter (300/min) + authLimiter (30/15min) in production
+- [x] Confirm customer portal scoping: messages and support tickets already enforce ctx.user.clientId
+- [x] All 109 tests passing, 0 TypeScript errors

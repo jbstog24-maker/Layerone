@@ -1,0 +1,1 @@
+ALTER TABLE `clients` ADD `accountNumber` varchar(32);

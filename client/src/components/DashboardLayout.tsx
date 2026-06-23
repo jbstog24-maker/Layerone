@@ -53,6 +53,7 @@ import {
   Sparkles,
   Images,
   LifeBuoy,
+  BarChart3,
 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { CSSProperties, useEffect, useRef, useState } from "react";
@@ -91,6 +92,7 @@ const NAV_GROUPS: NavGroup[] = [
       { icon: FileText, label: "Documents", path: "/documents", roles: ["admin", "staff"] },
       { icon: Inbox, label: "Inquiries", path: "/inquiries", roles: ["admin", "staff"] },
       { icon: MessageSquare, label: "Messages", path: "/messages", roles: ["admin", "staff"] },
+      { icon: LifeBuoy, label: "Support Tickets", path: "/admin/tickets", roles: ["admin", "staff"] },
       { icon: Users, label: "Users", path: "/users", roles: ["admin"] },
     ],
   },
@@ -148,6 +150,7 @@ const NAV_GROUPS: NavGroup[] = [
     label: "Audit",
     items: [
       { icon: Activity, label: "Activity Log", path: "/activity" },
+      { icon: BarChart3, label: "Reports", path: "/reports", roles: ["admin", "staff"] },
     ],
   },
 ];
