@@ -77,6 +77,9 @@ import {
   type InsertClientInstructions,
   type ClientInstructionFile,
   type InsertClientInstructionFile,
+  quotes,
+  type Quote,
+  type InsertQuote,
 } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 import { nanoid } from "nanoid";
@@ -714,7 +717,7 @@ export async function listAllClientDocuments() {
 
 // ─── Package Inquiries ────────────────────────────────────────────────────────
 export async function listInquiries(opts?: {
-  status?: "new" | "contacted" | "closed";
+  status?: "new" | "contacted" | "quote_sent" | "closed";
   tier?: string;
   search?: string;
 }) {
@@ -750,7 +753,7 @@ export async function getInquiry(id: number) {
   return row;
 }
 
-export async function updateInquiryStatus(id: number, status: "new" | "contacted" | "closed") {
+export async function updateInquiryStatus(id: number, status: "new" | "contacted" | "quote_sent" | "closed") {
   const db = await getDb();
   if (!db) throw new Error("DB unavailable");
   await db.update(packageInquiries).set({ status }).where(eq(packageInquiries.id, id));
@@ -1199,6 +1202,32 @@ export async function deleteLeadQuote(id: number): Promise<void> {
   const db = await getDb();
   if (!db) throw new Error("DB unavailable");
   await db.delete(leadQuotes).where(eq(leadQuotes.id, id));
+}
+
+// ─── Inquiry Quotes ──────────────────────────────────────────────────────────────────
+export async function listInquiryQuotes(inquiryId: number): Promise<Quote[]> {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(quotes).where(eq(quotes.inquiryId, inquiryId)).orderBy(desc(quotes.createdAt));
+}
+
+export async function createInquiryQuote(data: InsertQuote): Promise<{ id: number }> {
+  const db = await getDb();
+  if (!db) throw new Error("DB unavailable");
+  const result = await db.insert(quotes).values(data);
+  return { id: (result[0] as any).insertId as number };
+}
+
+export async function updateInquiryQuote(id: number, data: Partial<InsertQuote>): Promise<void> {
+  const db = await getDb();
+  if (!db) throw new Error("DB unavailable");
+  await db.update(quotes).set(data).where(eq(quotes.id, id));
+}
+
+export async function deleteInquiryQuote(id: number): Promise<void> {
+  const db = await getDb();
+  if (!db) throw new Error("DB unavailable");
+  await db.delete(quotes).where(eq(quotes.id, id));
 }
 
 // ─── Drip Sequences ───────────────────────────────────────────────────────────

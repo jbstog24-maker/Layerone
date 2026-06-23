@@ -370,13 +370,41 @@ export const packageInquiries = mysqlTable("package_inquiries", {
   phone: varchar("phone", { length: 30 }),
   tier: mysqlEnum("tier", ["basic", "standard", "professional", "enterprise", "custom"]).notNull(),
   deviceVolume: varchar("deviceVolume", { length: 30 }),
+  // Detailed requirements captured from Get Started form
+  deviceCount: int("deviceCount"),
+  palletCount: int("palletCount"),
+  boxCount: int("boxCount"),
+  storageDays: int("storageDays"),
+  addons: text("addons"), // JSON array of selected add-on keys
   message: text("message"),
-  status: mysqlEnum("status", ["new", "contacted", "closed"]).default("new").notNull(),
+  status: mysqlEnum("status", ["new", "contacted", "quote_sent", "closed"]).default("new").notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
 
 export type PackageInquiry = typeof packageInquiries.$inferSelect;
 export type InsertPackageInquiry = typeof packageInquiries.$inferInsert;
+
+// ─── Quotes ───────────────────────────────────────────────────────────────────
+export const quotes = mysqlTable("quotes", {
+  id: int("id").autoincrement().primaryKey(),
+  inquiryId: int("inquiryId").notNull(),
+  lineItems: text("lineItems").notNull(), // JSON: [{label, qty, unitPrice, total}]
+  subtotal: decimal("subtotal", { precision: 10, scale: 2 }).notNull().default("0.00"),
+  tax: decimal("tax", { precision: 10, scale: 2 }).notNull().default("0.00"),
+  totalAmount: decimal("totalAmount", { precision: 10, scale: 2 }).notNull().default("0.00"),
+  notes: text("notes"),
+  stripePaymentLinkId: varchar("stripePaymentLinkId", { length: 255 }),
+  stripePaymentLinkUrl: text("stripePaymentLinkUrl"),
+  stripePriceId: varchar("stripePriceId", { length: 255 }),
+  status: mysqlEnum("status", ["draft", "sent", "paid", "cancelled"]).default("draft").notNull(),
+  sentAt: timestamp("sentAt"),
+  paidAt: timestamp("paidAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Quote = typeof quotes.$inferSelect;
+export type InsertQuote = typeof quotes.$inferInsert;
 
 // ─── Document Templates ───────────────────────────────────────────────────────
 export const documentTemplates = mysqlTable("document_templates", {

@@ -45,11 +45,23 @@ import {
   ChevronRight,
   Filter,
   RefreshCw,
+  DollarSign,
+  Plus,
+  Minus,
+  Send,
+  FileText,
+  Server,
+  Layers,
+  Box,
+  ExternalLink,
 } from "lucide-react";
 import { useState, useMemo } from "react";
 import { toast } from "sonner";
+import { ADDON_RATES, TIER_PRICING } from "@/lib/pricingConstants";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
+type InquiryStatus = "new" | "contacted" | "quote_sent" | "closed";
+
 type Inquiry = {
   id: number;
   name: string;
@@ -58,8 +70,30 @@ type Inquiry = {
   phone: string | null;
   tier: "basic" | "standard" | "professional" | "enterprise" | "custom";
   deviceVolume: string | null;
+  deviceCount: number | null;
+  palletCount: number | null;
+  boxCount: number | null;
+  storageDays: number | null;
+  addons: string | null;
   message: string | null;
-  status: "new" | "contacted" | "closed";
+  status: InquiryStatus;
+  createdAt: Date;
+};
+
+type LineItem = { label: string; qty: number; unitPrice: number; total: number };
+
+type Quote = {
+  id: number;
+  inquiryId: number;
+  lineItems: string;
+  subtotal: string;
+  tax: string;
+  totalAmount: string;
+  notes: string | null;
+  stripePaymentLinkId: string | null;
+  stripePaymentLinkUrl: string | null;
+  status: "draft" | "sent" | "paid" | "cancelled";
+  sentAt: Date | null;
   createdAt: Date;
 };
 
@@ -80,14 +114,17 @@ const TIER_COLORS: Record<string, string> = {
   custom: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
 };
 
-const STATUS_CONFIG = {
+const STATUS_CONFIG: Record<InquiryStatus, { label: string; icon: any; color: string }> = {
   new: { label: "New", icon: Clock, color: "bg-[#39a7ff]/15 text-[#39a7ff] border-[#39a7ff]/30" },
   contacted: { label: "Contacted", icon: CheckCircle2, color: "bg-amber-500/15 text-amber-300 border-amber-500/30" },
+  quote_sent: { label: "Quote Sent", icon: FileText, color: "bg-violet-500/15 text-violet-300 border-violet-500/30" },
   closed: { label: "Closed", icon: XCircle, color: "bg-slate-500/15 text-slate-400 border-slate-500/30" },
 };
 
+const fmt = (n: number) => n.toLocaleString("en-US", { style: "currency", currency: "USD" });
+
 // ─── Sub-components ───────────────────────────────────────────────────────────
-function StatusBadge({ status }: { status: Inquiry["status"] }) {
+function StatusBadge({ status }: { status: InquiryStatus }) {
   const cfg = STATUS_CONFIG[status];
   const Icon = cfg.icon;
   return (
@@ -129,7 +166,7 @@ function LoadingRows() {
     <>
       {Array.from({ length: 5 }).map((_, i) => (
         <tr key={i} className="border-b border-white/5">
-          {Array.from({ length: 6 }).map((_, j) => (
+          {Array.from({ length: 7 }).map((_, j) => (
             <td key={j} className="px-4 py-3">
               <div className="h-4 bg-white/8 rounded animate-pulse" style={{ width: `${60 + Math.random() * 30}%` }} />
             </td>
@@ -140,25 +177,341 @@ function LoadingRows() {
   );
 }
 
+// ─── Quote Builder Dialog ─────────────────────────────────────────────────────
+function QuoteBuilderDialog({
+  inquiry,
+  onClose,
+}: {
+  inquiry: Inquiry | null;
+  onClose: () => void;
+}) {
+  const utils = trpc.useUtils();
+  const [lineItems, setLineItems] = useState<LineItem[]>(() => {
+    if (!inquiry) return [];
+    const tier = inquiry.tier as keyof typeof TIER_PRICING;
+    const pricing = TIER_PRICING[tier];
+    const items: LineItem[] = [];
+    if (pricing) {
+      items.push({
+        label: pricing.name,
+        qty: 1,
+        unitPrice: pricing.amountCents / 100,
+        total: pricing.amountCents / 100,
+      });
+    }
+    if (inquiry.deviceCount && inquiry.deviceCount > (pricing?.maxDevices ?? 0)) {
+      const extra = inquiry.deviceCount - (pricing?.maxDevices ?? 0);
+      if (extra > 0) {
+        items.push({
+          label: `Extra Devices (${extra} over plan limit)`,
+          qty: extra,
+          unitPrice: ADDON_RATES.extraDevicePerMonth / 100,
+          total: (extra * ADDON_RATES.extraDevicePerMonth) / 100,
+        });
+      }
+    }
+    if (inquiry.palletCount && inquiry.palletCount > (pricing?.maxPallets ?? 0)) {
+      const extra = inquiry.palletCount - (pricing?.maxPallets ?? 0);
+      if (extra > 0) {
+        items.push({
+          label: `Extra Pallets (${extra} over plan limit)`,
+          qty: extra,
+          unitPrice: ADDON_RATES.extraPalletPerMonth / 100,
+          total: (extra * ADDON_RATES.extraPalletPerMonth) / 100,
+        });
+      }
+    }
+    if (inquiry.storageDays && inquiry.storageDays > (pricing?.storageDays ?? 30)) {
+      const extraDays = inquiry.storageDays - (pricing?.storageDays ?? 30);
+      const boxes = inquiry.boxCount ?? 1;
+      const cost = (extraDays * boxes * ADDON_RATES.extraStorageDayPerBox) / 100;
+      if (cost > 0) {
+        items.push({
+          label: `Extended Storage (${extraDays} extra days × ${boxes} boxes)`,
+          qty: 1,
+          unitPrice: cost,
+          total: cost,
+        });
+      }
+    }
+    return items.length > 0 ? items : [{ label: "", qty: 1, unitPrice: 0, total: 0 }];
+  });
+  const [notes, setNotes] = useState("");
+  const [taxRate, setTaxRate] = useState(0);
+  const [confirmSend, setConfirmSend] = useState(false);
+  const [createdQuoteId, setCreatedQuoteId] = useState<number | null>(null);
+
+  const subtotal = lineItems.reduce((s, li) => s + li.total, 0);
+  const tax = Math.round(subtotal * taxRate * 100) / 100;
+  const total = subtotal + tax;
+
+  const createQuote = trpc.inquiry.createQuote.useMutation({
+    onSuccess: (data) => {
+      setCreatedQuoteId(data.id);
+      utils.inquiry.listQuotes.invalidate({ inquiryId: inquiry!.id });
+      toast.success("Quote saved as draft");
+    },
+    onError: (err) => toast.error(err.message || "Failed to save quote"),
+  });
+
+  const sendQuote = trpc.inquiry.sendQuote.useMutation({
+    onSuccess: (data) => {
+      utils.inquiry.list.invalidate();
+      utils.inquiry.listQuotes.invalidate({ inquiryId: inquiry!.id });
+      toast.success("Quote sent to customer!");
+      if (data.paymentLinkUrl) {
+        toast.info("Stripe payment link created and included in the email.");
+      }
+      onClose();
+    },
+    onError: (err) => toast.error(err.message || "Failed to send quote"),
+  });
+
+  const updateItem = (i: number, field: keyof LineItem, value: string | number) => {
+    setLineItems(prev => {
+      const next = [...prev];
+      const item = { ...next[i], [field]: value };
+      if (field === "qty" || field === "unitPrice") {
+        item.total = Math.round(Number(item.qty) * Number(item.unitPrice) * 100) / 100;
+      }
+      next[i] = item;
+      return next;
+    });
+  };
+
+  const addItem = () => setLineItems(prev => [...prev, { label: "", qty: 1, unitPrice: 0, total: 0 }]);
+  const removeItem = (i: number) => setLineItems(prev => prev.filter((_, idx) => idx !== i));
+
+  const handleSaveAndSend = async () => {
+    const validItems = lineItems.filter(li => li.label.trim());
+    if (validItems.length === 0) { toast.error("Add at least one line item"); return; }
+
+    if (createdQuoteId) {
+      setConfirmSend(true);
+    } else {
+      const result = await createQuote.mutateAsync({
+        inquiryId: inquiry!.id,
+        lineItems: validItems,
+        notes: notes || undefined,
+        taxRate,
+      });
+      setCreatedQuoteId(result.id);
+      setConfirmSend(true);
+    }
+  };
+
+  if (!inquiry) return null;
+
+  return (
+    <>
+      <Dialog open={!!inquiry} onOpenChange={open => !open && onClose()}>
+        <DialogContent className="max-w-2xl bg-[#0d1f35] border-white/12 text-slate-100 max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-slate-100">
+              <DollarSign className="w-4 h-4 text-[#6ee7b7]" />
+              Build Quote — {inquiry.company}
+            </DialogTitle>
+            <DialogDescription className="text-slate-400">
+              Build a custom quote based on the customer's requirements. The quote will be emailed with a Stripe payment link.
+            </DialogDescription>
+          </DialogHeader>
+
+          {/* Requirements Summary */}
+          <div className="rounded-xl border border-white/8 bg-white/3 p-4 space-y-2">
+            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Customer Requirements</p>
+            <div className="flex flex-wrap gap-2">
+              <TierBadge tier={inquiry.tier} />
+              {inquiry.deviceCount != null && (
+                <span className="inline-flex items-center gap-1 text-xs bg-white/5 border border-white/10 px-2 py-0.5 rounded-full text-slate-300">
+                  <Server className="w-3 h-3" /> {inquiry.deviceCount} devices
+                </span>
+              )}
+              {inquiry.palletCount != null && (
+                <span className="inline-flex items-center gap-1 text-xs bg-white/5 border border-white/10 px-2 py-0.5 rounded-full text-slate-300">
+                  <Layers className="w-3 h-3" /> {inquiry.palletCount} pallets
+                </span>
+              )}
+              {inquiry.boxCount != null && (
+                <span className="inline-flex items-center gap-1 text-xs bg-white/5 border border-white/10 px-2 py-0.5 rounded-full text-slate-300">
+                  <Box className="w-3 h-3" /> {inquiry.boxCount} boxes
+                </span>
+              )}
+              {inquiry.storageDays != null && (
+                <span className="inline-flex items-center gap-1 text-xs bg-white/5 border border-white/10 px-2 py-0.5 rounded-full text-slate-300">
+                  <Clock className="w-3 h-3" /> {inquiry.storageDays} days storage
+                </span>
+              )}
+            </div>
+            {inquiry.addons && (() => {
+              try {
+                const addons: string[] = JSON.parse(inquiry.addons);
+                return addons.length > 0 ? (
+                  <p className="text-xs text-slate-400">Add-ons: {addons.join(", ")}</p>
+                ) : null;
+              } catch { return null; }
+            })()}
+            {inquiry.message && (
+              <p className="text-xs text-slate-400 italic">"{inquiry.message}"</p>
+            )}
+          </div>
+
+          {/* Line Items */}
+          <div>
+            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Line Items</p>
+            <div className="space-y-2">
+              {lineItems.map((li, i) => (
+                <div key={i} className="grid grid-cols-[1fr_60px_80px_80px_32px] gap-2 items-center">
+                  <Input
+                    value={li.label}
+                    onChange={e => updateItem(i, "label", e.target.value)}
+                    placeholder="Service / item description"
+                    className="bg-white/5 border-white/12 text-slate-100 placeholder-slate-500 text-sm h-8"
+                  />
+                  <Input
+                    type="number"
+                    min="0"
+                    value={li.qty}
+                    onChange={e => updateItem(i, "qty", parseFloat(e.target.value) || 0)}
+                    className="bg-white/5 border-white/12 text-slate-100 text-sm h-8 text-center"
+                  />
+                  <Input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={li.unitPrice}
+                    onChange={e => updateItem(i, "unitPrice", parseFloat(e.target.value) || 0)}
+                    className="bg-white/5 border-white/12 text-slate-100 text-sm h-8 text-right"
+                  />
+                  <div className="text-right text-sm font-semibold text-[#6ee7b7]">{fmt(li.total)}</div>
+                  <button onClick={() => removeItem(i)} disabled={lineItems.length === 1}
+                    className="w-7 h-7 rounded-lg flex items-center justify-center text-slate-500 hover:text-red-400 hover:bg-red-500/10 transition-colors disabled:opacity-30">
+                    <Minus className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              ))}
+              <div className="grid grid-cols-[1fr_60px_80px_80px_32px] gap-2 text-xs text-slate-500 px-1">
+                <span>Description</span><span className="text-center">Qty</span><span className="text-right">Unit $</span><span className="text-right">Total</span><span />
+              </div>
+            </div>
+            <Button variant="outline" size="sm" onClick={addItem}
+              className="mt-2 border-white/15 text-slate-300 hover:bg-white/8 h-7 text-xs">
+              <Plus className="w-3 h-3 mr-1" /> Add Line Item
+            </Button>
+          </div>
+
+          {/* Notes + Tax */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-medium text-slate-400 mb-1.5">Notes (optional)</label>
+              <textarea value={notes} onChange={e => setNotes(e.target.value)} rows={3}
+                placeholder="Any notes for the customer…"
+                className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/12 text-slate-100 placeholder-slate-500 text-sm focus:outline-none focus:border-[#39a7ff]/50 resize-none" />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-slate-400 mb-1.5">Tax Rate</label>
+              <Select value={taxRate.toString()} onValueChange={v => setTaxRate(parseFloat(v))}>
+                <SelectTrigger className="bg-white/5 border-white/12 text-slate-100 h-9">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-[#0d1f35] border-white/12">
+                  <SelectItem value="0">No tax (0%)</SelectItem>
+                  <SelectItem value="0.0825">Texas Sales Tax (8.25%)</SelectItem>
+                  <SelectItem value="0.1">10%</SelectItem>
+                </SelectContent>
+              </Select>
+
+              {/* Totals */}
+              <div className="mt-4 space-y-1.5 text-sm">
+                <div className="flex justify-between text-slate-400">
+                  <span>Subtotal</span><span>{fmt(subtotal)}</span>
+                </div>
+                {tax > 0 && (
+                  <div className="flex justify-between text-slate-400">
+                    <span>Tax ({(taxRate * 100).toFixed(2)}%)</span><span>{fmt(tax)}</span>
+                  </div>
+                )}
+                <div className="flex justify-between font-bold text-white border-t border-white/10 pt-1.5">
+                  <span>Total</span><span className="text-[#6ee7b7] text-base">{fmt(total)}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <DialogFooter className="gap-2 pt-2">
+            <Button variant="outline" size="sm" className="border-white/15 text-slate-300 hover:bg-white/8"
+              onClick={() => {
+                const validItems = lineItems.filter(li => li.label.trim());
+                if (validItems.length === 0) { toast.error("Add at least one line item"); return; }
+                createQuote.mutate({ inquiryId: inquiry.id, lineItems: validItems, notes: notes || undefined, taxRate });
+              }}
+              disabled={createQuote.isPending}>
+              <FileText className="w-3.5 h-3.5 mr-1.5" />
+              Save as Draft
+            </Button>
+            <Button size="sm"
+              className="bg-gradient-to-r from-[#39a7ff] to-[#6ee7b7] text-[#06111f] font-bold hover:opacity-90"
+              onClick={handleSaveAndSend}
+              disabled={createQuote.isPending || sendQuote.isPending}>
+              <Send className="w-3.5 h-3.5 mr-1.5" />
+              Save &amp; Send Quote
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <AlertDialog open={confirmSend} onOpenChange={setConfirmSend}>
+        <AlertDialogContent className="bg-[#0d1f35] border-white/12 text-slate-100">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Send Quote to {inquiry.company}?</AlertDialogTitle>
+            <AlertDialogDescription className="text-slate-400">
+              This will email a quote for <strong className="text-white">{fmt(total)}</strong> to <strong className="text-white">{inquiry.email}</strong> with a Stripe payment link (if Stripe is configured). The inquiry will be marked as "Quote Sent".
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="border-white/15 text-slate-300">Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-gradient-to-r from-[#39a7ff] to-[#6ee7b7] text-[#06111f] font-bold"
+              onClick={() => {
+                if (createdQuoteId) {
+                  sendQuote.mutate({ quoteId: createdQuoteId, inquiryId: inquiry.id });
+                }
+              }}
+            >
+              Send Quote
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
+  );
+}
+
 // ─── Detail Dialog ────────────────────────────────────────────────────────────
 function InquiryDetailDialog({
   inquiry,
   onClose,
   onStatusChange,
   onDelete,
+  onBuildQuote,
   isAdmin,
 }: {
   inquiry: Inquiry | null;
   onClose: () => void;
-  onStatusChange: (id: number, status: Inquiry["status"]) => void;
+  onStatusChange: (id: number, status: InquiryStatus) => void;
   onDelete: (id: number) => void;
+  onBuildQuote: (inquiry: Inquiry) => void;
   isAdmin: boolean;
 }) {
   const [confirmDelete, setConfirmDelete] = useState(false);
 
+  const { data: quotes = [] } = trpc.inquiry.listQuotes.useQuery(
+    { inquiryId: inquiry?.id ?? 0 },
+    { enabled: !!inquiry }
+  );
+
   if (!inquiry) return null;
 
-  const otherStatuses = (["new", "contacted", "closed"] as const).filter(s => s !== inquiry.status);
+  const otherStatuses = (["new", "contacted", "quote_sent", "closed"] as const).filter(s => s !== inquiry.status);
 
   return (
     <>
@@ -179,9 +532,9 @@ function InquiryDetailDialog({
             <div className="flex items-center gap-2 flex-wrap">
               <StatusBadge status={inquiry.status} />
               <TierBadge tier={inquiry.tier} />
-              {inquiry.deviceVolume && (
+              {inquiry.deviceCount != null && (
                 <span className="text-xs text-slate-400 bg-white/5 border border-white/10 px-2 py-0.5 rounded-full">
-                  {inquiry.deviceVolume} devices
+                  {inquiry.deviceCount} devices
                 </span>
               )}
             </div>
@@ -218,12 +571,86 @@ function InquiryDetailDialog({
               )}
             </div>
 
+            {/* Volume requirements */}
+            {(inquiry.deviceCount != null || inquiry.palletCount != null || inquiry.boxCount != null || inquiry.storageDays != null) && (
+              <div>
+                <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Requirements</p>
+                <div className="grid grid-cols-2 gap-2">
+                  {inquiry.deviceCount != null && (
+                    <div className="rounded-lg border border-white/8 bg-white/3 px-3 py-2 flex items-center gap-2">
+                      <Server className="w-3.5 h-3.5 text-[#39a7ff]" />
+                      <div>
+                        <p className="text-xs text-slate-500">Devices</p>
+                        <p className="text-sm font-semibold text-slate-100">{inquiry.deviceCount}</p>
+                      </div>
+                    </div>
+                  )}
+                  {inquiry.palletCount != null && (
+                    <div className="rounded-lg border border-white/8 bg-white/3 px-3 py-2 flex items-center gap-2">
+                      <Layers className="w-3.5 h-3.5 text-[#6ee7b7]" />
+                      <div>
+                        <p className="text-xs text-slate-500">Pallets</p>
+                        <p className="text-sm font-semibold text-slate-100">{inquiry.palletCount}</p>
+                      </div>
+                    </div>
+                  )}
+                  {inquiry.boxCount != null && (
+                    <div className="rounded-lg border border-white/8 bg-white/3 px-3 py-2 flex items-center gap-2">
+                      <Box className="w-3.5 h-3.5 text-amber-400" />
+                      <div>
+                        <p className="text-xs text-slate-500">Boxes</p>
+                        <p className="text-sm font-semibold text-slate-100">{inquiry.boxCount}</p>
+                      </div>
+                    </div>
+                  )}
+                  {inquiry.storageDays != null && (
+                    <div className="rounded-lg border border-white/8 bg-white/3 px-3 py-2 flex items-center gap-2">
+                      <Clock className="w-3.5 h-3.5 text-violet-400" />
+                      <div>
+                        <p className="text-xs text-slate-500">Storage Days</p>
+                        <p className="text-sm font-semibold text-slate-100">{inquiry.storageDays}</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
             {/* Message */}
             {inquiry.message && (
               <div>
                 <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Message</p>
                 <div className="rounded-xl border border-white/8 bg-white/3 px-4 py-3">
                   <p className="text-sm text-slate-300 leading-relaxed whitespace-pre-wrap">{inquiry.message}</p>
+                </div>
+              </div>
+            )}
+
+            {/* Existing quotes */}
+            {quotes.length > 0 && (
+              <div>
+                <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Quotes</p>
+                <div className="space-y-2">
+                  {(quotes as Quote[]).map(q => (
+                    <div key={q.id} className="rounded-lg border border-white/8 bg-white/3 px-3 py-2.5 flex items-center justify-between gap-2">
+                      <div>
+                        <span className={`text-xs font-medium px-1.5 py-0.5 rounded border ${
+                          q.status === "sent" ? "bg-violet-500/15 text-violet-300 border-violet-500/30" :
+                          q.status === "paid" ? "bg-emerald-500/15 text-emerald-300 border-emerald-500/30" :
+                          q.status === "cancelled" ? "bg-red-500/15 text-red-300 border-red-500/30" :
+                          "bg-slate-500/15 text-slate-400 border-slate-500/30"
+                        }`}>{q.status}</span>
+                        <span className="text-sm font-bold text-[#6ee7b7] ml-2">${parseFloat(q.totalAmount).toFixed(2)}</span>
+                        <span className="text-xs text-slate-500 ml-2">{new Date(q.createdAt).toLocaleDateString()}</span>
+                      </div>
+                      {q.stripePaymentLinkUrl && (
+                        <a href={q.stripePaymentLinkUrl} target="_blank" rel="noopener noreferrer"
+                          className="text-xs text-[#39a7ff] hover:underline flex items-center gap-1">
+                          <ExternalLink className="w-3 h-3" /> Payment Link
+                        </a>
+                      )}
+                    </div>
+                  ))}
                 </div>
               </div>
             )}
@@ -241,7 +668,7 @@ function InquiryDetailDialog({
                 Delete
               </Button>
             )}
-            {otherStatuses.map(s => (
+            {otherStatuses.slice(0, 2).map(s => (
               <Button
                 key={s}
                 variant="outline"
@@ -249,14 +676,14 @@ function InquiryDetailDialog({
                 className="border-white/15 text-slate-300 hover:bg-white/8"
                 onClick={() => onStatusChange(inquiry.id, s)}
               >
-                Mark as {STATUS_CONFIG[s].label}
+                Mark {STATUS_CONFIG[s].label}
               </Button>
             ))}
-            <Button size="sm" asChild className="bg-[#39a7ff] hover:bg-[#39a7ff]/90 text-[#06111f] font-semibold">
-              <a href={`mailto:${inquiry.email}?subject=Re: Layer One ${TIER_LABELS[inquiry.tier]} Inquiry`}>
-                <Mail className="w-3.5 h-3.5 mr-1.5" />
-                Reply via Email
-              </a>
+            <Button size="sm"
+              className="bg-gradient-to-r from-[#39a7ff] to-[#6ee7b7] text-[#06111f] font-semibold"
+              onClick={() => { onClose(); onBuildQuote(inquiry); }}>
+              <DollarSign className="w-3.5 h-3.5 mr-1.5" />
+              Build Quote
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -291,9 +718,10 @@ export default function Inquiries() {
   const isAdmin = user?.role === "admin";
 
   const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState<"all" | "new" | "contacted" | "closed">("all");
+  const [statusFilter, setStatusFilter] = useState<"all" | InquiryStatus>("all");
   const [tierFilter, setTierFilter] = useState<"all" | "basic" | "standard" | "professional" | "enterprise" | "custom">("all");
   const [selected, setSelected] = useState<Inquiry | null>(null);
+  const [quoteTarget, setQuoteTarget] = useState<Inquiry | null>(null);
 
   const utils = trpc.useUtils();
 
@@ -315,7 +743,6 @@ export default function Inquiries() {
       utils.inquiry.list.invalidate();
       utils.inquiry.countNew.invalidate();
       toast.success(`Inquiry marked as ${STATUS_CONFIG[vars.status].label}`);
-      // Update selected if open
       setSelected(prev => prev?.id === vars.id ? { ...prev, status: vars.status } : prev);
     },
     onError: () => toast.error("Failed to update status"),
@@ -332,12 +759,12 @@ export default function Inquiries() {
 
   const isFiltered = statusFilter !== "all" || tierFilter !== "all" || search.trim() !== "";
 
-  // Summary counts
   const counts = useMemo(() => {
     const all = inquiries as Inquiry[];
     return {
       new: all.filter(i => i.status === "new").length,
       contacted: all.filter(i => i.status === "contacted").length,
+      quote_sent: all.filter(i => i.status === "quote_sent").length,
       closed: all.filter(i => i.status === "closed").length,
     };
   }, [inquiries]);
@@ -370,40 +797,40 @@ export default function Inquiries() {
         </div>
 
         {/* Summary cards */}
-        <div className="grid grid-cols-3 gap-4">
-          {(["new", "contacted", "closed"] as const).map(s => {
+        <div className="grid grid-cols-4 gap-3">
+          {(["new", "contacted", "quote_sent", "closed"] as const).map(s => {
             const cfg = STATUS_CONFIG[s];
             const Icon = cfg.icon;
             return (
               <button
                 key={s}
                 onClick={() => setStatusFilter(statusFilter === s ? "all" : s)}
-                className={`rounded-xl border p-4 text-left transition-all hover:border-white/20 ${
+                className={`rounded-xl border p-3 text-left transition-all hover:border-white/20 ${
                   statusFilter === s ? "border-[#39a7ff]/40 bg-[#39a7ff]/8" : "border-white/8 bg-white/3"
                 }`}
               >
-                <div className="flex items-center gap-2 mb-2">
-                  <Icon className={`w-4 h-4 ${s === "new" ? "text-[#39a7ff]" : s === "contacted" ? "text-amber-400" : "text-slate-500"}`} />
-                  <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">{cfg.label}</span>
+                <div className="flex items-center gap-2 mb-1">
+                  <Icon className="w-3.5 h-3.5 text-slate-400" />
+                  <span className="text-xs text-slate-400">{cfg.label}</span>
                 </div>
-                <p className="text-2xl font-bold text-slate-100">{counts[s]}</p>
+                <p className="text-xl font-bold text-slate-100">{counts[s]}</p>
               </button>
             );
           })}
         </div>
 
         {/* Filters */}
-        <div className="flex flex-col sm:flex-row gap-3">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
+        <div className="flex items-center gap-3 flex-wrap">
+          <div className="relative flex-1 min-w-[200px]">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
             <Input
-              placeholder="Search by name, company, email, or message…"
               value={search}
               onChange={e => setSearch(e.target.value)}
-              className="pl-9 bg-white/5 border-white/12 text-slate-100 placeholder:text-slate-500 focus:border-[#39a7ff]/50"
+              placeholder="Search by name, company, email…"
+              className="pl-9 bg-white/5 border-white/12 text-slate-100 placeholder-slate-500"
             />
           </div>
-          <Select value={statusFilter} onValueChange={v => setStatusFilter(v as typeof statusFilter)}>
+          <Select value={statusFilter} onValueChange={v => setStatusFilter(v as any)}>
             <SelectTrigger className="w-40 bg-white/5 border-white/12 text-slate-300">
               <Filter className="w-3.5 h-3.5 mr-1.5 text-slate-500" />
               <SelectValue placeholder="Status" />
@@ -412,43 +839,44 @@ export default function Inquiries() {
               <SelectItem value="all">All Statuses</SelectItem>
               <SelectItem value="new">New</SelectItem>
               <SelectItem value="contacted">Contacted</SelectItem>
+              <SelectItem value="quote_sent">Quote Sent</SelectItem>
               <SelectItem value="closed">Closed</SelectItem>
             </SelectContent>
           </Select>
-          <Select value={tierFilter} onValueChange={v => setTierFilter(v as typeof tierFilter)}>
-            <SelectTrigger className="w-52 bg-white/5 border-white/12 text-slate-300">
+          <Select value={tierFilter} onValueChange={v => setTierFilter(v as any)}>
+            <SelectTrigger className="w-44 bg-white/5 border-white/12 text-slate-300">
               <Package className="w-3.5 h-3.5 mr-1.5 text-slate-500" />
-              <SelectValue placeholder="Package" />
+              <SelectValue placeholder="Tier" />
             </SelectTrigger>
             <SelectContent className="bg-[#0d1f35] border-white/12">
-              <SelectItem value="all">All Packages</SelectItem>
-              <SelectItem value="basic">Project Staging Pilot</SelectItem>
-              <SelectItem value="standard">Shared Staging Shelf</SelectItem>
-              <SelectItem value="professional">Shared Staging Bay</SelectItem>
-              <SelectItem value="enterprise">Dedicated Staging Area</SelectItem>
-              <SelectItem value="custom">Rollout Suite</SelectItem>
+              <SelectItem value="all">All Tiers</SelectItem>
+              <SelectItem value="basic">Basic</SelectItem>
+              <SelectItem value="standard">Standard</SelectItem>
+              <SelectItem value="professional">Professional</SelectItem>
+              <SelectItem value="enterprise">Enterprise</SelectItem>
+              <SelectItem value="custom">Custom</SelectItem>
             </SelectContent>
           </Select>
         </div>
 
         {/* Table */}
-        <div className="rounded-xl border border-white/8 overflow-hidden">
+        <div className="rounded-2xl border border-white/8 bg-white/2 overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+            <table className="w-full">
               <thead>
                 <tr className="border-b border-white/8 bg-white/3">
-                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-400">Contact</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-400">Package</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-400">Status</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-400">Devices</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-400">Received</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-400">Actions</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider">Contact</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider">Tier</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider">Volume</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider">Status</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider">Submitted</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {isLoading ? (
                   <LoadingRows />
-                ) : inquiries.length === 0 ? (
+                ) : (inquiries as Inquiry[]).length === 0 ? (
                   <tr>
                     <td colSpan={6}>
                       <EmptyState filtered={isFiltered} />
@@ -456,57 +884,47 @@ export default function Inquiries() {
                   </tr>
                 ) : (
                   (inquiries as Inquiry[]).map(inq => (
-                    <tr
-                      key={inq.id}
-                      className="border-b border-white/5 hover:bg-white/4 cursor-pointer transition-colors group"
-                      onClick={() => setSelected(inq)}
-                    >
+                    <tr key={inq.id} className="border-b border-white/5 hover:bg-white/3 transition-colors">
                       <td className="px-4 py-3">
-                        <p className="font-medium text-slate-100 group-hover:text-white">{inq.name}</p>
-                        <p className="text-xs text-slate-400 flex items-center gap-1 mt-0.5">
-                          <Building2 className="w-3 h-3" />
-                          {inq.company}
-                        </p>
-                        <p className="text-xs text-[#39a7ff]/80 flex items-center gap-1 mt-0.5">
-                          <Mail className="w-3 h-3" />
-                          {inq.email}
-                        </p>
+                        <p className="text-sm font-medium text-slate-100">{inq.name}</p>
+                        <p className="text-xs text-slate-400">{inq.company}</p>
+                        <p className="text-xs text-slate-500">{inq.email}</p>
                       </td>
                       <td className="px-4 py-3">
                         <TierBadge tier={inq.tier} />
                       </td>
                       <td className="px-4 py-3">
-                        <StatusBadge status={inq.status} />
-                      </td>
-                      <td className="px-4 py-3 text-slate-400 text-xs">
-                        {inq.deviceVolume ?? <span className="text-slate-600">—</span>}
-                      </td>
-                      <td className="px-4 py-3 text-slate-400 text-xs whitespace-nowrap">
-                        <span className="flex items-center gap-1">
-                          <Calendar className="w-3 h-3" />
-                          {new Date(inq.createdAt).toLocaleDateString()}
-                        </span>
+                        <div className="flex flex-col gap-0.5 text-xs text-slate-400">
+                          {inq.deviceCount != null && <span>{inq.deviceCount} devices</span>}
+                          {inq.palletCount != null && <span>{inq.palletCount} pallets</span>}
+                          {inq.storageDays != null && <span>{inq.storageDays}d storage</span>}
+                        </div>
                       </td>
                       <td className="px-4 py-3">
-                        <div className="flex items-center gap-1" onClick={e => e.stopPropagation()}>
-                          {inq.status === "new" && (
-                            <button
-                              title="Mark as Contacted"
-                              className="p-1.5 rounded-lg text-slate-500 hover:text-amber-400 hover:bg-amber-400/10 transition-colors"
-                              onClick={() => updateStatus.mutate({ id: inq.id, status: "contacted" })}
-                            >
-                              <CheckCircle2 className="w-4 h-4" />
-                            </button>
-                          )}
-                          {inq.status !== "closed" && (
-                            <button
-                              title="Mark as Closed"
-                              className="p-1.5 rounded-lg text-slate-500 hover:text-slate-300 hover:bg-white/8 transition-colors"
-                              onClick={() => updateStatus.mutate({ id: inq.id, status: "closed" })}
-                            >
-                              <XCircle className="w-4 h-4" />
-                            </button>
-                          )}
+                        <StatusBadge status={inq.status} />
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-1 text-xs text-slate-400">
+                          <Calendar className="w-3 h-3" />
+                          {new Date(inq.createdAt).toLocaleDateString()}
+                        </div>
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-1">
+                          <button
+                            title="Build Quote"
+                            className="p-1.5 rounded-lg text-slate-500 hover:text-[#6ee7b7] hover:bg-[#6ee7b7]/10 transition-colors"
+                            onClick={() => setQuoteTarget(inq)}
+                          >
+                            <DollarSign className="w-4 h-4" />
+                          </button>
+                          <button
+                            title="Mark as Contacted"
+                            className="p-1.5 rounded-lg text-slate-500 hover:text-amber-300 hover:bg-amber-500/10 transition-colors"
+                            onClick={() => updateStatus.mutate({ id: inq.id, status: "contacted" })}
+                          >
+                            <CheckCircle2 className="w-4 h-4" />
+                          </button>
                           <button
                             title="Reply via email"
                             className="p-1.5 rounded-lg text-slate-500 hover:text-[#39a7ff] hover:bg-[#39a7ff]/10 transition-colors"
@@ -532,7 +950,6 @@ export default function Inquiries() {
             </table>
           </div>
 
-          {/* Footer count */}
           {!isLoading && inquiries.length > 0 && (
             <div className="px-4 py-2.5 border-t border-white/6 bg-white/2">
               <p className="text-xs text-slate-500">
@@ -550,7 +967,14 @@ export default function Inquiries() {
         onClose={() => setSelected(null)}
         onStatusChange={(id, status) => updateStatus.mutate({ id, status })}
         onDelete={id => deleteInquiry.mutate({ id })}
+        onBuildQuote={inq => setQuoteTarget(inq)}
         isAdmin={isAdmin}
+      />
+
+      {/* Quote builder dialog */}
+      <QuoteBuilderDialog
+        inquiry={quoteTarget}
+        onClose={() => setQuoteTarget(null)}
       />
     </DashboardLayout>
   );

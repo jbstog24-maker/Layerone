@@ -876,3 +876,139 @@ export async function sendSupportTicketEmail(params: SupportTicketEmailParams): 
     return false;
   }
 }
+
+// ─── Quote Email (send quote + payment link to prospect) ─────────────────────
+export type QuoteEmailParams = {
+  to: string;
+  name: string;
+  company: string;
+  lineItems: Array<{ label: string; qty: number; unitPrice: number; total: number }>;
+  subtotal: number;
+  tax: number;
+  totalAmount: number;
+  notes?: string;
+  paymentLinkUrl?: string;
+};
+
+export async function sendQuoteEmail(params: QuoteEmailParams): Promise<boolean> {
+  if (!ENV.resendApiKey || !ENV.resendFromEmail) {
+    console.warn("[Email] RESEND_API_KEY or RESEND_FROM_EMAIL not configured — skipping quote email");
+    return false;
+  }
+
+  const firstName = params.name.split(" ")[0] ?? params.name;
+  const fmt = (n: number) => n.toLocaleString("en-US", { style: "currency", currency: "USD" });
+
+  const lineItemRows = params.lineItems.map(li => `
+    <tr>
+      <td style="padding:10px 12px;border-bottom:1px solid #1e3a5f;font-size:13px;color:#e2e8f0;">${li.label}</td>
+      <td style="padding:10px 12px;border-bottom:1px solid #1e3a5f;font-size:13px;color:#94a3b8;text-align:center;">${li.qty}</td>
+      <td style="padding:10px 12px;border-bottom:1px solid #1e3a5f;font-size:13px;color:#94a3b8;text-align:right;">${fmt(li.unitPrice)}</td>
+      <td style="padding:10px 12px;border-bottom:1px solid #1e3a5f;font-size:13px;color:#6ee7b7;text-align:right;font-weight:600;">${fmt(li.total)}</td>
+    </tr>`).join("");
+
+  const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Your Layer One Quote</title>
+</head>
+<body style="margin:0;padding:0;background:#07111f;font-family:'Segoe UI',Arial,sans-serif;color:#e2e8f0;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#07111f;padding:32px 16px;">
+    <tr><td align="center">
+      <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;background:#0d1f35;border-radius:12px;border:1px solid #1e3a5f;overflow:hidden;">
+        <!-- Header -->
+        <tr><td style="background:linear-gradient(135deg,#0d1f35 0%,#07111f 100%);padding:32px 40px;border-bottom:1px solid #1e3a5f;text-align:center;">
+          <span style="font-size:28px;font-weight:800;background:linear-gradient(90deg,#39a7ff,#6ee7b7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:3px;">Layer One</span>
+          <p style="margin:4px 0 0;font-size:10px;color:#64748b;letter-spacing:2px;text-transform:uppercase;">NETWORK STAGING &amp; DEPLOYMENT SOLUTIONS</p>
+        </td></tr>
+
+        <!-- Body -->
+        <tr><td style="padding:32px 40px;">
+          <h1 style="margin:0 0 8px;font-size:22px;font-weight:700;color:#ffffff;">Your Custom Quote is Ready</h1>
+          <p style="margin:0 0 24px;font-size:15px;color:#94a3b8;line-height:1.6;">
+            Hi ${firstName}, our team has prepared a custom quote for <strong style="color:#ffffff;">${params.company}</strong> based on your requirements. Please review the details below.
+          </p>
+
+          <!-- Line Items Table -->
+          <p style="margin:0 0 10px;font-size:13px;font-weight:700;color:#ffffff;text-transform:uppercase;letter-spacing:1px;">Quote Summary</p>
+          <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #1e3a5f;border-radius:8px;overflow:hidden;margin-bottom:16px;">
+            <thead>
+              <tr style="background:#07111f;">
+                <th style="padding:10px 12px;text-align:left;font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:1px;">Service / Item</th>
+                <th style="padding:10px 12px;text-align:center;font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:1px;">Qty</th>
+                <th style="padding:10px 12px;text-align:right;font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:1px;">Unit Price</th>
+                <th style="padding:10px 12px;text-align:right;font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:1px;">Total</th>
+              </tr>
+            </thead>
+            <tbody>${lineItemRows}</tbody>
+          </table>
+
+          <!-- Totals -->
+          <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px;">
+            <tr>
+              <td style="font-size:13px;color:#64748b;padding:4px 0;">Subtotal</td>
+              <td style="font-size:13px;color:#94a3b8;text-align:right;padding:4px 0;">${fmt(params.subtotal)}</td>
+            </tr>
+            ${params.tax > 0 ? `<tr>
+              <td style="font-size:13px;color:#64748b;padding:4px 0;">Tax</td>
+              <td style="font-size:13px;color:#94a3b8;text-align:right;padding:4px 0;">${fmt(params.tax)}</td>
+            </tr>` : ""}
+            <tr>
+              <td style="font-size:16px;font-weight:700;color:#ffffff;padding:10px 0 4px;border-top:1px solid #1e3a5f;">Total Due</td>
+              <td style="font-size:18px;font-weight:800;color:#6ee7b7;text-align:right;padding:10px 0 4px;border-top:1px solid #1e3a5f;">${fmt(params.totalAmount)}</td>
+            </tr>
+          </table>
+
+          ${params.notes ? `<div style="background:#07111f;border-left:3px solid #39a7ff;padding:12px 16px;margin:0 0 24px;border-radius:0 6px 6px 0;">
+            <p style="margin:0 0 4px;font-size:12px;font-weight:700;color:#39a7ff;text-transform:uppercase;letter-spacing:1px;">Notes from our team</p>
+            <p style="margin:0;font-size:13px;color:#94a3b8;line-height:1.6;">${params.notes}</p>
+          </div>` : ""}
+
+          ${params.paymentLinkUrl ? `
+          <!-- CTA -->
+          <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px;">
+            <tr><td align="center">
+              <a href="${params.paymentLinkUrl}" style="display:inline-block;background:linear-gradient(135deg,#39a7ff,#6ee7b7);color:#07111f;font-weight:700;font-size:16px;padding:16px 40px;border-radius:8px;text-decoration:none;letter-spacing:0.5px;">Pay Now — ${fmt(params.totalAmount)}</a>
+            </td></tr>
+          </table>
+          <p style="margin:0 0 24px;font-size:13px;color:#64748b;text-align:center;">Secure payment powered by Stripe. Your account will be activated immediately after payment.</p>
+          ` : `
+          <p style="margin:0 0 24px;font-size:14px;color:#94a3b8;background:#07111f;padding:16px;border-radius:8px;border:1px solid #1e3a5f;">
+            To proceed with payment, please reply to this email or contact your Layer One representative. We'll send you a secure payment link.
+          </p>
+          `}
+
+          <p style="margin:0;font-size:13px;color:#475569;line-height:1.6;">
+            This quote is valid for 30 days. If you have any questions, reply to this email or contact us directly.
+          </p>
+        </td></tr>
+
+        <!-- Footer -->
+        <tr><td style="padding:20px 40px;border-top:1px solid #1e3a5f;text-align:center;">
+          <p style="margin:0;font-size:12px;color:#475569;">© ${new Date().getFullYear()} Network Staging &amp; Deployment Solutions (Layer One) · Dallas-Fort Worth, TX</p>
+          <p style="margin:4px 0 0;font-size:12px;color:#475569;">Layer One Staging Solutions Portal — Warehouse &amp; Device Staging Management</p>
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`;
+
+  try {
+    const resend = getResend();
+    const { error } = await resend.emails.send({
+      from: ENV.resendFromEmail,
+      to: params.to,
+      subject: `Your Layer One Quote — ${fmt(params.totalAmount)} (${params.company})`,
+      html,
+    });
+    if (error) { console.warn("[Email] Quote email error:", error); return false; }
+    console.log(`[Email] Quote email sent to ${params.to} for ${params.company}`);
+    return true;
+  } catch (err) {
+    console.warn("[Email] Failed to send quote email:", err);
+    return false;
+  }
+}

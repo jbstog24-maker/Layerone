@@ -616,3 +616,14 @@
 - [x] Add /get-started route to App.tsx
 - [x] Show success confirmation after form submission
 - [x] Send owner notification email on new inquiry submission
+
+## Quote Workflow (Inquiry → Quote → Stripe Payment Link)
+
+- [x] Add quote fields to package_inquiries schema (deviceCount, palletCount, boxCount, storageDays, addons)
+- [x] Create quotes table (inquiryId, lineItems JSON, totalAmount, stripePaymentLinkId, stripePaymentLinkUrl, status, sentAt, paidAt)
+- [x] Update Get Started form to capture device/pallet/box counts and storage duration
+- [x] Build quote builder modal in admin Inquiries page (pre-fill from package pricing, editable line items, total)
+- [x] Add Stripe Payment Link generation from quote total
+- [x] Add "Send Quote" button that emails the Stripe payment link to the customer
+- [x] Show quote status on inquiry row (draft / sent / paid)
+- [x] Update inquiry.submit tRPC input schema to accept new fields

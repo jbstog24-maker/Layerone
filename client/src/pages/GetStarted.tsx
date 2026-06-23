@@ -1,29 +1,45 @@
 import { useState } from "react";
 import { Link } from "wouter";
-import { ArrowLeft, CheckCircle2, Loader2, Building2, User, Mail, Phone, Package, MessageSquare, ChevronRight } from "lucide-react";
+import {
+  ArrowLeft, CheckCircle2, Loader2, Building2, User, Mail, Phone,
+  Package, MessageSquare, ChevronRight, Server, Box, Layers, Clock, Wrench
+} from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { getLoginUrl } from "@/const";
 import { toast } from "sonner";
 
 const SERVICES = [
-  { value: "basic", label: "Basic", desc: "Small deployments, up to 25 devices" },
-  { value: "standard", label: "Standard", desc: "Mid-size rollouts, up to 100 devices" },
-  { value: "professional", label: "Professional", desc: "Large deployments, up to 500 devices" },
-  { value: "enterprise", label: "Enterprise", desc: "Unlimited scale, dedicated support" },
-  { value: "custom", label: "Custom / Not Sure", desc: "Tell us what you need" },
+  { value: "basic", label: "Basic", desc: "Up to 25 devices / month", price: "From $299/mo" },
+  { value: "standard", label: "Standard", desc: "Up to 100 devices / month", price: "From $699/mo" },
+  { value: "professional", label: "Professional", desc: "Up to 500 devices / month", price: "From $1,499/mo" },
+  { value: "enterprise", label: "Enterprise", desc: "Unlimited scale", price: "Custom pricing" },
+  { value: "custom", label: "Not Sure Yet", desc: "We'll recommend the right tier", price: "Let us help" },
 ] as const;
 
 type Tier = typeof SERVICES[number]["value"];
 
+const ADDONS = [
+  { key: "photo_doc", label: "Photo Documentation", desc: "Full chain-of-custody photos" },
+  { key: "asset_tagging", label: "Asset Tagging & Labeling", desc: "Barcode / QR labeling" },
+  { key: "firmware", label: "Firmware & Config Staging", desc: "Pre-configure before deployment" },
+  { key: "custom_kitting", label: "Custom Kitting", desc: "Per-site box assembly" },
+  { key: "expedited", label: "Expedited Turnaround", desc: "Priority processing" },
+  { key: "onsite_delivery", label: "On-site Delivery", desc: "DFW metro delivery" },
+];
+
 export default function GetStarted() {
   const [submitted, setSubmitted] = useState(false);
+  const [selectedAddons, setSelectedAddons] = useState<string[]>([]);
   const [form, setForm] = useState({
     name: "",
     company: "",
     email: "",
     phone: "",
     tier: "" as Tier | "",
-    deviceVolume: "",
+    deviceCount: "",
+    palletCount: "",
+    boxCount: "",
+    storageDays: "",
     message: "",
   });
 
@@ -32,25 +48,30 @@ export default function GetStarted() {
     onError: (err) => toast.error(err.message || "Something went wrong. Please try again."),
   });
 
+  const toggleAddon = (key: string) =>
+    setSelectedAddons(prev => prev.includes(key) ? prev.filter(k => k !== key) : [...prev, key]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.tier) {
-      toast.error("Please select a service tier.");
-      return;
-    }
+    if (!form.tier) { toast.error("Please select a service tier."); return; }
     submitMutation.mutate({
       name: form.name,
       company: form.company,
       email: form.email,
       phone: form.phone || undefined,
       tier: form.tier as Tier,
-      deviceVolume: form.deviceVolume || undefined,
+      deviceCount: form.deviceCount ? parseInt(form.deviceCount) : undefined,
+      palletCount: form.palletCount ? parseInt(form.palletCount) : undefined,
+      boxCount: form.boxCount ? parseInt(form.boxCount) : undefined,
+      storageDays: form.storageDays ? parseInt(form.storageDays) : undefined,
+      addons: selectedAddons.length > 0 ? selectedAddons : undefined,
       message: form.message || undefined,
     });
   };
 
-  const set = (field: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) =>
-    setForm(prev => ({ ...prev, [field]: e.target.value }));
+  const set = (field: keyof typeof form) =>
+    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) =>
+      setForm(prev => ({ ...prev, [field]: e.target.value }));
 
   if (submitted) {
     return (
@@ -61,7 +82,7 @@ export default function GetStarted() {
           </div>
           <h1 className="text-3xl font-bold text-white mb-3">Request Received!</h1>
           <p className="text-[#b7c5d5] text-lg mb-2">
-            Thanks, <span className="text-white font-semibold">{form.name}</span>. We'll be in touch shortly.
+            Thanks, <span className="text-white font-semibold">{form.name}</span>. A Layer One rep will be in touch shortly.
           </p>
           <p className="text-[#b7c5d5] text-sm mb-8">
             A confirmation has been sent to <span className="text-white">{form.email}</span>. Our team typically responds within one business day.
@@ -92,10 +113,7 @@ export default function GetStarted() {
         <Link href="/" className="flex items-center gap-2 text-[#b7c5d5] hover:text-white transition-colors text-sm">
           <ArrowLeft className="w-4 h-4" /> Back to Home
         </Link>
-        <a
-          href={getLoginUrl()}
-          className="text-sm text-[#b7c5d5] hover:text-white transition-colors"
-        >
+        <a href={getLoginUrl()} className="text-sm text-[#b7c5d5] hover:text-white transition-colors">
           Already have an account? <span className="text-[#39a7ff] font-semibold">Sign In</span>
         </a>
       </nav>
@@ -105,149 +123,162 @@ export default function GetStarted() {
         <div className="mb-10">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-[#39a7ff]/30 bg-[#39a7ff]/10 text-[#39a7ff] text-xs font-semibold mb-4">
             <span className="w-1.5 h-1.5 rounded-full bg-[#6ee7b7] animate-pulse" />
-            Free Consultation
+            Free Consultation — No Commitment
           </div>
           <h1 className="text-4xl font-extrabold text-white mb-3 leading-tight">
             Get Started with<br />
             <span className="bg-gradient-to-r from-[#39a7ff] to-[#6ee7b7] bg-clip-text text-transparent">Layer One</span>
           </h1>
           <p className="text-[#b7c5d5] text-lg">
-            Tell us about your deployment needs and we'll put together a custom quote. No commitment required.
+            Tell us about your deployment needs and a rep will build a custom quote for you.
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Name + Company */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-[#b7c5d5] mb-1.5">
-                <User className="inline w-3.5 h-3.5 mr-1 opacity-70" />Full Name <span className="text-red-400">*</span>
-              </label>
-              <input
-                required
-                type="text"
-                value={form.name}
-                onChange={set("name")}
-                placeholder="Jane Smith"
-                className="w-full px-4 py-3 rounded-xl bg-white/6 border border-white/12 text-white placeholder-white/30 focus:outline-none focus:border-[#39a7ff]/60 focus:bg-white/8 transition-colors"
-              />
+        <form onSubmit={handleSubmit} className="space-y-8">
+          {/* ── Contact Info ── */}
+          <section>
+            <h2 className="text-sm font-semibold text-[#b7c5d5] uppercase tracking-wider mb-4 flex items-center gap-2">
+              <User className="w-4 h-4" /> Contact Information
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-[#b7c5d5] mb-1.5">
+                  Full Name <span className="text-red-400">*</span>
+                </label>
+                <input required type="text" value={form.name} onChange={set("name")} placeholder="Jane Smith"
+                  className="w-full px-4 py-3 rounded-xl bg-white/6 border border-white/12 text-white placeholder-white/30 focus:outline-none focus:border-[#39a7ff]/60 focus:bg-white/8 transition-colors" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-[#b7c5d5] mb-1.5">
+                  <Building2 className="inline w-3.5 h-3.5 mr-1 opacity-70" />Company <span className="text-red-400">*</span>
+                </label>
+                <input required type="text" value={form.company} onChange={set("company")} placeholder="Acme Networks"
+                  className="w-full px-4 py-3 rounded-xl bg-white/6 border border-white/12 text-white placeholder-white/30 focus:outline-none focus:border-[#39a7ff]/60 focus:bg-white/8 transition-colors" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-[#b7c5d5] mb-1.5">
+                  <Mail className="inline w-3.5 h-3.5 mr-1 opacity-70" />Email <span className="text-red-400">*</span>
+                </label>
+                <input required type="email" value={form.email} onChange={set("email")} placeholder="jane@acmenetworks.com"
+                  className="w-full px-4 py-3 rounded-xl bg-white/6 border border-white/12 text-white placeholder-white/30 focus:outline-none focus:border-[#39a7ff]/60 focus:bg-white/8 transition-colors" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-[#b7c5d5] mb-1.5">
+                  <Phone className="inline w-3.5 h-3.5 mr-1 opacity-70" />Phone <span className="text-[#b7c5d5]/50 font-normal">(optional)</span>
+                </label>
+                <input type="tel" value={form.phone} onChange={set("phone")} placeholder="(214) 555-0100"
+                  className="w-full px-4 py-3 rounded-xl bg-white/6 border border-white/12 text-white placeholder-white/30 focus:outline-none focus:border-[#39a7ff]/60 focus:bg-white/8 transition-colors" />
+              </div>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-[#b7c5d5] mb-1.5">
-                <Building2 className="inline w-3.5 h-3.5 mr-1 opacity-70" />Company <span className="text-red-400">*</span>
-              </label>
-              <input
-                required
-                type="text"
-                value={form.company}
-                onChange={set("company")}
-                placeholder="Acme Networks"
-                className="w-full px-4 py-3 rounded-xl bg-white/6 border border-white/12 text-white placeholder-white/30 focus:outline-none focus:border-[#39a7ff]/60 focus:bg-white/8 transition-colors"
-              />
-            </div>
-          </div>
+          </section>
 
-          {/* Email + Phone */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-[#b7c5d5] mb-1.5">
-                <Mail className="inline w-3.5 h-3.5 mr-1 opacity-70" />Email <span className="text-red-400">*</span>
-              </label>
-              <input
-                required
-                type="email"
-                value={form.email}
-                onChange={set("email")}
-                placeholder="jane@acmenetworks.com"
-                className="w-full px-4 py-3 rounded-xl bg-white/6 border border-white/12 text-white placeholder-white/30 focus:outline-none focus:border-[#39a7ff]/60 focus:bg-white/8 transition-colors"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-[#b7c5d5] mb-1.5">
-                <Phone className="inline w-3.5 h-3.5 mr-1 opacity-70" />Phone <span className="text-[#b7c5d5]/50 font-normal">(optional)</span>
-              </label>
-              <input
-                type="tel"
-                value={form.phone}
-                onChange={set("phone")}
-                placeholder="(214) 555-0100"
-                className="w-full px-4 py-3 rounded-xl bg-white/6 border border-white/12 text-white placeholder-white/30 focus:outline-none focus:border-[#39a7ff]/60 focus:bg-white/8 transition-colors"
-              />
-            </div>
-          </div>
-
-          {/* Service Tier */}
-          <div>
-            <label className="block text-sm font-medium text-[#b7c5d5] mb-3">
-              <Package className="inline w-3.5 h-3.5 mr-1 opacity-70" />Service Tier <span className="text-red-400">*</span>
-            </label>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          {/* ── Service Tier ── */}
+          <section>
+            <h2 className="text-sm font-semibold text-[#b7c5d5] uppercase tracking-wider mb-4 flex items-center gap-2">
+              <Package className="w-4 h-4" /> Service Tier <span className="text-red-400 font-normal normal-case tracking-normal">*</span>
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {SERVICES.map(s => (
-                <button
-                  key={s.value}
-                  type="button"
-                  onClick={() => setForm(prev => ({ ...prev, tier: s.value }))}
-                  className={`text-left px-4 py-3 rounded-xl border transition-all ${
+                <button key={s.value} type="button" onClick={() => setForm(prev => ({ ...prev, tier: s.value }))}
+                  className={`text-left px-4 py-3.5 rounded-xl border transition-all ${
                     form.tier === s.value
                       ? "border-[#39a7ff] bg-[#39a7ff]/15 text-white"
                       : "border-white/12 bg-white/4 text-[#b7c5d5] hover:border-white/25 hover:bg-white/8"
-                  }`}
-                >
-                  <div className="font-semibold text-sm mb-0.5">{s.label}</div>
+                  }`}>
+                  <div className="flex items-center justify-between mb-0.5">
+                    <span className="font-semibold text-sm">{s.label}</span>
+                    <span className={`text-xs font-medium ${form.tier === s.value ? "text-[#6ee7b7]" : "text-[#b7c5d5]/60"}`}>{s.price}</span>
+                  </div>
                   <div className="text-xs opacity-70">{s.desc}</div>
                 </button>
               ))}
             </div>
-          </div>
+          </section>
 
-          {/* Device Volume */}
-          <div>
+          {/* ── Volume Requirements ── */}
+          <section>
+            <h2 className="text-sm font-semibold text-[#b7c5d5] uppercase tracking-wider mb-1 flex items-center gap-2">
+              <Server className="w-4 h-4" /> Volume Requirements
+            </h2>
+            <p className="text-xs text-[#b7c5d5]/60 mb-4">Estimates are fine — this helps us build an accurate quote.</p>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              <div>
+                <label className="block text-xs font-medium text-[#b7c5d5] mb-1.5 flex items-center gap-1">
+                  <Server className="w-3 h-3" /> Devices
+                </label>
+                <input type="number" min="0" value={form.deviceCount} onChange={set("deviceCount")} placeholder="e.g. 50"
+                  className="w-full px-3 py-2.5 rounded-xl bg-white/6 border border-white/12 text-white placeholder-white/30 focus:outline-none focus:border-[#39a7ff]/60 transition-colors text-sm" />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-[#b7c5d5] mb-1.5 flex items-center gap-1">
+                  <Layers className="w-3 h-3" /> Pallets
+                </label>
+                <input type="number" min="0" value={form.palletCount} onChange={set("palletCount")} placeholder="e.g. 4"
+                  className="w-full px-3 py-2.5 rounded-xl bg-white/6 border border-white/12 text-white placeholder-white/30 focus:outline-none focus:border-[#39a7ff]/60 transition-colors text-sm" />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-[#b7c5d5] mb-1.5 flex items-center gap-1">
+                  <Box className="w-3 h-3" /> Boxes
+                </label>
+                <input type="number" min="0" value={form.boxCount} onChange={set("boxCount")} placeholder="e.g. 20"
+                  className="w-full px-3 py-2.5 rounded-xl bg-white/6 border border-white/12 text-white placeholder-white/30 focus:outline-none focus:border-[#39a7ff]/60 transition-colors text-sm" />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-[#b7c5d5] mb-1.5 flex items-center gap-1">
+                  <Clock className="w-3 h-3" /> Storage Days
+                </label>
+                <input type="number" min="0" value={form.storageDays} onChange={set("storageDays")} placeholder="e.g. 30"
+                  className="w-full px-3 py-2.5 rounded-xl bg-white/6 border border-white/12 text-white placeholder-white/30 focus:outline-none focus:border-[#39a7ff]/60 transition-colors text-sm" />
+              </div>
+            </div>
+          </section>
+
+          {/* ── Add-ons ── */}
+          <section>
+            <h2 className="text-sm font-semibold text-[#b7c5d5] uppercase tracking-wider mb-4 flex items-center gap-2">
+              <Wrench className="w-4 h-4" /> Add-ons <span className="text-[#b7c5d5]/50 font-normal normal-case tracking-normal">(optional)</span>
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              {ADDONS.map(a => (
+                <button key={a.key} type="button" onClick={() => toggleAddon(a.key)}
+                  className={`text-left px-4 py-3 rounded-xl border transition-all flex items-start gap-3 ${
+                    selectedAddons.includes(a.key)
+                      ? "border-[#6ee7b7]/50 bg-[#6ee7b7]/10 text-white"
+                      : "border-white/10 bg-white/4 text-[#b7c5d5] hover:border-white/20 hover:bg-white/6"
+                  }`}>
+                  <div className={`w-4 h-4 mt-0.5 rounded border flex-shrink-0 flex items-center justify-center transition-colors ${
+                    selectedAddons.includes(a.key) ? "bg-[#6ee7b7] border-[#6ee7b7]" : "border-white/25"
+                  }`}>
+                    {selectedAddons.includes(a.key) && <svg className="w-2.5 h-2.5 text-[#06111f]" fill="none" viewBox="0 0 12 12"><path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+                  </div>
+                  <div>
+                    <div className="text-sm font-medium">{a.label}</div>
+                    <div className="text-xs opacity-60">{a.desc}</div>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </section>
+
+          {/* ── Message ── */}
+          <section>
             <label className="block text-sm font-medium text-[#b7c5d5] mb-1.5">
-              Estimated Device Volume <span className="text-[#b7c5d5]/50 font-normal">(optional)</span>
+              <MessageSquare className="inline w-3.5 h-3.5 mr-1 opacity-70" />Additional Notes <span className="text-[#b7c5d5]/50">(optional)</span>
             </label>
-            <select
-              value={form.deviceVolume}
-              onChange={set("deviceVolume")}
-              className="w-full px-4 py-3 rounded-xl bg-white/6 border border-white/12 text-white focus:outline-none focus:border-[#39a7ff]/60 focus:bg-white/8 transition-colors appearance-none"
-            >
-              <option value="" className="bg-[#06111f]">Select a range…</option>
-              <option value="1-25" className="bg-[#06111f]">1–25 devices</option>
-              <option value="26-100" className="bg-[#06111f]">26–100 devices</option>
-              <option value="101-500" className="bg-[#06111f]">101–500 devices</option>
-              <option value="500+" className="bg-[#06111f]">500+ devices</option>
-              <option value="not-sure" className="bg-[#06111f]">Not sure yet</option>
-            </select>
-          </div>
+            <textarea value={form.message} onChange={set("message")} rows={4}
+              placeholder="Describe your deployment timeline, special requirements, or any questions…"
+              className="w-full px-4 py-3 rounded-xl bg-white/6 border border-white/12 text-white placeholder-white/30 focus:outline-none focus:border-[#39a7ff]/60 focus:bg-white/8 transition-colors resize-none" />
+          </section>
 
-          {/* Message */}
-          <div>
-            <label className="block text-sm font-medium text-[#b7c5d5] mb-1.5">
-              <MessageSquare className="inline w-3.5 h-3.5 mr-1 opacity-70" />Tell Us More <span className="text-[#b7c5d5]/50 font-normal">(optional)</span>
-            </label>
-            <textarea
-              value={form.message}
-              onChange={set("message")}
-              rows={4}
-              placeholder="Describe your deployment, timeline, special requirements, or any questions you have…"
-              className="w-full px-4 py-3 rounded-xl bg-white/6 border border-white/12 text-white placeholder-white/30 focus:outline-none focus:border-[#39a7ff]/60 focus:bg-white/8 transition-colors resize-none"
-            />
-          </div>
-
-          {/* Submit */}
-          <button
-            type="submit"
-            disabled={submitMutation.isPending}
-            className="w-full flex items-center justify-center gap-2 px-6 py-4 rounded-xl font-bold text-lg bg-gradient-to-r from-[#39a7ff] to-[#6ee7b7] text-[#06111f] hover:-translate-y-0.5 active:scale-[0.98] transition-transform shadow-[0_14px_34px_rgba(57,167,255,0.24)] disabled:opacity-60 disabled:cursor-not-allowed disabled:translate-y-0"
-          >
-            {submitMutation.isPending ? (
-              <><Loader2 className="w-5 h-5 animate-spin" /> Submitting…</>
-            ) : (
-              <>Request a Quote <ChevronRight className="w-5 h-5" /></>
-            )}
+          {/* ── Submit ── */}
+          <button type="submit" disabled={submitMutation.isPending}
+            className="w-full flex items-center justify-center gap-2 px-6 py-4 rounded-xl font-bold text-lg bg-gradient-to-r from-[#39a7ff] to-[#6ee7b7] text-[#06111f] hover:-translate-y-0.5 active:scale-[0.98] transition-transform shadow-[0_14px_34px_rgba(57,167,255,0.24)] disabled:opacity-60 disabled:cursor-not-allowed disabled:translate-y-0">
+            {submitMutation.isPending
+              ? <><Loader2 className="w-5 h-5 animate-spin" /> Submitting…</>
+              : <>Request a Quote <ChevronRight className="w-5 h-5" /></>}
           </button>
-
           <p className="text-center text-xs text-[#b7c5d5]/60">
-            No credit card required. We'll reach out within one business day.
+            No credit card required. A rep will review your requirements and send a custom quote.
           </p>
         </form>
       </div>
