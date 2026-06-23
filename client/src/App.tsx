@@ -38,11 +38,13 @@ import HelpCenter from "./pages/HelpCenter";
 import MyInstructions from "./pages/MyInstructions";
 import OnboardingTour from "./components/OnboardingTour";
 import { PalletDetail } from "./pages/Pallets";
+import GetStarted from "./pages/GetStarted";
 
 function Router() {
   return (
     <Switch>
       <Route path="/" component={Landing} />
+      <Route path="/get-started" component={GetStarted} />
       <Route path="/dashboard" component={Home} />
 
       {/* Clients */}

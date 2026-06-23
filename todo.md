@@ -606,3 +606,13 @@
 - [x] Sign out button now navigates to / immediately after logout (window.location.href="/") to prevent protected queries from firing
 - [x] Global unauthorized redirect in main.tsx now skips redirect when user is on / or /packages (landing page routes)
 - [x] DashboardLayout unread queries now gated on !!user so they don't fire after logout
+
+## Get Started Inquiry Form
+
+- [x] Add `inquiries` table to drizzle schema (name, company, email, phone, service_type, message, status, created_at)
+- [x] Add `inquiry.submit` public tRPC procedure in routers
+- [x] Build /get-started page with inquiry form (name, company, email, phone, services needed, message)
+- [x] Update landing page hero button: logged-out → "Get Started" → /get-started, logged-in → "Go to Dashboard" → /dashboard
+- [x] Add /get-started route to App.tsx
+- [x] Show success confirmation after form submission
+- [x] Send owner notification email on new inquiry submission

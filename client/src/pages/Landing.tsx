@@ -56,7 +56,7 @@ function NavBar() {
                 Sign In
               </a>
               <a
-                href="#packages"
+                href="/get-started"
                 className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold bg-gradient-to-r from-[#39a7ff] to-[#6ee7b7] text-[#06111f] hover:-translate-y-0.5 transition-transform"
               >
                 Get Started
@@ -98,18 +98,29 @@ function Hero() {
               Layer One handles receiving, organizing, staging, packing, shipping, and deployment-prep for MSPs, cabling contractors, security installers, and rollout teams — with full customer visibility through our portal.
             </p>
             <div className="flex flex-wrap gap-3 mb-8">
-              <a
-                href={isAuthenticated ? "/dashboard" : getLoginUrl()}
-                className="flex items-center gap-2 px-5 py-3 rounded-xl font-bold bg-gradient-to-r from-[#39a7ff] to-[#6ee7b7] text-[#06111f] hover:-translate-y-0.5 transition-transform shadow-[0_14px_34px_rgba(57,167,255,0.24)]"
-              >
-                {isAuthenticated ? "Open Dashboard" : "Access Your Portal"} <ArrowRight className="w-4 h-4" />
-              </a>
-              <a
-                href="#packages"
-                className="flex items-center gap-2 px-5 py-3 rounded-xl font-bold border border-white/15 bg-white/5 text-white hover:-translate-y-0.5 transition-transform"
-              >
-                View Packages
-              </a>
+              {isAuthenticated ? (
+                <a
+                  href="/dashboard"
+                  className="flex items-center gap-2 px-5 py-3 rounded-xl font-bold bg-gradient-to-r from-[#39a7ff] to-[#6ee7b7] text-[#06111f] hover:-translate-y-0.5 transition-transform shadow-[0_14px_34px_rgba(57,167,255,0.24)]"
+                >
+                  Go to Dashboard <ArrowRight className="w-4 h-4" />
+                </a>
+              ) : (
+                <>
+                  <a
+                    href="/get-started"
+                    className="flex items-center gap-2 px-5 py-3 rounded-xl font-bold bg-gradient-to-r from-[#39a7ff] to-[#6ee7b7] text-[#06111f] hover:-translate-y-0.5 transition-transform shadow-[0_14px_34px_rgba(57,167,255,0.24)]"
+                  >
+                    Get Started <ArrowRight className="w-4 h-4" />
+                  </a>
+                  <a
+                    href={getLoginUrl()}
+                    className="flex items-center gap-2 px-5 py-3 rounded-xl font-bold border border-white/15 bg-white/5 text-white hover:-translate-y-0.5 transition-transform"
+                  >
+                    Sign In
+                  </a>
+                </>
+              )}
             </div>
             <div className="flex flex-wrap gap-2">
               {["Secure receiving", "Organize & stage", "Packing & shipping", "Customer portal", "Photo documentation", "Billing & invoicing"].map(b => (
