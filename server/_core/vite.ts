@@ -58,10 +58,14 @@ export function serveStatic(app: Express) {
     );
   }
 
-  app.use(express.static(distPath));
+  // Serve static assets but do NOT serve index.html for "/" automatically —
+  // the custom landing page handler in index.ts must handle GET / first.
+  app.use(express.static(distPath, { index: false }));
 
-  // fall through to index.html if the file doesn't exist
-  app.use("*", (_req, res) => {
+  // fall through to index.html for all SPA routes except "/" (handled above)
+  app.use("*", (req, res) => {
+    // "/" is handled by the landing page route registered before serveStatic;
+    // this catch-all only fires for authenticated SPA routes like /dashboard.
     res.sendFile(path.resolve(distPath, "index.html"));
   });
 }
