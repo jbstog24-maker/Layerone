@@ -309,7 +309,7 @@ function DashboardLayoutContent({
               {!isCollapsed && (
                 <div className="flex items-center gap-2 min-w-0">
                   <img
-                    src="/manus-storage/layerone-logo_08473e32.png"
+                    src="/manus-storage/layerone-logo-on-dark_6114040f.png"
                     alt="Layer One Staging Solutions"
                     className="h-7 w-auto object-contain shrink-0"
                   />

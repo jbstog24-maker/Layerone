@@ -596,3 +596,7 @@
 - [x] Acknowledge marks acknowledgedAt/acknowledgedByUserId on the instructions row
 - [x] Wire /my-instructions route in App.tsx
 - [x] 109 tests passing, 0 TypeScript errors, checkpoint saved
+
+## OAuth Post-Login Redirect Fix
+
+- [x] Change OAuth callback redirect from `/` to `/dashboard` so authenticated users land on their dashboard, not the static SSR landing page

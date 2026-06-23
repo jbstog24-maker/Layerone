@@ -9,7 +9,7 @@ import {
   Thermometer, Video, Dock, MapPin, ChevronDown
 } from "lucide-react";
 
-const LOGO_URL = "/manus-storage/layerone-logo_08473e32.png";
+const LOGO_URL = "/manus-storage/layerone-logo-on-dark_6114040f.png";
 
 function NsdsLogo({ className = "" }: { className?: string }) {
   return (
