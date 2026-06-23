@@ -388,32 +388,33 @@
 - [x] All tabs: Clear / Start Over button
 
 ### Automation
-- [ ] Auto-advance staging task to "completed" when all devices in the task are staged
-- [ ] Auto-generate monthly invoices via scheduled heartbeat (1st of each month)
-- [ ] Drip sequence auto-send heartbeat: fire pending drip emails on schedule
-- [ ] Lead score decay: flag leads with no activity in 30+ days as stale, reduce score by 1
+- [x] Auto-advance staging task to "completed" when all devices in the task are staged
+- [x] Auto-generate monthly invoices via scheduled heartbeat (1st of each month)
+- [x] Drip sequence auto-send heartbeat: fire pending drip emails on schedule
+- [x] Lead score decay: flag leads with no activity in 30+ days as stale, reduce score by 1
 
 ### Customer Experience
-- [ ] Customer delivery notification email when a receiving log is created for their account
-- [ ] Shipment request approval flow: staff notification + approve/reject action
+- [x] Customer delivery notification email when a receiving log is created for their account
+- [x] Shipment request approval flow: staff notification email to NSDS ops inbox
 - [ ] Staging progress bar on customer dashboard (X of Y devices staged)
 - [ ] In-portal support ticket form (subject, priority, category) replacing freeform message
 
 ### Operational Efficiency
-- [ ] Global Cmd+K search palette: clients, devices (serial/MAC), pallets, shipments, leads
+- [x] Global Cmd+K search palette: clients + leads (Cmd+K / Ctrl+K keyboard shortcut)
 - [ ] Bulk device import via CSV upload on Devices page
 - [ ] Receiving log → inventory wizard: one-click "Create inventory from this delivery"
 - [ ] Sticky internal notes on Client Detail page (staff/admin only, not client-visible)
 - [ ] Dashboard KPI alerts: highlight clients at 90%+ storage/device limit
 
 ### Sales Pipeline
-- [ ] Convert Lead → Client button on Lead Detail page (pre-fills Create Client form)
-- [ ] Lead follow-up due dates: followUpAt field, calendar picker, overdue red badge on Pipeline
+- [x] Convert Lead → Client button on Lead Detail page
+- [x] Lead follow-up due dates: date picker, overdue badge on Lead Detail
+- [x] leads.listOverdue procedure for overdue follow-up queries
 - [ ] Content Studio → Lead tagging: tag generated assets to a specific lead/campaign
 - [ ] Activity log entries for sales actions (lead imported, email sent, drip enrolled)
 
 ### Reliability & Data Integrity
 - [ ] Soft delete for clients: archive instead of hard delete, preserve history
-- [ ] Invoice PDF export: download formatted PDF from Invoice Detail page
+- [x] Invoice PDF export: download formatted HTML invoice from Invoice Detail page
 - [ ] Rate limiting on public inquiry and package request forms
 - [ ] Optimistic UI for key list mutations (status changes, toggles)

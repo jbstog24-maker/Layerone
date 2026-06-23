@@ -87,6 +87,35 @@ export const stagingRouter = router({
       return { success: true };
     }),
 
+  // Auto-advance: called after a device's staging status is updated to check if all devices in the task are staged
+  checkAutoAdvance: protectedProcedure
+    .input(z.object({ taskId: z.number() }))
+    .mutation(async ({ ctx, input }) => {
+      if (!isStaffOrAdmin(ctx.user.role)) throw new TRPCError({ code: "FORBIDDEN" });
+      const task = await getStagingTask(input.taskId);
+      if (!task || task.status === "completed" || task.status === "cancelled") return { advanced: false };
+      const taskDevices = await getStagingTaskDevices(input.taskId);
+      if (taskDevices.length === 0) return { advanced: false };
+      // Check all devices in the task via the devices table
+      const db = await (await import("../db")).getDb();
+      if (!db) return { advanced: false };
+      const { devices: devicesTable } = await import("../../drizzle/schema");
+      const { inArray } = await import("drizzle-orm");
+      const deviceIds = taskDevices.map((td: any) => td.deviceId);
+      const deviceRows = await db.select({ stagingStatus: devicesTable.stagingStatus })
+        .from(devicesTable)
+        .where(inArray(devicesTable.id, deviceIds));
+      const allStaged = deviceRows.length > 0 && deviceRows.every((d: any) =>
+        ["staged", "labeled", "packed", "ready_to_ship", "shipped", "picked_up"].includes(d.stagingStatus ?? "")
+      );
+      if (allStaged) {
+        await updateStagingTask(input.taskId, { status: "completed", completionDate: new Date() } as any);
+        await logActivity({ userId: ctx.user.id, clientId: task.clientId, action: `Staging task #${input.taskId} auto-completed (all ${deviceIds.length} devices staged)`, entityType: "staging_task", entityId: input.taskId });
+        return { advanced: true, message: `Task auto-completed — all ${deviceIds.length} devices staged` };
+      }
+      return { advanced: false };
+    }),
+
   addDevice: protectedProcedure
     .input(z.object({ taskId: z.number(), deviceId: z.number() }))
     .mutation(async ({ ctx, input }) => {

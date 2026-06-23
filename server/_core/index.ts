@@ -9,6 +9,7 @@ import { appRouter } from "../routers";
 import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
 import { registerStripeRoutes } from "../stripe";
+import { handleMonthlyInvoices, handleDripAutoSend, handleLeadScoreDecay } from "../scheduledHandlers";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -39,6 +40,10 @@ async function startServer() {
   app.use(express.urlencoded({ limit: "50mb", extended: true }));
   registerStorageProxy(app);
   registerOAuthRoutes(app);
+  // Scheduled heartbeat handlers (cron callbacks)
+  app.post("/api/scheduled/monthly-invoices", handleMonthlyInvoices);
+  app.post("/api/scheduled/drip-auto-send", handleDripAutoSend);
+  app.post("/api/scheduled/lead-score-decay", handleLeadScoreDecay);
   // tRPC API
   app.use(
     "/api/trpc",

@@ -594,4 +594,58 @@ Respond with JSON: {"subject":"<subject line>","body":"<email body with \\n for 
 
       return { sent: true, step: newIdx, isLast };
     }),
+
+  // ─── Convert Lead → Client ────────────────────────────────────────────────
+  convertToClient: adminProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ input }) => {
+      const lead = await getLead(input.id);
+      if (!lead) throw new TRPCError({ code: "NOT_FOUND" });
+      // Create client from lead data
+      const db = await import("../db");
+      const result = await db.createClient({
+        companyName: lead.companyName,
+        contactName: lead.contactName ?? undefined,
+        contactEmail: lead.email ?? undefined,
+        contactPhone: lead.phone ?? undefined,
+        address: lead.address ?? undefined,
+        status: "onboarding",
+        projectNotes: lead.notes ?? undefined,
+      });
+      // Mark lead as won and link to client
+      await updateLead(input.id, {
+        status: "won",
+        convertedToClientAt: new Date(),
+        convertedClientId: (result as any)?.insertId ?? undefined,
+      } as any);
+      return { success: true, clientId: (result as any)?.insertId };
+    }),
+
+  // ─── Set Follow-Up Date ───────────────────────────────────────────────────
+  setFollowUpDate: adminProcedure
+    .input(z.object({
+      id: z.number(),
+      followUpAt: z.string().nullable(), // ISO date string or null to clear
+    }))
+    .mutation(async ({ input }) => {
+      const lead = await getLead(input.id);
+      if (!lead) throw new TRPCError({ code: "NOT_FOUND" });
+      await updateLead(input.id, {
+        nextFollowUpAt: input.followUpAt ? new Date(input.followUpAt) : null,
+      } as any);
+      return { success: true };
+    }),
+
+  // ─── Overdue Follow-Ups ───────────────────────────────────────────────────
+  listOverdue: adminProcedure
+    .query(async () => {
+      const all = await listLeads({});
+      const now = new Date();
+      return all.filter((l: any) =>
+        l.nextFollowUpAt &&
+        new Date(l.nextFollowUpAt) <= now &&
+        l.status !== "won" &&
+        l.status !== "lost"
+      );
+    }),
 });

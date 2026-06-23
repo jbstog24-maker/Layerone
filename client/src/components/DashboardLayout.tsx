@@ -58,6 +58,7 @@ import { CSSProperties, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
 import { DashboardLayoutSkeleton } from "./DashboardLayoutSkeleton";
 import { Button } from "./ui/button";
+import GlobalSearch from "./GlobalSearch";
 
 type NavItem = {
   icon: React.ElementType;
@@ -297,6 +298,12 @@ function DashboardLayoutContent({
           </SidebarHeader>
 
           <SidebarContent className="gap-0 py-2">
+            {/* Global search — visible only when sidebar is expanded */}
+            {!isCollapsed && (
+              <div className="px-3 pb-1">
+                <GlobalSearch />
+              </div>
+            )}
             {NAV_GROUPS.filter(canSee).map((group, groupIndex, filteredGroups) => {
               const visibleItems = group.items.filter(canSee);
               if (visibleItems.length === 0) return null;

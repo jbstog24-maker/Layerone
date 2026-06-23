@@ -615,3 +615,204 @@ export async function sendIntroductionEmail(params: IntroductionEmailParams): Pr
     return false;
   }
 }
+
+// ─── Drip Sequence Email ──────────────────────────────────────────────────────
+export type DripEmailParams = {
+  to: string;
+  toName: string;
+  subject: string;
+  htmlBody: string;
+  companyName: string;
+};
+
+/**
+ * Sends a drip sequence step email via Resend.
+ * Called by the scheduled drip auto-send heartbeat handler.
+ */
+export async function sendDripEmail(params: DripEmailParams): Promise<boolean> {
+  if (!ENV.resendApiKey || !ENV.resendFromEmail) {
+    console.warn("[Email] RESEND_API_KEY or RESEND_FROM_EMAIL not configured — skipping drip email");
+    return false;
+  }
+
+  const isHtml = params.htmlBody.trimStart().startsWith("<");
+  const bodyHtml = isHtml
+    ? params.htmlBody
+    : params.htmlBody
+        .split("\n")
+        .map((line) => `<p style="margin:0 0 10px;font-size:15px;line-height:1.6;color:#94a3b8;">${line || "&nbsp;"}</p>`)
+        .join("");
+
+  const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>${params.subject}</title>
+</head>
+<body style="margin:0;padding:0;background:#07111f;font-family:'Segoe UI',Arial,sans-serif;color:#e2e8f0;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#07111f;padding:32px 16px;">
+    <tr><td align="center">
+      <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;background:#0d1f35;border-radius:12px;border:1px solid #1e3a5f;overflow:hidden;">
+        <tr><td style="background:linear-gradient(135deg,#0d1f35 0%,#0a2540 100%);padding:28px 40px;border-bottom:1px solid #1e3a5f;text-align:center;">
+          <span style="font-size:28px;font-weight:800;background:linear-gradient(90deg,#39a7ff,#6ee7b7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:3px;">NSDS</span>
+          <p style="margin:4px 0 0;font-size:10px;color:#64748b;letter-spacing:2px;text-transform:uppercase;">NETWORK STAGING &amp; DEPLOYMENT SOLUTIONS</p>
+        </td></tr>
+        <tr><td style="padding:32px 40px;">
+          ${bodyHtml}
+        </td></tr>
+        <tr><td style="padding:20px 40px;border-top:1px solid #1e3a5f;text-align:center;">
+          <p style="margin:0;font-size:12px;color:#475569;">© ${new Date().getFullYear()} Network Staging &amp; Deployment Solutions (NSDS) · Dallas-Fort Worth, TX</p>
+          <p style="margin:4px 0 0;font-size:12px;color:#475569;">You are receiving this as part of an outreach sequence. Reply "unsubscribe" to opt out.</p>
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`;
+
+  try {
+    const resend = getResend();
+    const { error } = await resend.emails.send({
+      from: ENV.resendFromEmail,
+      to: params.to,
+      subject: params.subject,
+      html,
+    });
+
+    if (error) {
+      console.warn("[Email] Resend error (drip email):", error);
+      return false;
+    }
+
+    console.log(`[Email] Drip email sent to ${params.to} (${params.companyName})`);
+    return true;
+  } catch (err) {
+    console.warn("[Email] Failed to send drip email:", err);
+    return false;
+  }
+}
+
+// ─── Customer Delivery Notification ──────────────────────────────────────────
+export type DeliveryNotificationParams = {
+  to: string;
+  clientName: string;
+  boxCount: number;
+  palletCount: number;
+  carrier?: string;
+  trackingNumber?: string;
+  storageLocation?: string;
+  notes?: string;
+  receivedAt: Date;
+};
+
+export async function sendDeliveryNotificationEmail(params: DeliveryNotificationParams): Promise<boolean> {
+  if (!ENV.resendApiKey || !ENV.resendFromEmail) return false;
+
+  const html = `<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><title>Delivery Received</title></head>
+<body style="margin:0;padding:0;background:#07111f;font-family:'Segoe UI',Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#07111f;padding:32px 16px;">
+    <tr><td align="center">
+      <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;background:#0d1f35;border-radius:12px;border:1px solid #1e3a5f;overflow:hidden;">
+        <tr><td style="background:linear-gradient(135deg,#0d1f35,#0a2540);padding:28px 40px;border-bottom:1px solid #1e3a5f;text-align:center;">
+          <span style="font-size:28px;font-weight:800;background:linear-gradient(90deg,#39a7ff,#6ee7b7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:3px;">NSDS</span>
+          <p style="margin:4px 0 0;font-size:10px;color:#64748b;letter-spacing:2px;text-transform:uppercase;">NETWORK STAGING &amp; DEPLOYMENT SOLUTIONS</p>
+        </td></tr>
+        <tr><td style="padding:32px 40px;">
+          <h2 style="margin:0 0 8px;font-size:20px;color:#ffffff;">Delivery Received ✓</h2>
+          <p style="margin:0 0 20px;font-size:15px;color:#94a3b8;">Hi ${params.clientName}, we've received a delivery on your behalf at our DFW facility.</p>
+          <table width="100%" cellpadding="8" cellspacing="0" style="background:#0a1929;border-radius:8px;border:1px solid #1e3a5f;margin-bottom:20px;">
+            <tr><td style="font-size:13px;color:#64748b;width:40%;">Received At</td><td style="font-size:14px;color:#e2e8f0;">${params.receivedAt.toLocaleString("en-US", { timeZone: "America/Chicago" })} CST</td></tr>
+            <tr><td style="font-size:13px;color:#64748b;">Boxes</td><td style="font-size:14px;color:#e2e8f0;">${params.boxCount}</td></tr>
+            <tr><td style="font-size:13px;color:#64748b;">Pallets</td><td style="font-size:14px;color:#e2e8f0;">${params.palletCount}</td></tr>
+            ${params.carrier ? `<tr><td style="font-size:13px;color:#64748b;">Carrier</td><td style="font-size:14px;color:#e2e8f0;">${params.carrier}</td></tr>` : ""}
+            ${params.trackingNumber ? `<tr><td style="font-size:13px;color:#64748b;">Tracking #</td><td style="font-size:14px;color:#e2e8f0;">${params.trackingNumber}</td></tr>` : ""}
+            ${params.storageLocation ? `<tr><td style="font-size:13px;color:#64748b;">Storage Location</td><td style="font-size:14px;color:#e2e8f0;">${params.storageLocation}</td></tr>` : ""}
+          </table>
+          ${params.notes ? `<p style="font-size:14px;color:#94a3b8;background:#0a1929;padding:12px 16px;border-radius:6px;border-left:3px solid #39a7ff;"><strong style="color:#ffffff;">Notes:</strong> ${params.notes}</p>` : ""}
+          <p style="font-size:14px;color:#94a3b8;">Your items are now securely stored at our facility. Log in to your portal to view inventory details and track staging progress.</p>
+        </td></tr>
+        <tr><td style="padding:20px 40px;border-top:1px solid #1e3a5f;text-align:center;">
+          <p style="margin:0;font-size:12px;color:#475569;">© ${new Date().getFullYear()} NSDS · Dallas-Fort Worth, TX · <a href="mailto:support@nsds.io" style="color:#39a7ff;">support@nsds.io</a></p>
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body></html>`;
+
+  try {
+    const resend = getResend();
+    const { error } = await resend.emails.send({
+      from: ENV.resendFromEmail,
+      to: params.to,
+      subject: `Delivery received at NSDS — ${params.boxCount} box${params.boxCount !== 1 ? "es" : ""}, ${params.palletCount} pallet${params.palletCount !== 1 ? "s" : ""}`,
+      html,
+    });
+    if (error) { console.warn("[Email] Delivery notification error:", error); return false; }
+    console.log(`[Email] Delivery notification sent to ${params.to}`);
+    return true;
+  } catch (err) {
+    console.warn("[Email] Failed to send delivery notification:", err);
+    return false;
+  }
+}
+
+// ─── Shipment Request Approval Email (to staff) ───────────────────────────────
+export type ShipmentApprovalRequestParams = {
+  staffEmail: string;
+  clientName: string;
+  shipmentId: number;
+  destination: string;
+  itemCount: number;
+  requestedBy: string;
+  portalUrl: string;
+};
+
+export async function sendShipmentApprovalRequestEmail(params: ShipmentApprovalRequestParams): Promise<boolean> {
+  if (!ENV.resendApiKey || !ENV.resendFromEmail) return false;
+
+  const html = `<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><title>Shipment Approval Required</title></head>
+<body style="margin:0;padding:0;background:#07111f;font-family:'Segoe UI',Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#07111f;padding:32px 16px;">
+    <tr><td align="center">
+      <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;background:#0d1f35;border-radius:12px;border:1px solid #1e3a5f;overflow:hidden;">
+        <tr><td style="background:linear-gradient(135deg,#0d1f35,#0a2540);padding:28px 40px;border-bottom:1px solid #1e3a5f;text-align:center;">
+          <span style="font-size:28px;font-weight:800;background:linear-gradient(90deg,#39a7ff,#6ee7b7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:3px;">NSDS</span>
+        </td></tr>
+        <tr><td style="padding:32px 40px;">
+          <h2 style="margin:0 0 8px;font-size:20px;color:#ffffff;">Shipment Approval Required</h2>
+          <p style="font-size:15px;color:#94a3b8;"><strong style="color:#ffffff;">${params.clientName}</strong> has submitted an outbound shipment request that requires your approval.</p>
+          <table width="100%" cellpadding="8" cellspacing="0" style="background:#0a1929;border-radius:8px;border:1px solid #1e3a5f;margin-bottom:20px;">
+            <tr><td style="font-size:13px;color:#64748b;width:40%;">Shipment ID</td><td style="font-size:14px;color:#e2e8f0;">#${params.shipmentId}</td></tr>
+            <tr><td style="font-size:13px;color:#64748b;">Destination</td><td style="font-size:14px;color:#e2e8f0;">${params.destination}</td></tr>
+            <tr><td style="font-size:13px;color:#64748b;">Items</td><td style="font-size:14px;color:#e2e8f0;">${params.itemCount}</td></tr>
+            <tr><td style="font-size:13px;color:#64748b;">Requested By</td><td style="font-size:14px;color:#e2e8f0;">${params.requestedBy}</td></tr>
+          </table>
+          <p style="text-align:center;"><a href="${params.portalUrl}/shipments/${params.shipmentId}" style="display:inline-block;background:#39a7ff;color:#ffffff;text-decoration:none;padding:12px 28px;border-radius:8px;font-weight:600;font-size:15px;">Review &amp; Approve</a></p>
+        </td></tr>
+        <tr><td style="padding:20px 40px;border-top:1px solid #1e3a5f;text-align:center;">
+          <p style="margin:0;font-size:12px;color:#475569;">© ${new Date().getFullYear()} NSDS · Dallas-Fort Worth, TX</p>
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body></html>`;
+
+  try {
+    const resend = getResend();
+    const { error } = await resend.emails.send({
+      from: ENV.resendFromEmail,
+      to: params.staffEmail,
+      subject: `[Action Required] Shipment request from ${params.clientName} — #${params.shipmentId}`,
+      html,
+    });
+    if (error) { console.warn("[Email] Shipment approval email error:", error); return false; }
+    console.log(`[Email] Shipment approval request sent to ${params.staffEmail}`);
+    return true;
+  } catch (err) {
+    console.warn("[Email] Failed to send shipment approval email:", err);
+    return false;
+  }
+}

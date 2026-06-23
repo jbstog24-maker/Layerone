@@ -1,11 +1,14 @@
 import { TRPCError } from "@trpc/server";
+import { eq } from "drizzle-orm";
 import { z } from "zod";
 import {
   createBox, createDevice, createPallet, createReceivingLog,
-  getBox, getDevice, getPallet, getReceivingLog,
+  getBox, getClient, getDevice, getPallet, getReceivingLog,
+  getDb,
   listBoxes, listDevices, listPallets, listReceivingLogs,
   logActivity, updateBox, updateDevice, updatePallet, updateReceivingLog,
 } from "../db";
+import { sendDeliveryNotificationEmail } from "../email";
 import { protectedProcedure, router } from "../_core/trpc";
 
 const isStaffOrAdmin = (role: string) => role === "admin" || role === "staff";
@@ -51,6 +54,23 @@ export const receivingRouter = router({
       if (!isStaffOrAdmin(ctx.user.role)) throw new TRPCError({ code: "FORBIDDEN" });
       await createReceivingLog({ ...input, receivedBy: ctx.user.id });
       await logActivity({ userId: ctx.user.id, clientId: input.clientId, action: `Logged receiving: ${input.boxCount ?? 0} boxes, ${input.palletCount ?? 0} pallets`, entityType: "receiving_log" });
+      // Auto-notify client via email (non-blocking)
+      try {
+        const client = await getClient(input.clientId);
+        if (client?.contactEmail) {
+          sendDeliveryNotificationEmail({
+            to: client.contactEmail,
+            clientName: client.companyName,
+            boxCount: input.boxCount ?? 0,
+            palletCount: input.palletCount ?? 0,
+            carrier: input.carrier,
+            trackingNumber: input.trackingNumber,
+            storageLocation: input.storageLocation,
+            notes: input.notes,
+            receivedAt: new Date(),
+          }).catch(() => {});
+        }
+      } catch (_e) { /* non-blocking */ }
       return { success: true };
     }),
 
@@ -256,6 +276,35 @@ export const devicesRouter = router({
       if (!device) throw new TRPCError({ code: "NOT_FOUND" });
       await updateDevice(id, data);
       await logActivity({ userId: ctx.user.id, clientId: device.clientId, action: `Updated device #${id} staging: ${data.stagingStatus ?? "updated"}`, entityType: "device", entityId: id });
+
+      // Auto-advance: if this device was marked staged/labeled/packed, check if all task devices are now staged
+      const stagedStatuses = ["staged", "labeled", "packed", "ready_to_ship", "shipped", "picked_up"];
+      if (data.stagingStatus && stagedStatuses.includes(data.stagingStatus)) {
+        try {
+          const db2 = await getDb();
+          if (db2) {
+            const { stagingTaskDevices } = await import("../../drizzle/schema");
+            const taskLinks = await db2.select().from(stagingTaskDevices).where(eq(stagingTaskDevices.deviceId, id));
+            for (const link of taskLinks) {
+              const { getStagingTask, getStagingTaskDevices, updateStagingTask } = await import("../db");
+              const task = await getStagingTask(link.taskId);
+              if (!task || task.status === "completed" || task.status === "cancelled") continue;
+              const allDevices = await getStagingTaskDevices(link.taskId);
+              const { devices: devicesTable } = await import("../../drizzle/schema");
+              const { inArray } = await import("drizzle-orm");
+              const deviceIds = allDevices.map((td: any) => td.deviceId);
+              const deviceRows = await db2.select({ stagingStatus: devicesTable.stagingStatus })
+                .from(devicesTable).where(inArray(devicesTable.id, deviceIds));
+              const allStaged = deviceRows.length > 0 && deviceRows.every((d: any) => stagedStatuses.includes(d.stagingStatus ?? ""));
+              if (allStaged) {
+                await updateStagingTask(link.taskId, { status: "completed", completionDate: new Date() } as any);
+                await logActivity({ userId: ctx.user.id, clientId: task.clientId, action: `Staging task #${link.taskId} auto-completed (all ${deviceIds.length} devices staged)`, entityType: "staging_task", entityId: link.taskId });
+              }
+            }
+          }
+        } catch (_e) { /* non-blocking */ }
+      }
+
       return { success: true };
     }),
 });

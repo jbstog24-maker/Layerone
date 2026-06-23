@@ -1,9 +1,11 @@
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import {
-  addShipmentItem, createShipment, getShipment, getShipmentItems,
+  addShipmentItem, createShipment, getClient, getShipment, getShipmentItems,
   listShipments, logActivity, updateShipment,
 } from "../db";
+import { sendShipmentApprovalRequestEmail } from "../email";
+import { ENV } from "../_core/env";
 import { protectedProcedure, router } from "../_core/trpc";
 
 const isStaffOrAdmin = (role: string) => role === "admin" || role === "staff";
@@ -46,6 +48,24 @@ export const shipmentsRouter = router({
       if (!canRead(ctx.user.role, ctx.user.clientId, input.clientId)) throw new TRPCError({ code: "FORBIDDEN" });
       const result = await createShipment({ ...input, requestedBy: ctx.user.id });
       await logActivity({ userId: ctx.user.id, clientId: input.clientId, action: `Created shipment request ${result.shipmentCode}`, entityType: "shipment" });
+      // Notify staff when a customer submits a shipment request (non-blocking)
+      if (!isStaffOrAdmin(ctx.user.role)) {
+        try {
+          const client = await getClient(input.clientId);
+          const staffEmail = ENV.resendFromEmail; // notify the NSDS ops inbox
+          if (staffEmail && client) {
+            sendShipmentApprovalRequestEmail({
+              staffEmail,
+              clientName: client.companyName,
+              shipmentId: (result as any).insertId ?? 0,
+              destination: input.destination ?? "(not specified)",
+              itemCount: 0,
+              requestedBy: ctx.user.name ?? ctx.user.email ?? "Customer",
+              portalUrl: ENV.portalUrl ?? "",
+            }).catch(() => {});
+          }
+        } catch (_e) { /* non-blocking */ }
+      }
       return result;
     }),
 
