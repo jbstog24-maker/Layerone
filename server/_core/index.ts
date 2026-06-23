@@ -77,34 +77,9 @@ async function startServer() {
       createContext,
     })
   );
-  // ── Public landing page at GET / ──────────────────────────────────────────
-  // Serves fully-rendered HTML so crawlers and ingestion tools see real content
-  // on the initial HTTP response. The React bundle still loads and hydrates for
-  // authenticated users.
-  app.get("/", (req, res, next) => {
-    // Let Vite handle it in development so HMR still works, but inject our
-    // landing page content into the HTML template via a custom placeholder.
-    // In production we serve the HTML directly.
-    if (process.env.NODE_ENV !== "production") {
-      // In dev, fall through to Vite — the React app handles the landing page
-      // via the LandingPage component which is already SSR-friendly.
-      return next();
-    }
-    const origin = `${req.protocol}://${req.get("host")}`;
-    const appId = process.env.VITE_APP_ID ?? "";
-    const oauthPortalUrl = process.env.VITE_OAUTH_PORTAL_URL ?? "";
-    const redirectUri = `${origin}/api/oauth/callback`;
-    const state = Buffer.from(redirectUri).toString("base64");
-    const loginUrl = `${oauthPortalUrl}/app-auth?appId=${encodeURIComponent(appId)}&redirectUri=${encodeURIComponent(redirectUri)}&state=${encodeURIComponent(state)}&type=signIn`;
-    const appTitle = process.env.VITE_APP_TITLE ?? "Layer One Staging Solutions Portal";
-    const html = getLandingPageHtml({
-      appTitle,
-      analyticsEndpoint: process.env.VITE_ANALYTICS_ENDPOINT,
-      analyticsWebsiteId: process.env.VITE_ANALYTICS_WEBSITE_ID,
-      loginUrl,
-    });
-    res.status(200).set({ "Content-Type": "text/html; charset=utf-8" }).end(html);
-  });
+  // GET / is handled by the React SPA (Landing.tsx) in both dev and production.
+  // The serveStatic catch-all below will serve index.html for all SPA routes
+  // including "/", which renders the Landing component.
 
   // ── OAuth start redirect (used by landing page Sign In links) ───────────────
   // Builds the correct OAuth URL server-side so the landing page doesn't need JS.

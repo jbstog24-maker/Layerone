@@ -58,14 +58,12 @@ export function serveStatic(app: Express) {
     );
   }
 
-  // Serve static assets but do NOT serve index.html for "/" automatically —
-  // the custom landing page handler in index.ts must handle GET / first.
+  // Serve static assets (JS, CSS, images). index: false so we control / ourselves.
   app.use(express.static(distPath, { index: false }));
 
-  // fall through to index.html for all SPA routes except "/" (handled above)
+  // Catch-all: serve index.html for all SPA routes including "/".
+  // The React app (Landing.tsx at route path="/") handles the landing page.
   app.use("*", (req, res) => {
-    // "/" is handled by the landing page route registered before serveStatic;
-    // this catch-all only fires for authenticated SPA routes like /dashboard.
     res.sendFile(path.resolve(distPath, "index.html"));
   });
 }
