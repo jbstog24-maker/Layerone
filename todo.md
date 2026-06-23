@@ -362,3 +362,58 @@
 - [x] Add Send Introduction Email button + preview modal on Lead Finder result cards
 - [x] Intro email saved to campaign history and lead marked as contacted on send
 - [x] Write Vitest tests for draftIntroEmail and sendIntroEmail procedures (5 new tests)
+
+## Rich Text Email Editor
+- [ ] Install Tiptap core + extensions (bold, italic, underline, bullet list, ordered list, link, placeholder)
+- [ ] Build RichTextEditor component with toolbar (bold, italic, underline, bullet list, ordered list, link, clear formatting)
+- [ ] Upgrade Lead Finder intro email modal to use RichTextEditor instead of plain Textarea
+- [ ] Update sendIntroEmail router to accept HTML body and send as HTML via Resend
+- [ ] Update sendIntroductionEmail email helper to use provided HTML body directly
+- [ ] Ensure AI-drafted plain text is converted to HTML on load into the editor
+
+## All Recommendations — Full Implementation
+
+### Rich Text Editor (finish)
+- [x] Mark RichTextEditor todo items complete (Tiptap installed, component built, LeadFinder upgraded)
+- [x] Update sendIntroductionEmail email helper to send HTML body directly
+- [x] Update sendIntroEmail router to pass HTML body through to email helper
+
+### Content Studio QA
+- [x] Image templates: clicking fills title + shows visual selected state
+- [x] Video templates: clicking fills title + shows visual selected state
+- [x] Image tab: character counter on prompt, clear-form button after generation
+- [x] Captions tab: add NSDS scenario caption templates
+- [x] Captions tab: prevent deselecting all platforms, add Select All button
+- [x] Captions tab: live char count on custom description
+- [x] All tabs: Clear / Start Over button
+
+### Automation
+- [ ] Auto-advance staging task to "completed" when all devices in the task are staged
+- [ ] Auto-generate monthly invoices via scheduled heartbeat (1st of each month)
+- [ ] Drip sequence auto-send heartbeat: fire pending drip emails on schedule
+- [ ] Lead score decay: flag leads with no activity in 30+ days as stale, reduce score by 1
+
+### Customer Experience
+- [ ] Customer delivery notification email when a receiving log is created for their account
+- [ ] Shipment request approval flow: staff notification + approve/reject action
+- [ ] Staging progress bar on customer dashboard (X of Y devices staged)
+- [ ] In-portal support ticket form (subject, priority, category) replacing freeform message
+
+### Operational Efficiency
+- [ ] Global Cmd+K search palette: clients, devices (serial/MAC), pallets, shipments, leads
+- [ ] Bulk device import via CSV upload on Devices page
+- [ ] Receiving log → inventory wizard: one-click "Create inventory from this delivery"
+- [ ] Sticky internal notes on Client Detail page (staff/admin only, not client-visible)
+- [ ] Dashboard KPI alerts: highlight clients at 90%+ storage/device limit
+
+### Sales Pipeline
+- [ ] Convert Lead → Client button on Lead Detail page (pre-fills Create Client form)
+- [ ] Lead follow-up due dates: followUpAt field, calendar picker, overdue red badge on Pipeline
+- [ ] Content Studio → Lead tagging: tag generated assets to a specific lead/campaign
+- [ ] Activity log entries for sales actions (lead imported, email sent, drip enrolled)
+
+### Reliability & Data Integrity
+- [ ] Soft delete for clients: archive instead of hard delete, preserve history
+- [ ] Invoice PDF export: download formatted PDF from Invoice Detail page
+- [ ] Rate limiting on public inquiry and package request forms
+- [ ] Optimistic UI for key list mutations (status changes, toggles)

@@ -3,14 +3,14 @@ import { trpc } from "@/lib/trpc";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { toast } from "sonner";
+import RichTextEditor, { plainTextToHtml } from "@/components/RichTextEditor";
 import {
-  Search, MapPin, Phone, Globe, Plus, CheckCircle, Loader2, Building2,
+  Search, MapPin, Plus, CheckCircle, Loader2, Building2,
   Mail, Sparkles, Send, RefreshCw, ChevronRight, Target,
 } from "lucide-react";
 
@@ -135,7 +135,9 @@ export default function LeadFinder() {
   const draftIntroMut = trpc.leads.draftIntroEmail.useMutation({
     onSuccess: (data) => {
       setIntroSubject(data.subject);
-      setIntroBody(data.body);
+      // Convert plain-text AI draft to HTML for the rich text editor
+      const isHtml = data.body.trimStart().startsWith("<");
+      setIntroBody(isHtml ? data.body : plainTextToHtml(data.body));
       setIsDrafting(false);
     },
     onError: (e) => {
@@ -485,15 +487,14 @@ export default function LeadFinder() {
 
                 <div className="space-y-1.5">
                   <Label className="text-xs">Email Body</Label>
-                  <Textarea
+                  <RichTextEditor
                     value={introBody}
-                    onChange={(e) => setIntroBody(e.target.value)}
-                    rows={10}
-                    className="resize-none text-sm font-mono"
-                    placeholder="Email body..."
+                    onChange={setIntroBody}
+                    placeholder="Start typing your email..."
+                    minHeight={220}
                   />
                   <p className="text-xs text-muted-foreground">
-                    {introBody.split(" ").filter(Boolean).length} words — edit freely before sending
+                    {introBody.replace(/<[^>]*>/g, " ").split(/\s+/).filter(Boolean).length} words — use the toolbar to add formatting, bullet points, and links
                   </p>
                 </div>
               </>

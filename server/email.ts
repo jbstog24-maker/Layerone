@@ -547,10 +547,21 @@ export async function sendIntroductionEmail(params: IntroductionEmailParams): Pr
     return false;
   }
 
-  const bodyHtml = params.body
-    .split("\n")
-    .map((line) => `<p style="margin:0 0 10px;font-size:15px;line-height:1.6;color:#94a3b8;">${line || "&nbsp;"}</p>`)
-    .join("");
+  // Accept either HTML (from rich text editor) or plain text (auto-convert)
+  const isHtml = params.body.trimStart().startsWith("<");
+  const bodyHtml = isHtml
+    ? params.body
+        // Inject email-safe inline styles onto common tags
+        .replace(/<p>/g, '<p style="margin:0 0 10px;font-size:15px;line-height:1.6;color:#94a3b8;">')
+        .replace(/<ul>/g, '<ul style="margin:0 0 12px;padding-left:20px;color:#94a3b8;font-size:15px;">')
+        .replace(/<ol>/g, '<ol style="margin:0 0 12px;padding-left:20px;color:#94a3b8;font-size:15px;">')
+        .replace(/<li>/g, '<li style="margin-bottom:4px;">')
+        .replace(/<strong>/g, '<strong style="color:#ffffff;">')
+        .replace(/<a /g, '<a style="color:#39a7ff;" ')
+    : params.body
+        .split("\n")
+        .map((line) => `<p style="margin:0 0 10px;font-size:15px;line-height:1.6;color:#94a3b8;">${line || "&nbsp;"}</p>`)
+        .join("");
 
   const html = `<!DOCTYPE html>
 <html lang="en">

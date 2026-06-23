@@ -53,30 +53,60 @@ const IMAGE_STYLES = [
   { value: "editorial", label: "Editorial / Magazine" },
 ];
 
+// ─── Caption scenario templates ─────────────────────────────────────────────
+const CAPTION_TEMPLATES = [
+  {
+    label: "Warehouse Operations",
+    desc: "Professional IT hardware staging warehouse with organized rows of servers and network equipment on pallets, technicians in branded uniforms, clean industrial environment",
+  },
+  {
+    label: "Device Staging",
+    desc: "Technicians staging and configuring laptops and network switches on clean workbenches, professional IT lab, organized cables and multiple monitors",
+  },
+  {
+    label: "Secure Shipping",
+    desc: "Professionally packed IT equipment in branded boxes on pallets ready for shipment, warehouse dock, logistics team, clean and organized",
+  },
+  {
+    label: "Team & Expertise",
+    desc: "Professional NSDS IT staging team collaborating around servers and network equipment, confident and expert, modern DFW warehouse facility",
+  },
+  {
+    label: "Customer Portal",
+    desc: "Modern dark-themed operations dashboard on a large monitor showing device tracking, shipment status, and staging progress charts, professional office",
+  },
+];
+
 // ─── Image prompt templates ───────────────────────────────────────────────────
 const IMAGE_TEMPLATES = [
   {
     label: "Warehouse Operations",
+    title: "NSDS Warehouse Operations",
     prompt: "Modern IT hardware staging warehouse with organized rows of servers and network equipment on pallets, professional lighting, workers in branded uniforms, clean industrial environment",
   },
   {
     label: "Device Staging",
+    title: "NSDS Device Staging Lab",
     prompt: "Technicians staging and configuring laptops and network switches on clean workbenches, professional IT lab environment, organized cables, multiple monitors showing configuration screens",
   },
   {
     label: "Secure Shipping",
+    title: "NSDS Secure Shipping",
     prompt: "Professionally packed IT equipment in branded boxes on pallets ready for shipment, warehouse dock, logistics team, clean and organized",
   },
   {
     label: "Customer Portal",
+    title: "StagingOps Portal Dashboard",
     prompt: "Modern dark-themed operations dashboard on a large monitor showing device tracking, shipment status, and staging progress charts, professional office environment",
   },
   {
     label: "Team & Expertise",
+    title: "NSDS Expert Team",
     prompt: "Professional IT staging team collaborating around servers and network equipment, confident and expert, modern warehouse facility, NSDS branding",
   },
   {
     label: "DFW Headquarters",
+    title: "NSDS DFW Headquarters",
     prompt: "Aerial view of modern Dallas-Fort Worth logistics and technology facility, professional exterior, branded signage, fleet vehicles, corporate campus",
   },
 ];
@@ -92,22 +122,27 @@ const VIDEO_DURATIONS = [
 const VIDEO_TEMPLATES = [
   {
     label: "Brand Overview",
+    title: "NSDS Brand Overview 2026",
     concept: "NSDS company overview highlighting our end-to-end IT staging and deployment services for MSPs and enterprise IT teams in the DFW area",
   },
   {
     label: "Customer Success",
+    title: "How NSDS Saves IT Teams Time",
     concept: "How NSDS helps IT teams save time and reduce errors by handling device staging, imaging, and deployment prep so they can focus on their core business",
   },
   {
     label: "Service Walkthrough",
+    title: "NSDS Staging Process Walkthrough",
     concept: "Step-by-step walkthrough of the NSDS staging process: receiving, organizing, staging, imaging, packing, and shipping IT hardware",
   },
   {
     label: "Portal Demo",
+    title: "StagingOps Portal Demo",
     concept: "Demo of the StagingOps customer portal showing real-time device tracking, forwarding addresses, shipment status, and document management",
   },
   {
     label: "Why Choose NSDS",
+    title: "Why Choose NSDS",
     concept: "Key differentiators of NSDS: DFW-based, secure facility, certified technicians, chain-of-custody tracking, and dedicated customer portal",
   },
 ];
@@ -123,6 +158,7 @@ export default function ContentStudio() {
   const [imageTags, setImageTags] = useState("");
   const [enhancePrompt, setEnhancePrompt] = useState(true);
   const [generatedImage, setGeneratedImage] = useState<{ id: number; url?: string } | null>(null);
+  const [selectedImageTemplate, setSelectedImageTemplate] = useState<string | null>(null);
 
   // Captions state
   const [captionAssetId, setCaptionAssetId] = useState<number | null>(null);
@@ -143,6 +179,22 @@ export default function ContentStudio() {
   const [videoTags, setVideoTags] = useState("");
   const [generatedVideo, setGeneratedVideo] = useState<{ id: number; videoPackage: any; thumbnailUrl?: string | null } | null>(null);
   const [videoDialogOpen, setVideoDialogOpen] = useState(false);
+  const [selectedVideoTemplate, setSelectedVideoTemplate] = useState<string | null>(null);
+
+  // Clear helpers
+  const clearImageForm = () => {
+    setImageTitle(""); setImagePrompt(""); setImageStyle("photorealistic");
+    setImageTags(""); setEnhancePrompt(true); setGeneratedImage(null); setSelectedImageTemplate(null);
+  };
+  const clearVideoForm = () => {
+    setVideoTitle(""); setVideoConcept(""); setVideoDuration("30s");
+    setVideoStyle(""); setVideoTags(""); setGeneratedVideo(null); setSelectedVideoTemplate(null);
+  };
+  const clearCaptionsForm = () => {
+    setCaptionAssetId(null); setCaptionCustomDesc(""); setCaptionPlatforms(["linkedin", "instagram", "twitter", "facebook"]);
+    setCaptionTone("professional"); setCaptionIncludeHashtags(true); setCaptionIncludeEmoji(true);
+    setCaptionContext(""); setCaptionResult(null);
+  };
 
   // Mutations
   const generateImageMut = trpc.content.generateImage.useMutation({
@@ -283,13 +335,22 @@ export default function ContentStudio() {
             <div className="space-y-4">
               <Card className="bg-slate-900 border-slate-700">
                 <CardHeader className="pb-3">
-                  <CardTitle className="text-white text-base flex items-center gap-2">
-                    <Wand2 className="h-4 w-4 text-[#39a7ff]" />
-                    Image Settings
-                  </CardTitle>
-                  <CardDescription className="text-slate-400 text-xs">
-                    Describe the marketing image you want to create
-                  </CardDescription>
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <CardTitle className="text-white text-base flex items-center gap-2">
+                        <Wand2 className="h-4 w-4 text-[#39a7ff]" />
+                        Image Settings
+                      </CardTitle>
+                      <CardDescription className="text-slate-400 text-xs mt-1">
+                        Describe the marketing image you want to create
+                      </CardDescription>
+                    </div>
+                    {(imageTitle || imagePrompt || generatedImage) && (
+                      <Button variant="ghost" size="sm" onClick={clearImageForm} className="text-slate-500 hover:text-white text-xs h-7 px-2">
+                        Clear
+                      </Button>
+                    )}
+                  </div>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-1.5">
@@ -303,11 +364,15 @@ export default function ContentStudio() {
                   </div>
 
                   <div className="space-y-1.5">
-                    <Label className="text-slate-300 text-xs">Image Prompt *</Label>
+                    <div className="flex items-center justify-between">
+                      <Label className="text-slate-300 text-xs">Image Prompt *</Label>
+                      <span className={`text-xs ${imagePrompt.length > 400 ? "text-amber-400" : "text-slate-600"}`}>{imagePrompt.length}/500</span>
+                    </div>
                     <Textarea
                       placeholder="Describe the scene, subjects, environment, mood..."
                       value={imagePrompt}
                       onChange={(e) => setImagePrompt(e.target.value)}
+                      maxLength={500}
                       rows={4}
                       className="bg-slate-800 border-slate-600 text-white placeholder:text-slate-500 resize-none"
                     />
@@ -373,19 +438,35 @@ export default function ContentStudio() {
               {/* Quick templates */}
               <Card className="bg-slate-900 border-slate-700">
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-white text-sm">Quick Templates</CardTitle>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-white text-sm">Quick Templates</CardTitle>
+                    {selectedImageTemplate && (
+                      <span className="text-xs text-[#39a7ff] bg-[#39a7ff]/10 px-2 py-0.5 rounded-full">Selected</span>
+                    )}
+                  </div>
                 </CardHeader>
                 <CardContent className="space-y-2">
-                  {IMAGE_TEMPLATES.map((t) => (
-                    <button
-                      key={t.label}
-                      onClick={() => setImagePrompt(t.prompt)}
-                      className="w-full text-left px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 hover:border-[#39a7ff]/40 transition-colors group"
-                    >
-                      <p className="text-slate-300 text-xs font-medium group-hover:text-[#39a7ff] transition-colors">{t.label}</p>
-                      <p className="text-slate-500 text-xs mt-0.5 line-clamp-1">{t.prompt}</p>
-                    </button>
-                  ))}
+                  {IMAGE_TEMPLATES.map((t) => {
+                    const isSelected = selectedImageTemplate === t.label;
+                    return (
+                      <button
+                        key={t.label}
+                        onClick={() => {
+                          setImageTitle(t.title);
+                          setImagePrompt(t.prompt);
+                          setSelectedImageTemplate(t.label);
+                        }}
+                        className={`w-full text-left px-3 py-2 rounded-lg border transition-all group ${
+                          isSelected
+                            ? "bg-[#39a7ff]/10 border-[#39a7ff]/50 ring-1 ring-[#39a7ff]/30"
+                            : "bg-slate-800 hover:bg-slate-700 border-slate-700 hover:border-[#39a7ff]/40"
+                        }`}
+                      >
+                        <p className={`text-xs font-medium transition-colors ${isSelected ? "text-[#39a7ff]" : "text-slate-300 group-hover:text-[#39a7ff]"}`}>{t.label}</p>
+                        <p className="text-slate-500 text-xs mt-0.5 line-clamp-1">{t.prompt}</p>
+                      </button>
+                    );
+                  })}
                 </CardContent>
               </Card>
             </div>
@@ -478,13 +559,22 @@ export default function ContentStudio() {
             <div className="space-y-4">
               <Card className="bg-slate-900 border-slate-700">
                 <CardHeader className="pb-3">
-                  <CardTitle className="text-white text-base flex items-center gap-2">
-                    <Film className="h-4 w-4 text-purple-400" />
-                    Video Settings
-                  </CardTitle>
-                  <CardDescription className="text-slate-400 text-xs">
-                    Describe your video concept — AI generates a full production package with script, scenes, and storyboard
-                  </CardDescription>
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <CardTitle className="text-white text-base flex items-center gap-2">
+                        <Film className="h-4 w-4 text-purple-400" />
+                        Video Settings
+                      </CardTitle>
+                      <CardDescription className="text-slate-400 text-xs mt-1">
+                        Describe your video concept — AI generates a full production package with script, scenes, and storyboard
+                      </CardDescription>
+                    </div>
+                    {(videoTitle || videoConcept || generatedVideo) && (
+                      <Button variant="ghost" size="sm" onClick={clearVideoForm} className="text-slate-500 hover:text-white text-xs h-7 px-2">
+                        Clear
+                      </Button>
+                    )}
+                  </div>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-1.5">
@@ -498,11 +588,15 @@ export default function ContentStudio() {
                   </div>
 
                   <div className="space-y-1.5">
-                    <Label className="text-slate-300 text-xs">Video Concept *</Label>
+                    <div className="flex items-center justify-between">
+                      <Label className="text-slate-300 text-xs">Video Concept *</Label>
+                      <span className={`text-xs ${videoConcept.length > 400 ? "text-amber-400" : "text-slate-600"}`}>{videoConcept.length}/500</span>
+                    </div>
                     <Textarea
                       placeholder="Describe what the video should communicate, who the audience is, and the key message..."
                       value={videoConcept}
                       onChange={(e) => setVideoConcept(e.target.value)}
+                      maxLength={500}
                       rows={4}
                       className="bg-slate-800 border-slate-600 text-white placeholder:text-slate-500 resize-none"
                     />
@@ -571,19 +665,35 @@ export default function ContentStudio() {
               {/* Quick templates */}
               <Card className="bg-slate-900 border-slate-700">
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-white text-sm">Quick Templates</CardTitle>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-white text-sm">Quick Templates</CardTitle>
+                    {selectedVideoTemplate && (
+                      <span className="text-xs text-purple-400 bg-purple-500/10 px-2 py-0.5 rounded-full">Selected</span>
+                    )}
+                  </div>
                 </CardHeader>
                 <CardContent className="space-y-2">
-                  {VIDEO_TEMPLATES.map((t) => (
-                    <button
-                      key={t.label}
-                      onClick={() => setVideoConcept(t.concept)}
-                      className="w-full text-left px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 hover:border-purple-500/40 transition-colors group"
-                    >
-                      <p className="text-slate-300 text-xs font-medium group-hover:text-purple-400 transition-colors">{t.label}</p>
-                      <p className="text-slate-500 text-xs mt-0.5 line-clamp-1">{t.concept}</p>
-                    </button>
-                  ))}
+                  {VIDEO_TEMPLATES.map((t) => {
+                    const isSelected = selectedVideoTemplate === t.label;
+                    return (
+                      <button
+                        key={t.label}
+                        onClick={() => {
+                          setVideoTitle(t.title);
+                          setVideoConcept(t.concept);
+                          setSelectedVideoTemplate(t.label);
+                        }}
+                        className={`w-full text-left px-3 py-2 rounded-lg border transition-all group ${
+                          isSelected
+                            ? "bg-purple-500/10 border-purple-500/50 ring-1 ring-purple-500/30"
+                            : "bg-slate-800 hover:bg-slate-700 border-slate-700 hover:border-purple-500/40"
+                        }`}
+                      >
+                        <p className={`text-xs font-medium transition-colors ${isSelected ? "text-purple-400" : "text-slate-300 group-hover:text-purple-400"}`}>{t.label}</p>
+                        <p className="text-slate-500 text-xs mt-0.5 line-clamp-1">{t.concept}</p>
+                      </button>
+                    );
+                  })}
                 </CardContent>
               </Card>
             </div>
@@ -655,13 +765,22 @@ export default function ContentStudio() {
             <div className="space-y-4">
               <Card className="bg-slate-900 border-slate-700">
                 <CardHeader className="pb-3">
-                  <CardTitle className="text-white text-base flex items-center gap-2">
-                    <Share2 className="h-4 w-4 text-green-400" />
-                    Caption Settings
-                  </CardTitle>
-                  <CardDescription className="text-slate-400 text-xs">
-                    Pick a generated image or describe one — AI writes platform-optimised captions
-                  </CardDescription>
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <CardTitle className="text-white text-base flex items-center gap-2">
+                        <Share2 className="h-4 w-4 text-green-400" />
+                        Caption Settings
+                      </CardTitle>
+                      <CardDescription className="text-slate-400 text-xs mt-1">
+                        Pick a generated image or describe one — AI writes platform-optimised captions
+                      </CardDescription>
+                    </div>
+                    {(captionAssetId || captionCustomDesc || captionResult) && (
+                      <Button variant="ghost" size="sm" onClick={clearCaptionsForm} className="text-slate-500 hover:text-white text-xs h-7 px-2">
+                        Clear
+                      </Button>
+                    )}
+                  </div>
                 </CardHeader>
                 <CardContent className="space-y-4">
 
@@ -705,14 +824,40 @@ export default function ContentStudio() {
                     ) : null;
                   })()}
 
+                  {/* Caption templates (shown when no gallery image selected) */}
+                  {!captionAssetId && (
+                    <div className="space-y-1.5">
+                      <Label className="text-slate-300 text-xs">Quick Scenarios</Label>
+                      <div className="flex flex-wrap gap-1.5">
+                        {CAPTION_TEMPLATES.map((t) => (
+                          <button
+                            key={t.label}
+                            onClick={() => setCaptionCustomDesc(t.desc)}
+                            className={`text-xs px-2.5 py-1 rounded-full border transition-all ${
+                              captionCustomDesc === t.desc
+                                ? "bg-green-500/15 border-green-500/50 text-green-400"
+                                : "bg-slate-800 border-slate-700 text-slate-400 hover:text-green-400 hover:border-green-500/30"
+                            }`}
+                          >
+                            {t.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
                   {/* Custom description */}
                   {!captionAssetId && (
                     <div className="space-y-1.5">
-                      <Label className="text-slate-300 text-xs">Image Description *</Label>
+                      <div className="flex items-center justify-between">
+                        <Label className="text-slate-300 text-xs">Image Description *</Label>
+                        <span className={`text-xs ${captionCustomDesc.length > 300 ? "text-amber-400" : "text-slate-600"}`}>{captionCustomDesc.length}/400</span>
+                      </div>
                       <Textarea
                         placeholder="Describe the image scene, subjects, and mood..."
                         value={captionCustomDesc}
                         onChange={(e) => setCaptionCustomDesc(e.target.value)}
+                        maxLength={400}
                         rows={3}
                         className="bg-slate-800 border-slate-600 text-white placeholder:text-slate-500 resize-none"
                       />
@@ -721,7 +866,17 @@ export default function ContentStudio() {
 
                   {/* Platforms */}
                   <div className="space-y-2">
-                    <Label className="text-slate-300 text-xs">Platforms</Label>
+                    <div className="flex items-center justify-between">
+                      <Label className="text-slate-300 text-xs">Platforms ({captionPlatforms.length} selected)</Label>
+                      <button
+                        onClick={() => setCaptionPlatforms(
+                          captionPlatforms.length === 4 ? ["linkedin"] : ["linkedin", "instagram", "twitter", "facebook"]
+                        )}
+                        className="text-xs text-slate-500 hover:text-green-400 transition-colors"
+                      >
+                        {captionPlatforms.length === 4 ? "Deselect all" : "Select all"}
+                      </button>
+                    </div>
                     <div className="grid grid-cols-2 gap-2">
                       {([
                         { id: "linkedin", label: "LinkedIn", color: "text-blue-400", bg: "bg-blue-500/10 border-blue-500/20" },
@@ -731,10 +886,15 @@ export default function ContentStudio() {
                       ] as const).map((p) => (
                         <button
                           key={p.id}
-                          onClick={() => setCaptionPlatforms((prev) =>
-                            prev.includes(p.id) ? prev.filter((x) => x !== p.id) : [...prev, p.id]
-                          )}
-                          className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-xs font-medium transition-colors ${
+                          onClick={() => setCaptionPlatforms((prev) => {
+                            if (prev.includes(p.id)) {
+                              // Prevent deselecting the last platform
+                              if (prev.length === 1) return prev;
+                              return prev.filter((x) => x !== p.id);
+                            }
+                            return [...prev, p.id];
+                          })}
+                          className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-xs font-medium transition-all ${
                             captionPlatforms.includes(p.id)
                               ? `${p.bg} ${p.color}`
                               : "bg-slate-800 border-slate-700 text-slate-500 hover:text-slate-300"
