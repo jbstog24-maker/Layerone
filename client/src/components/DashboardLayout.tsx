@@ -242,16 +242,16 @@ function DashboardLayoutContent({
   const role = (user as any)?.role ?? "customer_viewer";
   const isAdminOrStaff = role === "admin" || role === "staff";
 
-  // Unread message count for badge
+  // Unread message count for badge — only fire when user is confirmed logged in
   const { data: totalUnread = 0 } = trpc.messages.totalUnread.useQuery(
     undefined,
-    { enabled: isAdminOrStaff, refetchInterval: 30_000 },
+    { enabled: !!user && isAdminOrStaff, refetchInterval: 30_000 },
   );
 
   // Customer-facing unread count (staff replies not yet read)
   const { data: myUnread = 0 } = trpc.messages.myUnread.useQuery(
     undefined,
-    { enabled: !isAdminOrStaff, refetchInterval: 30_000 },
+    { enabled: !!user && !isAdminOrStaff, refetchInterval: 30_000 },
   );
 
   const roleLabel: Record<string, string> = {
@@ -417,7 +417,13 @@ function DashboardLayoutContent({
                   {user?.email}
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={logout} className="cursor-pointer text-destructive focus:text-destructive">
+                <DropdownMenuItem
+                  onClick={async () => {
+                    await logout();
+                    window.location.href = "/";
+                  }}
+                  className="cursor-pointer text-destructive focus:text-destructive"
+                >
                   <LogOut className="mr-2 h-4 w-4" />
                   Sign out
                 </DropdownMenuItem>

@@ -600,3 +600,9 @@
 ## OAuth Post-Login Redirect Fix
 
 - [x] Change OAuth callback redirect from `/` to `/dashboard` so authenticated users land on their dashboard, not the static SSR landing page
+
+## Sign-Out Loop Fix
+
+- [x] Sign out button now navigates to / immediately after logout (window.location.href="/") to prevent protected queries from firing
+- [x] Global unauthorized redirect in main.tsx now skips redirect when user is on / or /packages (landing page routes)
+- [x] DashboardLayout unread queries now gated on !!user so they don't fire after logout
