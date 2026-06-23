@@ -8,7 +8,7 @@ vi.mock("./db", () => ({
   upsertUser: vi.fn().mockResolvedValue(undefined),
   getUserByOpenId: vi.fn().mockResolvedValue(undefined),
   listClients: vi.fn().mockResolvedValue([]),
-  getClient: vi.fn().mockResolvedValue(null),
+  getClient: vi.fn().mockImplementation(async (id: number) => id ? { id, companyName: "Test Corp", status: "active", createdAt: new Date(), updatedAt: new Date() } : null),
   createClient: vi.fn().mockResolvedValue({ id: 1, companyName: "Test Corp", status: "active", createdAt: new Date(), updatedAt: new Date() }),
   updateClient: vi.fn().mockResolvedValue(undefined),
   listPackages: vi.fn().mockResolvedValue([]),
@@ -461,11 +461,10 @@ describe("messages.totalUnread", () => {
 });
 
 describe("messages.myUnread", () => {
-  it("returns 0 for a customer with no clientId", async () => {
+  it("throws FORBIDDEN for a customer with no clientId (pending approval)", async () => {
     const ctx = makeCtx("customer_viewer"); // no clientId
     const caller = appRouter.createCaller(ctx);
-    const result = await caller.messages.myUnread();
-    expect(result).toBe(0);
+    await expect(caller.messages.myUnread()).rejects.toMatchObject({ code: "FORBIDDEN" });
   });
 
   it("returns 0 for admin (staff use totalUnread instead)", async () => {

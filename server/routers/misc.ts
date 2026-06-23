@@ -6,7 +6,7 @@ import {
   updateUserRole, updateUser, deleteUser, getUserById, createUser,
 } from "../db";
 import { storagePut } from "../storage";
-import { protectedProcedure, router } from "../_core/trpc";
+import { customerProcedure, protectedProcedure, router } from "../_core/trpc";
 import { sendPortalInviteEmail } from "../email";
 
 const isAdmin = (role: string) => role === "admin";
@@ -85,7 +85,7 @@ export const dashboardRouter = router({
     return getDashboardStats();
   }),
 
-  clientUsage: protectedProcedure
+  clientUsage: customerProcedure
     .input(z.object({ clientId: z.number().optional() }).optional())
     .query(async ({ ctx, input }) => {
       let clientId = input?.clientId;

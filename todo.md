@@ -418,3 +418,22 @@
 - [x] Invoice PDF export: download formatted HTML invoice from Invoice Detail page
 - [ ] Rate limiting on public inquiry and package request forms
 - [ ] Optimistic UI for key list mutations (status changes, toggles)
+
+## Staging Progress Bar & Support Tickets
+- [x] Add stagingProgress field to customer dashboard stats query (total devices, staged count, active tasks)
+- [x] Build staging.customerProgress tRPC procedure returning per-task progress data
+- [x] Add staging progress bar UI to customer dashboard (animated progress bar, per-task breakdown)
+- [x] Add support_tickets and support_ticket_replies tables to schema + migrate
+- [x] Add DB helpers: createTicket, listTickets, getTicket, updateTicket, createTicketReply, listTicketReplies
+- [x] Build support tRPC router: create, list, get, update status, reply, admin listAll
+- [x] Build SupportTickets page: structured ticket form (subject, category, priority, body) + ticket list + reply thread
+- [x] Add Support Tickets nav item to My Portal customer sidebar group
+- [x] Add sendSupportTicketEmail helper to email.ts (notifies NSDS ops on new ticket)
+
+## Access Control — Client Approval Gate
+- [x] Server: customerProcedure middleware verifies clientId is set and client status is "active" or "onboarding" — throws FORBIDDEN otherwise
+- [x] Applied customerProcedure to messages, clientUsage, and staging.customerProgress procedures
+- [x] Frontend: DashboardLayout shows PendingApproval page for customer roles without an approved clientId
+- [x] Frontend: PendingApproval page explains account is under review, shows NSDS contact info, no nav
+- [x] Frontend: admin/staff are never gated (always have full access)
+- [x] Updated myUnread test to expect FORBIDDEN for unapproved customers (109 tests passing)

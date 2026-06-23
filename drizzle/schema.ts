@@ -616,3 +616,36 @@ export const marketingAssets = mysqlTable("marketing_assets", {
 });
 export type MarketingAsset = typeof marketingAssets.$inferSelect;
 export type InsertMarketingAsset = typeof marketingAssets.$inferInsert;
+
+// ─── Support Tickets ──────────────────────────────────────────────────────────
+export const supportTickets = mysqlTable("support_tickets", {
+  id: int("id").primaryKey().autoincrement(),
+  clientId: int("clientId").notNull(),
+  submittedByUserId: int("submittedByUserId"),
+  submittedByName: varchar("submittedByName", { length: 256 }),
+  subject: varchar("subject", { length: 512 }).notNull(),
+  category: mysqlEnum("category", ["billing", "shipping", "staging", "account", "technical", "general"]).default("general").notNull(),
+  priority: mysqlEnum("priority", ["low", "normal", "high", "urgent"]).default("normal").notNull(),
+  description: text("description").notNull(),
+  status: mysqlEnum("status", ["open", "in_progress", "waiting_on_client", "resolved", "closed"]).default("open").notNull(),
+  assignedToUserId: int("assignedToUserId"),
+  resolvedAt: timestamp("resolvedAt"),
+  closedAt: timestamp("closedAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type SupportTicket = typeof supportTickets.$inferSelect;
+export type InsertSupportTicket = typeof supportTickets.$inferInsert;
+
+export const supportTicketReplies = mysqlTable("support_ticket_replies", {
+  id: int("id").primaryKey().autoincrement(),
+  ticketId: int("ticketId").notNull(),
+  senderId: int("senderId"),
+  senderName: varchar("senderName", { length: 256 }),
+  senderRole: mysqlEnum("senderRole", ["admin", "staff", "customer_admin", "customer_viewer"]).notNull(),
+  body: text("body").notNull(),
+  isInternal: boolean("isInternal").default(false).notNull(), // staff-only notes
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type SupportTicketReply = typeof supportTicketReplies.$inferSelect;
+export type InsertSupportTicketReply = typeof supportTicketReplies.$inferInsert;

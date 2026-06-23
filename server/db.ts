@@ -62,6 +62,10 @@ import {
   type DripEnrollment,
   type InsertDripEnrollment,
   marketingAssets,
+  supportTickets,
+  supportTicketReplies,
+  InsertSupportTicket,
+  InsertSupportTicketReply,
   type MarketingAsset,
   type InsertMarketingAsset,
 } from "../drizzle/schema";
@@ -1320,4 +1324,47 @@ export async function deleteMarketingAsset(id: number): Promise<void> {
   const db = await getDb();
   if (!db) return;
   await db.delete(marketingAssets).where(eq(marketingAssets.id, id));
+}
+
+// ─── Support Tickets ──────────────────────────────────────────────────────────
+export async function listSupportTickets(clientId?: number) {
+  const db = await getDb();
+  if (!db) return [];
+  if (clientId) {
+    return db.select().from(supportTickets).where(eq(supportTickets.clientId, clientId)).orderBy(desc(supportTickets.createdAt));
+  }
+  return db.select().from(supportTickets).orderBy(desc(supportTickets.createdAt));
+}
+
+export async function getSupportTicket(id: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(supportTickets).where(eq(supportTickets.id, id)).limit(1);
+  return result[0];
+}
+
+export async function createSupportTicket(data: InsertSupportTicket) {
+  const db = await getDb();
+  if (!db) throw new Error("DB unavailable");
+  const result = await db.insert(supportTickets).values(data);
+  return result[0];
+}
+
+export async function updateSupportTicket(id: number, data: Partial<InsertSupportTicket>) {
+  const db = await getDb();
+  if (!db) throw new Error("DB unavailable");
+  await db.update(supportTickets).set(data).where(eq(supportTickets.id, id));
+}
+
+export async function listTicketReplies(ticketId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(supportTicketReplies).where(eq(supportTicketReplies.ticketId, ticketId)).orderBy(supportTicketReplies.createdAt);
+}
+
+export async function createTicketReply(data: InsertSupportTicketReply) {
+  const db = await getDb();
+  if (!db) throw new Error("DB unavailable");
+  const result = await db.insert(supportTicketReplies).values(data);
+  return result[0];
 }

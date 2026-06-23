@@ -31,6 +31,7 @@ import LeadFinder from "./pages/LeadFinder";
 import DripSequences from "./pages/DripSequences";
 import ContentStudio from "./pages/ContentStudio";
 import ContentGallery from "./pages/ContentGallery";
+import SupportTickets from "./pages/SupportTickets";
 import { PalletDetail } from "./pages/Pallets";
 
 function Router() {
@@ -93,6 +94,9 @@ function Router() {
       {/* Content Studio */}
       <Route path="/content-studio" component={ContentStudio} />
       <Route path="/content-gallery" component={ContentGallery} />
+
+      {/* Support */}
+      <Route path="/support" component={SupportTickets} />
 
       {/* Pallet Detail */}
       <Route path="/pallets/:id" component={PalletDetail} />

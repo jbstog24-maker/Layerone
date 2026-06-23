@@ -117,6 +117,7 @@ function AdminDashboard() {
 function CustomerDashboard() {
   const { data: usage } = trpc.dashboard.clientUsage.useQuery({});
   const { data: recentActivity } = trpc.activity.list.useQuery({ limit: 5 });
+  const { data: stagingProgress } = trpc.staging.customerProgress.useQuery();
 
   const stats = usage?.usage;
   const pkg = usage?.pkg;
@@ -129,6 +130,54 @@ function CustomerDashboard() {
         <StatCard icon={Archive} label="Staging Tasks" value={stats?.stagingTasks ?? 0} color="bg-yellow-500/10 text-yellow-400" href="/staging" />
         <StatCard icon={Ship} label="Shipments" value={stats?.shipments ?? 0} color="bg-orange-500/10 text-orange-400" href="/shipments" />
       </div>
+
+      {/* Staging Progress Bar */}
+      {stagingProgress && stagingProgress.tasks.length > 0 && (
+        <Card className="bg-card/60 border-border/50">
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-sm">Active Staging Progress</CardTitle>
+              <span className="text-xs text-muted-foreground">
+                {stagingProgress.stagedDevices} of {stagingProgress.totalDevices} devices staged
+              </span>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {/* Overall progress */}
+            {stagingProgress.totalDevices > 0 && (
+              <div className="space-y-1.5">
+                <div className="flex justify-between text-xs">
+                  <span className="text-muted-foreground font-medium">Overall</span>
+                  <span className={stagingProgress.stagedDevices === stagingProgress.totalDevices ? "text-green-400" : "text-primary"}>
+                    {stagingProgress.totalDevices > 0 ? Math.round((stagingProgress.stagedDevices / stagingProgress.totalDevices) * 100) : 0}%
+                  </span>
+                </div>
+                <Progress
+                  value={stagingProgress.totalDevices > 0 ? (stagingProgress.stagedDevices / stagingProgress.totalDevices) * 100 : 0}
+                  className="h-2"
+                />
+              </div>
+            )}
+            {/* Per-task breakdown */}
+            {stagingProgress.tasks.length > 1 && (
+              <div className="space-y-3 pt-1">
+                {stagingProgress.tasks.map((task) => (
+                  <div key={task.id} className="space-y-1.5">
+                    <div className="flex justify-between text-xs">
+                      <span className="text-muted-foreground truncate max-w-[60%]">{task.name}</span>
+                      <span className="text-muted-foreground shrink-0">
+                        {task.stagedDevices}/{task.totalDevices} devices
+                        {task.percentComplete === 100 && <span className="ml-1 text-green-400">✓</span>}
+                      </span>
+                    </div>
+                    <Progress value={task.percentComplete} className="h-1.5" />
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
       {pkg && (
         <Card className="bg-card/60 border-border/50">

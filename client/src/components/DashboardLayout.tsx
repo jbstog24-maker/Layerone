@@ -52,11 +52,13 @@ import {
   Warehouse,
   Sparkles,
   Images,
+  LifeBuoy,
 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { CSSProperties, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
 import { DashboardLayoutSkeleton } from "./DashboardLayoutSkeleton";
+import PendingApproval from "@/pages/PendingApproval";
 import { Button } from "./ui/button";
 import GlobalSearch from "./GlobalSearch";
 
@@ -120,6 +122,7 @@ const NAV_GROUPS: NavGroup[] = [
     items: [
       { icon: MapPin, label: "My Devices", path: "/my-devices", roles: ["customer_admin", "customer_viewer"] },
       { icon: MessageSquare, label: "Messages", path: "/support-messages", roles: ["customer_admin", "customer_viewer"] },
+      { icon: LifeBuoy, label: "Support Tickets", path: "/support", roles: ["customer_admin", "customer_viewer"] },
     ],
   },
   {
@@ -191,6 +194,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </div>
       </div>
     );
+  }
+
+  // Customer approval gate: customer roles without a linked, approved client cannot access the portal
+  const userRole = (user as any)?.role ?? "";
+  const isCustomer = userRole === "customer_admin" || userRole === "customer_viewer";
+  const hasClientId = Boolean((user as any)?.clientId);
+  if (isCustomer && !hasClientId) {
+    return <PendingApproval />;
   }
 
   return (

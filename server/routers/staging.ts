@@ -4,7 +4,7 @@ import {
   addDeviceToTask, createStagingTask, getStagingTask, getStagingTaskDevices,
   listStagingTasks, logActivity, removeDeviceFromTask, updateStagingTask,
 } from "../db";
-import { protectedProcedure, router } from "../_core/trpc";
+import { customerProcedure, protectedProcedure, router } from "../_core/trpc";
 
 const isStaffOrAdmin = (role: string) => role === "admin" || role === "staff";
 const canRead = (role: string, userClientId: number | null | undefined, targetClientId: number) => {
@@ -130,5 +130,37 @@ export const stagingRouter = router({
       if (!isStaffOrAdmin(ctx.user.role)) throw new TRPCError({ code: "FORBIDDEN" });
       await removeDeviceFromTask(input.taskId, input.deviceId);
       return { success: true };
+    }),
+
+  // Customer-facing: staging progress summary for the customer dashboard
+  customerProgress: customerProcedure
+    .query(async ({ ctx }) => {
+      const clientId = ctx.user.clientId;
+      if (!clientId) return { tasks: [], totalDevices: 0, stagedDevices: 0 };
+      const tasks = await listStagingTasks(clientId);
+      // For each active task, count devices via the junction table
+      const activeTasks = tasks.filter(t => t.status === "pending" || t.status === "in_progress");
+      const taskProgress = await Promise.all(
+        activeTasks.map(async (task) => {
+          const taskDeviceLinks = await getStagingTaskDevices(task.id);
+          // Count total linked devices; staged = task is completed or in_progress with devices
+          // We approximate staged count from task status since junction table has no status field
+          const total = taskDeviceLinks.length;
+          // For progress: completed tasks count all devices as staged
+          const staged = task.status === "completed" ? total : 0;
+          const pct = total > 0 ? Math.round((staged / total) * 100) : (task.status === "completed" ? 100 : 0);
+          return {
+            id: task.id,
+            name: task.title,
+            status: task.status,
+            totalDevices: total,
+            stagedDevices: staged,
+            percentComplete: pct,
+          };
+        })
+      );
+      const totalDevices = taskProgress.reduce((s, t) => s + t.totalDevices, 0);
+      const stagedDevices = taskProgress.reduce((s, t) => s + t.stagedDevices, 0);
+      return { tasks: taskProgress, totalDevices, stagedDevices };
     }),
 });

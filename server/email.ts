@@ -816,3 +816,63 @@ export async function sendShipmentApprovalRequestEmail(params: ShipmentApprovalR
     return false;
   }
 }
+
+// ─── Support Ticket Notification ─────────────────────────────────────────────
+export type SupportTicketEmailParams = {
+  ticketSubject: string;
+  category: string;
+  priority: string;
+  description: string;
+  submittedBy: string;
+  clientId: number;
+};
+
+export async function sendSupportTicketEmail(params: SupportTicketEmailParams): Promise<boolean> {
+  if (!ENV.resendApiKey || !ENV.resendFromEmail) return false;
+  const { ticketSubject, category, priority, description, submittedBy, clientId } = params;
+  const priorityColors: Record<string, string> = {
+    urgent: "#ef4444", high: "#f97316", normal: "#3b82f6", low: "#6b7280",
+  };
+  const color = priorityColors[priority] ?? "#3b82f6";
+  const html = `<!DOCTYPE html><html><body style="margin:0;background:#07111f;font-family:Arial,sans-serif;color:#e2e8f0;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="padding:32px 16px;">
+    <tr><td align="center">
+      <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;background:#0d1f35;border-radius:12px;border:1px solid #1e3a5f;overflow:hidden;">
+        <tr><td style="padding:24px 32px;border-bottom:1px solid #1e3a5f;">
+          <h2 style="margin:0;color:#fff;font-size:18px;">New Support Ticket</h2>
+          <p style="margin:4px 0 0;color:#94a3b8;font-size:13px;">StagingOps Portal — Client #${clientId}</p>
+        </td></tr>
+        <tr><td style="padding:24px 32px;">
+          <table width="100%" cellpadding="0" cellspacing="0" style="font-size:14px;">
+            <tr><td style="padding:8px 0;color:#94a3b8;width:120px;">Subject</td><td style="padding:8px 0;font-weight:600;">${ticketSubject}</td></tr>
+            <tr><td style="padding:8px 0;color:#94a3b8;">Category</td><td style="padding:8px 0;text-transform:capitalize;">${category}</td></tr>
+            <tr><td style="padding:8px 0;color:#94a3b8;">Priority</td><td style="padding:8px 0;"><span style="background:${color}33;color:${color};padding:2px 8px;border-radius:4px;font-size:12px;text-transform:uppercase;font-weight:600;">${priority}</span></td></tr>
+            <tr><td style="padding:8px 0;color:#94a3b8;">Submitted by</td><td style="padding:8px 0;">${submittedBy}</td></tr>
+          </table>
+          <div style="margin-top:16px;padding:16px;background:#0a1628;border-radius:6px;border-left:3px solid ${color};">
+            <p style="margin:0;font-size:13px;color:#cbd5e1;white-space:pre-wrap;">${description}</p>
+          </div>
+          <p style="margin-top:20px;font-size:12px;color:#64748b;">Log in to the StagingOps Portal to respond to this ticket.</p>
+        </td></tr>
+        <tr><td style="padding:16px 32px;border-top:1px solid #1e3a5f;text-align:center;">
+          <p style="margin:0;font-size:12px;color:#475569;">© ${new Date().getFullYear()} NSDS · Dallas-Fort Worth, TX</p>
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body></html>`;
+  try {
+    const resend = getResend();
+    const { error } = await resend.emails.send({
+      from: ENV.resendFromEmail,
+      to: ENV.resendFromEmail, // notify the NSDS ops inbox
+      subject: `[${priority.toUpperCase()}] Support Ticket: ${ticketSubject}`,
+      html,
+    });
+    if (error) { console.warn("[Email] Support ticket email error:", error); return false; }
+    return true;
+  } catch (err) {
+    console.warn("[Email] Failed to send support ticket email:", err);
+    return false;
+  }
+}

@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { protectedProcedure, router } from "../_core/trpc";
+import { customerProcedure, protectedProcedure, router } from "../_core/trpc";
 import {
   listClientMessages,
   sendClientMessage,
@@ -18,7 +18,7 @@ function isStaffOrAdmin(role: string | undefined) {
 
 export const messagesRouter = router({
   // List all messages for a client thread
-  list: protectedProcedure
+  list: customerProcedure
     .input(z.object({ clientId: z.number() }))
     .query(async ({ ctx, input }) => {
       const role = ctx.user?.role;
@@ -32,7 +32,7 @@ export const messagesRouter = router({
     }),
 
   // Send a message in a client thread
-  send: protectedProcedure
+  send: customerProcedure
     .input(z.object({
       clientId: z.number(),
       body: z.string().min(1).max(5000),
@@ -68,7 +68,7 @@ export const messagesRouter = router({
     }),
 
   // Mark messages as read when staff opens the thread
-  markRead: protectedProcedure
+  markRead: customerProcedure
     .input(z.object({ clientId: z.number() }))
     .mutation(async ({ ctx, input }) => {
       const role = ctx.user?.role;
@@ -110,7 +110,7 @@ export const messagesRouter = router({
     }),
 
   // Count unread staff replies for the current customer's own thread
-  myUnread: protectedProcedure
+  myUnread: customerProcedure
     .query(async ({ ctx }) => {
       const role = ctx.user?.role;
       // Only customers use this; staff/admin use totalUnread instead

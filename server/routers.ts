@@ -18,6 +18,7 @@ import { shipmentDocsRouter } from "./routers/shipmentDocs";
 import { stagingNotifyRouter } from "./routers/stagingNotify";
 import { leadsRouter } from "./routers/leads";
 import { contentRouter } from "./routers/content";
+import { supportRouter } from "./routers/support";
 
 export const appRouter = router({
   system: systemRouter,
@@ -51,6 +52,7 @@ export const appRouter = router({
   stagingNotify: stagingNotifyRouter,
   leads: leadsRouter,
   content: contentRouter,
+  support: supportRouter,
 });
 
 export type AppRouter = typeof appRouter;
