@@ -582,3 +582,17 @@
 - [x] Add Express GET / route that returns fully-rendered HTML with real landing page content
 - [x] Ensure React SPA hydrates correctly after SSR HTML is served
 - [x] Verify crawler-visible HTML with curl, run tests, save checkpoint
+
+## Client Instructions Feature
+
+- [x] Add client_instructions table (id, clientId, textBody, updatedAt, acknowledgedAt, acknowledgedByUserId)
+- [x] Add client_instruction_files table (id, clientId, fileName, fileKey, mimeType, fileSize, uploadedAt)
+- [x] Generate and apply Drizzle migration
+- [x] DB helpers: upsertClientInstructions, getClientInstructions, addInstructionFile, listInstructionFiles, deleteInstructionFile
+- [x] tRPC router: instructions.get, instructions.upsert, instructions.uploadFile, instructions.listFiles, instructions.deleteFile, instructions.acknowledge, instructions.getFileUrl
+- [x] Customer portal: My Instructions page (/my-instructions) — rich text editor + drag-and-drop file upload area
+- [x] Add Staging Instructions nav item to customer My Portal sidebar group
+- [x] Admin/staff: ClientInstructionsPanel on Client Detail page — read-only text + file list + Mark Reviewed button
+- [x] Acknowledge marks acknowledgedAt/acknowledgedByUserId on the instructions row
+- [x] Wire /my-instructions route in App.tsx
+- [x] 109 tests passing, 0 TypeScript errors, checkpoint saved

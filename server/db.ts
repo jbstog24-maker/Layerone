@@ -71,6 +71,12 @@ import {
   clientNotes,
   type ClientNote,
   type InsertClientNote,
+  clientInstructions,
+  clientInstructionFiles,
+  type ClientInstructions,
+  type InsertClientInstructions,
+  type ClientInstructionFile,
+  type InsertClientInstructionFile,
 } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 import { nanoid } from "nanoid";
@@ -1401,4 +1407,50 @@ export async function deleteClientNote(id: number) {
   const db = await getDb();
   if (!db) throw new Error("DB unavailable");
   await db.delete(clientNotes).where(eq(clientNotes.id, id));
+}
+
+// ─── Client Instructions ──────────────────────────────────────────────────────
+export async function getClientInstructions(clientId: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(clientInstructions).where(eq(clientInstructions.clientId, clientId)).limit(1);
+  return result[0];
+}
+
+export async function upsertClientInstructions(clientId: number, textBody: string, updatedByUserId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("DB unavailable");
+  await db.insert(clientInstructions)
+    .values({ clientId, textBody, updatedByUserId })
+    .onDuplicateKeyUpdate({ set: { textBody, updatedByUserId } });
+}
+
+export async function acknowledgeClientInstructions(clientId: number, acknowledgedByUserId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("DB unavailable");
+  await db.update(clientInstructions)
+    .set({ acknowledgedAt: new Date(), acknowledgedByUserId })
+    .where(eq(clientInstructions.clientId, clientId));
+}
+
+export async function listInstructionFiles(clientId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(clientInstructionFiles)
+    .where(eq(clientInstructionFiles.clientId, clientId))
+    .orderBy(desc(clientInstructionFiles.uploadedAt));
+}
+
+export async function addInstructionFile(data: InsertClientInstructionFile) {
+  const db = await getDb();
+  if (!db) throw new Error("DB unavailable");
+  const result = await db.insert(clientInstructionFiles).values(data);
+  return { id: (result as any)[0]?.insertId ?? 0 };
+}
+
+export async function deleteInstructionFile(id: number, clientId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("DB unavailable");
+  await db.delete(clientInstructionFiles)
+    .where(and(eq(clientInstructionFiles.id, id), eq(clientInstructionFiles.clientId, clientId)));
 }

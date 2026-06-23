@@ -35,6 +35,7 @@ import SupportTickets from "./pages/SupportTickets";
 import AdminTickets from "./pages/AdminTickets";
 import AdminReports from "./pages/AdminReports";
 import HelpCenter from "./pages/HelpCenter";
+import MyInstructions from "./pages/MyInstructions";
 import OnboardingTour from "./components/OnboardingTour";
 import { PalletDetail } from "./pages/Pallets";
 
@@ -108,6 +109,9 @@ function Router() {
 
       {/* Help Center */}
       <Route path="/help" component={HelpCenter} />
+
+      {/* My Instructions (customer portal) */}
+      <Route path="/my-instructions" component={MyInstructions} />
 
       {/* Pallet Detail */}
       <Route path="/pallets/:id" component={PalletDetail} />

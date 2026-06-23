@@ -12,7 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
-import { Building2, Plus, Search, ChevronRight, Mail, Phone, FileText, Warehouse, Calendar, CheckCircle, Clock, AlertCircle, Send, CreditCard, Download, MessageSquare, User, Archive, ArchiveRestore } from "lucide-react";
+import { Building2, Plus, Search, ChevronRight, Mail, Phone, FileText, Warehouse, Calendar, CheckCircle, Clock, AlertCircle, Send, CreditCard, Download, MessageSquare, User, Archive, ArchiveRestore, ClipboardList, CheckCircle2, Trash2 } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { useAuth } from "@/_core/hooks/useAuth";
@@ -649,6 +649,9 @@ export function ClientDetail() {
         </Card>
       )}
 
+      {/* Staging Instructions (staff/admin only) */}
+      {isAdminOrStaff && <ClientInstructionsPanel clientId={id} />}
+
       {/* Internal Notes (staff/admin only) */}
       {isAdminOrStaff && <ClientInternalNotes clientId={id} />}
 
@@ -669,6 +672,97 @@ export function ClientDetail() {
         </DialogContent>
       </Dialog>
     </DashboardLayout>
+  );
+}
+
+// ─── Client Instructions Panel (admin/staff view) ────────────────────────────
+function ClientInstructionsPanel({ clientId }: { clientId: number }) {
+  const utils = trpc.useUtils();
+  const { data, isLoading } = trpc.instructions.get.useQuery({ clientId });
+
+  const acknowledgeMut = trpc.instructions.acknowledge.useMutation({
+    onSuccess: () => { toast.success("Instructions acknowledged"); utils.instructions.get.invalidate({ clientId }); },
+    onError: (e) => toast.error(e.message),
+  });
+  const deleteFileMut = trpc.instructions.deleteFile.useMutation({
+    onSuccess: () => utils.instructions.get.invalidate({ clientId }),
+    onError: (e) => toast.error(e.message),
+  });
+  const getFileUrl = async (fileKey: string, fileName: string) => {
+    try {
+      const result = await utils.instructions.getFileUrl.fetch({ clientId, fileKey });
+      const a = document.createElement("a"); a.href = result.url; a.download = fileName; a.target = "_blank"; a.click();
+    } catch { toast.error("Could not get download link"); }
+  };
+
+  const instructions = data?.instructions;
+  const files = data?.files ?? [];
+  const hasContent = (instructions?.textBody && instructions.textBody.trim().length > 0) || files.length > 0;
+  const acknowledged = !!instructions?.acknowledgedAt;
+
+  return (
+    <Card className="bg-card/60 border-border/50">
+      <CardHeader className="flex flex-row items-center justify-between pb-3">
+        <CardTitle className="text-sm flex items-center gap-2">
+          <ClipboardList className="w-4 h-4 text-blue-400" /> Client Staging Instructions
+          {hasContent && (
+            acknowledged
+              ? <span className="text-xs font-normal text-green-400 flex items-center gap-1"><CheckCircle2 className="w-3 h-3" /> Acknowledged</span>
+              : <span className="text-xs font-normal text-yellow-400">⚠ Needs review</span>
+          )}
+        </CardTitle>
+        {hasContent && !acknowledged && (
+          <Button size="sm" variant="outline" className="h-7 px-3 text-xs gap-1 border-green-500/40 text-green-400 hover:bg-green-500/10"
+            onClick={() => acknowledgeMut.mutate({ clientId })} disabled={acknowledgeMut.isPending}>
+            <CheckCircle2 className="w-3.5 h-3.5" /> Mark Reviewed
+          </Button>
+        )}
+      </CardHeader>
+      <CardContent className="space-y-3">
+        {isLoading ? (
+          <div className="h-20 bg-muted/30 rounded animate-pulse" />
+        ) : !hasContent ? (
+          <p className="text-xs text-muted-foreground text-center py-6">No staging instructions provided by this client yet.</p>
+        ) : (
+          <>
+            {instructions?.textBody && instructions.textBody.trim().length > 0 && (
+              <div className="rounded-lg border border-border/50 bg-muted/10 p-3">
+                <p className="text-xs font-medium text-muted-foreground mb-2">Written Instructions</p>
+                <div className="text-sm prose prose-invert prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: instructions.textBody }} />
+                {acknowledged && (
+                  <p className="text-xs text-muted-foreground mt-2">
+                    Reviewed by {instructions.acknowledgedByUserId ? `user #${instructions.acknowledgedByUserId}` : "staff"} on {new Date(instructions.acknowledgedAt!).toLocaleString()}
+                  </p>
+                )}
+              </div>
+            )}
+            {files.length > 0 && (
+              <div className="space-y-2">
+                <p className="text-xs font-medium text-muted-foreground">Attached Files ({files.length})</p>
+                {files.map(f => (
+                  <div key={f.id} className="flex items-center justify-between gap-2 p-2 rounded-lg border border-border/50 bg-muted/10">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <FileText className="w-4 h-4 text-blue-400 shrink-0" />
+                      <span className="text-sm truncate">{f.fileName}</span>
+                      <span className="text-xs text-muted-foreground shrink-0">{new Date(f.uploadedAt).toLocaleDateString()}</span>
+                    </div>
+                    <div className="flex items-center gap-1 shrink-0">
+                      <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => getFileUrl(f.fileKey, f.fileName)} title="Download">
+                        <Download className="w-3.5 h-3.5" />
+                      </Button>
+                      <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:text-destructive"
+                        onClick={() => deleteFileMut.mutate({ id: f.id, clientId, fileName: f.fileName })} title="Remove">
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </>
+        )}
+      </CardContent>
+    </Card>
   );
 }
 

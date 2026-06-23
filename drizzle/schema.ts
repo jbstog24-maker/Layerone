@@ -669,3 +669,29 @@ export const clientNotes = mysqlTable("client_notes", {
 });
 export type ClientNote = typeof clientNotes.$inferSelect;
 export type InsertClientNote = typeof clientNotes.$inferInsert;
+
+// ─── Client Instructions (customer-authored staging/provisioning instructions) ─
+export const clientInstructions = mysqlTable("client_instructions", {
+  id: int("id").autoincrement().primaryKey(),
+  clientId: int("clientId").notNull().unique(), // one record per client
+  textBody: text("textBody"),                   // rich-text HTML from the editor
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  updatedByUserId: int("updatedByUserId"),
+  acknowledgedAt: timestamp("acknowledgedAt"),
+  acknowledgedByUserId: int("acknowledgedByUserId"),
+});
+export type ClientInstructions = typeof clientInstructions.$inferSelect;
+export type InsertClientInstructions = typeof clientInstructions.$inferInsert;
+
+export const clientInstructionFiles = mysqlTable("client_instruction_files", {
+  id: int("id").autoincrement().primaryKey(),
+  clientId: int("clientId").notNull(),
+  fileName: varchar("fileName", { length: 512 }).notNull(),
+  fileKey: varchar("fileKey", { length: 1024 }).notNull(),
+  fileUrl: varchar("fileUrl", { length: 2048 }).notNull(),
+  mimeType: varchar("mimeType", { length: 256 }),
+  uploadedById: int("uploadedById"),
+  uploadedAt: timestamp("uploadedAt").defaultNow().notNull(),
+});
+export type ClientInstructionFile = typeof clientInstructionFiles.$inferSelect;
+export type InsertClientInstructionFile = typeof clientInstructionFiles.$inferInsert;

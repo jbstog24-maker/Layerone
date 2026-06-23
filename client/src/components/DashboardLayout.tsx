@@ -124,6 +124,7 @@ const NAV_GROUPS: NavGroup[] = [
     roles: ["customer_admin", "customer_viewer"],
     items: [
       { icon: MapPin, label: "My Devices", path: "/my-devices", roles: ["customer_admin", "customer_viewer"] },
+      { icon: ClipboardList, label: "Staging Instructions", path: "/my-instructions", roles: ["customer_admin", "customer_viewer"] },
       { icon: MessageSquare, label: "Messages", path: "/support-messages", roles: ["customer_admin", "customer_viewer"] },
       { icon: LifeBuoy, label: "Support Tickets", path: "/support", roles: ["customer_admin", "customer_viewer"] },
     ],
