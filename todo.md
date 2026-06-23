@@ -437,3 +437,25 @@
 - [x] Frontend: PendingApproval page explains account is under review, shows NSDS contact info, no nav
 - [x] Frontend: admin/staff are never gated (always have full access)
 - [x] Updated myUnread test to expect FORBIDDEN for unapproved customers (109 tests passing)
+
+## Staff Role Management
+- [ ] Add staff-specific fields to users table: jobTitle, department, accessLevel, isActive
+- [ ] Run Drizzle migration for new staff fields
+- [ ] Update users.create and users.update procedures to include staff fields
+- [ ] Improve Users page: dedicated Staff tab showing all staff/admin users with role badges
+- [ ] Add "Add Staff Member" dialog with name, email, role (admin/staff), job title, department, phone
+- [ ] Add role-specific permission summary card explaining what each role can do
+- [ ] Add ability to activate/deactivate staff accounts (isActive toggle)
+- [ ] Add staff profile card showing job title, department, access level, last sign-in
+- [ ] Send portal invite email when a new staff member is created
+- [ ] Write Vitest tests for staff management procedures
+
+## Staff Role Management
+- [x] Add jobTitle, department, isActive fields to users schema + migrate
+- [x] Update updateUser and createUser DB helpers with new fields
+- [x] Add users.setActive procedure (activate/deactivate without deleting)
+- [x] Add jobTitle and department to users.create and users.update procedures
+- [x] Rewrite Users page with tabbed Staff/Customers view, role stats, activate/deactivate toggle
+- [x] Add Role Permissions Reference card showing all 4 roles and their access levels
+- [x] Add job title and department fields to Add/Edit User dialog (staff roles only)
+- [x] Add internal notes field to Add/Edit User dialog (staff-only, not visible to user)

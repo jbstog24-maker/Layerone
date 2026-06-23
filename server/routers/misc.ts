@@ -137,12 +137,24 @@ export const usersRouter = router({
       businessName: z.string().nullable().optional(),
       phone: z.string().nullable().optional(),
       location: z.string().nullable().optional(),
+      jobTitle: z.string().nullable().optional(),
+      department: z.string().nullable().optional(),
     }))
     .mutation(async ({ ctx, input }) => {
       if (!isAdmin(ctx.user.role)) throw new TRPCError({ code: "FORBIDDEN" });
       const { userId, ...data } = input;
       await updateUser(userId, data);
       await logActivity({ userId: ctx.user.id, action: `Updated user #${userId} profile`, entityType: "user", entityId: userId });
+      return { success: true };
+    }),
+
+  setActive: protectedProcedure
+    .input(z.object({ userId: z.number(), isActive: z.boolean() }))
+    .mutation(async ({ ctx, input }) => {
+      if (!isAdmin(ctx.user.role)) throw new TRPCError({ code: "FORBIDDEN" });
+      if (input.userId === ctx.user.id) throw new TRPCError({ code: "BAD_REQUEST", message: "You cannot deactivate your own account" });
+      await updateUser(input.userId, { isActive: input.isActive });
+      await logActivity({ userId: ctx.user.id, action: `${input.isActive ? "Activated" : "Deactivated"} user #${input.userId}`, entityType: "user", entityId: input.userId });
       return { success: true };
     }),
 
@@ -165,6 +177,8 @@ export const usersRouter = router({
       businessName: z.string().nullable().optional(),
       phone: z.string().nullable().optional(),
       location: z.string().nullable().optional(),
+      jobTitle: z.string().nullable().optional(),
+      department: z.string().nullable().optional(),
     }))
     .mutation(async ({ ctx, input }) => {
       if (!isAdmin(ctx.user.role)) throw new TRPCError({ code: "FORBIDDEN" });
