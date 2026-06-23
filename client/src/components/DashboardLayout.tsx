@@ -54,6 +54,7 @@ import {
   Images,
   LifeBuoy,
   BarChart3,
+  HelpCircle,
 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { CSSProperties, useEffect, useRef, useState } from "react";
@@ -151,6 +152,12 @@ const NAV_GROUPS: NavGroup[] = [
     items: [
       { icon: Activity, label: "Activity Log", path: "/activity" },
       { icon: BarChart3, label: "Reports", path: "/reports", roles: ["admin", "staff"] },
+    ],
+  },
+  {
+    label: "Help",
+    items: [
+      { icon: HelpCircle, label: "Help Center", path: "/help" },
     ],
   },
 ];
@@ -337,6 +344,22 @@ function DashboardLayoutContent({
                   <SidebarMenu className="px-2">
                     {visibleItems.map((item) => {
                       const isActive = location === item.path || (item.path !== "/" && location.startsWith(item.path));
+                      // data-tour attribute maps to OnboardingTour step selectors
+                      const tourAttr = {
+                        "/dashboard": "nav-dashboard",
+                        "/clients": "nav-clients",
+                        "/devices": "nav-devices",
+                        "/staging": "nav-staging",
+                        "/shipments": "nav-shipments",
+                        "/leads": "nav-leads",
+                        "/admin/tickets": "nav-admin-tickets",
+                        "/support": "nav-support-tickets",
+                        "/invoices": "nav-invoices",
+                        "/users": "nav-users",
+                        "/reports": "nav-reports",
+                        "/my-devices": "nav-my-devices",
+                        "/help": "nav-help",
+                      }[item.path];
                       return (
                         <SidebarMenuItem key={item.path}>
                           <SidebarMenuButton
@@ -344,6 +367,7 @@ function DashboardLayoutContent({
                             onClick={() => setLocation(item.path)}
                             tooltip={item.label}
                             className={`h-9 transition-all text-sm ${isActive ? "bg-sidebar-accent text-sidebar-primary font-medium" : "text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/50"}`}
+                            {...(tourAttr ? { "data-tour": tourAttr } : {})}
                           >
                             <item.icon className={`h-4 w-4 shrink-0 ${isActive ? "text-primary" : ""}`} />
                             <span className="truncate overflow-hidden min-w-0 flex-1">{item.label}</span>
@@ -415,6 +439,14 @@ function DashboardLayoutContent({
               <SidebarTrigger className="h-9 w-9 rounded-lg" />
               <span className="font-semibold text-sm">{activeLabel}</span>
             </div>
+            <button
+              onClick={() => setLocation("/help")}
+              className="h-8 w-8 flex items-center justify-center rounded-lg hover:bg-accent transition-colors"
+              title="Help Center"
+              aria-label="Open Help Center"
+            >
+              <HelpCircle className="w-4 h-4 text-muted-foreground" />
+            </button>
           </div>
         )}
         <main className="flex-1 p-4 md:p-6">{children}</main>

@@ -568,13 +568,13 @@
 
 ## Onboarding Tour & Help Center
 
-- [ ] Add hasSeenTour boolean column to users table + migration
-- [ ] Add users.markTourSeen tRPC procedure
-- [ ] Build OnboardingTour component (role-aware step overlay, fires once on first login)
-- [ ] Build HelpCenter page (/help) with searchable feature docs for every nav section
-- [ ] Add Help nav item to sidebar (all roles)
-- [ ] Wire /help route in App.tsx
-- [ ] Add "?" help button to DashboardLayout header that re-launches the tour
+- [x] Add hasSeenTour boolean column to users table + migration
+- [x] Add users.markTourSeen tRPC procedure
+- [x] Build OnboardingTour component (role-aware step overlay, fires once on first login)
+- [x] Build HelpCenter page (/help) with searchable feature docs for every nav section
+- [x] Add Help nav item to sidebar (all roles)
+- [x] Wire /help route in App.tsx
+- [x] Add "?" help button to DashboardLayout header (mobile) that navigates to Help Center
 
 ## SSR Landing Page (root URL)
 

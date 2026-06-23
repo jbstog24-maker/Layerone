@@ -34,6 +34,8 @@ import ContentGallery from "./pages/ContentGallery";
 import SupportTickets from "./pages/SupportTickets";
 import AdminTickets from "./pages/AdminTickets";
 import AdminReports from "./pages/AdminReports";
+import HelpCenter from "./pages/HelpCenter";
+import OnboardingTour from "./components/OnboardingTour";
 import { PalletDetail } from "./pages/Pallets";
 
 function Router() {
@@ -104,6 +106,9 @@ function Router() {
       {/* Reports */}
       <Route path="/reports" component={AdminReports} />
 
+      {/* Help Center */}
+      <Route path="/help" component={HelpCenter} />
+
       {/* Pallet Detail */}
       <Route path="/pallets/:id" component={PalletDetail} />
 
@@ -122,6 +127,7 @@ function App() {
       <ThemeProvider defaultTheme="dark">
         <TooltipProvider>
           <Toaster />
+          <OnboardingTour />
           <Router />
         </TooltipProvider>
       </ThemeProvider>
