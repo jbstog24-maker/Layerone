@@ -317,13 +317,13 @@
 - [x] Write Vitest tests for new bulk procedures
 
 ## Google Maps Lead Finder + Email Drip Sequences
-- [ ] Read maps integration reference and check Google Maps API key
-- [ ] Add drip_sequences, drip_sequence_steps, and drip_enrollments tables to schema
-- [ ] Run Drizzle migration and apply SQL
-- [ ] Add DB helpers for drip sequences and enrollments
-- [ ] Build leadFinder tRPC router: searchPlaces (Google Places API), importPlace (create lead from place)
-- [ ] Build drip tRPC router: createSequence, listSequences, enrollLead, listEnrollments, sendNextStep
-- [ ] Build Lead Finder page: industry + location search, results cards, one-click import to pipeline
-- [ ] Build Drip Sequences page: create/edit sequences, step editor, enroll leads, view enrollment status
-- [ ] Wire drip email sending via Resend with step scheduling
-- [ ] Write Vitest tests for leadFinder and drip routers
+- [x] Read maps integration reference and check Google Maps API key
+- [x] Add drip_sequences, drip_sequence_steps, and drip_enrollments tables to schema
+- [x] Run Drizzle migration and apply SQL
+- [x] Add DB helpers for drip sequences and enrollments
+- [x] Build leadFinder tRPC router: searchPlaces (Google Places API), importPlace (create lead from place)
+- [x] Build drip tRPC router: createSequence, listSequences, enrollLead, listEnrollments, sendNextStep
+- [x] Build Lead Finder page: industry + location search, results cards, one-click import to pipeline
+- [x] Build Drip Sequences page: create/edit sequences, step editor, enroll leads, view enrollment status
+- [x] Wire drip email sending via Resend with step scheduling
+- [x] Write Vitest tests for leadFinder and drip routers

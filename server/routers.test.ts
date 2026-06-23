@@ -106,6 +106,41 @@ vi.mock("./db", () => ({
   acknowledgeStagingNotification: vi.fn().mockResolvedValue(undefined),
   countUnacknowledgedNotifications: vi.fn().mockResolvedValue(0),
   getUsersByClientId: vi.fn().mockResolvedValue([]),
+  // Lead helpers
+  listLeads: vi.fn().mockResolvedValue([]),
+  getLead: vi.fn().mockResolvedValue(null),
+  createLead: vi.fn().mockResolvedValue({ id: 1 }),
+  updateLead: vi.fn().mockResolvedValue(undefined),
+  deleteLead: vi.fn().mockResolvedValue(undefined),
+  countLeadsByStatus: vi.fn().mockResolvedValue([]),
+  listLeadMessages: vi.fn().mockResolvedValue([]),
+  createLeadMessage: vi.fn().mockResolvedValue({ id: 1 }),
+  deleteLeadMessage: vi.fn().mockResolvedValue(undefined),
+  listLeadQuotes: vi.fn().mockResolvedValue([]),
+  createLeadQuote: vi.fn().mockResolvedValue({ id: 1 }),
+  updateLeadQuote: vi.fn().mockResolvedValue(undefined),
+  deleteLeadQuote: vi.fn().mockResolvedValue(undefined),
+  // Drip helpers
+  listDripSequences: vi.fn().mockResolvedValue([]),
+  getDripSequence: vi.fn().mockResolvedValue(null),
+  createDripSequence: vi.fn().mockResolvedValue({ id: 1 }),
+  updateDripSequence: vi.fn().mockResolvedValue(undefined),
+  deleteDripSequence: vi.fn().mockResolvedValue(undefined),
+  listDripSteps: vi.fn().mockResolvedValue([]),
+  createDripStep: vi.fn().mockResolvedValue({ id: 1 }),
+  updateDripStep: vi.fn().mockResolvedValue(undefined),
+  deleteDripStep: vi.fn().mockResolvedValue(undefined),
+  listDripEnrollments: vi.fn().mockResolvedValue([]),
+  getDripEnrollment: vi.fn().mockResolvedValue(null),
+  enrollLeadInDrip: vi.fn().mockResolvedValue({ id: 1 }),
+  updateDripEnrollment: vi.fn().mockResolvedValue(undefined),
+  listDueEnrollments: vi.fn().mockResolvedValue([]),
+}));
+
+vi.mock("./email", () => ({
+  sendPortalInviteEmail: vi.fn().mockResolvedValue(undefined),
+  sendWelcomeEmail: vi.fn().mockResolvedValue(true),
+  sendStagingCompleteEmail: vi.fn().mockResolvedValue(undefined),
 }));
 
 vi.mock("./storage", () => ({
@@ -876,5 +911,77 @@ describe("stagingNotify.notifyBulkItems", () => {
     const ctx = makeCtx("customer_admin", 1);
     const caller = appRouter.createCaller(ctx);
     await expect(caller.stagingNotify.notifyBulkItems({ itemType: "box", itemIds: [1] })).rejects.toThrow();
+  });
+});
+
+// ─── leads router ────────────────────────────────────────────────────────────
+describe("leads router", () => {
+  it("lists leads for admin", async () => {
+    const { listLeads } = await import("./db");
+    (listLeads as any).mockResolvedValueOnce([
+      { id: 1, companyName: "Acme Corp", contactName: "John Doe", status: "new", temperature: "warm", source: "manual", createdAt: new Date() },
+    ]);
+    const ctx = makeCtx("admin");
+    const caller = appRouter.createCaller(ctx);
+    const result = await caller.leads.list({});
+    expect(result).toHaveLength(1);
+    expect(result[0].companyName).toBe("Acme Corp");
+  });
+
+  it("creates a lead for admin", async () => {
+    const { createLead } = await import("./db");
+    (createLead as any).mockResolvedValueOnce({ id: 42 });
+    const ctx = makeCtx("admin");
+    const caller = appRouter.createCaller(ctx);
+    const result = await caller.leads.create({
+      companyName: "New Biz",
+      status: "new",
+      source: "manual",
+    });
+    expect(result.id).toBe(42);
+  });
+
+  it("throws FORBIDDEN for customer role on leads.list", async () => {
+    const ctx = makeCtx("customer_admin", 1);
+    const caller = appRouter.createCaller(ctx);
+    await expect(caller.leads.list({})).rejects.toThrow();
+  });
+
+  it("lists drip sequences for admin", async () => {
+    const { listDripSequences } = await import("./db");
+    (listDripSequences as any).mockResolvedValueOnce([
+      { id: 1, name: "DFW Outreach", description: "Cold outreach sequence", createdAt: new Date() },
+    ]);
+    const ctx = makeCtx("admin");
+    const caller = appRouter.createCaller(ctx);
+    const result = await caller.leads.listSequences();
+    expect(result).toHaveLength(1);
+    expect(result[0].name).toBe("DFW Outreach");
+  });
+
+  it("creates a drip sequence for admin", async () => {
+    const { createDripSequence } = await import("./db");
+    (createDripSequence as any).mockResolvedValueOnce({ id: 5 });
+    const ctx = makeCtx("admin");
+    const caller = appRouter.createCaller(ctx);
+    const result = await caller.leads.createSequence({ name: "Test Sequence" });
+    expect(result.id).toBe(5);
+  });
+
+  it("enrolls a lead in a drip sequence", async () => {
+    const { getLead, getDripSequence, enrollLeadInDrip } = await import("./db");
+    (getLead as any).mockResolvedValueOnce({ id: 1, companyName: "Acme", contactEmail: "test@acme.com", status: "new", source: "manual", createdAt: new Date() });
+    (getDripSequence as any).mockResolvedValueOnce({ id: 1, name: "DFW Outreach", createdAt: new Date() });
+    (enrollLeadInDrip as any).mockResolvedValueOnce({ id: 10 });
+    const ctx = makeCtx("admin");
+    const caller = appRouter.createCaller(ctx);
+    const result = await caller.leads.enrollLead({ leadId: 1, sequenceId: 1 });
+    expect(result.id).toBe(10);
+  });
+
+  it("throws FORBIDDEN for customer role on leads.createSequence", async () => {
+    const ctx = makeCtx("customer_admin", 1);
+    const caller = appRouter.createCaller(ctx);
+    await expect(caller.leads.createSequence({ name: "Test" })).rejects.toThrow();
   });
 });
