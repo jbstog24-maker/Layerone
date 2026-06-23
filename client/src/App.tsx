@@ -29,6 +29,8 @@ import LeadPipeline from "./pages/LeadPipeline";
 import LeadDetail from "./pages/LeadDetail";
 import LeadFinder from "./pages/LeadFinder";
 import DripSequences from "./pages/DripSequences";
+import ContentStudio from "./pages/ContentStudio";
+import ContentGallery from "./pages/ContentGallery";
 import { PalletDetail } from "./pages/Pallets";
 
 function Router() {
@@ -87,6 +89,10 @@ function Router() {
       <Route path="/pipeline" component={LeadPipeline} />
       <Route path="/lead-finder" component={LeadFinder} />
       <Route path="/drip-sequences" component={DripSequences} />
+
+      {/* Content Studio */}
+      <Route path="/content-studio" component={ContentStudio} />
+      <Route path="/content-gallery" component={ContentGallery} />
 
       {/* Pallet Detail */}
       <Route path="/pallets/:id" component={PalletDetail} />

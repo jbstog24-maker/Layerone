@@ -135,6 +135,21 @@ vi.mock("./db", () => ({
   enrollLeadInDrip: vi.fn().mockResolvedValue({ id: 1 }),
   updateDripEnrollment: vi.fn().mockResolvedValue(undefined),
   listDueEnrollments: vi.fn().mockResolvedValue([]),
+  // Marketing asset helpers
+  listMarketingAssets: vi.fn().mockResolvedValue([]),
+  getMarketingAsset: vi.fn().mockResolvedValue(null),
+  createMarketingAsset: vi.fn().mockResolvedValue({ id: 1 }),
+  updateMarketingAsset: vi.fn().mockResolvedValue(undefined),
+  deleteMarketingAsset: vi.fn().mockResolvedValue(undefined),
+}));
+
+vi.mock("./_core/imageGeneration", () => ({
+  generateImage: vi.fn().mockResolvedValue({ url: "/manus-storage/test-image.png" }),
+}));
+
+vi.mock("./_core/llm", () => ({
+  invokeLLM: vi.fn().mockResolvedValue({ choices: [{ message: { content: "Enhanced prompt text" } }] }),
+  listLLMModels: vi.fn().mockResolvedValue({ data: [] }),
 }));
 
 vi.mock("./email", () => ({
@@ -983,5 +998,63 @@ describe("leads router", () => {
     const ctx = makeCtx("customer_admin", 1);
     const caller = appRouter.createCaller(ctx);
     await expect(caller.leads.createSequence({ name: "Test" })).rejects.toThrow();
+  });
+});
+
+// ─── content router ───────────────────────────────────────────────────────────
+describe("content router", () => {
+  it("lists assets for admin", async () => {
+    const { listMarketingAssets } = await import("./db");
+    (listMarketingAssets as any).mockResolvedValueOnce([
+      { id: 1, title: "Hero Shot", assetType: "image", prompt: "test", status: "ready", createdAt: new Date() },
+    ]);
+    const ctx = makeCtx("admin");
+    const caller = appRouter.createCaller(ctx);
+    const result = await caller.content.list({});
+    expect(result).toHaveLength(1);
+    expect(result[0].title).toBe("Hero Shot");
+  });
+
+  it("throws FORBIDDEN for customer role on content.list", async () => {
+    const ctx = makeCtx("customer_admin", 1);
+    const caller = appRouter.createCaller(ctx);
+    await expect(caller.content.list({})).rejects.toThrow();
+  });
+
+  it("generates an image for admin", async () => {
+    const { createMarketingAsset, updateMarketingAsset } = await import("./db");
+    (createMarketingAsset as any).mockResolvedValueOnce({ id: 7 });
+    const ctx = makeCtx("admin");
+    const caller = appRouter.createCaller(ctx);
+    const result = await caller.content.generateImage({
+      title: "Test Image",
+      prompt: "A professional warehouse photo",
+      enhancePrompt: false,
+    });
+    expect(result.id).toBe(7);
+    expect(result.status).toBe("ready");
+  });
+
+  it("deletes an asset for staff", async () => {
+    const { getMarketingAsset, deleteMarketingAsset } = await import("./db");
+    (getMarketingAsset as any).mockResolvedValueOnce({ id: 3, title: "Old Image", assetType: "image", status: "ready", createdAt: new Date() });
+    const ctx = makeCtx("staff");
+    const caller = appRouter.createCaller(ctx);
+    const result = await caller.content.delete({ id: 3 });
+    expect(result.success).toBe(true);
+  });
+
+  it("throws NOT_FOUND when deleting non-existent asset", async () => {
+    const { getMarketingAsset } = await import("./db");
+    (getMarketingAsset as any).mockResolvedValueOnce(null);
+    const ctx = makeCtx("admin");
+    const caller = appRouter.createCaller(ctx);
+    await expect(caller.content.delete({ id: 999 })).rejects.toThrow();
+  });
+
+  it("throws FORBIDDEN for customer role on content.generateImage", async () => {
+    const ctx = makeCtx("customer_viewer", 1);
+    const caller = appRouter.createCaller(ctx);
+    await expect(caller.content.generateImage({ title: "x", prompt: "x", enhancePrompt: false })).rejects.toThrow();
   });
 });

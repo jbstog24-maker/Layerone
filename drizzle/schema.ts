@@ -594,3 +594,25 @@ export const dripEnrollments = mysqlTable("drip_enrollments", {
 });
 export type DripEnrollment = typeof dripEnrollments.$inferSelect;
 export type InsertDripEnrollment = typeof dripEnrollments.$inferInsert;
+
+// ─── Marketing Assets (Content Studio) ───────────────────────────────────────
+export const marketingAssets = mysqlTable("marketing_assets", {
+  id: int("id").primaryKey().autoincrement(),
+  title: varchar("title", { length: 256 }).notNull(),
+  assetType: mysqlEnum("assetType", ["image", "video"]).notNull(),
+  prompt: text("prompt").notNull(),
+  style: varchar("style", { length: 128 }),
+  format: varchar("format", { length: 64 }),
+  fileKey: varchar("fileKey", { length: 512 }),
+  fileUrl: varchar("fileUrl", { length: 1024 }),
+  thumbnailUrl: varchar("thumbnailUrl", { length: 1024 }),
+  status: mysqlEnum("status", ["generating", "ready", "failed"]).default("generating").notNull(),
+  errorMessage: text("errorMessage"),
+  createdByUserId: int("createdByUserId"),
+  createdByName: varchar("createdByName", { length: 256 }),
+  tags: varchar("tags", { length: 512 }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type MarketingAsset = typeof marketingAssets.$inferSelect;
+export type InsertMarketingAsset = typeof marketingAssets.$inferInsert;

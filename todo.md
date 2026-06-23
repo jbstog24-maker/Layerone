@@ -327,3 +327,12 @@
 - [x] Build Drip Sequences page: create/edit sequences, step editor, enroll leads, view enrollment status
 - [x] Wire drip email sending via Resend with step scheduling
 - [x] Write Vitest tests for leadFinder and drip routers
+
+## Marketing Content Studio (AI Image & Video Generation)
+- [x] Add marketing_assets table to schema + migrate
+- [x] Add DB helpers for marketing assets (list, get, create, update, delete)
+- [x] Build content tRPC router: generateImage, generateVideo (AI prompt), list, delete
+- [x] Build Content Studio page: prompt builder, style/format presets, generate button, loading states
+- [x] Build Asset Gallery page: grid view, filter by type/tag, download, delete
+- [x] Add Content Studio nav item to Sales group in sidebar
+- [x] Write Vitest tests for content router

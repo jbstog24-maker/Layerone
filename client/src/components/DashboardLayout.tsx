@@ -50,6 +50,8 @@ import {
   Truck,
   Users,
   Warehouse,
+  Sparkles,
+  Images,
 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { CSSProperties, useEffect, useRef, useState } from "react";
@@ -127,6 +129,8 @@ const NAV_GROUPS: NavGroup[] = [
       { icon: Kanban, label: "Pipeline", path: "/pipeline", roles: ["admin", "staff"] },
       { icon: Search, label: "Lead Finder", path: "/lead-finder", roles: ["admin", "staff"] },
       { icon: Mail, label: "Drip Sequences", path: "/drip-sequences", roles: ["admin", "staff"] },
+      { icon: Sparkles, label: "Content Studio", path: "/content-studio", roles: ["admin", "staff"] },
+      { icon: Images, label: "Asset Gallery", path: "/content-gallery", roles: ["admin", "staff"] },
     ],
   },
   {

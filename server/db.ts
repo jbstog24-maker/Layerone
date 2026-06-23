@@ -61,6 +61,9 @@ import {
   type InsertDripSequenceStep,
   type DripEnrollment,
   type InsertDripEnrollment,
+  marketingAssets,
+  type MarketingAsset,
+  type InsertMarketingAsset,
 } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 import { nanoid } from "nanoid";
@@ -1279,4 +1282,42 @@ export async function listDueEnrollments(): Promise<DripEnrollment[]> {
       sql`${dripEnrollments.nextSendAt} IS NOT NULL AND ${dripEnrollments.nextSendAt} <= NOW()`
     )
   ).orderBy(dripEnrollments.nextSendAt);
+}
+
+// ─── Marketing Assets ─────────────────────────────────────────────────────────
+export async function listMarketingAssets(filters?: { assetType?: string; status?: string }): Promise<MarketingAsset[]> {
+  const db = await getDb();
+  if (!db) return [];
+  let query = db.select().from(marketingAssets).$dynamic();
+  const conditions = [];
+  if (filters?.assetType) conditions.push(eq(marketingAssets.assetType, filters.assetType as any));
+  if (filters?.status) conditions.push(eq(marketingAssets.status, filters.status as any));
+  if (conditions.length > 0) query = query.where(and(...conditions));
+  return query.orderBy(desc(marketingAssets.createdAt));
+}
+
+export async function getMarketingAsset(id: number): Promise<MarketingAsset | null> {
+  const db = await getDb();
+  if (!db) return null;
+  const rows = await db.select().from(marketingAssets).where(eq(marketingAssets.id, id));
+  return rows[0] ?? null;
+}
+
+export async function createMarketingAsset(data: InsertMarketingAsset): Promise<{ id: number }> {
+  const db = await getDb();
+  if (!db) return { id: 0 };
+  const [result] = await db.insert(marketingAssets).values(data);
+  return { id: (result as any).insertId };
+}
+
+export async function updateMarketingAsset(id: number, data: Partial<InsertMarketingAsset>): Promise<void> {
+  const db = await getDb();
+  if (!db) return;
+  await db.update(marketingAssets).set(data).where(eq(marketingAssets.id, id));
+}
+
+export async function deleteMarketingAsset(id: number): Promise<void> {
+  const db = await getDb();
+  if (!db) return;
+  await db.delete(marketingAssets).where(eq(marketingAssets.id, id));
 }
