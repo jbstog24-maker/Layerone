@@ -24,6 +24,12 @@ import Inquiries from "./pages/Inquiries";
 import Messages from "./pages/Messages";
 import SupportMessages from "./pages/SupportMessages";
 import MyDevices from "./pages/MyDevices";
+import Leads from "./pages/Leads";
+import LeadPipeline from "./pages/LeadPipeline";
+import LeadDetail from "./pages/LeadDetail";
+import LeadFinder from "./pages/LeadFinder";
+import DripSequences from "./pages/DripSequences";
+import { PalletDetail } from "./pages/Pallets";
 
 function Router() {
   return (
@@ -74,6 +80,16 @@ function Router() {
       <Route path="/messages" component={Messages} />
       <Route path="/support-messages" component={SupportMessages} />
       <Route path="/my-devices" component={MyDevices} />
+
+      {/* Sales / Leads */}
+      <Route path="/leads" component={Leads} />
+      <Route path="/leads/:id" component={LeadDetail} />
+      <Route path="/pipeline" component={LeadPipeline} />
+      <Route path="/lead-finder" component={LeadFinder} />
+      <Route path="/drip-sequences" component={DripSequences} />
+
+      {/* Pallet Detail */}
+      <Route path="/pallets/:id" component={PalletDetail} />
 
       {/* Package detail */}
       <Route path="/packages/:tier" component={PackageDetail} />

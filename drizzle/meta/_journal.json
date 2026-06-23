@@ -85,6 +85,13 @@
       "when": 1782003704783,
       "tag": "0011_remarkable_major_mapleleaf",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "5",
+      "when": 1782224091915,
+      "tag": "0012_petite_king_cobra",
+      "breakpoints": true
     }
   ]
 }

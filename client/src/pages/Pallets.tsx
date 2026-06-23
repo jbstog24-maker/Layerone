@@ -210,3 +210,203 @@ export default function Pallets() {
     </DashboardLayout>
   );
 }
+
+// ─── Pallet Detail Page ───────────────────────────────────────────────────────
+import { useParams } from "wouter";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { ArrowLeft, MapPin, Pencil, PackageCheck as PackageCheckIcon, Loader2 } from "lucide-react";
+
+export function PalletDetail() {
+  const { id } = useParams<{ id: string }>();
+  const [, navigate] = useLocation();
+  const utils = trpc.useUtils();
+  const palletId = Number(id);
+  const { user } = useAuth();
+  const isStaff = user?.role === "admin" || user?.role === "staff";
+
+  const [showForwardingEdit, setShowForwardingEdit] = useState(false);
+  const [forwardingForm, setForwardingForm] = useState({ forwardingAddress: "", forwardingContact: "", forwardingNotes: "", forwardingStatus: "pending" as "pending" | "in_transit" | "delivered" });
+  const [showNotify, setShowNotify] = useState(false);
+  const [notifyMessage, setNotifyMessage] = useState("");
+
+  const { data: pallet, isLoading } = trpc.pallets.get.useQuery({ id: palletId });
+
+  const updateForwardingMutation = trpc.forwarding.updatePallet.useMutation({
+    onSuccess: () => { utils.pallets.get.invalidate({ id: palletId }); setShowForwardingEdit(false); toast.success("Forwarding info updated"); },
+    onError: (e: { message: string }) => toast.error(e.message),
+  });
+
+  const notifyMutation = trpc.stagingNotify.notifyBulkItems.useMutation({
+    onSuccess: () => { setShowNotify(false); setNotifyMessage(""); toast.success("Customer notified!"); },
+    onError: (e: { message: string }) => toast.error(e.message),
+  });
+
+  const openForwardingEdit = () => {
+    setForwardingForm({
+      forwardingAddress: pallet?.forwardingAddress ?? "",
+      forwardingContact: pallet?.forwardingContact ?? "",
+      forwardingNotes: pallet?.forwardingNotes ?? "",
+      forwardingStatus: (pallet?.forwardingStatus as "pending" | "in_transit" | "delivered") ?? "pending",
+    });
+    setShowForwardingEdit(true);
+  };
+
+  const statusColor = (s: string | null) => {
+    if (s === "delivered") return "bg-green-100 text-green-800 border-green-200";
+    if (s === "in_transit") return "bg-blue-100 text-blue-800 border-blue-200";
+    return "bg-yellow-100 text-yellow-800 border-yellow-200";
+  };
+
+  if (isLoading) return <DashboardLayout><div className="flex justify-center py-16"><Loader2 className="h-6 w-6 animate-spin" /></div></DashboardLayout>;
+  if (!pallet) return <DashboardLayout><div className="p-6 text-muted-foreground">Pallet not found</div></DashboardLayout>;
+
+  return (
+    <DashboardLayout>
+      <div className="p-6 max-w-4xl mx-auto space-y-6">
+        {/* Header */}
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <Button variant="ghost" size="sm" onClick={() => navigate("/pallets")}><ArrowLeft className="h-4 w-4" /></Button>
+            <div>
+              <h1 className="text-2xl font-bold">{pallet.palletCode ?? `Pallet #${pallet.id}`}</h1>
+              <p className="text-muted-foreground text-sm">{pallet.projectName ?? ""}</p>
+            </div>
+          </div>
+          {isStaff && pallet.status !== "ready_to_ship" && (
+            <Button className="bg-green-600 hover:bg-green-700 text-white" size="sm" onClick={() => setShowNotify(true)}>
+              <PackageCheckIcon className="h-4 w-4 mr-2" />Mark Ready to Ship
+            </Button>
+          )}
+          {pallet.status === "ready_to_ship" && (
+            <Badge className="bg-green-100 text-green-800 border border-green-200">Ready to Ship</Badge>
+          )}
+        </div>
+
+        {/* Info Grid */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          {[
+            { label: "Status", value: pallet.status?.replace(/_/g, " ") },
+            { label: "Box Count", value: pallet.boxCount ?? "—" },
+            { label: "Storage Location", value: pallet.storageLocation ?? "—" },
+            { label: "Received", value: pallet.dateReceived ? new Date(pallet.dateReceived).toLocaleDateString() : "—" },
+          ].map(({ label, value }) => (
+            <div key={label} className="bg-muted/40 rounded-lg p-3">
+              <p className="text-xs text-muted-foreground">{label}</p>
+              <p className="font-semibold capitalize">{String(value)}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* Forwarding Location Card */}
+        <div className="border rounded-lg p-5 space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <MapPin className="h-4 w-4 text-primary" />
+              <h2 className="font-semibold">Forwarding Location</h2>
+            </div>
+            <Button variant="outline" size="sm" onClick={openForwardingEdit}>
+              <Pencil className="h-3.5 w-3.5 mr-1.5" />Edit
+            </Button>
+          </div>
+          <Separator />
+          {!pallet.forwardingAddress ? (
+            <p className="text-sm text-muted-foreground italic">No forwarding address set yet.</p>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+              <div>
+                <p className="text-xs text-muted-foreground mb-1">Address</p>
+                <p className="whitespace-pre-line">{pallet.forwardingAddress}</p>
+              </div>
+              {pallet.forwardingContact && (
+                <div>
+                  <p className="text-xs text-muted-foreground mb-1">Contact</p>
+                  <p>{pallet.forwardingContact}</p>
+                </div>
+              )}
+              {pallet.forwardingNotes && (
+                <div className="sm:col-span-2">
+                  <p className="text-xs text-muted-foreground mb-1">Notes</p>
+                  <p>{pallet.forwardingNotes}</p>
+                </div>
+              )}
+              <div>
+                <p className="text-xs text-muted-foreground mb-1">Status</p>
+                <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border ${statusColor(pallet.forwardingStatus)}`}>
+                  {pallet.forwardingStatus?.replace(/_/g, " ") ?? "pending"}
+                </span>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Notes */}
+        {pallet.notes && (
+          <div className="border rounded-lg p-5">
+            <h2 className="font-semibold mb-2">Notes</h2>
+            <p className="text-sm text-muted-foreground whitespace-pre-line">{pallet.notes}</p>
+          </div>
+        )}
+
+        {/* Forwarding Edit Dialog */}
+        <Dialog open={showForwardingEdit} onOpenChange={setShowForwardingEdit}>
+          <DialogContent>
+            <DialogHeader><DialogTitle>Edit Forwarding Location</DialogTitle></DialogHeader>
+            <div className="space-y-4 py-2">
+              <div className="space-y-1.5">
+                <Label>Forwarding Address</Label>
+                <Textarea rows={3} placeholder="123 Main St, Dallas, TX 75201" value={forwardingForm.forwardingAddress} onChange={e => setForwardingForm(f => ({ ...f, forwardingAddress: e.target.value }))} />
+              </div>
+              <div className="space-y-1.5">
+                <Label>Contact Name / Phone</Label>
+                <Input placeholder="John Doe — 214-555-0100" value={forwardingForm.forwardingContact} onChange={e => setForwardingForm(f => ({ ...f, forwardingContact: e.target.value }))} />
+              </div>
+              <div className="space-y-1.5">
+                <Label>Notes</Label>
+                <Textarea rows={2} placeholder="Delivery instructions, dock hours, etc." value={forwardingForm.forwardingNotes} onChange={e => setForwardingForm(f => ({ ...f, forwardingNotes: e.target.value }))} />
+              </div>
+              <div className="space-y-1.5">
+                <Label>Status</Label>
+                <Select value={forwardingForm.forwardingStatus} onValueChange={v => setForwardingForm(f => ({ ...f, forwardingStatus: v as "pending" | "in_transit" | "delivered" }))}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="pending">Pending</SelectItem>
+                    <SelectItem value="in_transit">In Transit</SelectItem>
+                    <SelectItem value="delivered">Delivered</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setShowForwardingEdit(false)}>Cancel</Button>
+              <Button disabled={updateForwardingMutation.isPending} onClick={() => updateForwardingMutation.mutate({ palletId, ...forwardingForm })}>
+                {updateForwardingMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}Save
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Notify Dialog */}
+        <Dialog open={showNotify} onOpenChange={setShowNotify}>
+          <DialogContent>
+            <DialogHeader><DialogTitle>Mark Ready to Ship</DialogTitle></DialogHeader>
+            <div className="space-y-3 py-2">
+              <p className="text-sm text-muted-foreground">This will notify the customer that <strong>{pallet.palletCode ?? `Pallet #${pallet.id}`}</strong> is staged and ready to ship.</p>
+              <div className="space-y-1.5">
+                <Label>Optional Message</Label>
+                <Textarea rows={3} placeholder="Add a personal note to the customer..." value={notifyMessage} onChange={e => setNotifyMessage(e.target.value)} />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setShowNotify(false)}>Cancel</Button>
+              <Button className="bg-green-600 hover:bg-green-700 text-white" disabled={notifyMutation.isPending}
+                onClick={() => notifyMutation.mutate({ itemType: "pallet", itemIds: [palletId], message: notifyMessage || undefined })}>
+                {notifyMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <PackageCheckIcon className="h-4 w-4 mr-2" />}Notify Customer
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </div>
+    </DashboardLayout>
+  );
+}

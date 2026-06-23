@@ -43,6 +43,24 @@ import {
   shipmentDocuments,
   stagingNotifications,
   type StagingNotification,
+  leads,
+  leadCampaignMessages,
+  leadQuotes,
+  dripSequences,
+  dripSequenceSteps,
+  dripEnrollments,
+  type Lead,
+  type InsertLead,
+  type LeadCampaignMessage,
+  type InsertLeadCampaignMessage,
+  type LeadQuote,
+  type InsertLeadQuote,
+  type DripSequence,
+  type InsertDripSequence,
+  type DripSequenceStep,
+  type InsertDripSequenceStep,
+  type DripEnrollment,
+  type InsertDripEnrollment,
 } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 import { nanoid } from "nanoid";
@@ -1051,4 +1069,214 @@ export async function getUsersByClientId(clientId: number) {
   if (!db) return [];
   return db.select().from(users)
     .where(eq(users.clientId, clientId));
+}
+
+// ─── Leads ────────────────────────────────────────────────────────────────────
+export async function listLeads(opts?: { search?: string; status?: string; source?: string; temperature?: string }) {
+  const db = await getDb();
+  if (!db) return [];
+  const conditions: ReturnType<typeof eq>[] = [];
+  if (opts?.status) conditions.push(eq(leads.status, opts.status as Lead["status"]));
+  if (opts?.source) conditions.push(eq(leads.source, opts.source as Lead["source"]));
+  if (opts?.temperature) conditions.push(eq(leads.temperature, opts.temperature as Lead["temperature"]));
+  const base = conditions.length > 0
+    ? db.select().from(leads).where(and(...conditions))
+    : db.select().from(leads);
+  if (opts?.search) {
+    return db.select().from(leads).where(
+      or(
+        like(leads.companyName, `%${opts.search}%`),
+        like(leads.contactName, `%${opts.search}%`),
+        like(leads.email, `%${opts.search}%`),
+        like(leads.city, `%${opts.search}%`),
+        like(leads.industry, `%${opts.search}%`)
+      )
+    ).orderBy(desc(leads.createdAt));
+  }
+  return base.orderBy(desc(leads.createdAt));
+}
+
+export async function getLead(id: number): Promise<Lead | undefined> {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(leads).where(eq(leads.id, id)).limit(1);
+  return result[0];
+}
+
+export async function createLead(data: InsertLead): Promise<{ id: number }> {
+  const db = await getDb();
+  if (!db) throw new Error("DB unavailable");
+  const result = await db.insert(leads).values(data);
+  return { id: (result[0] as any).insertId as number };
+}
+
+export async function updateLead(id: number, data: Partial<InsertLead>): Promise<void> {
+  const db = await getDb();
+  if (!db) throw new Error("DB unavailable");
+  await db.update(leads).set(data).where(eq(leads.id, id));
+}
+
+export async function deleteLead(id: number): Promise<void> {
+  const db = await getDb();
+  if (!db) throw new Error("DB unavailable");
+  await db.delete(leads).where(eq(leads.id, id));
+}
+
+export async function countLeadsByStatus(): Promise<{ status: string; count: number }[]> {
+  const db = await getDb();
+  if (!db) return [];
+  const result = await db.select({
+    status: leads.status,
+    count: sql<number>`count(*)`,
+  }).from(leads).groupBy(leads.status);
+  return result.map(r => ({ status: r.status, count: Number(r.count) }));
+}
+
+// ─── Lead Campaign Messages ───────────────────────────────────────────────────
+export async function listLeadMessages(leadId: number): Promise<LeadCampaignMessage[]> {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(leadCampaignMessages).where(eq(leadCampaignMessages.leadId, leadId)).orderBy(desc(leadCampaignMessages.createdAt));
+}
+
+export async function createLeadMessage(data: InsertLeadCampaignMessage): Promise<{ id: number }> {
+  const db = await getDb();
+  if (!db) throw new Error("DB unavailable");
+  const result = await db.insert(leadCampaignMessages).values(data);
+  return { id: (result[0] as any).insertId as number };
+}
+
+export async function deleteLeadMessage(id: number): Promise<void> {
+  const db = await getDb();
+  if (!db) throw new Error("DB unavailable");
+  await db.delete(leadCampaignMessages).where(eq(leadCampaignMessages.id, id));
+}
+
+// ─── Lead Quotes ──────────────────────────────────────────────────────────────
+export async function listLeadQuotes(leadId: number): Promise<LeadQuote[]> {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(leadQuotes).where(eq(leadQuotes.leadId, leadId)).orderBy(desc(leadQuotes.createdAt));
+}
+
+export async function createLeadQuote(data: InsertLeadQuote): Promise<{ id: number }> {
+  const db = await getDb();
+  if (!db) throw new Error("DB unavailable");
+  const result = await db.insert(leadQuotes).values(data);
+  return { id: (result[0] as any).insertId as number };
+}
+
+export async function updateLeadQuote(id: number, data: Partial<InsertLeadQuote>): Promise<void> {
+  const db = await getDb();
+  if (!db) throw new Error("DB unavailable");
+  await db.update(leadQuotes).set(data).where(eq(leadQuotes.id, id));
+}
+
+export async function deleteLeadQuote(id: number): Promise<void> {
+  const db = await getDb();
+  if (!db) throw new Error("DB unavailable");
+  await db.delete(leadQuotes).where(eq(leadQuotes.id, id));
+}
+
+// ─── Drip Sequences ───────────────────────────────────────────────────────────
+export async function listDripSequences(): Promise<DripSequence[]> {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(dripSequences).orderBy(desc(dripSequences.createdAt));
+}
+
+export async function getDripSequence(id: number): Promise<DripSequence | undefined> {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(dripSequences).where(eq(dripSequences.id, id)).limit(1);
+  return result[0];
+}
+
+export async function createDripSequence(data: InsertDripSequence): Promise<{ id: number }> {
+  const db = await getDb();
+  if (!db) throw new Error("DB unavailable");
+  const result = await db.insert(dripSequences).values(data);
+  return { id: (result[0] as any).insertId as number };
+}
+
+export async function updateDripSequence(id: number, data: Partial<InsertDripSequence>): Promise<void> {
+  const db = await getDb();
+  if (!db) throw new Error("DB unavailable");
+  await db.update(dripSequences).set(data).where(eq(dripSequences.id, id));
+}
+
+export async function deleteDripSequence(id: number): Promise<void> {
+  const db = await getDb();
+  if (!db) throw new Error("DB unavailable");
+  await db.delete(dripSequences).where(eq(dripSequences.id, id));
+}
+
+// ─── Drip Sequence Steps ──────────────────────────────────────────────────────
+export async function listDripSteps(sequenceId: number): Promise<DripSequenceStep[]> {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(dripSequenceSteps).where(eq(dripSequenceSteps.sequenceId, sequenceId)).orderBy(dripSequenceSteps.stepNumber);
+}
+
+export async function createDripStep(data: InsertDripSequenceStep): Promise<{ id: number }> {
+  const db = await getDb();
+  if (!db) throw new Error("DB unavailable");
+  const result = await db.insert(dripSequenceSteps).values(data);
+  return { id: (result[0] as any).insertId as number };
+}
+
+export async function updateDripStep(id: number, data: Partial<InsertDripSequenceStep>): Promise<void> {
+  const db = await getDb();
+  if (!db) throw new Error("DB unavailable");
+  await db.update(dripSequenceSteps).set(data).where(eq(dripSequenceSteps.id, id));
+}
+
+export async function deleteDripStep(id: number): Promise<void> {
+  const db = await getDb();
+  if (!db) throw new Error("DB unavailable");
+  await db.delete(dripSequenceSteps).where(eq(dripSequenceSteps.id, id));
+}
+
+// ─── Drip Enrollments ─────────────────────────────────────────────────────────
+export async function listDripEnrollments(opts?: { leadId?: number; sequenceId?: number }): Promise<DripEnrollment[]> {
+  const db = await getDb();
+  if (!db) return [];
+  const conditions = [];
+  if (opts?.leadId) conditions.push(eq(dripEnrollments.leadId, opts.leadId));
+  if (opts?.sequenceId) conditions.push(eq(dripEnrollments.sequenceId, opts.sequenceId));
+  if (conditions.length > 0) {
+    return db.select().from(dripEnrollments).where(and(...conditions)).orderBy(desc(dripEnrollments.enrolledAt));
+  }
+  return db.select().from(dripEnrollments).orderBy(desc(dripEnrollments.enrolledAt));
+}
+
+export async function getDripEnrollment(id: number): Promise<DripEnrollment | undefined> {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(dripEnrollments).where(eq(dripEnrollments.id, id)).limit(1);
+  return result[0];
+}
+
+export async function enrollLeadInDrip(data: InsertDripEnrollment): Promise<{ id: number }> {
+  const db = await getDb();
+  if (!db) throw new Error("DB unavailable");
+  const result = await db.insert(dripEnrollments).values(data);
+  return { id: (result[0] as any).insertId as number };
+}
+
+export async function updateDripEnrollment(id: number, data: Partial<InsertDripEnrollment>): Promise<void> {
+  const db = await getDb();
+  if (!db) throw new Error("DB unavailable");
+  await db.update(dripEnrollments).set(data).where(eq(dripEnrollments.id, id));
+}
+
+export async function listDueEnrollments(): Promise<DripEnrollment[]> {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(dripEnrollments).where(
+    and(
+      eq(dripEnrollments.status, "active"),
+      sql`${dripEnrollments.nextSendAt} IS NOT NULL AND ${dripEnrollments.nextSendAt} <= NOW()`
+    )
+  ).orderBy(dripEnrollments.nextSendAt);
 }

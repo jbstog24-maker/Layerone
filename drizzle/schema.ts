@@ -496,3 +496,101 @@ export const stagingNotifications = mysqlTable("staging_notifications", {
 });
 export type StagingNotification = typeof stagingNotifications.$inferSelect;
 export type InsertStagingNotification = typeof stagingNotifications.$inferInsert;
+
+// ─── Leads ────────────────────────────────────────────────────────────────────
+export const leads = mysqlTable("leads", {
+  id: int("id").primaryKey().autoincrement(),
+  companyName: varchar("companyName", { length: 256 }).notNull(),
+  contactName: varchar("contactName", { length: 256 }),
+  contactTitle: varchar("contactTitle", { length: 256 }),
+  email: varchar("email", { length: 256 }),
+  phone: varchar("phone", { length: 64 }),
+  website: varchar("website", { length: 512 }),
+  address: text("address"),
+  city: varchar("city", { length: 128 }),
+  state: varchar("state", { length: 64 }),
+  industry: varchar("industry", { length: 128 }),
+  employeeCount: varchar("employeeCount", { length: 64 }),
+  annualRevenue: varchar("annualRevenue", { length: 64 }),
+  source: mysqlEnum("source", ["manual", "inquiry_form", "google_maps", "referral", "linkedin", "other"]).default("manual").notNull(),
+  status: mysqlEnum("status", ["new", "contacted", "qualified", "proposal_sent", "negotiating", "won", "lost", "on_hold", "unqualified", "follow_up", "demo_scheduled"]).default("new").notNull(),
+  temperature: mysqlEnum("temperature", ["cold", "warm", "hot"]).default("cold").notNull(),
+  score: int("score").default(0),
+  notes: text("notes"),
+  placeId: varchar("placeId", { length: 512 }),
+  assignedToUserId: int("assignedToUserId"),
+  convertedToClientId: int("convertedToClientId"),
+  lastContactedAt: timestamp("lastContactedAt"),
+  nextFollowUpAt: timestamp("nextFollowUpAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type Lead = typeof leads.$inferSelect;
+export type InsertLead = typeof leads.$inferInsert;
+
+export const leadCampaignMessages = mysqlTable("lead_campaign_messages", {
+  id: int("id").primaryKey().autoincrement(),
+  leadId: int("leadId").notNull(),
+  type: mysqlEnum("type", ["cold_email", "follow_up_email", "linkedin_message", "call_script", "sms"]).notNull(),
+  subject: varchar("subject", { length: 512 }),
+  body: text("body").notNull(),
+  generatedByAi: boolean("generatedByAi").default(true).notNull(),
+  sentAt: timestamp("sentAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type LeadCampaignMessage = typeof leadCampaignMessages.$inferSelect;
+export type InsertLeadCampaignMessage = typeof leadCampaignMessages.$inferInsert;
+
+export const leadQuotes = mysqlTable("lead_quotes", {
+  id: int("id").primaryKey().autoincrement(),
+  leadId: int("leadId").notNull(),
+  title: varchar("title", { length: 256 }).notNull(),
+  tier: varchar("tier", { length: 64 }),
+  deviceCount: int("deviceCount"),
+  monthlyRate: varchar("monthlyRate", { length: 64 }),
+  setupFee: varchar("setupFee", { length: 64 }),
+  notes: text("notes"),
+  status: mysqlEnum("status", ["draft", "sent", "accepted", "rejected"]).default("draft").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type LeadQuote = typeof leadQuotes.$inferSelect;
+export type InsertLeadQuote = typeof leadQuotes.$inferInsert;
+
+// ─── Drip Sequences ───────────────────────────────────────────────────────────
+export const dripSequences = mysqlTable("drip_sequences", {
+  id: int("id").primaryKey().autoincrement(),
+  name: varchar("name", { length: 256 }).notNull(),
+  description: text("description"),
+  isActive: boolean("isActive").default(true).notNull(),
+  createdByUserId: int("createdByUserId"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type DripSequence = typeof dripSequences.$inferSelect;
+export type InsertDripSequence = typeof dripSequences.$inferInsert;
+
+export const dripSequenceSteps = mysqlTable("drip_sequence_steps", {
+  id: int("id").primaryKey().autoincrement(),
+  sequenceId: int("sequenceId").notNull(),
+  stepNumber: int("stepNumber").notNull(),
+  delayDays: int("delayDays").default(0).notNull(),
+  subject: varchar("subject", { length: 512 }).notNull(),
+  body: text("body").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type DripSequenceStep = typeof dripSequenceSteps.$inferSelect;
+export type InsertDripSequenceStep = typeof dripSequenceSteps.$inferInsert;
+
+export const dripEnrollments = mysqlTable("drip_enrollments", {
+  id: int("id").primaryKey().autoincrement(),
+  sequenceId: int("sequenceId").notNull(),
+  leadId: int("leadId").notNull(),
+  currentStep: int("currentStep").default(0).notNull(),
+  status: mysqlEnum("status", ["active", "paused", "completed", "unsubscribed"]).default("active").notNull(),
+  nextSendAt: timestamp("nextSendAt"),
+  enrolledAt: timestamp("enrolledAt").defaultNow().notNull(),
+  completedAt: timestamp("completedAt"),
+  enrolledByUserId: int("enrolledByUserId"),
+});
+export type DripEnrollment = typeof dripEnrollments.$inferSelect;
+export type InsertDripEnrollment = typeof dripEnrollments.$inferInsert;
