@@ -15,7 +15,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
-import { Server, Plus, ChevronRight, Search, Cpu, MapPin, CheckCircle2, Truck, Clock, Pencil, PackageCheck, Upload, FileText, AlertCircle } from "lucide-react";
+import { Server, Plus, ChevronRight, Search, Cpu, MapPin, CheckCircle2, Truck, Clock, Pencil, PackageCheck, Upload, FileText, AlertCircle, Download } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { useAuth } from "@/_core/hooks/useAuth";
 
@@ -214,6 +214,16 @@ export function DevicesList() {
         action={
           canCreate ? (
             <div className="flex gap-2">
+              <Button variant="outline" size="sm" onClick={() => {
+                if (!devices?.length) { return; }
+                const rows = devices.map(d => ({ id: d.id, deviceCode: d.deviceCode, serialNumber: d.serialNumber ?? "", macAddress: d.macAddress ?? "", model: d.model ?? "", brand: d.brand ?? "", deviceType: d.deviceType ?? "", stagingStatus: d.stagingStatus, clientId: d.clientId ?? "" }));
+                const keys = Object.keys(rows[0]);
+                const lines = [keys.join(","), ...rows.map(r => keys.map(k => JSON.stringify((r as any)[k] ?? "")).join(","))];
+                const blob = new Blob([lines.join("\n")], { type: "text/csv" });
+                const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "devices.csv"; a.click(); URL.revokeObjectURL(a.href);
+              }}>
+                <Download className="w-4 h-4 mr-1" /> Export CSV
+              </Button>
               <Button variant="outline" size="sm" onClick={() => { setShowImport(true); setCsvPreview([]); setCsvError(""); }}>
                 <Upload className="w-4 h-4 mr-1" /> Import CSV
               </Button>

@@ -11,6 +11,8 @@ import { serveStatic, setupVite } from "./vite";
 import { registerStripeRoutes } from "../stripe";
 import { handleMonthlyInvoices, handleDripAutoSend, handleLeadScoreDecay } from "../scheduledHandlers";
 import rateLimit from "express-rate-limit";
+import { getLandingPageHtml } from "../landingPage";
+import { ENV } from "./env";
 
 // Rate limiters — disabled in development to avoid friction
 const apiLimiter = rateLimit({
@@ -75,6 +77,47 @@ async function startServer() {
       createContext,
     })
   );
+  // ── Public landing page at GET / ──────────────────────────────────────────
+  // Serves fully-rendered HTML so crawlers and ingestion tools see real content
+  // on the initial HTTP response. The React bundle still loads and hydrates for
+  // authenticated users.
+  app.get("/", (req, res, next) => {
+    // Let Vite handle it in development so HMR still works, but inject our
+    // landing page content into the HTML template via a custom placeholder.
+    // In production we serve the HTML directly.
+    if (process.env.NODE_ENV !== "production") {
+      // In dev, fall through to Vite — the React app handles the landing page
+      // via the LandingPage component which is already SSR-friendly.
+      return next();
+    }
+    const origin = `${req.protocol}://${req.get("host")}`;
+    const appId = process.env.VITE_APP_ID ?? "";
+    const oauthPortalUrl = process.env.VITE_OAUTH_PORTAL_URL ?? "";
+    const redirectUri = `${origin}/api/oauth/callback`;
+    const state = Buffer.from(redirectUri).toString("base64");
+    const loginUrl = `${oauthPortalUrl}/app-auth?appId=${encodeURIComponent(appId)}&redirectUri=${encodeURIComponent(redirectUri)}&state=${encodeURIComponent(state)}&type=signIn`;
+    const appTitle = process.env.VITE_APP_TITLE ?? "StagingOps Portal";
+    const html = getLandingPageHtml({
+      appTitle,
+      analyticsEndpoint: process.env.VITE_ANALYTICS_ENDPOINT,
+      analyticsWebsiteId: process.env.VITE_ANALYTICS_WEBSITE_ID,
+      loginUrl,
+    });
+    res.status(200).set({ "Content-Type": "text/html; charset=utf-8" }).end(html);
+  });
+
+  // ── OAuth start redirect (used by landing page Sign In links) ───────────────
+  // Builds the correct OAuth URL server-side so the landing page doesn't need JS.
+  app.get("/api/oauth/start", (req, res) => {
+    const origin = `${req.protocol}://${req.get("host")}`;
+    const appId = process.env.VITE_APP_ID ?? "";
+    const oauthPortalUrl = process.env.VITE_OAUTH_PORTAL_URL ?? "";
+    const redirectUri = `${origin}/api/oauth/callback`;
+    const state = Buffer.from(redirectUri).toString("base64");
+    const loginUrl = `${oauthPortalUrl}/app-auth?appId=${encodeURIComponent(appId)}&redirectUri=${encodeURIComponent(redirectUri)}&state=${encodeURIComponent(state)}&type=signIn`;
+    res.redirect(302, loginUrl);
+  });
+
   // development mode uses Vite, production mode uses static files
   if (process.env.NODE_ENV === "development") {
     await setupVite(app, server);

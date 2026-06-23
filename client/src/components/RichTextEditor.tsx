@@ -243,7 +243,7 @@ export default function RichTextEditor({
       Placeholder.configure({ placeholder }),
     ],
     content: value,
-    onUpdate: ({ editor }) => {
+    onUpdate: ({ editor }: { editor: Editor }) => {
       onChange(editor.getHTML());
     },
     editorProps: {

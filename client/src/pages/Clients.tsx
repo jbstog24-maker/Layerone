@@ -115,6 +115,15 @@ function ClientForm({ onClose, clientId }: { onClose: () => void; clientId?: num
   );
 }
 
+function exportToCSV(rows: Record<string, unknown>[], filename: string) {
+  if (!rows.length) { toast.info("No data to export"); return; }
+  const keys = Object.keys(rows[0]);
+  const lines = [keys.join(","), ...rows.map(r => keys.map(k => JSON.stringify(r[k] ?? "")).join(","))];
+  const blob = new Blob([lines.join("\n")], { type: "text/csv" });
+  const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = filename; a.click();
+  URL.revokeObjectURL(a.href);
+}
+
 export function ClientsList() {
   const [showArchived, setShowArchived] = useState(false);
   const [search, setSearch] = useState("");
@@ -138,6 +147,9 @@ export function ClientsList() {
         subtitle="Manage client accounts and company profiles"
         action={
           <div className="flex gap-2">
+            <Button variant="outline" size="sm" onClick={() => exportToCSV((clients ?? []).map(c => ({ id: c.id, accountNumber: (c as any).accountNumber ?? "", company: c.companyName, contact: c.contactName ?? "", email: c.contactEmail ?? "", phone: c.contactPhone ?? "", status: c.status, createdAt: new Date(c.createdAt).toLocaleDateString() })), "clients.csv")}>
+              <Download className="w-4 h-4 mr-1" /> Export CSV
+            </Button>
             <Button variant="outline" size="sm" onClick={() => setShowArchived(v => !v)}>
               {showArchived ? <><ArchiveRestore className="w-4 h-4 mr-1" /> Active Clients</> : <><Archive className="w-4 h-4 mr-1" /> Archived</>}
             </Button>

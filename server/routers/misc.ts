@@ -210,4 +210,15 @@ export const usersRouter = router({
       await logActivity({ userId: ctx.user.id, action: `Resent portal invite to ${user.email}`, entityType: "user", entityId: user.id });
       return { success: true };
     }),
+
+  markTourSeen: protectedProcedure.mutation(async ({ ctx }) => {
+    await updateUser(ctx.user.id, { hasSeenTour: true } as any);
+    return { success: true };
+  }),
+
+  resetTour: protectedProcedure.mutation(async ({ ctx }) => {
+    // Allows a user to replay the tour from the Help page
+    await updateUser(ctx.user.id, { hasSeenTour: false } as any);
+    return { success: true };
+  }),
 });

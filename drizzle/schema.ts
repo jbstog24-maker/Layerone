@@ -25,6 +25,7 @@ export const users = mysqlTable("users", {
   jobTitle: varchar("jobTitle", { length: 128 }),
   department: varchar("department", { length: 128 }),
   isActive: boolean("isActive").default(true).notNull(),
+  hasSeenTour: boolean("hasSeenTour").default(false).notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
   lastSignedIn: timestamp("lastSignedIn").defaultNow().notNull(),

@@ -565,3 +565,20 @@
 - [x] Install express-rate-limit and apply apiLimiter (300/min) + authLimiter (30/15min) in production
 - [x] Confirm customer portal scoping: messages and support tickets already enforce ctx.user.clientId
 - [x] All 109 tests passing, 0 TypeScript errors
+
+## Onboarding Tour & Help Center
+
+- [ ] Add hasSeenTour boolean column to users table + migration
+- [ ] Add users.markTourSeen tRPC procedure
+- [ ] Build OnboardingTour component (role-aware step overlay, fires once on first login)
+- [ ] Build HelpCenter page (/help) with searchable feature docs for every nav section
+- [ ] Add Help nav item to sidebar (all roles)
+- [ ] Wire /help route in App.tsx
+- [ ] Add "?" help button to DashboardLayout header that re-launches the tour
+
+## SSR Landing Page (root URL)
+
+- [x] Audit Express/Vite server routing for root URL handling
+- [x] Add Express GET / route that returns fully-rendered HTML with real landing page content
+- [x] Ensure React SPA hydrates correctly after SSR HTML is served
+- [x] Verify crawler-visible HTML with curl, run tests, save checkpoint
