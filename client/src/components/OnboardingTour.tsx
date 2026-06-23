@@ -295,6 +295,9 @@ function TourTooltip({ step, stepIndex, totalSteps, onNext, onPrev, onSkip, spot
     };
   }
 
+  // Progress percentage for the filled bar
+  const progressPct = totalSteps > 1 ? (stepIndex / (totalSteps - 1)) * 100 : 100;
+
   return (
     <div
       style={cardStyle}
@@ -312,31 +315,43 @@ function TourTooltip({ step, stepIndex, totalSteps, onNext, onPrev, onSkip, spot
           onClick={onSkip}
           className="text-muted-foreground hover:text-foreground transition-colors shrink-0 mt-0.5"
           aria-label="Close tour"
+          title="Close tour"
         >
           <X className="w-4 h-4" />
         </button>
       </div>
 
+      {/* Visual progress bar */}
+      <div className="mb-3">
+        <div className="flex items-center justify-between mb-1.5">
+          <span className="text-[11px] font-medium text-muted-foreground">
+            Step {stepIndex + 1} of {totalSteps}
+          </span>
+          <span className="text-[11px] text-muted-foreground/60">
+            {Math.round(progressPct)}% complete
+          </span>
+        </div>
+        <div className="h-1.5 w-full rounded-full bg-muted overflow-hidden">
+          <div
+            className="h-full rounded-full bg-primary transition-all duration-300 ease-out"
+            style={{ width: `${progressPct}%` }}
+          />
+        </div>
+      </div>
+
       {/* Description */}
       <p className="text-sm text-muted-foreground leading-relaxed mb-4">{step.description}</p>
 
-      {/* Footer */}
+      {/* Footer: navigation buttons */}
       <div className="flex items-center justify-between gap-2">
-        <div className="flex items-center gap-1.5">
-          <span className="text-xs text-muted-foreground">
-            {stepIndex + 1} / {totalSteps}
-          </span>
-          <div className="flex gap-1">
-            {Array.from({ length: totalSteps }).map((_, i) => (
-              <div
-                key={i}
-                className={`h-1.5 rounded-full transition-all duration-200 ${
-                  i === stepIndex ? "w-4 bg-primary" : "w-1.5 bg-muted-foreground/30"
-                }`}
-              />
-            ))}
-          </div>
-        </div>
+        {/* Skip Tour — always visible on every step */}
+        <button
+          onClick={onSkip}
+          className="text-xs text-muted-foreground hover:text-foreground transition-colors underline-offset-2 hover:underline"
+        >
+          Skip tour
+        </button>
+
         <div className="flex gap-2">
           {!isFirst && (
             <Button size="sm" variant="ghost" onClick={onPrev} className="h-7 px-2 text-xs gap-1">
@@ -349,15 +364,6 @@ function TourTooltip({ step, stepIndex, totalSteps, onNext, onPrev, onSkip, spot
           </Button>
         </div>
       </div>
-
-      {isFirst && (
-        <button
-          onClick={onSkip}
-          className="mt-3 w-full text-center text-xs text-muted-foreground hover:text-foreground transition-colors"
-        >
-          Skip tour
-        </button>
-      )}
     </div>
   );
 }
