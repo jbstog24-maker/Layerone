@@ -480,7 +480,7 @@ function ClientMessageThread({ clientId, isAdminOrStaff }: { clientId: number; i
             value={body}
             onChange={(e) => setBody(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder={isAdminOrStaff ? "Reply to client…" : "Message NSDS team…"}
+            placeholder={isAdminOrStaff ? "Reply to client…" : "Message Layer One team…"}
             className="resize-none min-h-[60px] max-h-32 text-sm bg-background/50"
             rows={2}
           />

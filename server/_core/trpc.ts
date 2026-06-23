@@ -40,11 +40,11 @@ export const customerProcedure = t.procedure.use(
     }
     // Customer must have a linked client that is active or onboarding
     if (!ctx.user.clientId) {
-      throw new TRPCError({ code: "FORBIDDEN", message: "Your account is pending approval. Please contact NSDS to get access." });
+      throw new TRPCError({ code: "FORBIDDEN", message: "Your account is pending approval. Please contact Layer One to get access." });
     }
     const client = await getClient(ctx.user.clientId);
     if (!client || (client.status !== "active" && client.status !== "onboarding")) {
-      throw new TRPCError({ code: "FORBIDDEN", message: "Your account is not currently active. Please contact NSDS support." });
+      throw new TRPCError({ code: "FORBIDDEN", message: "Your account is not currently active. Please contact Layer One support." });
     }
     return next({ ctx: { ...ctx, user: ctx.user } });
   }),

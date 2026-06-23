@@ -69,7 +69,7 @@ const CAPTION_TEMPLATES = [
   },
   {
     label: "Team & Expertise",
-    desc: "Professional NSDS IT staging team collaborating around servers and network equipment, confident and expert, modern DFW warehouse facility",
+    desc: "Professional Layer One IT staging team collaborating around servers and network equipment, confident and expert, modern DFW warehouse facility",
   },
   {
     label: "Customer Portal",
@@ -81,32 +81,32 @@ const CAPTION_TEMPLATES = [
 const IMAGE_TEMPLATES = [
   {
     label: "Warehouse Operations",
-    title: "NSDS Warehouse Operations",
+    title: "Layer One Warehouse Operations",
     prompt: "Modern IT hardware staging warehouse with organized rows of servers and network equipment on pallets, professional lighting, workers in branded uniforms, clean industrial environment",
   },
   {
     label: "Device Staging",
-    title: "NSDS Device Staging Lab",
+    title: "Layer One Device Staging Lab",
     prompt: "Technicians staging and configuring laptops and network switches on clean workbenches, professional IT lab environment, organized cables, multiple monitors showing configuration screens",
   },
   {
     label: "Secure Shipping",
-    title: "NSDS Secure Shipping",
+    title: "Layer One Secure Shipping",
     prompt: "Professionally packed IT equipment in branded boxes on pallets ready for shipment, warehouse dock, logistics team, clean and organized",
   },
   {
     label: "Customer Portal",
-    title: "StagingOps Portal Dashboard",
+    title: "Layer One Portal Dashboard",
     prompt: "Modern dark-themed operations dashboard on a large monitor showing device tracking, shipment status, and staging progress charts, professional office environment",
   },
   {
     label: "Team & Expertise",
-    title: "NSDS Expert Team",
-    prompt: "Professional IT staging team collaborating around servers and network equipment, confident and expert, modern warehouse facility, NSDS branding",
+    title: "Layer One Expert Team",
+    prompt: "Professional IT staging team collaborating around servers and network equipment, confident and expert, modern warehouse facility, Layer One branding",
   },
   {
     label: "DFW Headquarters",
-    title: "NSDS DFW Headquarters",
+    title: "Layer One DFW Headquarters",
     prompt: "Aerial view of modern Dallas-Fort Worth logistics and technology facility, professional exterior, branded signage, fleet vehicles, corporate campus",
   },
 ];
@@ -122,28 +122,28 @@ const VIDEO_DURATIONS = [
 const VIDEO_TEMPLATES = [
   {
     label: "Brand Overview",
-    title: "NSDS Brand Overview 2026",
-    concept: "NSDS company overview highlighting our end-to-end IT staging and deployment services for MSPs and enterprise IT teams in the DFW area",
+    title: "Layer One Brand Overview 2026",
+    concept: "Layer One company overview highlighting our end-to-end IT staging and deployment services for MSPs and enterprise IT teams in the DFW area",
   },
   {
     label: "Customer Success",
-    title: "How NSDS Saves IT Teams Time",
-    concept: "How NSDS helps IT teams save time and reduce errors by handling device staging, imaging, and deployment prep so they can focus on their core business",
+    title: "How Layer One Saves IT Teams Time",
+    concept: "How Layer One helps IT teams save time and reduce errors by handling device staging, imaging, and deployment prep so they can focus on their core business",
   },
   {
     label: "Service Walkthrough",
-    title: "NSDS Staging Process Walkthrough",
-    concept: "Step-by-step walkthrough of the NSDS staging process: receiving, organizing, staging, imaging, packing, and shipping IT hardware",
+    title: "Layer One Staging Process Walkthrough",
+    concept: "Step-by-step walkthrough of the Layer One staging process: receiving, organizing, staging, imaging, packing, and shipping IT hardware",
   },
   {
     label: "Portal Demo",
-    title: "StagingOps Portal Demo",
+    title: "Layer One Staging Solutions Portal Demo",
     concept: "Demo of the StagingOps customer portal showing real-time device tracking, forwarding addresses, shipment status, and document management",
   },
   {
-    label: "Why Choose NSDS",
-    title: "Why Choose NSDS",
-    concept: "Key differentiators of NSDS: DFW-based, secure facility, certified technicians, chain-of-custody tracking, and dedicated customer portal",
+    label: "Why Choose Layer One",
+    title: "Why Choose Layer One",
+    concept: "Key differentiators of Layer One: DFW-based, secure facility, certified technicians, chain-of-custody tracking, and dedicated customer portal",
   },
 ];
 
@@ -300,7 +300,7 @@ export default function ContentStudio() {
             Content Studio
           </h1>
           <p className="text-slate-400 text-sm mt-1">
-            Generate AI-powered marketing images and video production packages for NSDS
+            Generate AI-powered marketing images and video production packages for Layer One
           </p>
         </div>
         <Link href="/content-gallery">
@@ -580,7 +580,7 @@ export default function ContentStudio() {
                   <div className="space-y-1.5">
                     <Label className="text-slate-300 text-xs">Video Title *</Label>
                     <Input
-                      placeholder="e.g. NSDS Brand Overview 2026"
+                      placeholder="e.g. Layer One Brand Overview 2026"
                       value={videoTitle}
                       onChange={(e) => setVideoTitle(e.target.value)}
                       className="bg-slate-800 border-slate-600 text-white placeholder:text-slate-500"

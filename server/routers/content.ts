@@ -58,9 +58,9 @@ export const contentRouter = router({
             messages: [
               {
                 role: "system",
-                content: `You are a professional marketing image prompt engineer for NSDS (Network Staging & Deployment Solutions), a B2B IT hardware staging and deployment company based in Dallas-Fort Worth, TX. 
+                content: `You are a professional marketing image prompt engineer for Layer One Staging Solutions, a B2B IT hardware staging and deployment company based in Dallas-Fort Worth, TX. 
 Enhance the user's image prompt to be highly detailed, visually compelling, and suitable for professional B2B marketing materials. 
-Focus on: clean modern aesthetics, professional lighting, corporate/industrial settings, IT hardware (servers, network equipment, laptops), warehouse/staging environments, and NSDS brand colors (deep navy blue #07111f, electric blue #39a7ff, mint green #6ee7b7).
+Focus on: clean modern aesthetics, professional lighting, corporate/industrial settings, IT hardware (servers, network equipment, laptops), warehouse/staging environments, and Layer One brand colors (deep navy blue #07111f, electric blue #39a7ff, mint green #6ee7b7).
 Return ONLY the enhanced prompt text, nothing else.`,
               },
               {
@@ -148,9 +148,9 @@ Return ONLY the enhanced prompt text, nothing else.`,
           messages: [
             {
               role: "system",
-              content: `You are a professional marketing video producer for NSDS (Network Staging & Deployment Solutions), a B2B IT hardware staging and deployment company in Dallas-Fort Worth, TX.
+              content: `You are a professional marketing video producer for Layer One Staging Solutions, a B2B IT hardware staging and deployment company in Dallas-Fort Worth, TX.
 Create a complete video production package for a ${input.duration} marketing video.
-NSDS brand: deep navy #07111f, electric blue #39a7ff, mint green #6ee7b7. Services: device receiving, staging, imaging, packing, shipping, customer portal.
+Layer One brand: deep navy #07111f, electric blue #39a7ff, mint green #6ee7b7. Services: device receiving, staging, imaging, packing, shipping, customer portal.
 Return JSON only.`,
             },
             {
@@ -212,7 +212,7 @@ Return JSON with this exact structure:
         if (videoPackage?.scenes?.[0]?.visual) {
           try {
             const thumbResult = await generateImage({
-              prompt: `Professional marketing video storyboard frame: ${videoPackage.scenes[0].visual}. NSDS brand colors, navy blue background, clean corporate style, 16:9 aspect ratio.`,
+              prompt: `Professional marketing video storyboard frame: ${videoPackage.scenes[0].visual}. Layer One brand colors, navy blue background, clean corporate style, 16:9 aspect ratio.`,
             });
             thumbnailUrl = thumbResult.url ?? null;
           } catch {
@@ -385,9 +385,9 @@ Return JSON with this exact structure:
         messages: [
           {
             role: "system",
-            content: `You are a professional social media copywriter for NSDS (Network Staging & Deployment Solutions), a B2B IT hardware staging and deployment company based in Dallas-Fort Worth, TX.
+            content: `You are a professional social media copywriter for Layer One Staging Solutions, a B2B IT hardware staging and deployment company based in Dallas-Fort Worth, TX.
 
-NSDS services: device receiving, organizing, staging, imaging, packing, shipping, and deployment prep for MSPs, cabling contractors, security installers, and enterprise IT rollout teams.
+Layer One services: device receiving, organizing, staging, imaging, packing, shipping, and deployment prep for MSPs, cabling contractors, security installers, and enterprise IT rollout teams.
 Brand voice: expert, trustworthy, efficient, DFW-proud.
 Brand colors: deep navy #07111f, electric blue #39a7ff, mint green #6ee7b7.
 Website: nsds.io

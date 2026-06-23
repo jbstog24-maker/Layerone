@@ -49,11 +49,11 @@ const DOCS: DocSection[] = [
     title: "Getting Started",
     icon: Star,
     roles: ["all"],
-    summary: "Everything you need to know to get up and running on the StagingOps Portal.",
+    summary: "Everything you need to know to get up and running on the Layer One Staging Solutions Portal.",
     articles: [
       {
-        title: "What is the StagingOps Portal?",
-        body: "StagingOps Portal is an operations management platform for network equipment staging, warehousing, and logistics. It connects your internal team with your clients so everyone has real-time visibility into device status, shipments, invoices, and support.\n\nAdmin and staff users manage the day-to-day operations. Customer users (client admins and viewers) log in to track their own devices, shipments, and invoices without needing to call or email for updates.",
+        title: "What is the Layer One Staging Solutions Portal?",
+        body: "Layer One Staging Solutions Portal is an operations management platform for network equipment staging, warehousing, and logistics. It connects your internal team with your clients so everyone has real-time visibility into device status, shipments, invoices, and support.\n\nAdmin and staff users manage the day-to-day operations. Customer users (client admins and viewers) log in to track their own devices, shipments, and invoices without needing to call or email for updates.",
       },
       {
         title: "Logging in for the first time",
@@ -105,7 +105,7 @@ const DOCS: DocSection[] = [
     articles: [
       {
         title: "Creating a new client",
-        body: "Click 'New Client' in the top-right corner of the Clients page. Fill in the company name, primary contact details, billing email, and select a service package. The system will automatically generate a unique account number (e.g. NSDS-00042) when the record is saved.\n\nThe client starts in 'Onboarding' status. Move them to 'Active' once the contract is signed and the first payment is received.",
+        body: "Click 'New Client' in the top-right corner of the Clients page. Fill in the company name, primary contact details, billing email, and select a service package. The system will automatically generate a unique account number (e.g. Layer One-00042) when the record is saved.\n\nThe client starts in 'Onboarding' status. Move them to 'Active' once the contract is signed and the first payment is received.",
         tips: [
           "The account number is permanent and used on all invoices and shipment labels.",
           "You can assign a package later — leave it blank if the client is still in negotiation.",

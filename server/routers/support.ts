@@ -60,7 +60,7 @@ export const supportRouter = router({
         description: input.description,
         status: "open",
       });
-      // Notify NSDS staff via email (non-blocking)
+      // Notify Layer One staff via email (non-blocking)
       sendSupportTicketEmail({
         ticketSubject: input.subject,
         category: input.category,

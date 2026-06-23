@@ -1,5 +1,5 @@
 /**
- * Stripe product/price definitions for each NSDS package tier.
+ * Stripe product/price definitions for each Layer One package tier.
  * These are used to create Checkout Sessions for client onboarding.
  * 
  * IMPORTANT: After claiming your Stripe sandbox, create these products in the

@@ -190,9 +190,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <div className="w-16 h-16 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center">
               <Warehouse className="w-8 h-8 text-primary" />
             </div>
-            <h1 className="text-2xl font-bold tracking-tight text-center">StagingOps Portal</h1>
+            <h1 className="text-2xl font-bold tracking-tight text-center">Layer One Staging Solutions Portal</h1>
             <p className="text-sm text-muted-foreground text-center max-w-sm">
-              NSDS managed staging operations platform. Sign in to access your portal.
+              Layer One managed staging operations platform. Sign in to access your portal.
             </p>
           </div>
           <Button
@@ -308,12 +308,11 @@ function DashboardLayoutContent({
               </button>
               {!isCollapsed && (
                 <div className="flex items-center gap-2 min-w-0">
-                  <div className="w-6 h-6 rounded-md bg-primary/20 flex items-center justify-center shrink-0">
-                    <Warehouse className="w-3.5 h-3.5 text-primary" />
-                  </div>
-                  <span className="font-bold text-sm tracking-tight truncate overflow-hidden text-sidebar-foreground">
-                    StagingOps
-                  </span>
+                  <img
+                    src="/manus-storage/layerone-logo_08473e32.png"
+                    alt="Layer One Staging Solutions"
+                    className="h-7 w-auto object-contain shrink-0"
+                  />
                 </div>
               )}
             </div>

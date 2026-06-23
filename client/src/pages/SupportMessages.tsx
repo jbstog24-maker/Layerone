@@ -79,7 +79,7 @@ export default function SupportMessages() {
           </div>
           <div>
             <h1 className="text-xl font-bold">Support Messages</h1>
-            <p className="text-sm text-muted-foreground">Chat directly with the NSDS team</p>
+            <p className="text-sm text-muted-foreground">Chat directly with the Layer One team</p>
           </div>
         </div>
 
@@ -88,7 +88,7 @@ export default function SupportMessages() {
           <CardHeader className="px-4 py-3 border-b border-border/30 shrink-0">
             <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
               <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-              NSDS Support Team
+              Layer One Support Team
             </CardTitle>
           </CardHeader>
 
@@ -108,7 +108,7 @@ export default function SupportMessages() {
                 <MessageSquare className="w-10 h-10 text-muted-foreground/20 mb-3" />
                 <p className="text-sm font-medium text-muted-foreground">No messages yet</p>
                 <p className="text-xs text-muted-foreground/60 mt-1">
-                  Send a message below and the NSDS team will reply shortly.
+                  Send a message below and the Layer One team will reply shortly.
                 </p>
               </div>
             ) : (

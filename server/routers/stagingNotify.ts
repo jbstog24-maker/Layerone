@@ -72,7 +72,7 @@ export const stagingNotifyRouter = router({
         deviceId: device.id,
         clientId: device.clientId,
         notifiedByUserId: ctx.user.id,
-        notifiedByName: ctx.user.name ?? "NSDS Staff",
+        notifiedByName: ctx.user.name ?? "Layer One Staff",
         deviceCode: device.deviceCode,
         message: input.message ?? null,
         emailSent: false,
@@ -89,7 +89,7 @@ export const stagingNotifyRouter = router({
               to: u.email!,
               recipientName: u.name ?? u.email!,
               devices: [{ deviceCode: device.deviceCode, model: device.model, serialNumber: device.serialNumber }],
-              staffName: ctx.user.name ?? "NSDS Staff",
+              staffName: ctx.user.name ?? "Layer One Staff",
               message: input.message,
             })
           )
@@ -145,7 +145,7 @@ export const stagingNotifyRouter = router({
           deviceId: device.id,
           clientId: device.clientId,
           notifiedByUserId: ctx.user.id,
-          notifiedByName: ctx.user.name ?? "NSDS Staff",
+          notifiedByName: ctx.user.name ?? "Layer One Staff",
           deviceCode: device.deviceCode,
           message: input.message ?? null,
         });
@@ -174,7 +174,7 @@ export const stagingNotifyRouter = router({
               to: u.email!,
               recipientName: u.name ?? u.email!,
               devices: deviceList,
-              staffName: ctx.user.name ?? "NSDS Staff",
+              staffName: ctx.user.name ?? "Layer One Staff",
               message: input.message,
             })
           )
@@ -220,7 +220,7 @@ export const stagingNotifyRouter = router({
           deviceId: item.id, // kept for compat
           clientId: item.clientId,
           notifiedByUserId: ctx.user.id,
-          notifiedByName: ctx.user.name ?? "NSDS Staff",
+          notifiedByName: ctx.user.name ?? "Layer One Staff",
           deviceCode: item.code,
           message: input.message ?? null,
         });
@@ -242,7 +242,7 @@ export const stagingNotifyRouter = router({
               to: u.email!,
               recipientName: u.name ?? u.email!,
               devices: itemList.map(i => ({ deviceCode: i.code, model: i.model, serialNumber: i.serialNumber })),
-              staffName: ctx.user.name ?? "NSDS Staff",
+              staffName: ctx.user.name ?? "Layer One Staff",
               message: input.message,
             })
           )

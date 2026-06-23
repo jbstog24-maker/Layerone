@@ -10,11 +10,11 @@ import {
 import { useState, useEffect } from "react";
 import { useLocation, useParams } from "wouter";
 
-const LOGO_URL = "/manus-storage/nsds-logo_ab936943.svg";
+const LOGO_URL = "/manus-storage/layerone-logo_08473e32.png";
 
 function NsdsLogo() {
   return (
-    <img src={LOGO_URL} alt="NSDS" className="h-10 w-auto" />
+    <img src={LOGO_URL} alt="Layer One" className="h-10 w-auto" />
   );
 }
 
@@ -44,7 +44,7 @@ const TIERS: Record<string, Tier> = {
     id: "basic",
     name: "Project Staging Pilot",
     tagline: "Test the service on a small deployment.",
-    desc: "For first-time customers testing NSDS on a single project. Includes full receiving, organization, intake photos, serial/MAC capture, and one outbound shipment coordination — no monthly commitment.",
+    desc: "For first-time customers testing Layer One on a single project. Includes full receiving, organization, intake photos, serial/MAC capture, and one outbound shipment coordination — no monthly commitment.",
     price: "$499",
     priceNote: "/project · one-time",
     featured: false,
@@ -163,8 +163,8 @@ const TIERS: Record<string, Tier> = {
   enterprise: {
     id: "enterprise",
     name: "Dedicated Staging Area",
-    tagline: "Separated project area with dedicated NSDS workflow.",
-    desc: "For customers needing a separated project area, higher receiving volume, and a dedicated NSDS-managed workflow. Includes weekly inventory reports, 20 outbound shipment coordinations, and one project coordination call per month.",
+    tagline: "Separated project area with dedicated Layer One workflow.",
+    desc: "For customers needing a separated project area, higher receiving volume, and a dedicated LayerOne-managed workflow. Includes weekly inventory reports, 20 outbound shipment coordinations, and one project coordination call per month.",
     price: "$3,500",
     priceNote: "/month starting · 3, 6, or 12-mo terms",
     featured: false,
@@ -196,7 +196,7 @@ const TIERS: Record<string, Tier> = {
     ],
     highlights: [
       { icon: Lock, title: "Custom SLAs", desc: "Service level agreements tailored to your operational and compliance needs." },
-      { icon: Server, title: "API Access", desc: "Integrate NSDS data directly into your own systems and dashboards." },
+      { icon: Server, title: "API Access", desc: "Integrate Layer One data directly into your own systems and dashboards." },
       { icon: Clock, title: "24/7 Support", desc: "Round-the-clock support for time-sensitive deployments." },
     ],
   },
@@ -204,7 +204,7 @@ const TIERS: Record<string, Tier> = {
     id: "custom",
     name: "Rollout Suite",
     tagline: "Multi-site deployments, national rollouts, and franchise tech.",
-    desc: "For multi-site deployments, national rollout vendors, POS projects, security deployments, and franchise technology rollouts. Sole-use project area or dedicated suite with chain-of-custody tracking and custom NSDS labor blocks.",
+    desc: "For multi-site deployments, national rollout vendors, POS projects, security deployments, and franchise technology rollouts. Sole-use project area or dedicated suite with chain-of-custody tracking and custom Layer One labor blocks.",
     price: "Custom",
     priceNote: "/project or month · 3, 6, or 12-mo terms",
     featured: false,
@@ -544,7 +544,7 @@ export default function PackageDetail() {
                   <div className="mt-5 pt-4 border-t border-white/10 flex items-center justify-center gap-5 text-xs text-[#b7c5d5]">
                     <div className="flex items-center gap-1.5">
                       <Phone className="w-3.5 h-3.5 text-[#39a7ff]" />
-                      (817) 555-NSDS
+                      (817) 555-Layer One
                     </div>
                     <div className="flex items-center gap-1.5">
                       <Mail className="w-3.5 h-3.5 text-[#39a7ff]" />

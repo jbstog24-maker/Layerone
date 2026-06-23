@@ -52,7 +52,7 @@ export const shipmentsRouter = router({
       if (!isStaffOrAdmin(ctx.user.role)) {
         try {
           const client = await getClient(input.clientId);
-          const staffEmail = ENV.resendFromEmail; // notify the NSDS ops inbox
+          const staffEmail = ENV.resendFromEmail; // notify the Layer One ops inbox
           if (staffEmail && client) {
             sendShipmentApprovalRequestEmail({
               staffEmail,

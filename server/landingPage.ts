@@ -260,7 +260,9 @@ export function getLandingPageHtml(opts: {
 
     <!-- Navigation -->
     <nav>
-      <div class="nav-logo">${appTitle.replace("Portal", "<span>Portal</span>")}</div>
+      <a href="/" class="nav-logo" style="display:flex;align-items:center;text-decoration:none;">
+        <img src="/manus-storage/layerone-logo_08473e32.png" alt="Layer One Staging Solutions" style="height:36px;width:auto;object-fit:contain;" />
+      </a>
       <div class="nav-links">
         <a href="${loginUrl}" class="nav-signin">Sign In</a>
         <a href="${loginUrl}" class="nav-cta">Get Started →</a>
@@ -490,7 +492,7 @@ export function getLandingPageHtml(opts: {
     <div class="cta-section">
       <div class="cta-inner">
         <h2>Ready to streamline your staging operation?</h2>
-        <p>Join NSDS clients already managing their equipment, shipments, and invoices through the portal.</p>
+        <p>Join Layer One clients already managing their equipment, shipments, and invoices through the portal.</p>
         <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
           <a href="${loginUrl}" class="btn-primary" style="font-size:1rem;padding:15px 36px;box-shadow:0 0 32px rgba(99,102,241,0.3);">Get Started Free →</a>
           <a href="${loginUrl}" class="btn-secondary">Sign In to Existing Account</a>

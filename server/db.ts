@@ -241,8 +241,8 @@ export async function createClient(data: InsertClient) {
   if (!db) throw new Error("DB unavailable");
   const result = await db.insert(clients).values(data);
   const insertId = (result[0] as any).insertId as number;
-  // Auto-generate accountNumber in format NSDS-XXXXX (zero-padded 5-digit)
-  const accountNumber = `NSDS-${String(insertId).padStart(5, "0")}`;
+  // Auto-generate accountNumber in format L1-XXXXX (zero-padded 5-digit)
+  const accountNumber = `L1-${String(insertId).padStart(5, "0")}`;
   await db.update(clients).set({ accountNumber }).where(eq(clients.id, insertId));
   return result[0];
 }

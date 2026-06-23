@@ -248,7 +248,7 @@ export default function SupportTickets() {
                           >
                             <div className="flex items-center gap-1.5 mb-1">
                               <span className="text-xs font-medium">{reply.senderName}</span>
-                              {isStaffReply && <Badge variant="outline" className="text-xs py-0 px-1.5 h-4">NSDS</Badge>}
+                              {isStaffReply && <Badge variant="outline" className="text-xs py-0 px-1.5 h-4">Layer One</Badge>}
                               {reply.isInternal && <Lock className="w-3 h-3 text-yellow-400" />}
                               <span className="text-xs text-muted-foreground ml-auto">
                                 {new Date(reply.createdAt).toLocaleString()}

@@ -406,7 +406,7 @@ export default function MyDevices() {
                 <CardContent className="flex flex-col items-center justify-center py-12 text-slate-400 gap-2">
                   <Server className="w-10 h-10 opacity-30" />
                   <p className="font-medium">No staged devices yet</p>
-                  <p className="text-sm text-center">Devices will appear here once they have been staged by the NSDS team.</p>
+                  <p className="text-sm text-center">Devices will appear here once they have been staged by the Layer One team.</p>
                 </CardContent>
               </Card>
             ) : (
@@ -522,10 +522,10 @@ export default function MyDevices() {
             <div className="text-sm text-slate-400">
               <p className="text-white font-medium mb-1">How forwarding works</p>
               <p>
-                Once your devices or packages have been staged by the NSDS team, you can set the
+                Once your devices or packages have been staged by the Layer One team, you can set the
                 forwarding destination address here. Update the status to <strong className="text-blue-300">In Transit</strong> when
                 items are picked up, and <strong className="text-green-300">Delivered</strong> once they arrive at the destination.
-                The NSDS team can also see and update these details.
+                The Layer One team can also see and update these details.
               </p>
             </div>
           </CardContent>

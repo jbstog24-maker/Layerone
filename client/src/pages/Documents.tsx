@@ -16,33 +16,8 @@ import {
   Download, Plus, RefreshCw, Building2, FileSignature, Wand2
 } from "lucide-react";
 
-// NSDS Logo SVG for document headers
-const NSDS_LOGO_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 120" width="280" height="60">
-  <defs>
-    <linearGradient id="shieldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#39a7ff;stop-opacity:1"/>
-      <stop offset="100%" style="stop-color:#6ee7b7;stop-opacity:1"/>
-    </linearGradient>
-    <linearGradient id="textGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" style="stop-color:#39a7ff;stop-opacity:1"/>
-      <stop offset="100%" style="stop-color:#6ee7b7;stop-opacity:1"/>
-    </linearGradient>
-  </defs>
-  <g transform="translate(8,8)">
-    <path d="M50,0 L90,15 L90,55 Q90,85 50,100 Q10,85 10,55 L10,15 Z" fill="url(#shieldGrad)" opacity="0.15" stroke="url(#shieldGrad)" stroke-width="2"/>
-    <path d="M50,8 L82,20 L82,55 Q82,78 50,92 Q18,78 18,55 L18,20 Z" fill="none" stroke="url(#shieldGrad)" stroke-width="1.5" opacity="0.6"/>
-    <circle cx="50" cy="38" r="3" fill="#39a7ff"/>
-    <circle cx="35" cy="55" r="3" fill="#6ee7b7"/>
-    <circle cx="65" cy="55" r="3" fill="#6ee7b7"/>
-    <circle cx="50" cy="70" r="3" fill="#39a7ff"/>
-    <line x1="50" y1="38" x2="35" y2="55" stroke="#39a7ff" stroke-width="1.5" opacity="0.7"/>
-    <line x1="50" y1="38" x2="65" y2="55" stroke="#39a7ff" stroke-width="1.5" opacity="0.7"/>
-    <line x1="35" y1="55" x2="50" y2="70" stroke="#6ee7b7" stroke-width="1.5" opacity="0.7"/>
-    <line x1="65" y1="55" x2="50" y2="70" stroke="#6ee7b7" stroke-width="1.5" opacity="0.7"/>
-  </g>
-  <text x="115" y="52" font-family="Inter,Arial,sans-serif" font-size="38" font-weight="700" fill="url(#textGrad)" letter-spacing="2">NSDS</text>
-  <text x="116" y="75" font-family="Inter,Arial,sans-serif" font-size="11" font-weight="400" fill="#94a3b8" letter-spacing="1.5">NETWORK STAGING &amp; DEPLOYMENT SOLUTIONS</text>
-</svg>`;
+// Layer One Staging Solutions logo URL
+const LAYERONE_LOGO_URL = "/manus-storage/layerone-logo_08473e32.png";
 
 const DOC_STATUS_COLORS: Record<string, string> = {
   draft: "bg-slate-500/20 text-slate-300 border-slate-500/30",
@@ -241,7 +216,7 @@ function AutoDraftMsaDialog({ open, onClose, onSuccess }: { open: boolean; onClo
             />
           </div>
           <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-3 text-xs text-blue-300">
-            <strong>NSDS Logo</strong> will be included in the document header. The MSA will be stored securely and linked to the client's account.
+            <strong>Layer One Logo</strong> will be included in the document header. The MSA will be stored securely and linked to the client's account.
           </div>
         </div>
         <DialogFooter>
@@ -286,9 +261,9 @@ function DocumentPreviewModal({ doc, open, onClose, onStatusUpdate }: {
           </DialogTitle>
         </DialogHeader>
 
-        {/* NSDS Logo Header */}
+        {/* Layer One Logo Header */}
         <div className="bg-[#07111f] border border-[#1e3a5f] rounded-lg p-4 flex items-center gap-4">
-          <div dangerouslySetInnerHTML={{ __html: NSDS_LOGO_SVG }} className="w-40 flex-shrink-0" />
+          <img src={LAYERONE_LOGO_URL} alt="Layer One Staging Solutions" className="w-40 flex-shrink-0 object-contain" />
           <div className="text-xs text-slate-400 border-l border-[#1e3a5f] pl-4">
             <p className="font-semibold text-white text-sm">{doc.name}</p>
             <p>Client: <span className="text-blue-300">{doc.clientName ?? `Client #${doc.clientId}`}</span></p>
@@ -410,11 +385,11 @@ export default function Documents() {
           </div>
         </div>
 
-        {/* NSDS Branding Banner */}
+        {/* Layer One Branding Banner */}
         <div className="bg-gradient-to-r from-[#0d1f35] to-[#07111f] border border-[#1e3a5f] rounded-xl p-4 flex flex-col sm:flex-row items-start sm:items-center gap-4">
-          <div dangerouslySetInnerHTML={{ __html: NSDS_LOGO_SVG }} className="w-36 sm:w-44 flex-shrink-0" />
+          <img src={LAYERONE_LOGO_URL} alt="Layer One Staging Solutions" className="w-36 sm:w-44 flex-shrink-0 object-contain" />
           <div className="sm:border-l sm:border-[#1e3a5f] sm:pl-4 text-sm text-slate-400">
-            <p className="text-white font-semibold">All documents include the NSDS logo and branding</p>
+            <p className="text-white font-semibold">All documents include the Layer One logo and branding</p>
             <p>Auto-generated MSAs, SOWs, and forms are branded with your logo and company details. Documents are stored securely and linked to each client's account.</p>
           </div>
         </div>

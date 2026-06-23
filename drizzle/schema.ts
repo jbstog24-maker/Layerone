@@ -59,7 +59,7 @@ export type InsertPackage = typeof packages.$inferInsert;
 // ─── Clients ──────────────────────────────────────────────────────────────────
 export const clients = mysqlTable("clients", {
   id: int("id").autoincrement().primaryKey(),
-  accountNumber: varchar("accountNumber", { length: 32 }), // e.g. NSDS-00042, auto-generated on create
+  accountNumber: varchar("accountNumber", { length: 32 }), // e.g. Layer One-00042, auto-generated on create
   companyName: varchar("companyName", { length: 256 }).notNull(),
   contactName: varchar("contactName", { length: 128 }),
   contactEmail: varchar("contactEmail", { length: 320 }),

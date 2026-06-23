@@ -39,7 +39,7 @@ interface TourStep {
 const TOUR_STEPS: TourStep[] = [
   {
     id: "welcome",
-    title: "Welcome to StagingOps Portal!",
+    title: "Welcome to Layer One Staging Solutions Portal!",
     description:
       "This quick tour will show you the key areas of the platform. You can skip it at any time and replay it from the Help page.",
     icon: Sparkles,
@@ -61,7 +61,7 @@ const TOUR_STEPS: TourStep[] = [
     id: "clients",
     title: "Clients",
     description:
-      "Manage every client account. Each client gets an auto-generated account number (e.g. NSDS-00042), a warehouse space assignment, onboarding timeline, internal sticky notes, and a full audit trail. Archive clients without losing their history.",
+      "Manage every client account. Each client gets an auto-generated account number (e.g. Layer One-00042), a warehouse space assignment, onboarding timeline, internal sticky notes, and a full audit trail. Archive clients without losing their history.",
     icon: Building2,
     targetSelector: "[data-tour='nav-clients']",
     roles: ["admin", "staff"],

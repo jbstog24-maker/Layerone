@@ -253,7 +253,7 @@ function InquiryDetailDialog({
               </Button>
             ))}
             <Button size="sm" asChild className="bg-[#39a7ff] hover:bg-[#39a7ff]/90 text-[#06111f] font-semibold">
-              <a href={`mailto:${inquiry.email}?subject=Re: NSDS ${TIER_LABELS[inquiry.tier]} Inquiry`}>
+              <a href={`mailto:${inquiry.email}?subject=Re: Layer One ${TIER_LABELS[inquiry.tier]} Inquiry`}>
                 <Mail className="w-3.5 h-3.5 mr-1.5" />
                 Reply via Email
               </a>
@@ -511,7 +511,7 @@ export default function Inquiries() {
                             title="Reply via email"
                             className="p-1.5 rounded-lg text-slate-500 hover:text-[#39a7ff] hover:bg-[#39a7ff]/10 transition-colors"
                             onClick={() => {
-                              window.location.href = `mailto:${inq.email}?subject=Re: NSDS ${TIER_LABELS[inq.tier]} Inquiry`;
+                              window.location.href = `mailto:${inq.email}?subject=Re: Layer One ${TIER_LABELS[inq.tier]} Inquiry`;
                             }}
                           >
                             <Mail className="w-4 h-4" />

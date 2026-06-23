@@ -1,7 +1,7 @@
 import { Resend } from "resend";
 import { ENV } from "./_core/env";
 
-// NSDS brand SVG — kept in sync with Documents.tsx
+// Layer One brand SVG — kept in sync with Documents.tsx
 const NSDS_LOGO_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 120" width="200" height="43">
   <defs>
     <linearGradient id="shieldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -25,7 +25,7 @@ const NSDS_LOGO_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 
     <line x1="35" y1="55" x2="50" y2="70" stroke="#6ee7b7" stroke-width="1.5" opacity="0.7"/>
     <line x1="65" y1="55" x2="50" y2="70" stroke="#6ee7b7" stroke-width="1.5" opacity="0.7"/>
   </g>
-  <text x="115" y="52" font-family="Inter,Arial,sans-serif" font-size="38" font-weight="700" fill="url(#textGrad)" letter-spacing="2">NSDS</text>
+  <text x="115" y="52" font-family="Inter,Arial,sans-serif" font-size="38" font-weight="700" fill="url(#textGrad)" letter-spacing="2">Layer One</text>
   <text x="116" y="75" font-family="Inter,Arial,sans-serif" font-size="11" font-weight="400" fill="#94a3b8" letter-spacing="1.5">NETWORK STAGING &amp; DEPLOYMENT SOLUTIONS</text>
 </svg>`;
 
@@ -63,7 +63,7 @@ function buildWelcomeHtml(params: WelcomeEmailParams): string {
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Welcome to NSDS — Next Steps</title>
+  <title>Welcome to Layer One — Next Steps</title>
   <style>
     body { margin: 0; padding: 0; background: #07111f; font-family: Inter, Arial, sans-serif; color: #e2e8f0; }
     .wrapper { max-width: 600px; margin: 0 auto; padding: 32px 16px; }
@@ -145,7 +145,7 @@ function buildWelcomeHtml(params: WelcomeEmailParams): string {
             <div class="step-num">3</div>
             <div class="step-content">
               <p class="step-title">Payment &amp; Account Activation</p>
-              <p class="step-desc">Once the MSA is signed, you'll receive a secure payment link. After payment is confirmed, your StagingOps Portal account is activated immediately.</p>
+              <p class="step-desc">Once the MSA is signed, you'll receive a secure payment link. After payment is confirmed, your Layer One Staging Solutions Portal account is activated immediately.</p>
             </div>
           </div>
           <div class="step">
@@ -191,7 +191,7 @@ function buildWelcomeHtml(params: WelcomeEmailParams): string {
 
         <!-- CTA -->
         <div class="cta">
-          <a href="${ENV.portalUrl}" class="btn">Access the StagingOps Portal</a>
+          <a href="${ENV.portalUrl}" class="btn">Access the Layer One Staging Solutions Portal</a>
         </div>
 
         <!-- Contact -->
@@ -204,14 +204,14 @@ function buildWelcomeHtml(params: WelcomeEmailParams): string {
         </div>
 
         <p style="font-size:13px;color:#475569;margin-top:24px;">
-          This email was sent because you submitted a package inquiry on the NSDS StagingOps Portal. If you did not submit this inquiry, please disregard this email.
+          This email was sent because you submitted a package inquiry on the Layer One Layer One Staging Solutions Portal. If you did not submit this inquiry, please disregard this email.
         </p>
       </div>
 
       <!-- Footer -->
       <div class="footer">
-        <p>© ${new Date().getFullYear()} Network Staging &amp; Deployment Solutions (NSDS). All rights reserved.</p>
-        <p style="margin-top:4px;">StagingOps Portal — Warehouse &amp; Device Staging Management</p>
+        <p>© ${new Date().getFullYear()} Network Staging &amp; Deployment Solutions (Layer One). All rights reserved.</p>
+        <p style="margin-top:4px;">Layer One Staging Solutions Portal — Warehouse &amp; Device Staging Management</p>
       </div>
     </div>
   </div>
@@ -236,7 +236,7 @@ export async function sendWelcomeEmail(params: WelcomeEmailParams): Promise<bool
     const { error } = await resend.emails.send({
       from: ENV.resendFromEmail,
       to: params.to,
-      subject: `Welcome to NSDS — Your ${tierLabel} Package Inquiry`,
+      subject: `Welcome to Layer One — Your ${tierLabel} Package Inquiry`,
       html: buildWelcomeHtml(params),
     });
 
@@ -282,7 +282,7 @@ function buildPortalInviteHtml(params: PortalInviteEmailParams): string {
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Your NSDS Portal Account is Ready</title>
+  <title>Your Layer One Portal Account is Ready</title>
 </head>
 <body style="margin:0;padding:0;background:#07111f;font-family:'Segoe UI',Arial,sans-serif;color:#e2e8f0;">
   <table width="100%" cellpadding="0" cellspacing="0" style="background:#07111f;padding:32px 16px;">
@@ -294,9 +294,9 @@ function buildPortalInviteHtml(params: PortalInviteEmailParams): string {
             <tr>
               <td>
                 <div style="display:flex;align-items:center;gap:12px;">
-                  <span style="font-size:22px;font-weight:800;color:#38bdf8;letter-spacing:-0.5px;">NSDS</span>
+                  <span style="font-size:22px;font-weight:800;color:#38bdf8;letter-spacing:-0.5px;">Layer One</span>
                   <span style="color:#334155;font-size:18px;">|</span>
-                  <span style="font-size:13px;color:#64748b;letter-spacing:1px;text-transform:uppercase;">Network Staging & Deployment Solutions</span>
+                  <span style="font-size:13px;color:#64748b;letter-spacing:1px;text-transform:uppercase;">Layer One Staging Solutions</span>
                 </div>
               </td>
             </tr>
@@ -309,7 +309,7 @@ function buildPortalInviteHtml(params: PortalInviteEmailParams): string {
             Your portal account is ready, ${firstName}!
           </h1>
           <p style="margin:0 0 24px;color:#94a3b8;font-size:15px;line-height:1.6;">
-            An NSDS admin has created a portal account for you${params.businessName ? ` on behalf of <strong style="color:#e2e8f0;">${params.businessName}</strong>` : ""}. Your role is <strong style="color:#38bdf8;">${roleLabel}</strong>.
+            An Layer One admin has created a portal account for you${params.businessName ? ` on behalf of <strong style="color:#e2e8f0;">${params.businessName}</strong>` : ""}. Your role is <strong style="color:#38bdf8;">${roleLabel}</strong>.
           </p>
 
           <!-- Access CTA -->
@@ -327,7 +327,7 @@ function buildPortalInviteHtml(params: PortalInviteEmailParams): string {
             ${[
               ["1", "Sign In", `Visit <a href="${portalUrl}" style="color:#38bdf8;">${portalUrl}</a> and click <strong>Sign In</strong>. Use the email address this message was sent to.`],
               ["2", "Explore Your Dashboard", "View your devices, staging tasks, shipments, and documents — all in one place."],
-              ["3", "Message Your Team", "Use the Support Messages section to communicate directly with NSDS staff."],
+              ["3", "Message Your Team", "Use the Support Messages section to communicate directly with Layer One staff."],
               ["4", "Track Onboarding Progress", "Your onboarding timeline, go-live date, and warehouse assignment are visible on your profile."],
             ].map(([num, title, desc]) => `
             <tr><td style="padding:10px 0;border-bottom:1px solid #1e3a5f;">
@@ -355,7 +355,7 @@ function buildPortalInviteHtml(params: PortalInviteEmailParams): string {
         <!-- Footer -->
         <tr><td style="padding:20px 40px;border-top:1px solid #1e3a5f;text-align:center;">
           <p style="margin:0;font-size:12px;color:#475569;">
-            © ${new Date().getFullYear()} NSDS — Network Staging &amp; Deployment Solutions<br />
+            © ${new Date().getFullYear()} Layer One — Network Staging &amp; Deployment Solutions<br />
             This email was sent because an admin created a portal account for you.
           </p>
         </td></tr>
@@ -380,7 +380,7 @@ export async function sendPortalInviteEmail(params: PortalInviteEmailParams): Pr
     const { error } = await resend.emails.send({
       from: ENV.resendFromEmail,
       to: params.to,
-      subject: "Your NSDS Portal Account is Ready",
+      subject: "Your Layer One Portal Account is Ready",
       html: buildPortalInviteHtml(params),
     });
 
@@ -439,7 +439,7 @@ export async function sendStagingCompleteEmail(params: StagingCompleteEmailParam
       <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;background:#0d1f35;border-radius:12px;border:1px solid #1e3a5f;overflow:hidden;">
         <!-- Header -->
         <tr><td style="background:linear-gradient(135deg,#0d1f35 0%,#0a2540 100%);padding:32px 40px;border-bottom:1px solid #1e3a5f;">
-          <p style="margin:0;font-size:22px;font-weight:800;color:#38bdf8;letter-spacing:3px;">NSDS</p>
+          <p style="margin:0;font-size:22px;font-weight:800;color:#38bdf8;letter-spacing:3px;">Layer One</p>
           <p style="margin:4px 0 0;font-size:10px;color:#64748b;letter-spacing:2px;text-transform:uppercase;">Network Staging &amp; Deployment Solutions</p>
         </td></tr>
 
@@ -460,10 +460,10 @@ export async function sendStagingCompleteEmail(params: StagingCompleteEmailParam
         <tr><td style="padding:32px 40px;">
           <p style="margin:0 0 16px;font-size:16px;color:#e2e8f0;">Hi ${firstName},</p>
           <p style="margin:0 0 20px;font-size:14px;color:#94a3b8;line-height:1.6;">
-            Great news — your ${deviceWord} ${deviceCount === 1 ? "has" : "have"} completed staging at the NSDS facility and ${deviceCount === 1 ? "is" : "are"} now <strong style="color:#6ee7b7;">ready to ship</strong>. Please log into your portal to set or confirm the forwarding address and request outbound shipment.
+            Great news — your ${deviceWord} ${deviceCount === 1 ? "has" : "have"} completed staging at the Layer One facility and ${deviceCount === 1 ? "is" : "are"} now <strong style="color:#6ee7b7;">ready to ship</strong>. Please log into your portal to set or confirm the forwarding address and request outbound shipment.
           </p>
 
-          ${params.message ? `<div style="background:#07111f;border-left:3px solid #38bdf8;padding:12px 16px;margin:0 0 20px;border-radius:0 6px 6px 0;"><p style="margin:0;font-size:13px;color:#94a3b8;font-style:italic;">"${params.message}"</p><p style="margin:6px 0 0;font-size:12px;color:#475569;">— ${params.staffName}, NSDS</p></div>` : ""}
+          ${params.message ? `<div style="background:#07111f;border-left:3px solid #38bdf8;padding:12px 16px;margin:0 0 20px;border-radius:0 6px 6px 0;"><p style="margin:0;font-size:13px;color:#94a3b8;font-style:italic;">"${params.message}"</p><p style="margin:6px 0 0;font-size:12px;color:#475569;">— ${params.staffName}, Layer One</p></div>` : ""}
 
           <!-- Device Table -->
           <p style="margin:0 0 10px;font-size:13px;font-weight:700;color:#ffffff;text-transform:uppercase;letter-spacing:1px;">Staged ${deviceWord.charAt(0).toUpperCase() + deviceWord.slice(1)}</p>
@@ -492,8 +492,8 @@ export async function sendStagingCompleteEmail(params: StagingCompleteEmailParam
 
         <!-- Footer -->
         <tr><td style="padding:20px 40px;border-top:1px solid #1e3a5f;text-align:center;">
-          <p style="margin:0;font-size:12px;color:#475569;">© ${new Date().getFullYear()} Network Staging &amp; Deployment Solutions (NSDS). All rights reserved.</p>
-          <p style="margin:4px 0 0;font-size:12px;color:#475569;">StagingOps Portal — Warehouse &amp; Device Staging Management</p>
+          <p style="margin:0;font-size:12px;color:#475569;">© ${new Date().getFullYear()} Network Staging &amp; Deployment Solutions (Layer One). All rights reserved.</p>
+          <p style="margin:4px 0 0;font-size:12px;color:#475569;">Layer One Staging Solutions Portal — Warehouse &amp; Device Staging Management</p>
         </td></tr>
       </table>
     </td></tr>
@@ -504,8 +504,8 @@ export async function sendStagingCompleteEmail(params: StagingCompleteEmailParam
   try {
     const resend = getResend();
     const subject = deviceCount === 1
-      ? `Device ${params.devices[0].deviceCode} is Ready to Ship — NSDS`
-      : `${deviceCount} Devices Ready to Ship — NSDS`;
+      ? `Device ${params.devices[0].deviceCode} is Ready to Ship — Layer One`
+      : `${deviceCount} Devices Ready to Ship — Layer One`;
 
     const { error } = await resend.emails.send({
       from: ENV.resendFromEmail,
@@ -576,7 +576,7 @@ export async function sendIntroductionEmail(params: IntroductionEmailParams): Pr
       <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;background:#0d1f35;border-radius:12px;border:1px solid #1e3a5f;overflow:hidden;">
         <!-- Header -->
         <tr><td style="background:linear-gradient(135deg,#0d1f35 0%,#0a2540 100%);padding:28px 40px;border-bottom:1px solid #1e3a5f;text-align:center;">
-          <span style="font-size:28px;font-weight:800;background:linear-gradient(90deg,#39a7ff,#6ee7b7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:3px;">NSDS</span>
+          <span style="font-size:28px;font-weight:800;background:linear-gradient(90deg,#39a7ff,#6ee7b7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:3px;">Layer One</span>
           <p style="margin:4px 0 0;font-size:10px;color:#64748b;letter-spacing:2px;text-transform:uppercase;">NETWORK STAGING &amp; DEPLOYMENT SOLUTIONS</p>
         </td></tr>
         <!-- Body -->
@@ -585,8 +585,8 @@ export async function sendIntroductionEmail(params: IntroductionEmailParams): Pr
         </td></tr>
         <!-- Footer -->
         <tr><td style="padding:20px 40px;border-top:1px solid #1e3a5f;text-align:center;">
-          <p style="margin:0;font-size:12px;color:#475569;">© ${new Date().getFullYear()} Network Staging &amp; Deployment Solutions (NSDS) · Dallas-Fort Worth, TX</p>
-          <p style="margin:4px 0 0;font-size:12px;color:#475569;">You are receiving this because NSDS identified your business as a potential fit for our services. To opt out, simply reply with "unsubscribe".</p>
+          <p style="margin:0;font-size:12px;color:#475569;">© ${new Date().getFullYear()} Network Staging &amp; Deployment Solutions (Layer One) · Dallas-Fort Worth, TX</p>
+          <p style="margin:4px 0 0;font-size:12px;color:#475569;">You are receiving this because Layer One identified your business as a potential fit for our services. To opt out, simply reply with "unsubscribe".</p>
         </td></tr>
       </table>
     </td></tr>
@@ -655,14 +655,14 @@ export async function sendDripEmail(params: DripEmailParams): Promise<boolean> {
     <tr><td align="center">
       <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;background:#0d1f35;border-radius:12px;border:1px solid #1e3a5f;overflow:hidden;">
         <tr><td style="background:linear-gradient(135deg,#0d1f35 0%,#0a2540 100%);padding:28px 40px;border-bottom:1px solid #1e3a5f;text-align:center;">
-          <span style="font-size:28px;font-weight:800;background:linear-gradient(90deg,#39a7ff,#6ee7b7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:3px;">NSDS</span>
+          <span style="font-size:28px;font-weight:800;background:linear-gradient(90deg,#39a7ff,#6ee7b7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:3px;">Layer One</span>
           <p style="margin:4px 0 0;font-size:10px;color:#64748b;letter-spacing:2px;text-transform:uppercase;">NETWORK STAGING &amp; DEPLOYMENT SOLUTIONS</p>
         </td></tr>
         <tr><td style="padding:32px 40px;">
           ${bodyHtml}
         </td></tr>
         <tr><td style="padding:20px 40px;border-top:1px solid #1e3a5f;text-align:center;">
-          <p style="margin:0;font-size:12px;color:#475569;">© ${new Date().getFullYear()} Network Staging &amp; Deployment Solutions (NSDS) · Dallas-Fort Worth, TX</p>
+          <p style="margin:0;font-size:12px;color:#475569;">© ${new Date().getFullYear()} Network Staging &amp; Deployment Solutions (Layer One) · Dallas-Fort Worth, TX</p>
           <p style="margin:4px 0 0;font-size:12px;color:#475569;">You are receiving this as part of an outreach sequence. Reply "unsubscribe" to opt out.</p>
         </td></tr>
       </table>
@@ -716,7 +716,7 @@ export async function sendDeliveryNotificationEmail(params: DeliveryNotification
     <tr><td align="center">
       <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;background:#0d1f35;border-radius:12px;border:1px solid #1e3a5f;overflow:hidden;">
         <tr><td style="background:linear-gradient(135deg,#0d1f35,#0a2540);padding:28px 40px;border-bottom:1px solid #1e3a5f;text-align:center;">
-          <span style="font-size:28px;font-weight:800;background:linear-gradient(90deg,#39a7ff,#6ee7b7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:3px;">NSDS</span>
+          <span style="font-size:28px;font-weight:800;background:linear-gradient(90deg,#39a7ff,#6ee7b7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:3px;">Layer One</span>
           <p style="margin:4px 0 0;font-size:10px;color:#64748b;letter-spacing:2px;text-transform:uppercase;">NETWORK STAGING &amp; DEPLOYMENT SOLUTIONS</p>
         </td></tr>
         <tr><td style="padding:32px 40px;">
@@ -734,7 +734,7 @@ export async function sendDeliveryNotificationEmail(params: DeliveryNotification
           <p style="font-size:14px;color:#94a3b8;">Your items are now securely stored at our facility. Log in to your portal to view inventory details and track staging progress.</p>
         </td></tr>
         <tr><td style="padding:20px 40px;border-top:1px solid #1e3a5f;text-align:center;">
-          <p style="margin:0;font-size:12px;color:#475569;">© ${new Date().getFullYear()} NSDS · Dallas-Fort Worth, TX · <a href="mailto:support@nsds.io" style="color:#39a7ff;">support@nsds.io</a></p>
+          <p style="margin:0;font-size:12px;color:#475569;">© ${new Date().getFullYear()} Layer One · Dallas-Fort Worth, TX · <a href="mailto:support@nsds.io" style="color:#39a7ff;">support@nsds.io</a></p>
         </td></tr>
       </table>
     </td></tr>
@@ -746,7 +746,7 @@ export async function sendDeliveryNotificationEmail(params: DeliveryNotification
     const { error } = await resend.emails.send({
       from: ENV.resendFromEmail,
       to: params.to,
-      subject: `Delivery received at NSDS — ${params.boxCount} box${params.boxCount !== 1 ? "es" : ""}, ${params.palletCount} pallet${params.palletCount !== 1 ? "s" : ""}`,
+      subject: `Delivery received at Layer One — ${params.boxCount} box${params.boxCount !== 1 ? "es" : ""}, ${params.palletCount} pallet${params.palletCount !== 1 ? "s" : ""}`,
       html,
     });
     if (error) { console.warn("[Email] Delivery notification error:", error); return false; }
@@ -779,7 +779,7 @@ export async function sendShipmentApprovalRequestEmail(params: ShipmentApprovalR
     <tr><td align="center">
       <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;background:#0d1f35;border-radius:12px;border:1px solid #1e3a5f;overflow:hidden;">
         <tr><td style="background:linear-gradient(135deg,#0d1f35,#0a2540);padding:28px 40px;border-bottom:1px solid #1e3a5f;text-align:center;">
-          <span style="font-size:28px;font-weight:800;background:linear-gradient(90deg,#39a7ff,#6ee7b7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:3px;">NSDS</span>
+          <span style="font-size:28px;font-weight:800;background:linear-gradient(90deg,#39a7ff,#6ee7b7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:3px;">Layer One</span>
         </td></tr>
         <tr><td style="padding:32px 40px;">
           <h2 style="margin:0 0 8px;font-size:20px;color:#ffffff;">Shipment Approval Required</h2>
@@ -793,7 +793,7 @@ export async function sendShipmentApprovalRequestEmail(params: ShipmentApprovalR
           <p style="text-align:center;"><a href="${params.portalUrl}/shipments/${params.shipmentId}" style="display:inline-block;background:#39a7ff;color:#ffffff;text-decoration:none;padding:12px 28px;border-radius:8px;font-weight:600;font-size:15px;">Review &amp; Approve</a></p>
         </td></tr>
         <tr><td style="padding:20px 40px;border-top:1px solid #1e3a5f;text-align:center;">
-          <p style="margin:0;font-size:12px;color:#475569;">© ${new Date().getFullYear()} NSDS · Dallas-Fort Worth, TX</p>
+          <p style="margin:0;font-size:12px;color:#475569;">© ${new Date().getFullYear()} Layer One · Dallas-Fort Worth, TX</p>
         </td></tr>
       </table>
     </td></tr>
@@ -840,7 +840,7 @@ export async function sendSupportTicketEmail(params: SupportTicketEmailParams): 
       <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;background:#0d1f35;border-radius:12px;border:1px solid #1e3a5f;overflow:hidden;">
         <tr><td style="padding:24px 32px;border-bottom:1px solid #1e3a5f;">
           <h2 style="margin:0;color:#fff;font-size:18px;">New Support Ticket</h2>
-          <p style="margin:4px 0 0;color:#94a3b8;font-size:13px;">StagingOps Portal — Client #${clientId}</p>
+          <p style="margin:4px 0 0;color:#94a3b8;font-size:13px;">Layer One Staging Solutions Portal — Client #${clientId}</p>
         </td></tr>
         <tr><td style="padding:24px 32px;">
           <table width="100%" cellpadding="0" cellspacing="0" style="font-size:14px;">
@@ -852,10 +852,10 @@ export async function sendSupportTicketEmail(params: SupportTicketEmailParams): 
           <div style="margin-top:16px;padding:16px;background:#0a1628;border-radius:6px;border-left:3px solid ${color};">
             <p style="margin:0;font-size:13px;color:#cbd5e1;white-space:pre-wrap;">${description}</p>
           </div>
-          <p style="margin-top:20px;font-size:12px;color:#64748b;">Log in to the StagingOps Portal to respond to this ticket.</p>
+          <p style="margin-top:20px;font-size:12px;color:#64748b;">Log in to the Layer One Staging Solutions Portal to respond to this ticket.</p>
         </td></tr>
         <tr><td style="padding:16px 32px;border-top:1px solid #1e3a5f;text-align:center;">
-          <p style="margin:0;font-size:12px;color:#475569;">© ${new Date().getFullYear()} NSDS · Dallas-Fort Worth, TX</p>
+          <p style="margin:0;font-size:12px;color:#475569;">© ${new Date().getFullYear()} Layer One · Dallas-Fort Worth, TX</p>
         </td></tr>
       </table>
     </td></tr>
@@ -865,7 +865,7 @@ export async function sendSupportTicketEmail(params: SupportTicketEmailParams): 
     const resend = getResend();
     const { error } = await resend.emails.send({
       from: ENV.resendFromEmail,
-      to: ENV.resendFromEmail, // notify the NSDS ops inbox
+      to: ENV.resendFromEmail, // notify the Layer One ops inbox
       subject: `[${priority.toUpperCase()}] Support Ticket: ${ticketSubject}`,
       html,
     });

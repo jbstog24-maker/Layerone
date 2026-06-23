@@ -15,7 +15,7 @@ function NsdsLogo({ className = "" }: { className?: string }) {
   return (
     <img
       src={LOGO_URL}
-      alt="NSDS — Network Staging & Deployment Solutions"
+      alt="Layer One — Layer One Staging Solutions"
       className={className}
       style={{ height: 48, width: "auto" }}
     />
@@ -95,7 +95,7 @@ function Hero() {
               <span className="text-white">before the truck rolls.</span>
             </h1>
             <p className="text-[#b7c5d5] text-lg leading-relaxed mb-8 max-w-lg">
-              NSDS handles receiving, organizing, staging, packing, shipping, and deployment-prep for MSPs, cabling contractors, security installers, and rollout teams — with full customer visibility through our portal.
+              Layer One handles receiving, organizing, staging, packing, shipping, and deployment-prep for MSPs, cabling contractors, security installers, and rollout teams — with full customer visibility through our portal.
             </p>
             <div className="flex flex-wrap gap-3 mb-8">
               <a
@@ -163,7 +163,7 @@ function Hero() {
             <div className="absolute -bottom-4 -left-4 rounded-xl border border-[#6ee7b7]/30 bg-[#07111f]/90 backdrop-blur px-4 py-3 shadow-lg">
               <div className="flex items-center gap-2">
                 <CheckCircle className="w-4 h-4 text-[#6ee7b7]" />
-                <span className="text-xs font-semibold text-white">NSDS-managed only</span>
+                <span className="text-xs font-semibold text-white">LayerOne-managed only</span>
               </div>
               <p className="text-xs text-[#b7c5d5] mt-0.5">Full chain-of-custody tracking</p>
             </div>
@@ -223,7 +223,7 @@ function Services() {
             <span className="bg-gradient-to-r from-[#39a7ff] to-[#6ee7b7] bg-clip-text text-transparent">handled before the truck rolls.</span>
           </h2>
           <p className="text-[#b7c5d5] text-lg max-w-2xl">
-            NSDS is a fully managed staging and logistics operation. We don't offer self-service — every project is handled by our team with full accountability.
+            Layer One is a fully managed staging and logistics operation. We don't offer self-service — every project is handled by our team with full accountability.
           </p>
         </div>
         <div className="grid md:grid-cols-3 gap-4">
@@ -308,7 +308,7 @@ function Packages() {
       name: "Enterprise",
       price: "$3,500",
       priceSuffix: "/month starting",
-      desc: "Dedicated staging zone with higher volume and a dedicated NSDS-managed workflow.",
+      desc: "Dedicated staging zone with higher volume and a dedicated LayerOne-managed workflow.",
       features: ["Up to 75 active devices stored", "Up to 75 boxes/month", "Up to 6 pallets/month", "45-day storage per item", "20 outbound shipment coordinations/mo", "Weekly inventory report + 1 project call/mo"],
       featured: false,
     },
@@ -392,7 +392,7 @@ function AddOns() {
     { item: "Extra outbound shipment", rate: "$25–$75/shipment", note: "Packing coordination, labels, carrier handoff & documentation" },
     { item: "Inventory & asset capture", rate: "$15/device", note: "Model, serial, MAC address, asset photo & inventory log" },
     { item: "Site-kit assembly", rate: "$250+/site kit", note: "Devices, patch cables, labels, packing list & install notes" },
-    { item: "NSDS staging technician", rate: "$95–$125/hr", note: "Labeling, firmware checks, packing, site-kit prep & approved staging tasks" },
+    { item: "Layer One staging technician", rate: "$95–$125/hr", note: "Labeling, firmware checks, packing, site-kit prep & approved staging tasks" },
     { item: "Senior network technician", rate: "$135–$175/hr", note: "Switch, firewall, VLAN, VPN, IP plan & deployment readiness review" },
     { item: "Rush / weekend / after-hours", rate: "1.5×–2× rate", note: "Minimum labor block may apply" },
   ];
@@ -458,7 +458,7 @@ function PortalSection() {
               <span className="bg-gradient-to-r from-[#39a7ff] to-[#6ee7b7] bg-clip-text text-transparent">your operations.</span>
             </h2>
             <p className="text-[#b7c5d5] text-lg leading-relaxed mb-8">
-              Every NSDS client gets access to a dedicated customer portal. Track your inventory, view photos, monitor shipments, and review invoices — all in one place, in real time.
+              Every Layer One client gets access to a dedicated customer portal. Track your inventory, view photos, monitor shipments, and review invoices — all in one place, in real time.
             </p>
             <div className="grid grid-cols-2 gap-3">
               {features.map(f => (
@@ -545,7 +545,7 @@ function WhoWeServe() {
               <span className="bg-gradient-to-r from-[#39a7ff] to-[#6ee7b7] bg-clip-text text-transparent">deploy the network.</span>
             </h2>
             <p className="text-[#b7c5d5] text-lg leading-relaxed mb-6">
-              NSDS is purpose-built for the professionals who handle network equipment at scale — from single-site installs to multi-location rollouts across the Dallas metro.
+              Layer One is purpose-built for the professionals who handle network equipment at scale — from single-site installs to multi-location rollouts across the Dallas metro.
             </p>
             <ul className="space-y-3">
               {clients.map(c => (
@@ -690,8 +690,8 @@ function FacilityGallery() {
 const FAQ_ITEMS = [
   {
     category: "Services",
-    q: "What exactly does NSDS do?",
-    a: "NSDS (Network Staging & Deployment Solutions) provides professional warehousing, receiving, staging, and outbound shipping services for network equipment. We receive your hardware shipments, inventory every device, configure and stage equipment to your specifications, and ship it to your deployment sites — all tracked in real time through our customer portal."
+    q: "What exactly does Layer One do?",
+    a: "Layer One Staging Solutions provides professional warehousing, receiving, staging, and outbound shipping services for network equipment. We receive your hardware shipments, inventory every device, configure and stage equipment to your specifications, and ship it to your deployment sites — all tracked in real time through our customer portal."
   },
   {
     category: "Services",
@@ -736,7 +736,7 @@ const FAQ_ITEMS = [
   {
     category: "Security & Facility",
     q: "Is my equipment secure at your facility?",
-    a: "Yes. Our facility features 24/7 HD surveillance cameras throughout all storage and staging areas, keypad-controlled access to individual units, climate-controlled environments maintained at 65–72°F, and fire suppression systems. All access events are logged. Only authorized NSDS staff and your designated representatives may access your space."
+    a: "Yes. Our facility features 24/7 HD surveillance cameras throughout all storage and staging areas, keypad-controlled access to individual units, climate-controlled environments maintained at 65–72°F, and fire suppression systems. All access events are logged. Only authorized Layer One staff and your designated representatives may access your space."
   },
   {
     category: "Security & Facility",
@@ -756,7 +756,7 @@ const FAQ_ITEMS = [
   {
     category: "Portal & Tracking",
     q: "Can multiple people from my company access the portal?",
-    a: "Yes. We support two customer roles: Customer Admin (full read access plus the ability to submit delivery requests and shipment requests) and Customer Viewer (read-only access to all data). Contact your NSDS account manager to add additional users to your account."
+    a: "Yes. We support two customer roles: Customer Admin (full read access plus the ability to submit delivery requests and shipment requests) and Customer Viewer (read-only access to all data). Contact your Layer One account manager to add additional users to your account."
   },
   {
     category: "Portal & Tracking",
@@ -778,7 +778,7 @@ function FAQ() {
         <div className="text-center mb-12">
           <span className="inline-block text-xs font-semibold tracking-widest uppercase text-[#39a7ff] mb-3">FAQ</span>
           <h2 className="text-3xl md:text-4xl font-bold mb-4" style={{ background: "linear-gradient(90deg,#f5f8fc,#39a7ff)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Frequently Asked Questions</h2>
-          <p className="text-slate-400 max-w-xl mx-auto">Everything you need to know about NSDS services, pricing, onboarding, and facility security.</p>
+          <p className="text-slate-400 max-w-xl mx-auto">Everything you need to know about Layer One services, pricing, onboarding, and facility security.</p>
         </div>
 
         {/* Category Filter */}
@@ -854,7 +854,7 @@ function CTA() {
               Ready to stage smarter?
             </h2>
             <p className="text-[#b7c5d5] text-lg max-w-xl mx-auto mb-8">
-              Sign in to access your NSDS customer portal, or contact us to discuss a package for your team.
+              Sign in to access your Layer One customer portal, or contact us to discuss a package for your team.
             </p>
             <div className="flex flex-wrap gap-3 justify-center">
               <a

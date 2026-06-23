@@ -103,9 +103,9 @@ export const leadsRouter = router({
       const lead = await getLead(input.id);
       if (!lead) throw new TRPCError({ code: "NOT_FOUND" });
 
-      const prompt = `You are a B2B sales scoring expert for NSDS (Network Staging & Deployment Solutions), a DFW company offering device staging, warehouse logistics, and multi-site deployment.
+      const prompt = `You are a B2B sales scoring expert for Layer One Staging Solutions, a DFW company offering device staging, warehouse logistics, and multi-site deployment.
 
-Score this lead 0-100 on likelihood to need NSDS services:
+Score this lead 0-100 on likelihood to need Layer One services:
 - Company: ${lead.companyName}
 - Industry: ${lead.industry ?? "Unknown"}
 - City: ${lead.city ?? "Unknown"}, ${lead.state ?? "TX"}
@@ -161,7 +161,7 @@ Respond ONLY with JSON: {"score":<0-100>,"temperature":"cold"|"warm"|"hot","reas
       };
 
       const isEmail = input.type === "cold_email" || input.type === "follow_up_email";
-      const prompt = `Write a ${typeLabel[input.type]} for NSDS (Network Staging & Deployment Solutions), a DFW company offering device staging, warehouse logistics, and multi-site IT deployment.
+      const prompt = `Write a ${typeLabel[input.type]} for Layer One Staging Solutions, a DFW company offering device staging, warehouse logistics, and multi-site IT deployment.
 
 Target:
 - Company: ${lead.companyName}
@@ -186,7 +186,7 @@ ${isEmail ? 'Respond with JSON: {"subject":"<subject>","body":"<body with \\n fo
           subject = p.subject;
           body = p.body;
         } catch {
-          subject = `NSDS Services for ${lead.companyName}`;
+          subject = `Layer One Services for ${lead.companyName}`;
           body = response;
         }
       } else {
@@ -254,7 +254,7 @@ ${isEmail ? 'Respond with JSON: {"subject":"<subject>","body":"<body with \\n fo
       subRegion: z.string().optional(),
     }))
     .query(async ({ input }) => {
-      // Build a targeted query that anchors results to NSDS's DFW service area
+      // Build a targeted query that anchors results to Layer One's DFW service area
       // and appends the sub-region when specified for tighter geographic targeting.
       const region = input.subRegion ? `${input.subRegion}, TX` : "Dallas-Fort Worth, TX";
       const enrichedQuery = `${input.query} ${region}`;
@@ -378,9 +378,9 @@ ${isEmail ? 'Respond with JSON: {"subject":"<subject>","body":"<body with \\n fo
       const greeting = contactName ? `${contactName.split(" ")[0]}` : "there";
       const industryLine = industry ? `We work with a lot of ${industry} companies` : "We work with IT teams across many industries";
 
-      const prompt = `Write a professional introduction email from NSDS (Network Staging & Deployment Solutions) to a prospective client.
+      const prompt = `Write a professional introduction email from Layer One Staging Solutions to a prospective client.
 
-NSDS is a DFW-based company that handles IT hardware staging, device imaging, warehouse logistics, and multi-site deployment prep for MSPs, IT VARs, cabling contractors, security integrators, and enterprise IT teams.
+Layer One is a DFW-based company that handles IT hardware staging, device imaging, warehouse logistics, and multi-site deployment prep for MSPs, IT VARs, cabling contractors, security integrators, and enterprise IT teams.
 
 Prospect details:
 - Company: ${companyName}
@@ -391,20 +391,20 @@ Prospect details:
 Email requirements:
 - Subject line: short, specific, not clickbait
 - Opening: address them by first name ("${greeting}"), mention their company and city
-- Body: briefly explain what NSDS does in plain language — no jargon, no buzzwords
+- Body: briefly explain what Layer One does in plain language — no jargon, no buzzwords
 - ${industryLine} in the DFW area and understand their challenges around device deployment timelines and multi-site logistics
-- Mention 2-3 concrete things NSDS can do for them (e.g. receive and stage devices before the truck rolls, handle imaging and configuration, provide a customer portal for real-time tracking)
+- Mention 2-3 concrete things Layer One can do for them (e.g. receive and stage devices before the truck rolls, handle imaging and configuration, provide a customer portal for real-time tracking)
 - Closing: invite them to a short 15-minute call to see if it's a fit — no pressure, no hard sell
 - Tone: warm, informative, peer-to-peer — NOT salesy, NOT pushy, NOT full of exclamation points
 - Length: 150-200 words max
-- Sign off as: NSDS Team | Network Staging & Deployment Solutions | Dallas-Fort Worth, TX
+- Sign off as: Layer One Team | Layer One Staging Solutions | Dallas-Fort Worth, TX
 
 Respond with JSON: {"subject":"<subject line>","body":"<email body with \\n for line breaks>"}`;
 
       const llmResult = await invokeLLM({ messages: [{ role: "user", content: prompt }], maxTokens: 600 });
       const raw = (llmResult.choices[0]?.message?.content as string) ?? "";
 
-      let subject = `Introduction: NSDS Staging Services for ${companyName}`;
+      let subject = `Introduction: Layer One Staging Services for ${companyName}`;
       let body = raw;
       try {
         const m = raw.match(/\{[\s\S]*\}/);

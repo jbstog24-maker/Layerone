@@ -126,14 +126,14 @@ export default function MyInstructions() {
             Staging &amp; Provisioning Instructions
           </h1>
           <p className="text-muted-foreground mt-1 text-sm">
-            Provide detailed instructions for the NSDS team regarding how your devices should be staged,
+            Provide detailed instructions for the Layer One team regarding how your devices should be staged,
             configured, or provisioned. You can type notes below and attach reference documents.
           </p>
         </div>
         {acknowledged && (
           <Badge variant="outline" className="border-green-500 text-green-400 shrink-0 gap-1">
             <CheckCircle2 className="h-3.5 w-3.5" />
-            Reviewed by NSDS
+            Reviewed by Layer One
           </Badge>
         )}
       </div>
@@ -180,7 +180,7 @@ export default function MyInstructions() {
           <CardTitle className="text-base">Reference Documents</CardTitle>
           <CardDescription>
             Attach configuration templates, network diagrams, spreadsheets, or any other reference
-            files the NSDS team should review before staging begins.
+            files the Layer One team should review before staging begins.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -269,7 +269,7 @@ export default function MyInstructions() {
             <AlertCircle className="h-5 w-5 text-blue-400 shrink-0 mt-0.5" />
             <div className="text-sm text-blue-200/80 space-y-1">
               <p className="font-medium text-blue-300">How this works</p>
-              <p>Your instructions are visible to the NSDS staging team as soon as you save them.
+              <p>Your instructions are visible to the Layer One staging team as soon as you save them.
                 The team will review them before beginning work on your devices and will mark them
                 as acknowledged once reviewed. You can update your instructions at any time.</p>
             </div>

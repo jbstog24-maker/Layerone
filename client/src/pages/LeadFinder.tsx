@@ -23,7 +23,7 @@ type PlaceResult = {
   business_status?: string;
 };
 
-// ─── NSDS-specific prospect categories ───────────────────────────────────────
+// ─── Layer One-specific prospect categories ───────────────────────────────────────
 const PROSPECT_CATEGORIES = [
   {
     group: "Core Targets",
@@ -213,7 +213,7 @@ export default function LeadFinder() {
               Lead Finder
             </h1>
             <p className="text-muted-foreground mt-1 text-sm">
-              Discover DFW businesses that match NSDS's customer profile — MSPs, IT VARs, cabling contractors, security integrators, and enterprise IT teams.
+              Discover DFW businesses that match Layer One's customer profile — MSPs, IT VARs, cabling contractors, security integrators, and enterprise IT teams.
             </p>
           </div>
         </div>
@@ -264,10 +264,10 @@ export default function LeadFinder() {
           </CardContent>
         </Card>
 
-        {/* NSDS Prospect Categories */}
+        {/* Layer One Prospect Categories */}
         <div className="space-y-3">
           <p className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
-            NSDS Target Prospect Categories
+            Layer One Target Prospect Categories
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {PROSPECT_CATEGORIES.map((group) => (

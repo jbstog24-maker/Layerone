@@ -96,7 +96,7 @@ async function startServer() {
     const redirectUri = `${origin}/api/oauth/callback`;
     const state = Buffer.from(redirectUri).toString("base64");
     const loginUrl = `${oauthPortalUrl}/app-auth?appId=${encodeURIComponent(appId)}&redirectUri=${encodeURIComponent(redirectUri)}&state=${encodeURIComponent(state)}&type=signIn`;
-    const appTitle = process.env.VITE_APP_TITLE ?? "StagingOps Portal";
+    const appTitle = process.env.VITE_APP_TITLE ?? "Layer One Staging Solutions Portal";
     const html = getLandingPageHtml({
       appTitle,
       analyticsEndpoint: process.env.VITE_ANALYTICS_ENDPOINT,

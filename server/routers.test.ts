@@ -1068,7 +1068,7 @@ describe("content.generateCaptions", () => {
         message: {
           content: JSON.stringify({
             captions: {
-              linkedin: { text: "Great LinkedIn post about NSDS.", hashtags: ["ITStaging", "NSDS"], charCount: 42 },
+              linkedin: { text: "Great LinkedIn post about Layer One.", hashtags: ["ITStaging", "Layer One"], charCount: 42 },
               instagram: { text: "Check out our facility! 🏭", hashtags: ["ITStaging", "DFW"], charCount: 28 },
             },
             altText: "A professional IT staging warehouse.",
@@ -1100,7 +1100,7 @@ describe("content.generateCaptions", () => {
         message: {
           content: JSON.stringify({
             captions: {
-              twitter: { text: "NSDS stages your IT gear. #ITStaging", hashtags: ["ITStaging"], charCount: 37 },
+              twitter: { text: "Layer One stages your IT gear. #ITStaging", hashtags: ["ITStaging"], charCount: 37 },
             },
             altText: "Warehouse with IT equipment.",
           }),
@@ -1156,8 +1156,8 @@ describe("leads intro email", () => {
       choices: [{
         message: {
           content: JSON.stringify({
-            subject: "Introduction: NSDS Staging Services for Acme IT",
-            body: "Hi there,\n\nWe wanted to reach out about NSDS...\n\nBest,\nNSDS Team",
+            subject: "Introduction: Layer One Staging Services for Acme IT",
+            body: "Hi there,\n\nWe wanted to reach out about Layer One...\n\nBest,\nLayer One Team",
           }),
         },
       }],
@@ -1180,7 +1180,7 @@ describe("leads intro email", () => {
       contactName: "John Smith", contactTitle: "IT Director",
     });
     (invokeLLM as any).mockResolvedValueOnce({
-      choices: [{ message: { content: JSON.stringify({ subject: "NSDS for TechCorp MSP", body: "Hi John,\n\nNSDS can help..." }) } }],
+      choices: [{ message: { content: JSON.stringify({ subject: "Layer One for TechCorp MSP", body: "Hi John,\n\nLayer One can help..." }) } }],
     });
     const ctx = makeCtx("admin");
     const caller = appRouter.createCaller(ctx);
@@ -1200,7 +1200,7 @@ describe("leads intro email", () => {
     const caller = appRouter.createCaller(ctx);
     const result = await caller.leads.sendIntroEmail({
       leadId: 1,
-      subject: "NSDS Introduction",
+      subject: "Layer One Introduction",
       body: "Hi there, we wanted to reach out...",
       recipientEmail: "contact@techcorp.com",
     });

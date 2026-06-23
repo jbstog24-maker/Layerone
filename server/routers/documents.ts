@@ -41,7 +41,7 @@ function buildMsaContent(params: {
     : "";
 
   return `MASTER SERVICE AGREEMENT
-NETWORK STAGING & DEPLOYMENT SOLUTIONS (NSDS)
+NETWORK STAGING & DEPLOYMENT SOLUTIONS (Layer One)
 
 Agreement Date: ${today}
 Client: ${clientName}
@@ -52,7 +52,7 @@ Estimated Go-Live Date: ${goLiveDate}
 
 1. SERVICES
 
-NSDS agrees to provide the following staging and logistics services to the Client under the ${packageName} package:
+Layer One agrees to provide the following staging and logistics services to the Client under the ${packageName} package:
 
   • ${tier.description}
   • Secure climate-controlled warehouse storage
@@ -67,16 +67,16 @@ NSDS agrees to provide the following staging and logistics services to the Clien
 Base Package Fee: ${basePrice} (${billingCycle})
 Payment is due upon execution of this agreement. Recurring charges will be billed on the same date each billing cycle.
 
-Overage charges apply for usage exceeding package limits per the current NSDS rate schedule.
+Overage charges apply for usage exceeding package limits per the current Layer One rate schedule.
 Late payments are subject to a 1.5% monthly finance charge.
 
 3. TERM AND TERMINATION
 
-This agreement commences on the go-live date (${goLiveDate}) following the 2-week onboarding and setup period. Either party may terminate with 30 days written notice. NSDS reserves the right to suspend services for non-payment.
+This agreement commences on the go-live date (${goLiveDate}) following the 2-week onboarding and setup period. Either party may terminate with 30 days written notice. Layer One reserves the right to suspend services for non-payment.
 
 4. ONBOARDING AND SETUP
 
-NSDS requires a 2-week setup period from the date of contract execution to:
+Layer One requires a 2-week setup period from the date of contract execution to:
   • Allocate and prepare the assigned warehouse space
   • Assign dedicated technicians (if applicable)
   • Configure customer portal access
@@ -84,7 +84,7 @@ NSDS requires a 2-week setup period from the date of contract execution to:
 
 5. LIABILITY AND INSURANCE
 
-NSDS maintains general liability insurance covering stored equipment up to $100,000 per occurrence. Client is responsible for insuring equipment values exceeding this limit. NSDS is not liable for equipment damage resulting from manufacturer defects, improper packaging, or force majeure events.
+Layer One maintains general liability insurance covering stored equipment up to $100,000 per occurrence. Client is responsible for insuring equipment values exceeding this limit. Layer One is not liable for equipment damage resulting from manufacturer defects, improper packaging, or force majeure events.
 
 6. CONFIDENTIALITY
 
@@ -108,7 +108,7 @@ Title: ___________________________
 
 ─────────────────────────────────────────────────────────────────────────────
 
-NSDS AUTHORIZED SIGNATURE
+LAYER ONE AUTHORIZED SIGNATURE
 
 Name: ___________________________  Date: _______________
 
@@ -117,7 +117,7 @@ Signature: ___________________________
 Title: ___________________________
 
 ─────────────────────────────────────────────────────────────────────────────
-NSDS | Network Staging & Deployment Solutions
+Layer One | Layer One Staging Solutions
 North Richland Hills, TX | nsds.com
 `;
 }

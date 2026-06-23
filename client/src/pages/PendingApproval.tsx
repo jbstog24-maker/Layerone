@@ -16,7 +16,7 @@ export default function PendingApproval() {
           </div>
           <h1 className="text-2xl font-bold tracking-tight">Account Pending Approval</h1>
           <p className="text-muted-foreground text-sm leading-relaxed max-w-sm mx-auto">
-            Your account has been created successfully. An NSDS team member will review and approve your access shortly.
+            Your account has been created successfully. An Layer One team member will review and approve your access shortly.
           </p>
         </div>
 
@@ -41,7 +41,7 @@ export default function PendingApproval() {
             )}
 
             <div className="border-t border-border/50 pt-4 space-y-3">
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Need help? Contact NSDS</p>
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Need help? Contact Layer One</p>
               <div className="space-y-2">
                 <a
                   href="mailto:operations@nsds.io"
