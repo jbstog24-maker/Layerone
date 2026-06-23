@@ -77,6 +77,16 @@ export function getLandingPageHtml(opts: {
     }
     .nav-logo { font-size: 1.05rem; font-weight: 700; letter-spacing: -0.02em; }
     .nav-logo span { color: var(--primary-light); }
+    .nav-links { display: flex; align-items: center; gap: 10px; }
+    .nav-signin {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 8px 16px; border-radius: 8px;
+      background: transparent; color: var(--muted);
+      font-size: 0.875rem; font-weight: 500;
+      border: 1px solid var(--border);
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .nav-signin:hover { color: var(--text); border-color: rgba(255,255,255,0.2); }
     .nav-cta {
       display: inline-flex; align-items: center; gap: 6px;
       padding: 8px 20px; border-radius: 8px;
@@ -251,7 +261,10 @@ export function getLandingPageHtml(opts: {
     <!-- Navigation -->
     <nav>
       <div class="nav-logo">${appTitle.replace("Portal", "<span>Portal</span>")}</div>
-      <a href="${loginUrl}" class="nav-cta">Sign In →</a>
+      <div class="nav-links">
+        <a href="${loginUrl}" class="nav-signin">Sign In</a>
+        <a href="${loginUrl}" class="nav-cta">Get Started →</a>
+      </div>
     </nav>
 
     <!-- Hero -->
@@ -264,9 +277,10 @@ export function getLandingPageHtml(opts: {
         invoicing, and support — all in one place.
       </p>
       <div class="hero-actions">
-        <a href="${loginUrl}" class="btn-primary">Sign In to Your Portal →</a>
-        <a href="#features" class="btn-secondary">See All Features</a>
+        <a href="${loginUrl}" class="btn-primary" style="font-size:1.05rem;padding:16px 36px;box-shadow:0 0 32px rgba(99,102,241,0.35);">Get Started Free →</a>
+        <a href="${loginUrl}" class="btn-secondary">Sign In</a>
       </div>
+      <p style="margin-top:1rem;font-size:0.8rem;color:var(--muted);">No credit card required &nbsp;·&nbsp; Setup in minutes &nbsp;·&nbsp; Cancel anytime</p>
     </header>
 
     <!-- Stats bar -->
@@ -476,8 +490,12 @@ export function getLandingPageHtml(opts: {
     <div class="cta-section">
       <div class="cta-inner">
         <h2>Ready to streamline your staging operation?</h2>
-        <p>Sign in to your portal or contact your account manager to get started.</p>
-        <a href="${loginUrl}" class="btn-primary">Sign In to Your Portal →</a>
+        <p>Join NSDS clients already managing their equipment, shipments, and invoices through the portal.</p>
+        <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+          <a href="${loginUrl}" class="btn-primary" style="font-size:1rem;padding:15px 36px;box-shadow:0 0 32px rgba(99,102,241,0.3);">Get Started Free →</a>
+          <a href="${loginUrl}" class="btn-secondary">Sign In to Existing Account</a>
+        </div>
+        <p style="margin-top:1.25rem;font-size:0.8rem;color:var(--muted);">No credit card required &nbsp;·&nbsp; Setup in minutes &nbsp;·&nbsp; Full portal access</p>
       </div>
     </div>
 
