@@ -34,8 +34,8 @@ export function getLandingPageHtml(opts: {
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
-  <title>${appTitle} — Network Equipment Staging &amp; Logistics Portal</title>
-  <meta name="description" content="${appTitle} is a professional operations portal for network equipment staging, warehousing, inventory management, and logistics. Manage devices, shipments, invoices, and client accounts in one place." />
+  <title>Layer One Staging Solutions — Receive. Stage. Kit. Deploy.</title>
+  <meta name="description" content="Layer One Staging Solutions is a fully managed IT staging and logistics operation serving MSPs, cabling contractors, and rollout teams in the Dallas area. Receive, stage, kit, and deploy — all tracked in one portal." />
   <meta name="keywords" content="network equipment staging, device management, logistics portal, warehouse management, IT staging, network operations" />
   <meta property="og:title" content="${appTitle}" />
   <meta property="og:description" content="Professional operations portal for network equipment staging, warehousing, and logistics management." />
@@ -271,12 +271,12 @@ export function getLandingPageHtml(opts: {
 
     <!-- Hero -->
     <header class="hero">
-      <div class="hero-badge">Operations Management Platform</div>
-      <h1>Network Equipment Staging &amp;<br /><em>Logistics Management</em></h1>
+      <div class="hero-badge">Receive. Stage. Kit. Deploy.</div>
+      <h1>Secure network staging<br /><em>before the truck rolls.</em></h1>
       <p>
-        A purpose-built portal for IT staging teams and their clients.
-        Track every device from arrival through shipment, manage warehousing,
-        invoicing, and support — all in one place.
+        Layer One handles receiving, organizing, staging, packing, shipping,
+        and deployment-prep for MSPs, cabling contractors, security installers,
+        and rollout teams — with full customer visibility through our portal.
       </p>
       <div class="hero-actions">
         <a href="${loginUrl}" class="btn-primary" style="font-size:1.05rem;padding:16px 36px;box-shadow:0 0 32px rgba(99,102,241,0.35);">Get Started Free →</a>
@@ -504,7 +504,7 @@ export function getLandingPageHtml(opts: {
     <!-- Footer -->
     <footer>
       <p>© ${new Date().getFullYear()} ${appTitle}. All rights reserved.</p>
-      <p>Network Equipment Staging &amp; Logistics Management Platform</p>
+      <p>Layer One Staging Solutions — Dallas, TX</p>
     </footer>
 
   </div><!-- /.landing-page-shell -->
