@@ -74,7 +74,7 @@ function PackageForm({ onClose, packageId }: { onClose: () => void; packageId?: 
         </div>
         <div>
           <Label>Tier</Label>
-          <Select onValueChange={(v) => setValue("tier", v as any)} defaultValue={existing?.tier ?? "pilot"}>
+          <Select onValueChange={(v) => setValue("tier", v as any)} defaultValue={existing?.tier ?? "basic"}>
             <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
             <SelectContent>
               {TIERS.map(t => <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>)}

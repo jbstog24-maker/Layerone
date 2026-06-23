@@ -3,6 +3,9 @@ import { z } from "zod";
 import { createPackage, getPackage, listPackages, updatePackage } from "../db";
 import { protectedProcedure, publicProcedure, router } from "../_core/trpc";
 
+// Must match the DB enum: mysqlEnum("tier", ["basic","standard","professional","enterprise","custom"])
+const TIER_ENUM = z.enum(["basic", "standard", "professional", "enterprise", "custom"]);
+
 export const packagesRouter = router({
   list: publicProcedure.query(() => listPackages()),
 
@@ -17,7 +20,7 @@ export const packagesRouter = router({
   create: protectedProcedure
     .input(z.object({
       name: z.string().min(1),
-      tier: z.enum(["pilot", "shelf", "bay", "dedicated", "rollout", "custom"]),
+      tier: TIER_ENUM,
       basePrice: z.string(),
       billingCycle: z.enum(["one_time", "monthly"]).optional(),
       maxDevices: z.number().optional(),
@@ -38,7 +41,7 @@ export const packagesRouter = router({
     .input(z.object({
       id: z.number(),
       name: z.string().min(1).optional(),
-      tier: z.enum(["pilot", "shelf", "bay", "dedicated", "rollout", "custom"]).optional(),
+      tier: TIER_ENUM.optional(),
       basePrice: z.string().optional(),
       billingCycle: z.enum(["one_time", "monthly"]).optional(),
       maxDevices: z.number().optional(),
