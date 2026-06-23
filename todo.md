@@ -336,3 +336,8 @@
 - [x] Build Asset Gallery page: grid view, filter by type/tag, download, delete
 - [x] Add Content Studio nav item to Sales group in sidebar
 - [x] Write Vitest tests for content router
+
+## Social Media Captions Tab (Content Studio)
+- [x] Add content.generateCaptions tRPC procedure (LinkedIn, Instagram, Twitter/X, Facebook)
+- [x] Add Captions tab to ContentStudio.tsx with image picker from gallery + platform selector
+- [x] Write Vitest tests for generateCaptions procedure

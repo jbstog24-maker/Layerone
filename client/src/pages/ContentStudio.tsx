@@ -27,7 +27,18 @@ import {
   MessageSquare,
   Music,
   Zap,
+  Share2,
+  Hash,
+  Copy,
+  Check,
+  Linkedin,
+  Instagram,
+  Twitter,
+  Facebook,
+  ChevronDown,
+  Globe,
 } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Link } from "wouter";
 
@@ -113,6 +124,17 @@ export default function ContentStudio() {
   const [enhancePrompt, setEnhancePrompt] = useState(true);
   const [generatedImage, setGeneratedImage] = useState<{ id: number; url?: string } | null>(null);
 
+  // Captions state
+  const [captionAssetId, setCaptionAssetId] = useState<number | null>(null);
+  const [captionCustomDesc, setCaptionCustomDesc] = useState("");
+  const [captionPlatforms, setCaptionPlatforms] = useState<string[]>(["linkedin", "instagram", "twitter", "facebook"]);
+  const [captionTone, setCaptionTone] = useState<"professional" | "conversational" | "energetic" | "educational">("professional");
+  const [captionIncludeHashtags, setCaptionIncludeHashtags] = useState(true);
+  const [captionIncludeEmoji, setCaptionIncludeEmoji] = useState(true);
+  const [captionContext, setCaptionContext] = useState("");
+  const [captionResult, setCaptionResult] = useState<any | null>(null);
+  const [copiedKey, setCopiedKey] = useState<string | null>(null);
+
   // Video generation state
   const [videoTitle, setVideoTitle] = useState("");
   const [videoConcept, setVideoConcept] = useState("");
@@ -131,6 +153,50 @@ export default function ContentStudio() {
     },
     onError: (err) => toast.error(err.message),
   });
+
+  const generateCaptionsMut = trpc.content.generateCaptions.useMutation({
+    onSuccess: (data) => {
+      setCaptionResult(data);
+      toast.success("Captions generated!");
+    },
+    onError: (err) => toast.error(err.message),
+  });
+
+  const { data: galleryImages = [] } = trpc.content.list.useQuery(
+    { assetType: "image", status: "ready" },
+    { staleTime: 30_000 }
+  );
+
+  const handleCopyCaption = (key: string, text: string, hashtags: string[]) => {
+    const full = captionIncludeHashtags && hashtags?.length
+      ? `${text}\n\n${hashtags.map((h: string) => `#${h.replace(/^#/, "")}`).join(" ")}`
+      : text;
+    navigator.clipboard.writeText(full);
+    setCopiedKey(key);
+    toast.success(`${key} caption copied!`);
+    setTimeout(() => setCopiedKey(null), 2000);
+  };
+
+  const handleGenerateCaptions = () => {
+    if (!captionAssetId && !captionCustomDesc.trim()) {
+      toast.error("Select a gallery image or enter a description");
+      return;
+    }
+    if (captionPlatforms.length === 0) {
+      toast.error("Select at least one platform");
+      return;
+    }
+    setCaptionResult(null);
+    generateCaptionsMut.mutate({
+      assetId: captionAssetId ?? undefined,
+      imageDescription: captionCustomDesc || undefined,
+      platforms: captionPlatforms as any,
+      tone: captionTone,
+      includeHashtags: captionIncludeHashtags,
+      includeEmoji: captionIncludeEmoji,
+      campaignContext: captionContext || undefined,
+    });
+  };
 
   const generateVideoMut = trpc.content.generateVideo.useMutation({
     onSuccess: (data) => {
@@ -203,6 +269,10 @@ export default function ContentStudio() {
           <TabsTrigger value="video" className="gap-2 data-[state=active]:bg-purple-500/20 data-[state=active]:text-purple-400">
             <Video className="h-4 w-4" />
             Video Producer
+          </TabsTrigger>
+          <TabsTrigger value="captions" className="gap-2 data-[state=active]:bg-green-500/20 data-[state=active]:text-green-400">
+            <Share2 className="h-4 w-4" />
+            Social Captions
           </TabsTrigger>
         </TabsList>
 
@@ -572,6 +642,277 @@ export default function ContentStudio() {
                       <Film className="h-3.5 w-3.5" />
                       View Full Production Package
                     </Button>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+          </div>
+        </TabsContent>
+        {/* ─── CAPTIONS TAB ──────────────────────────────────────────────────── */}
+        <TabsContent value="captions" className="space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Left: Controls */}
+            <div className="space-y-4">
+              <Card className="bg-slate-900 border-slate-700">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-white text-base flex items-center gap-2">
+                    <Share2 className="h-4 w-4 text-green-400" />
+                    Caption Settings
+                  </CardTitle>
+                  <CardDescription className="text-slate-400 text-xs">
+                    Pick a generated image or describe one — AI writes platform-optimised captions
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+
+                  {/* Image source */}
+                  <div className="space-y-1.5">
+                    <Label className="text-slate-300 text-xs">Source Image</Label>
+                    {galleryImages.length > 0 ? (
+                      <Select
+                        value={captionAssetId ? String(captionAssetId) : "custom"}
+                        onValueChange={(v) => {
+                          if (v === "custom") setCaptionAssetId(null);
+                          else setCaptionAssetId(Number(v));
+                        }}
+                      >
+                        <SelectTrigger className="bg-slate-800 border-slate-600 text-white">
+                          <SelectValue placeholder="Select a gallery image..." />
+                        </SelectTrigger>
+                        <SelectContent className="bg-slate-800 border-slate-700">
+                          <SelectItem value="custom" className="text-slate-200 focus:bg-slate-700">Custom description (no image)</SelectItem>
+                          {galleryImages.map((img) => (
+                            <SelectItem key={img.id} value={String(img.id)} className="text-slate-200 focus:bg-slate-700">
+                              {img.title}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    ) : (
+                      <p className="text-slate-500 text-xs bg-slate-800 rounded-lg p-3 border border-slate-700">
+                        No gallery images yet — generate one in the Image Generator tab first, or use a custom description below.
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Selected image preview */}
+                  {captionAssetId && (() => {
+                    const img = galleryImages.find((i) => i.id === captionAssetId);
+                    return img?.fileUrl ? (
+                      <div className="rounded-lg overflow-hidden border border-slate-700">
+                        <img src={img.fileUrl} alt={img.title} className="w-full object-cover max-h-36" />
+                      </div>
+                    ) : null;
+                  })()}
+
+                  {/* Custom description */}
+                  {!captionAssetId && (
+                    <div className="space-y-1.5">
+                      <Label className="text-slate-300 text-xs">Image Description *</Label>
+                      <Textarea
+                        placeholder="Describe the image scene, subjects, and mood..."
+                        value={captionCustomDesc}
+                        onChange={(e) => setCaptionCustomDesc(e.target.value)}
+                        rows={3}
+                        className="bg-slate-800 border-slate-600 text-white placeholder:text-slate-500 resize-none"
+                      />
+                    </div>
+                  )}
+
+                  {/* Platforms */}
+                  <div className="space-y-2">
+                    <Label className="text-slate-300 text-xs">Platforms</Label>
+                    <div className="grid grid-cols-2 gap-2">
+                      {([
+                        { id: "linkedin", label: "LinkedIn", color: "text-blue-400", bg: "bg-blue-500/10 border-blue-500/20" },
+                        { id: "instagram", label: "Instagram", color: "text-pink-400", bg: "bg-pink-500/10 border-pink-500/20" },
+                        { id: "twitter", label: "Twitter / X", color: "text-sky-400", bg: "bg-sky-500/10 border-sky-500/20" },
+                        { id: "facebook", label: "Facebook", color: "text-indigo-400", bg: "bg-indigo-500/10 border-indigo-500/20" },
+                      ] as const).map((p) => (
+                        <button
+                          key={p.id}
+                          onClick={() => setCaptionPlatforms((prev) =>
+                            prev.includes(p.id) ? prev.filter((x) => x !== p.id) : [...prev, p.id]
+                          )}
+                          className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-xs font-medium transition-colors ${
+                            captionPlatforms.includes(p.id)
+                              ? `${p.bg} ${p.color}`
+                              : "bg-slate-800 border-slate-700 text-slate-500 hover:text-slate-300"
+                          }`}
+                        >
+                          <div className={`w-2 h-2 rounded-full ${captionPlatforms.includes(p.id) ? "bg-current" : "bg-slate-600"}`} />
+                          {p.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Tone */}
+                  <div className="space-y-1.5">
+                    <Label className="text-slate-300 text-xs">Tone</Label>
+                    <Select value={captionTone} onValueChange={(v) => setCaptionTone(v as any)}>
+                      <SelectTrigger className="bg-slate-800 border-slate-600 text-white">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="bg-slate-800 border-slate-700">
+                        <SelectItem value="professional" className="text-slate-200 focus:bg-slate-700">Professional</SelectItem>
+                        <SelectItem value="conversational" className="text-slate-200 focus:bg-slate-700">Conversational</SelectItem>
+                        <SelectItem value="energetic" className="text-slate-200 focus:bg-slate-700">Energetic</SelectItem>
+                        <SelectItem value="educational" className="text-slate-200 focus:bg-slate-700">Educational</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Options */}
+                  <div className="flex gap-4">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <Checkbox
+                        checked={captionIncludeHashtags}
+                        onCheckedChange={(v) => setCaptionIncludeHashtags(!!v)}
+                        className="border-slate-600"
+                      />
+                      <span className="text-slate-300 text-xs">Include hashtags</span>
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <Checkbox
+                        checked={captionIncludeEmoji}
+                        onCheckedChange={(v) => setCaptionIncludeEmoji(!!v)}
+                        className="border-slate-600"
+                      />
+                      <span className="text-slate-300 text-xs">Include emoji</span>
+                    </label>
+                  </div>
+
+                  {/* Campaign context */}
+                  <div className="space-y-1.5">
+                    <Label className="text-slate-300 text-xs">Campaign Context (optional)</Label>
+                    <Input
+                      placeholder="e.g. Q3 lead gen campaign targeting DFW MSPs"
+                      value={captionContext}
+                      onChange={(e) => setCaptionContext(e.target.value)}
+                      className="bg-slate-800 border-slate-600 text-white placeholder:text-slate-500"
+                    />
+                  </div>
+
+                  <Button
+                    onClick={handleGenerateCaptions}
+                    disabled={generateCaptionsMut.isPending}
+                    className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold gap-2"
+                  >
+                    {generateCaptionsMut.isPending ? (
+                      <><RefreshCw className="h-4 w-4 animate-spin" />Generating captions...</>
+                    ) : (
+                      <><Share2 className="h-4 w-4" />Generate Captions</>
+                    )}
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Right: Results */}
+            <div className="space-y-4">
+              {generateCaptionsMut.isPending ? (
+                <Card className="bg-slate-900 border-slate-700">
+                  <CardContent className="pt-8 pb-8 flex flex-col items-center gap-3">
+                    <div className="relative">
+                      <div className="w-12 h-12 rounded-full border-2 border-green-500/30 border-t-green-500 animate-spin" />
+                      <Share2 className="h-5 w-5 text-green-400 absolute inset-0 m-auto" />
+                    </div>
+                    <p className="text-slate-300 text-sm font-medium">Writing captions...</p>
+                    <p className="text-slate-500 text-xs">Crafting {captionPlatforms.length} platform-specific versions</p>
+                  </CardContent>
+                </Card>
+              ) : captionResult ? (
+                <div className="space-y-3">
+                  {/* Alt text */}
+                  {captionResult.altText && (
+                    <Card className="bg-slate-900 border-slate-700">
+                      <CardContent className="pt-3 pb-3">
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-slate-500 text-xs font-semibold uppercase tracking-wide flex items-center gap-1">
+                            <Globe className="h-3 w-3" /> Accessibility Alt Text
+                          </span>
+                          <Button variant="ghost" size="sm" className="h-5 text-xs text-slate-600 hover:text-white"
+                            onClick={() => { navigator.clipboard.writeText(captionResult.altText); toast.success("Alt text copied"); }}>
+                            Copy
+                          </Button>
+                        </div>
+                        <p className="text-slate-400 text-xs italic">{captionResult.altText}</p>
+                      </CardContent>
+                    </Card>
+                  )}
+
+                  {/* Per-platform captions */}
+                  {([
+                    { id: "linkedin", label: "LinkedIn", accent: "text-blue-400", border: "border-blue-500/20", bg: "bg-blue-500/5" },
+                    { id: "instagram", label: "Instagram", accent: "text-pink-400", border: "border-pink-500/20", bg: "bg-pink-500/5" },
+                    { id: "twitter", label: "Twitter / X", accent: "text-sky-400", border: "border-sky-500/20", bg: "bg-sky-500/5" },
+                    { id: "facebook", label: "Facebook", accent: "text-indigo-400", border: "border-indigo-500/20", bg: "bg-indigo-500/5" },
+                  ] as const)
+                    .filter((p) => captionResult.captions?.[p.id])
+                    .map((p) => {
+                      const cap = captionResult.captions[p.id];
+                      const isCopied = copiedKey === p.id;
+                      return (
+                        <Card key={p.id} className={`bg-slate-900 ${p.border} border`}>
+                          <CardHeader className="pb-2 pt-3">
+                            <div className="flex items-center justify-between">
+                              <CardTitle className={`text-sm flex items-center gap-2 ${p.accent}`}>
+                                <Share2 className="h-3.5 w-3.5" />
+                                {p.label}
+                                {cap.charCount > 0 && (
+                                  <span className="text-slate-600 text-xs font-normal">{cap.charCount} chars</span>
+                                )}
+                              </CardTitle>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className={`h-6 text-xs gap-1 ${isCopied ? "text-green-400" : "text-slate-500 hover:text-white"}`}
+                                onClick={() => handleCopyCaption(p.id, cap.text, cap.hashtags)}
+                              >
+                                {isCopied ? <><Check className="h-3 w-3" />Copied!</> : <><Copy className="h-3 w-3" />Copy</>}
+                              </Button>
+                            </div>
+                          </CardHeader>
+                          <CardContent className={`pt-0 rounded-b-xl ${p.bg}`}>
+                            <p className="text-slate-200 text-xs leading-relaxed whitespace-pre-line">{cap.text}</p>
+                            {captionIncludeHashtags && cap.hashtags?.length > 0 && (
+                              <div className="mt-2 flex flex-wrap gap-1">
+                                {cap.hashtags.map((tag: string, i: number) => (
+                                  <span key={i} className={`text-xs ${p.accent} opacity-70`}>
+                                    #{tag.replace(/^#/, "")}
+                                  </span>
+                                ))}
+                              </div>
+                            )}
+                          </CardContent>
+                        </Card>
+                      );
+                    })}
+
+                  <Button
+                    variant="outline"
+                    className="w-full border-slate-700 text-slate-400 hover:text-white gap-2 text-xs"
+                    onClick={() => {
+                      const all = Object.entries(captionResult.captions)
+                        .map(([platform, cap]: [string, any]) => `=== ${platform.toUpperCase()} ===\n${cap.text}${captionIncludeHashtags && cap.hashtags?.length ? `\n\n${cap.hashtags.map((h: string) => `#${h.replace(/^#/, "")}`).join(" ")}` : ""}`)
+                        .join("\n\n");
+                      navigator.clipboard.writeText(all);
+                      toast.success("All captions copied!");
+                    }}
+                  >
+                    <Copy className="h-3.5 w-3.5" />
+                    Copy All Captions
+                  </Button>
+                </div>
+              ) : (
+                <Card className="bg-slate-900 border-slate-700">
+                  <CardContent className="pt-12 pb-12 flex flex-col items-center gap-3">
+                    <Share2 className="h-10 w-10 text-slate-600" />
+                    <p className="text-slate-400 text-sm">Your captions will appear here</p>
+                    <p className="text-slate-600 text-xs text-center max-w-xs">
+                      Select an image from your gallery (or enter a description), choose your platforms, and click Generate
+                    </p>
                   </CardContent>
                 </Card>
               )}

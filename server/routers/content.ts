@@ -318,4 +318,127 @@ Return JSON with this exact structure:
         throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: err?.message ?? "Regeneration failed" });
       }
     }),
+
+  // ─── Generate platform-specific social media captions ───────────────────────
+  generateCaptions: staffProcedure
+    .input(z.object({
+      // Either provide an asset ID (to use a gallery image) or a custom description
+      assetId: z.number().optional(),
+      imageDescription: z.string().optional(),
+      imageUrl: z.string().optional(),
+      platforms: z.array(z.enum(["linkedin", "instagram", "twitter", "facebook"])).min(1),
+      tone: z.enum(["professional", "conversational", "energetic", "educational"]).default("professional"),
+      includeHashtags: z.boolean().default(true),
+      includeEmoji: z.boolean().default(true),
+      campaignContext: z.string().optional(),
+    }))
+    .mutation(async ({ input }) => {
+      // Build context from asset or custom description
+      let imageContext = input.imageDescription ?? "";
+      let imageUrlForPrompt = input.imageUrl ?? "";
+
+      if (input.assetId) {
+        const asset = await getMarketingAsset(input.assetId);
+        if (asset) {
+          imageContext = asset.prompt;
+          imageUrlForPrompt = asset.fileUrl ?? "";
+        }
+      }
+
+      if (!imageContext && !imageUrlForPrompt) {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "Provide either an asset ID or an image description" });
+      }
+
+      const platformSpecs: Record<string, { maxChars: number; style: string; hashtagCount: string }> = {
+        linkedin: {
+          maxChars: 700,
+          style: "professional, thought-leadership tone, B2B focused, starts with a hook line, ends with a question or CTA",
+          hashtagCount: "3–5 professional hashtags",
+        },
+        instagram: {
+          maxChars: 300,
+          style: "visual storytelling, engaging, slightly casual but still professional, uses line breaks for readability",
+          hashtagCount: "10–15 relevant hashtags in a separate block",
+        },
+        twitter: {
+          maxChars: 280,
+          style: "punchy, concise, direct, fits in a single tweet, strong hook",
+          hashtagCount: "2–3 hashtags max",
+        },
+        facebook: {
+          maxChars: 500,
+          style: "community-friendly, approachable, slightly longer form, good for local DFW business audience",
+          hashtagCount: "3–5 hashtags",
+        },
+      };
+
+      const selectedPlatforms = input.platforms.filter((p) => platformSpecs[p]);
+
+      const platformInstructions = selectedPlatforms
+        .map((p) => {
+          const spec = platformSpecs[p];
+          return `${p.toUpperCase()}: ${spec.style}. Max ${spec.maxChars} characters. Use ${spec.hashtagCount}.`;
+        })
+        .join("\n");
+
+      const result = await invokeLLM({
+        messages: [
+          {
+            role: "system",
+            content: `You are a professional social media copywriter for NSDS (Network Staging & Deployment Solutions), a B2B IT hardware staging and deployment company based in Dallas-Fort Worth, TX.
+
+NSDS services: device receiving, organizing, staging, imaging, packing, shipping, and deployment prep for MSPs, cabling contractors, security installers, and enterprise IT rollout teams.
+Brand voice: expert, trustworthy, efficient, DFW-proud.
+Brand colors: deep navy #07111f, electric blue #39a7ff, mint green #6ee7b7.
+Website: nsds.io
+
+Tone requested: ${input.tone}
+Include emoji: ${input.includeEmoji ? "yes, use sparingly and professionally" : "no"}
+Include hashtags: ${input.includeHashtags ? "yes" : "no"}
+${input.campaignContext ? `Campaign context: ${input.campaignContext}` : ""}
+
+Generate platform-specific captions. Return JSON only.`,
+          },
+          {
+            role: "user",
+            content: `Image description / prompt: "${imageContext}"
+
+Generate captions for these platforms:\n${platformInstructions}
+
+Return JSON with this exact structure:
+{
+  "captions": {
+    ${selectedPlatforms.map((p) => `"${p}": { "text": "...", "hashtags": ["..."], "charCount": 0 }`).join(",\n    ")}
+  },
+  "altText": "Accessibility alt text for the image (1 sentence)"
+}`,
+          },
+        ],
+        response_format: {
+          type: "json_schema",
+          json_schema: {
+            name: "social_captions",
+            strict: false,
+            schema: {
+              type: "object",
+              properties: {
+                captions: { type: "object" },
+                altText: { type: "string" },
+              },
+              required: ["captions", "altText"],
+              additionalProperties: false,
+            },
+          },
+        },
+      });
+
+      const rawContent = result?.choices?.[0]?.message?.content;
+      const parsed = typeof rawContent === "string" ? JSON.parse(rawContent) : rawContent;
+
+      return {
+        captions: parsed.captions as Record<string, { text: string; hashtags: string[]; charCount: number }>,
+        altText: parsed.altText as string,
+        imageContext,
+      };
+    }),
 });

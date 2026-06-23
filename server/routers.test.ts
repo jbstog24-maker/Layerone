@@ -1058,3 +1058,92 @@ describe("content router", () => {
     await expect(caller.content.generateImage({ title: "x", prompt: "x", enhancePrompt: false })).rejects.toThrow();
   });
 });
+
+// ─── content.generateCaptions ─────────────────────────────────────────────────
+describe("content.generateCaptions", () => {
+  it("generates captions from a custom description for admin", async () => {
+    const { invokeLLM } = await import("./_core/llm");
+    (invokeLLM as any).mockResolvedValueOnce({
+      choices: [{
+        message: {
+          content: JSON.stringify({
+            captions: {
+              linkedin: { text: "Great LinkedIn post about NSDS.", hashtags: ["ITStaging", "NSDS"], charCount: 42 },
+              instagram: { text: "Check out our facility! 🏭", hashtags: ["ITStaging", "DFW"], charCount: 28 },
+            },
+            altText: "A professional IT staging warehouse.",
+          }),
+        },
+      }],
+    });
+    const ctx = makeCtx("admin");
+    const caller = appRouter.createCaller(ctx);
+    const result = await caller.content.generateCaptions({
+      imageDescription: "Modern IT staging warehouse with servers",
+      platforms: ["linkedin", "instagram"],
+      tone: "professional",
+      includeHashtags: true,
+      includeEmoji: true,
+    });
+    expect(result.captions.linkedin.text).toContain("LinkedIn");
+    expect(result.altText).toBeTruthy();
+  });
+
+  it("generates captions from an asset ID for staff", async () => {
+    const { getMarketingAsset } = await import("./db");
+    const { invokeLLM } = await import("./_core/llm");
+    (getMarketingAsset as any).mockResolvedValueOnce({
+      id: 5, title: "Hero Shot", assetType: "image", prompt: "Warehouse photo", fileUrl: "/manus-storage/test.png", status: "ready", createdAt: new Date(),
+    });
+    (invokeLLM as any).mockResolvedValueOnce({
+      choices: [{
+        message: {
+          content: JSON.stringify({
+            captions: {
+              twitter: { text: "NSDS stages your IT gear. #ITStaging", hashtags: ["ITStaging"], charCount: 37 },
+            },
+            altText: "Warehouse with IT equipment.",
+          }),
+        },
+      }],
+    });
+    const ctx = makeCtx("staff");
+    const caller = appRouter.createCaller(ctx);
+    const result = await caller.content.generateCaptions({
+      assetId: 5,
+      platforms: ["twitter"],
+      tone: "energetic",
+      includeHashtags: true,
+      includeEmoji: false,
+    });
+    expect(result.captions.twitter).toBeDefined();
+    expect(result.imageContext).toBe("Warehouse photo");
+  });
+
+  it("throws BAD_REQUEST when no asset ID or description provided", async () => {
+    const ctx = makeCtx("admin");
+    const caller = appRouter.createCaller(ctx);
+    await expect(
+      caller.content.generateCaptions({
+        platforms: ["linkedin"],
+        tone: "professional",
+        includeHashtags: true,
+        includeEmoji: true,
+      })
+    ).rejects.toThrow();
+  });
+
+  it("throws FORBIDDEN for customer role", async () => {
+    const ctx = makeCtx("customer_viewer", 1);
+    const caller = appRouter.createCaller(ctx);
+    await expect(
+      caller.content.generateCaptions({
+        imageDescription: "test",
+        platforms: ["linkedin"],
+        tone: "professional",
+        includeHashtags: true,
+        includeEmoji: true,
+      })
+    ).rejects.toThrow();
+  });
+});
