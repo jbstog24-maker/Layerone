@@ -322,8 +322,11 @@ function DashboardLayoutContent({
               >
                 <PanelLeft className="h-4 w-4 text-sidebar-foreground/60" />
               </button>
-              {!isCollapsed && (
-                <div className="flex items-center gap-2 min-w-0 flex-1">
+              <div
+                className={`flex items-center gap-2 min-w-0 flex-1 overflow-hidden transition-[opacity,max-width] duration-300 ease-[cubic-bezier(0.23,1,0.32,1)] ${
+                  isCollapsed ? "opacity-0 max-w-0 pointer-events-none" : "opacity-100 max-w-full"
+                }`}
+              >
                   <img
                     src="/manus-storage/layerone-logo-on-dark_6114040f.png"
                     alt="Layer One Staging Solutions"
@@ -340,17 +343,16 @@ function DashboardLayoutContent({
                       : <PinOff className="h-3.5 w-3.5 text-sidebar-foreground/40" />}
                   </button>
                 </div>
-              )}
             </div>
           </SidebarHeader>
 
           <SidebarContent className="gap-0 py-2">
             {/* Global search — visible only when sidebar is expanded */}
-            {!isCollapsed && (
-              <div className="px-3 pb-1">
-                <GlobalSearch />
-              </div>
-            )}
+            <div className={`px-3 pb-1 overflow-hidden transition-[opacity,max-height] duration-300 ease-[cubic-bezier(0.23,1,0.32,1)] ${
+              isCollapsed ? "opacity-0 max-h-0 pointer-events-none" : "opacity-100 max-h-20"
+            }`}>
+              <GlobalSearch />
+            </div>
             {NAV_GROUPS.filter(canSee).map((group, groupIndex, filteredGroups) => {
               const visibleItems = group.items.filter(canSee);
               if (visibleItems.length === 0) return null;
