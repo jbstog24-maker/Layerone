@@ -42,6 +42,8 @@ import {
   MessageSquare,
   Package,
   PanelLeft,
+  Pin,
+  PinOff,
   Search,
   Server,
   Settings,
@@ -164,6 +166,7 @@ const NAV_GROUPS: NavGroup[] = [
 ];
 
 const SIDEBAR_WIDTH_KEY = "sidebar-width";
+const SIDEBAR_PINNED_KEY = "sidebar-pinned";
 const DEFAULT_WIDTH = 240;
 const MIN_WIDTH = 200;
 const MAX_WIDTH = 320;
@@ -173,11 +176,18 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     const saved = localStorage.getItem(SIDEBAR_WIDTH_KEY);
     return saved ? parseInt(saved, 10) : DEFAULT_WIDTH;
   });
+  const [sidebarPinned, setSidebarPinned] = useState(() => {
+    return localStorage.getItem(SIDEBAR_PINNED_KEY) !== "false";
+  });
   const { loading, user } = useAuth();
 
   useEffect(() => {
     localStorage.setItem(SIDEBAR_WIDTH_KEY, sidebarWidth.toString());
   }, [sidebarWidth]);
+
+  useEffect(() => {
+    localStorage.setItem(SIDEBAR_PINNED_KEY, sidebarPinned.toString());
+  }, [sidebarPinned]);
 
   if (loading) return <DashboardLayoutSkeleton />;
 
@@ -216,8 +226,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   }
 
   return (
-    <SidebarProvider style={{ "--sidebar-width": `${sidebarWidth}px` } as CSSProperties}>
-      <DashboardLayoutContent setSidebarWidth={setSidebarWidth}>
+    <SidebarProvider
+      defaultOpen={sidebarPinned}
+      style={{ "--sidebar-width": `${sidebarWidth}px` } as CSSProperties}
+    >
+      <DashboardLayoutContent setSidebarWidth={setSidebarWidth} sidebarPinned={sidebarPinned} setSidebarPinned={setSidebarPinned}>
         {children}
       </DashboardLayoutContent>
     </SidebarProvider>
@@ -227,9 +240,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 function DashboardLayoutContent({
   children,
   setSidebarWidth,
+  sidebarPinned,
+  setSidebarPinned,
 }: {
   children: React.ReactNode;
   setSidebarWidth: (w: number) => void;
+  sidebarPinned: boolean;
+  setSidebarPinned: (v: boolean) => void;
 }) {
   const { user, logout } = useAuth();
   const [location, setLocation] = useLocation();
@@ -296,8 +313,7 @@ function DashboardLayoutContent({
 
   return (
     <>
-      <div className="relative" ref={sidebarRef}>
-        <Sidebar collapsible="icon" className="border-r border-border/50 bg-sidebar" disableTransition={isResizing}>
+      <Sidebar collapsible="icon" className="border-r border-border/50 bg-sidebar" disableTransition={isResizing} ref={sidebarRef}>
           <SidebarHeader className="h-14 border-b border-border/50">
             <div className="flex items-center gap-2.5 px-2">
               <button
@@ -307,12 +323,22 @@ function DashboardLayoutContent({
                 <PanelLeft className="h-4 w-4 text-sidebar-foreground/60" />
               </button>
               {!isCollapsed && (
-                <div className="flex items-center gap-2 min-w-0">
+                <div className="flex items-center gap-2 min-w-0 flex-1">
                   <img
                     src="/manus-storage/layerone-logo-on-dark_6114040f.png"
                     alt="Layer One Staging Solutions"
                     className="h-7 w-auto object-contain shrink-0"
                   />
+                  {/* Pin button — keeps sidebar expanded */}
+                  <button
+                    onClick={() => setSidebarPinned(!sidebarPinned)}
+                    className="ml-auto h-6 w-6 flex items-center justify-center hover:bg-sidebar-accent rounded-md transition-colors shrink-0"
+                    title={sidebarPinned ? "Unpin sidebar" : "Pin sidebar open"}
+                  >
+                    {sidebarPinned
+                      ? <Pin className="h-3.5 w-3.5 text-primary" />
+                      : <PinOff className="h-3.5 w-3.5 text-sidebar-foreground/40" />}
+                  </button>
                 </div>
               )}
             </div>
@@ -431,12 +457,6 @@ function DashboardLayoutContent({
             </DropdownMenu>
           </SidebarFooter>
         </Sidebar>
-        <div
-          className={`absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-primary/20 transition-colors ${isCollapsed ? "hidden" : ""}`}
-          onMouseDown={() => { if (!isCollapsed) setIsResizing(true); }}
-          style={{ zIndex: 50 }}
-        />
-      </div>
 
       <SidebarInset>
         {isMobile && (
