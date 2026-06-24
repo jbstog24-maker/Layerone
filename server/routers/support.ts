@@ -114,6 +114,14 @@ export const supportRouter = router({
       return { success: true };
     }),
 
+  // Count open tickets for staff badge
+  countOpen: protectedProcedure
+    .query(async ({ ctx }) => {
+      if (!isStaffOrAdmin(ctx.user.role)) return 0;
+      const tickets = await listSupportTickets();
+      return tickets.filter(t => t.status === "open" || t.status === "in_progress").length;
+    }),
+
   // Add a reply to a ticket
   reply: protectedProcedure
     .input(z.object({

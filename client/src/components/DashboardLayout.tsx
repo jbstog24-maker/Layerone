@@ -271,6 +271,12 @@ function DashboardLayoutContent({
     { enabled: !!user && !isAdminOrStaff, refetchInterval: 30_000 },
   );
 
+  // Open support ticket count for staff badge
+  const { data: openTickets = 0 } = trpc.support.countOpen.useQuery(
+    undefined,
+    { enabled: !!user && isAdminOrStaff, refetchInterval: 60_000 },
+  );
+
   const roleLabel: Record<string, string> = {
     admin: "Admin",
     staff: "Staff",
@@ -409,6 +415,12 @@ function DashboardLayoutContent({
                             {item.path === "/support-messages" && !isAdminOrStaff && myUnread > 0 && !isCollapsed && (
                               <span className="shrink-0 ml-auto min-w-[18px] h-[18px] rounded-full bg-primary text-primary-foreground text-[10px] flex items-center justify-center font-bold px-1">
                                 {myUnread > 99 ? "99+" : myUnread}
+                              </span>
+                            )}
+                            {/* Staff: open support ticket count */}
+                            {item.path === "/admin/tickets" && isAdminOrStaff && openTickets > 0 && !isCollapsed && (
+                              <span className="shrink-0 ml-auto min-w-[18px] h-[18px] rounded-full bg-orange-500 text-white text-[10px] flex items-center justify-center font-bold px-1">
+                                {openTickets > 99 ? "99+" : openTickets}
                               </span>
                             )}
                           </SidebarMenuButton>

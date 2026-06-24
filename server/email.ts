@@ -1012,3 +1012,82 @@ export async function sendQuoteEmail(params: QuoteEmailParams): Promise<boolean>
     return false;
   }
 }
+
+// ─── Shipment Tracking Notification ──────────────────────────────────────────
+export type TrackingNotificationParams = {
+  to: string;
+  clientName: string;
+  shipmentCode: string;
+  destination: string;
+  carrier: string;
+  trackingNumber: string;
+  portalUrl: string;
+};
+
+export async function sendTrackingNotificationEmail(params: TrackingNotificationParams): Promise<boolean> {
+  const html = `<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;padding:0;background:#07111f;font-family:'Segoe UI',Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#07111f;padding:40px 20px;">
+    <tr><td align="center">
+      <table width="600" cellpadding="0" cellspacing="0" style="background:#0d1f35;border-radius:12px;border:1px solid #1e3a5f;overflow:hidden;max-width:600px;width:100%;">
+        <tr><td style="background:linear-gradient(135deg,#0f3460 0%,#1a5276 100%);padding:32px 40px;text-align:center;">
+          <h1 style="margin:0;font-size:22px;font-weight:700;color:#ffffff;">📦 Your Shipment Is On Its Way</h1>
+          <p style="margin:8px 0 0;color:#94a3b8;font-size:13px;">Layer One Staging Solutions</p>
+        </td></tr>
+        <tr><td style="padding:32px 40px;">
+          <p style="margin:0 0 16px;color:#cbd5e1;font-size:15px;">Hi ${params.clientName},</p>
+          <p style="margin:0 0 24px;color:#cbd5e1;font-size:15px;">
+            Your shipment <strong style="color:#e2e8f0;">${params.shipmentCode}</strong> has been dispatched and is now in transit to <strong style="color:#e2e8f0;">${params.destination}</strong>.
+          </p>
+          <div style="background:#07111f;border:1px solid #1e3a5f;border-radius:8px;padding:20px 24px;margin-bottom:24px;">
+            <table width="100%" cellpadding="0" cellspacing="0">
+              <tr>
+                <td style="padding:6px 0;color:#64748b;font-size:13px;width:120px;">Carrier</td>
+                <td style="padding:6px 0;color:#e2e8f0;font-size:13px;font-weight:600;">${params.carrier}</td>
+              </tr>
+              <tr>
+                <td style="padding:6px 0;color:#64748b;font-size:13px;">Tracking #</td>
+                <td style="padding:6px 0;color:#38bdf8;font-size:13px;font-weight:600;">${params.trackingNumber}</td>
+              </tr>
+              <tr>
+                <td style="padding:6px 0;color:#64748b;font-size:13px;">Destination</td>
+                <td style="padding:6px 0;color:#e2e8f0;font-size:13px;">${params.destination}</td>
+              </tr>
+            </table>
+          </div>
+          <div style="text-align:center;margin-bottom:24px;">
+            <a href="${params.portalUrl}/shipments" style="display:inline-block;background:linear-gradient(135deg,#3b82f6,#2563eb);color:#ffffff;text-decoration:none;padding:12px 28px;border-radius:8px;font-size:14px;font-weight:600;">
+              View Shipment Details →
+            </a>
+          </div>
+          <p style="margin:0;color:#64748b;font-size:13px;text-align:center;">
+            Track your shipment status in real time from your customer portal.
+          </p>
+        </td></tr>
+        <tr><td style="padding:20px 40px;border-top:1px solid #1e3a5f;text-align:center;">
+          <p style="margin:0;font-size:12px;color:#475569;">© ${new Date().getFullYear()} Network Staging &amp; Deployment Solutions (Layer One) · Dallas-Fort Worth, TX</p>
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`;
+
+  try {
+    const resend = getResend();
+    const { error } = await resend.emails.send({
+      from: ENV.resendFromEmail,
+      to: params.to,
+      subject: `Shipment ${params.shipmentCode} Dispatched — ${params.carrier} ${params.trackingNumber}`,
+      html,
+    });
+    if (error) { console.warn("[Email] Tracking notification error:", error); return false; }
+    console.log(`[Email] Tracking notification sent to ${params.to} for ${params.shipmentCode}`);
+    return true;
+  } catch (err) {
+    console.warn("[Email] Failed to send tracking notification:", err);
+    return false;
+  }
+}

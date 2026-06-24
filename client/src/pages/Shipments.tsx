@@ -14,10 +14,92 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
-import { Ship, Plus, ChevronRight, Package, FileText } from "lucide-react";
+import { Ship, Plus, ChevronRight, Package, FileText, CheckCircle2, Circle, Truck, MapPin, Clock, AlertTriangle } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { useAuth } from "@/_core/hooks/useAuth";
 import ShipmentDocuments from "@/components/ShipmentDocuments";
+
+// ─── Shipment Status Timeline ────────────────────────────────────────────────
+const SHIPMENT_STEPS = [
+  { key: "requested",     label: "Requested",      icon: Clock,          desc: "Shipment request submitted" },
+  { key: "packing",       label: "Packing",         icon: Package,        desc: "Items being packed at warehouse" },
+  { key: "ready_to_ship", label: "Ready to Ship",   icon: CheckCircle2,   desc: "Packed and awaiting carrier pickup" },
+  { key: "shipped",       label: "Shipped",         icon: Truck,          desc: "In transit with carrier" },
+  { key: "delivered",     label: "Delivered",       icon: MapPin,         desc: "Delivered to destination" },
+];
+
+function ShipmentTimeline({ shipment }: { shipment: any }) {
+  const statusOrder = ["requested", "packing", "ready_to_ship", "shipped", "delivered"];
+  const currentIdx = statusOrder.indexOf(shipment.status);
+  const isException = shipment.status === "exception";
+
+  return (
+    <div className="space-y-0">
+      {isException && (
+        <div className="flex items-center gap-2 p-3 mb-4 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
+          <AlertTriangle className="w-4 h-4 shrink-0" />
+          <span>There is an exception with this shipment. Please contact support.</span>
+        </div>
+      )}
+      {SHIPMENT_STEPS.map((step, idx) => {
+        const isDone = currentIdx > idx;
+        const isCurrent = currentIdx === idx;
+        const isPending = currentIdx < idx;
+        const dateMap: Record<string, string | null | undefined> = {
+          requested: shipment.createdAt,
+          packing: shipment.datePacked,
+          ready_to_ship: shipment.datePacked,
+          shipped: shipment.dateShipped,
+          delivered: shipment.dateDelivered,
+        };
+        const date = dateMap[step.key];
+        return (
+          <div key={step.key} className="flex gap-3">
+            {/* Connector line + icon */}
+            <div className="flex flex-col items-center">
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 border-2 transition-colors ${
+                isDone ? "bg-green-500/20 border-green-500 text-green-400" :
+                isCurrent ? "bg-blue-500/20 border-blue-400 text-blue-400 ring-2 ring-blue-400/30" :
+                "bg-muted/30 border-border/50 text-muted-foreground/40"
+              }`}>
+                {isDone ? <CheckCircle2 className="w-4 h-4" /> : <step.icon className="w-4 h-4" />}
+              </div>
+              {idx < SHIPMENT_STEPS.length - 1 && (
+                <div className={`w-0.5 flex-1 min-h-[24px] my-1 ${
+                  isDone ? "bg-green-500/40" : "bg-border/30"
+                }`} />
+              )}
+            </div>
+            {/* Content */}
+            <div className="pb-4 pt-1 flex-1 min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className={`text-sm font-medium ${
+                  isDone ? "text-green-400" : isCurrent ? "text-blue-300" : "text-muted-foreground/50"
+                }`}>{step.label}</span>
+                {isCurrent && !isException && (
+                  <span className="text-[10px] bg-blue-500/20 text-blue-300 border border-blue-500/30 rounded-full px-2 py-0.5 font-medium">Current</span>
+                )}
+              </div>
+              <p className={`text-xs mt-0.5 ${
+                isPending ? "text-muted-foreground/30" : "text-muted-foreground"
+              }`}>{step.desc}</p>
+              {date && (
+                <p className="text-[11px] text-muted-foreground/60 mt-0.5">{new Date(date).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })}</p>
+              )}
+              {/* Show tracking info at shipped step */}
+              {step.key === "shipped" && isCurrent && shipment.carrier && (
+                <div className="mt-2 p-2 rounded bg-blue-500/10 border border-blue-500/20 text-xs text-blue-300">
+                  <span className="font-medium">{shipment.carrier}</span>
+                  {shipment.trackingNumber && <span className="ml-2 font-mono">{shipment.trackingNumber}</span>}
+                </div>
+              )}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
 
 function ShipmentForm({ onClose }: { onClose: () => void }) {
   const utils = trpc.useUtils();
@@ -231,6 +313,13 @@ export function ShipmentDetail() {
         </div>
 
         <div className="space-y-4">
+          <Card className="bg-card/60 border-border/50">
+            <CardHeader><CardTitle className="text-sm">Shipment Progress</CardTitle></CardHeader>
+            <CardContent className="pt-2">
+              <ShipmentTimeline shipment={shipment} />
+            </CardContent>
+          </Card>
+
           <Card className="bg-card/60 border-border/50">
             <CardHeader><CardTitle className="text-sm">Photos</CardTitle></CardHeader>
             <CardContent>

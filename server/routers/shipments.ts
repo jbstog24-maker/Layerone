@@ -4,7 +4,7 @@ import {
   addShipmentItem, createShipment, getClient, getShipment, getShipmentItems,
   listShipments, logActivity, updateShipment,
 } from "../db";
-import { sendShipmentApprovalRequestEmail } from "../email";
+import { sendShipmentApprovalRequestEmail, sendTrackingNotificationEmail } from "../email";
 import { ENV } from "../_core/env";
 import { protectedProcedure, router } from "../_core/trpc";
 
@@ -95,6 +95,35 @@ export const shipmentsRouter = router({
         packedBy: isStaffOrAdmin(ctx.user.role) ? ctx.user.id : undefined,
       } as any);
       await logActivity({ userId: ctx.user.id, clientId: shipment.clientId, action: `Updated shipment #${id}: ${data.status ?? "updated"}`, entityType: "shipment", entityId: id });
+
+      // Send tracking notification email when tracking number is added/changed by staff
+      const trackingAdded = data.trackingNumber && data.trackingNumber !== shipment.trackingNumber;
+      if (trackingAdded && isStaffOrAdmin(ctx.user.role)) {
+        try {
+          const client = await getClient(shipment.clientId);
+          // Find the primary customer_admin email for this client
+          if (client) {
+            // Get the updated shipment to have latest data
+            const updated = await getShipment(id);
+            const carrier = data.carrier ?? shipment.carrier ?? "Carrier";
+            const portalUrl = ENV.portalUrl ?? "";
+            // We'll send to the client contact email if available
+            const contactEmail = (client as any).contactEmail ?? (client as any).email;
+            if (contactEmail) {
+              sendTrackingNotificationEmail({
+                to: contactEmail,
+                clientName: client.companyName,
+                shipmentCode: (updated as any)?.shipmentCode ?? `#${id}`,
+                destination: data.destination ?? shipment.destination ?? "(not specified)",
+                carrier,
+                trackingNumber: data.trackingNumber!,
+                portalUrl,
+              }).catch(() => {});
+            }
+          }
+        } catch (_e) { /* non-blocking */ }
+      }
+
       return { success: true };
     }),
 

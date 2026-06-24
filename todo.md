@@ -627,3 +627,13 @@
 - [x] Add "Send Quote" button that emails the Stripe payment link to the customer
 - [x] Show quote status on inquiry row (draft / sent / paid)
 - [x] Update inquiry.submit tRPC input schema to accept new fields
+
+## Top-5 Features Completion Pass (Jun 24 2026)
+
+- [x] Support Tickets: add support.countOpen tRPC procedure
+- [x] Support Tickets: show open ticket count badge in sidebar nav item
+- [x] Shipment Tracking: send branded tracking notification email to client contact when carrier/tracking number is added by staff
+- [x] Shipment Detail: add visual step-by-step ShipmentTimeline component (Requested → Packing → Ready → Shipped → Delivered) with dates and exception alert
+- [x] Archived Clients: toggle confirmed present (Archive/Restore buttons + showArchived filter)
+- [x] Staff Management: archive/restore, notes panel, portal invite email all confirmed present
+- [x] Admin Support Tickets Inbox: AdminTickets page confirmed present with reply/status
