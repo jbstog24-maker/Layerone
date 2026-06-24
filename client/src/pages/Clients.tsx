@@ -532,7 +532,7 @@ export function ClientDetail() {
     <DashboardLayout>
       <PageHeader
         title={client.companyName}
-        subtitle={`Client #${client.id}`}
+        subtitle={(client as any).accountNumber ? `${(client as any).accountNumber} · Client #${client.id}` : `Client #${client.id}`}
         action={
           <div className="flex gap-2">
             <Button variant="outline" size="sm" onClick={() => setLocation("/clients")}>Back</Button>

@@ -39,8 +39,24 @@ export default function LeadDetail() {
   const { data: sequences } = trpc.leads.listSequences.useQuery();
 
   const updateMutation = trpc.leads.update.useMutation({
-    onSuccess: () => { utils.leads.get.invalidate({ id: leadId }); toast.success("Lead updated"); },
-    onError: e => toast.error(e.message),
+    onMutate: async (vars) => {
+      await utils.leads.get.cancel({ id: leadId });
+      const prev = utils.leads.get.getData({ id: leadId });
+      if (prev) {
+        utils.leads.get.setData({ id: leadId }, {
+          ...prev,
+          ...(vars.status !== undefined ? { status: vars.status } : {}),
+          ...(vars.temperature !== undefined ? { temperature: vars.temperature } : {}),
+        });
+      }
+      return { prev };
+    },
+    onError: (e, _vars, ctx) => {
+      if (ctx?.prev) utils.leads.get.setData({ id: leadId }, ctx.prev);
+      toast.error(e.message);
+    },
+    onSettled: () => { utils.leads.get.invalidate({ id: leadId }); },
+    onSuccess: () => toast.success("Lead updated"),
   });
 
   const scoreMutation = trpc.leads.scoreWithAI.useMutation({

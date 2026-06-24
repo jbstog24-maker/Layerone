@@ -4,11 +4,12 @@ import { StatusBadge } from "@/components/StatusBadge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { trpc } from "@/lib/trpc";
-import { getLoginUrl } from "@/const";
 import {
   Truck, Server, Archive, Ship, FileText,
-  Package, Warehouse, Box, ArrowRight, Loader2
+  Package, Warehouse, Box, ArrowRight, Loader2,
+  AlertTriangle, Clock, ChevronRight, Hash
 } from "lucide-react";
 import { useEffect } from "react";
 import { useLocation } from "wouter";
@@ -55,6 +56,75 @@ function UsageMeter({ label, used, max, unit = "" }: { label: string; used: numb
   );
 }
 
+function OverdueFollowUpWidget() {
+  const { data: overdueLeads, isLoading } = trpc.leads.listOverdue.useQuery();
+  const [, setLocation] = useLocation();
+
+  if (isLoading) return null;
+  if (!overdueLeads || overdueLeads.length === 0) return null;
+
+  const top3 = overdueLeads.slice(0, 3);
+
+  return (
+    <Card className="bg-amber-500/5 border-amber-500/30">
+      <CardHeader className="pb-3">
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-sm flex items-center gap-2">
+            <AlertTriangle className="w-4 h-4 text-amber-400" />
+            Overdue Follow-Ups
+            <Badge className="bg-amber-500/20 text-amber-400 border-amber-500/30 text-xs px-1.5 py-0 h-5">
+              {overdueLeads.length}
+            </Badge>
+          </CardTitle>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="text-xs text-amber-400 hover:text-amber-300 h-7 px-2"
+            onClick={() => setLocation("/leads")}
+          >
+            View all <ChevronRight className="w-3 h-3 ml-0.5" />
+          </Button>
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-2 pt-0">
+        {top3.map((lead: any) => {
+          const daysOverdue = lead.nextFollowUpAt
+            ? Math.floor((Date.now() - new Date(lead.nextFollowUpAt).getTime()) / 86_400_000)
+            : 0;
+          return (
+            <div
+              key={lead.id}
+              className="flex items-center gap-3 p-2.5 rounded-lg bg-amber-500/5 border border-amber-500/20 hover:border-amber-500/40 cursor-pointer transition-all group"
+              onClick={() => setLocation(`/leads/${lead.id}`)}
+            >
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium truncate group-hover:text-amber-300 transition-colors">
+                  {lead.companyName}
+                </p>
+                {lead.contactName && (
+                  <p className="text-xs text-muted-foreground truncate">{lead.contactName}</p>
+                )}
+              </div>
+              <div className="flex items-center gap-2 shrink-0">
+                <div className="flex items-center gap-1 text-xs text-amber-400">
+                  <Clock className="w-3 h-3" />
+                  <span>{daysOverdue === 0 ? "Today" : `${daysOverdue}d overdue`}</span>
+                </div>
+                <ChevronRight className="w-3.5 h-3.5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+              </div>
+            </div>
+          );
+        })}
+        {overdueLeads.length > 3 && (
+          <p className="text-xs text-muted-foreground text-center pt-1">
+            +{overdueLeads.length - 3} more overdue leads
+          </p>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
 function AdminDashboard() {
   const { data: stats } = trpc.dashboard.adminStats.useQuery();
   const { data: recentActivity } = trpc.activity.list.useQuery({ limit: 8 });
@@ -71,6 +141,9 @@ function AdminDashboard() {
         <StatCard icon={FileText} label="Draft Invoices" value={stats?.draftInvoices ?? 0} color="bg-pink-500/10 text-pink-400" href="/invoices" />
         <StatCard icon={Truck} label="Deliveries" value={stats?.deliveries ?? 0} sub="tracked" color="bg-blue-500/10 text-blue-400" href="/deliveries" />
       </div>
+
+      {/* Overdue Follow-Up Widget */}
+      <OverdueFollowUpWidget />
 
       <div className="grid md:grid-cols-2 gap-4">
         <Card className="bg-card/60 border-border/50">
@@ -121,9 +194,19 @@ function CustomerDashboard() {
 
   const stats = usage?.usage;
   const pkg = usage?.pkg;
+  const client = usage?.client;
 
   return (
     <div className="space-y-6">
+      {/* Account Number Banner */}
+      {client?.accountNumber && (
+        <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-primary/5 border border-primary/20 w-fit">
+          <Hash className="w-3.5 h-3.5 text-primary/70" />
+          <span className="text-xs text-muted-foreground">Account</span>
+          <span className="text-xs font-mono font-semibold text-primary">{client.accountNumber}</span>
+        </div>
+      )}
+
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <StatCard icon={Truck} label="Deliveries" value={stats?.deliveries ?? 0} color="bg-blue-500/10 text-blue-400" href="/deliveries" />
         <StatCard icon={Server} label="My Devices" value={stats?.devices ?? 0} color="bg-violet-500/10 text-violet-400" href="/devices" />

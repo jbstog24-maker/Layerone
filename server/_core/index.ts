@@ -33,6 +33,16 @@ const authLimiter = rateLimit({
   skip: () => process.env.NODE_ENV === "development",
 });
 
+// Strict limiter for public inquiry/request forms — max 5 per IP per hour
+const inquiryLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "Too many submissions. Please wait before submitting again." },
+  skip: () => process.env.NODE_ENV === "development",
+});
+
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
     const server = net.createServer();
@@ -65,6 +75,9 @@ async function startServer() {
   // Apply rate limiting
   app.use("/api/oauth", authLimiter);
   app.use("/api/trpc", apiLimiter);
+  // Strict rate limit on public form submissions
+  app.use("/api/trpc/inquiry.submit", inquiryLimiter);
+  app.use("/api/trpc/packages.request", inquiryLimiter);
   // Scheduled heartbeat handlers (cron callbacks)
   app.post("/api/scheduled/monthly-invoices", handleMonthlyInvoices);
   app.post("/api/scheduled/drip-auto-send", handleDripAutoSend);

@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "sonner";
-import { Users, Plus, Search, Flame, Thermometer, Snowflake, Loader2, Trash2, ExternalLink, Brain } from "lucide-react";
+import { Users, Plus, Search, Flame, Thermometer, Snowflake, Loader2, Trash2, ExternalLink, Brain, Download } from "lucide-react";
 
 const STATUS_COLORS: Record<string, string> = {
   new: "bg-blue-500/10 text-blue-600 border-blue-500/20",
@@ -70,7 +70,18 @@ export default function Leads() {
             <h1 className="text-2xl font-bold flex items-center gap-2"><Users className="h-6 w-6 text-primary" />Leads</h1>
             <p className="text-muted-foreground mt-1">Manage your sales pipeline and track prospects.</p>
           </div>
-          <Button onClick={() => setShowCreate(true)}><Plus className="h-4 w-4 mr-2" />Add Lead</Button>
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" onClick={() => {
+              if (!leads?.length) { toast.info("No leads to export"); return; }
+              const rows = leads.map((l: any) => ({ id: l.id, company: l.companyName, contact: l.contactName ?? "", email: l.email ?? "", phone: l.phone ?? "", status: l.status, temperature: l.temperature, score: l.score ?? 0, source: l.source, industry: l.industry ?? "", city: l.city ?? "", createdAt: new Date(l.createdAt).toLocaleDateString() }));
+              const keys = Object.keys(rows[0]);
+              const lines = [keys.join(","), ...rows.map((r: any) => keys.map(k => JSON.stringify(r[k] ?? "")).join(","))];
+              const blob = new Blob([lines.join("\n")], { type: "text/csv" });
+              const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "leads.csv"; a.click();
+              URL.revokeObjectURL(a.href);
+            }}><Download className="h-4 w-4 mr-1" />Export CSV</Button>
+            <Button onClick={() => setShowCreate(true)}><Plus className="h-4 w-4 mr-2" />Add Lead</Button>
+          </div>
         </div>
 
         {/* Stats */}

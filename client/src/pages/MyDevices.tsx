@@ -30,6 +30,7 @@ import {
   MapPin,
   PackageCheck,
   Pencil,
+  Search,
   Server,
   Truck,
 } from "lucide-react";
@@ -273,6 +274,7 @@ export default function MyDevices() {
   const { user } = useAuth();
   const clientId = (user as any)?.clientId as number | undefined;
   const [editState, setEditState] = useState<ForwardingDialogState | null>(null);
+  const [deviceSearch, setDeviceSearch] = useState("");
 
   // Staging notifications (Ready to Ship)
   const { data: notifications, isLoading: notifLoading } = trpc.stagingNotify.listForClient.useQuery(
@@ -287,18 +289,32 @@ export default function MyDevices() {
 
   const unreadNotifs = (notifications ?? []).filter((n) => !n.acknowledgedAt);
 
-  const devices = data?.devices ?? [];
+  const allDevices = data?.devices ?? [];
   const boxes = data?.boxes ?? [];
   const pallets = data?.pallets ?? [];
 
-  const totalItems = devices.length + boxes.length + pallets.length;
+  const devices = deviceSearch.trim()
+    ? allDevices.filter((d) => {
+        const q = deviceSearch.toLowerCase();
+        return (
+          d.deviceCode.toLowerCase().includes(q) ||
+          (d.brand ?? "").toLowerCase().includes(q) ||
+          (d.model ?? "").toLowerCase().includes(q) ||
+          (d.serialNumber ?? "").toLowerCase().includes(q) ||
+          (d.deviceType ?? "").toLowerCase().includes(q) ||
+          (d.siteName ?? "").toLowerCase().includes(q)
+        );
+      })
+    : allDevices;
+
+  const totalItems = allDevices.length + boxes.length + pallets.length;
   const deliveredCount = [
-    ...devices.map((d) => d.forwardingStatus),
+    ...allDevices.map((d) => d.forwardingStatus),
     ...boxes.map((b) => b.forwardingStatus),
     ...pallets.map((p) => p.forwardingStatus),
   ].filter((s) => s === "delivered").length;
   const inTransitCount = [
-    ...devices.map((d) => d.forwardingStatus),
+    ...allDevices.map((d) => d.forwardingStatus),
     ...boxes.map((b) => b.forwardingStatus),
     ...pallets.map((p) => p.forwardingStatus),
   ].filter((s) => s === "in_transit").length;
@@ -385,7 +401,7 @@ export default function MyDevices() {
           <TabsList className="bg-[#0d1f35] border border-[#1e3a5f]">
             <TabsTrigger value="devices" className="gap-1.5 data-[state=active]:bg-blue-600 data-[state=active]:text-white">
               <Server className="w-3.5 h-3.5" />
-              Devices <span className="text-xs opacity-70">({devices.length})</span>
+              Devices <span className="text-xs opacity-70">({deviceSearch ? `${devices.length}/${allDevices.length}` : allDevices.length})</span>
             </TabsTrigger>
             <TabsTrigger value="boxes" className="gap-1.5 data-[state=active]:bg-blue-600 data-[state=active]:text-white">
               <Box className="w-3.5 h-3.5" />
@@ -398,7 +414,19 @@ export default function MyDevices() {
           </TabsList>
 
           {/* Devices Tab */}
-          <TabsContent value="devices" className="mt-4 space-y-2">
+          <TabsContent value="devices" className="mt-4 space-y-3">
+            {/* Device Search */}
+            {allDevices.length > 0 && (
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                <Input
+                  placeholder="Search by code, brand, model, serial..."
+                  value={deviceSearch}
+                  onChange={(e) => setDeviceSearch(e.target.value)}
+                  className="pl-9 bg-[#0d1f35] border-[#1e3a5f] text-white placeholder:text-slate-500 focus:border-blue-500"
+                />
+              </div>
+            )}
             {isLoading ? (
               [...Array(3)].map((_, i) => <Skeleton key={i} className="h-20 w-full rounded-xl bg-[#0d1f35]" />)
             ) : devices.length === 0 ? (

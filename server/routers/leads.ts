@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { adminProcedure, router } from "../_core/trpc";
+import { adminProcedure, protectedProcedure, router } from "../_core/trpc";
 import { TRPCError } from "@trpc/server";
 import {
   listLeads, getLead, createLead, updateLead, deleteLead, countLeadsByStatus,
@@ -637,8 +637,10 @@ Respond with JSON: {"subject":"<subject line>","body":"<email body with \\n for 
     }),
 
   // ─── Overdue Follow-Ups ───────────────────────────────────────────────────
-  listOverdue: adminProcedure
-    .query(async () => {
+  listOverdue: protectedProcedure
+    .query(async ({ ctx }) => {
+      const role = ctx.user.role;
+      if (role !== "admin" && role !== "staff") throw new TRPCError({ code: "FORBIDDEN" });
       const all = await listLeads({});
       const now = new Date();
       return all.filter((l: any) =>

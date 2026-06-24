@@ -90,12 +90,36 @@ export function InvoicesList() {
   const isAdmin = role === "admin";
   const { data: invoices, isLoading } = trpc.billing.listInvoices.useQuery({});
 
+  function exportInvoicesCSV() {
+    if (!invoices?.length) { toast.info("No invoices to export"); return; }
+    const rows = invoices.map(inv => ({
+      invoiceNumber: inv.invoiceNumber,
+      periodStart: new Date(inv.periodStart).toLocaleDateString(),
+      periodEnd: new Date(inv.periodEnd).toLocaleDateString(),
+      total: `$${Number(inv.total).toFixed(2)}`,
+      status: inv.status,
+      dueDate: inv.dueDate ? new Date(inv.dueDate).toLocaleDateString() : "",
+    }));
+    const keys = Object.keys(rows[0]);
+    const lines = [keys.join(","), ...rows.map(r => keys.map(k => JSON.stringify((r as any)[k] ?? "")).join(","))];
+    const blob = new Blob([lines.join("\n")], { type: "text/csv" });
+    const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "invoices.csv"; a.click();
+    URL.revokeObjectURL(a.href);
+  }
+
   return (
     <DashboardLayout>
       <PageHeader
         title="Invoices"
         subtitle="Manage billing and invoice generation"
-        action={isAdmin ? <Button onClick={() => setShowCreate(true)} size="sm"><Plus className="w-4 h-4 mr-1" /> New Invoice</Button> : undefined}
+        action={
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" onClick={exportInvoicesCSV}>
+              <Download className="w-4 h-4 mr-1" /> Export CSV
+            </Button>
+            {isAdmin && <Button onClick={() => setShowCreate(true)} size="sm"><Plus className="w-4 h-4 mr-1" /> New Invoice</Button>}
+          </div>
+        }
       />
       <Card className="bg-card/60 border-border/50">
         <div className="overflow-x-auto">

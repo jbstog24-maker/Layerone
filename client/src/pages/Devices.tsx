@@ -415,8 +415,20 @@ export function DeviceDetail() {
 
   const { data: device, isLoading } = trpc.devices.get.useQuery({ id });
   const updateMutation = trpc.devices.update.useMutation({
-    onSuccess: () => { toast.success("Status updated"); utils.devices.get.invalidate({ id }); },
-    onError: (e) => toast.error(e.message),
+    onMutate: async (vars) => {
+      await utils.devices.get.cancel({ id });
+      const prev = utils.devices.get.getData({ id });
+      if (prev && vars.stagingStatus) {
+        utils.devices.get.setData({ id }, { ...prev, stagingStatus: vars.stagingStatus });
+      }
+      return { prev };
+    },
+    onError: (e, _vars, ctx) => {
+      if (ctx?.prev) utils.devices.get.setData({ id }, ctx.prev);
+      toast.error(e.message);
+    },
+    onSettled: () => { utils.devices.get.invalidate({ id }); },
+    onSuccess: () => toast.success("Status updated"),
   });
   const notifyMutation = trpc.stagingNotify.notifyDevice.useMutation({
     onSuccess: () => {

@@ -529,8 +529,8 @@
 
 ### Reliability
 - [ ] Add server-side rate limiting to /api/trpc/inquiry.submit and /api/trpc/packages.request (max 5 per IP per hour)
-- [ ] Optimistic UI for device staging status toggle
-- [ ] Optimistic UI for lead status change in pipeline
+- [x] Optimistic UI for device staging status toggle
+- [x] Optimistic UI for lead status change in pipeline
 
 ## Client ID / Account Number Scoping (File & Data Isolation)
 - [ ] Audit all DB tables that store files or user-generated content: photos, client_documents, marketing_assets, support_tickets, support_ticket_replies, client_messages
@@ -640,13 +640,48 @@
 
 ## CSV Exports, Reports Page, Bulk Device Import (Jun 24 2026)
 
-- [ ] Create shared csvExport utility (client/src/lib/csvExport.ts)
-- [ ] Add Export CSV button to Clients list page
-- [ ] Add Export CSV button to Devices list page
-- [ ] Add Export CSV button to Invoices list page
-- [ ] Build Reports page (/reports) with monthly throughput chart, revenue by client, pipeline funnel
-- [ ] Add reports tRPC procedures (monthlyStats, revenueByClient, pipelineFunnel)
-- [ ] Add Reports nav item to admin sidebar
-- [ ] Wire /reports route in App.tsx
-- [ ] Build bulk device CSV import modal on Devices page (drag-and-drop, column mapping, validation, preview, submit)
-- [ ] Add devices.bulkImport tRPC procedure
+- [x] Create shared csvExport utility (client/src/lib/csvExport.ts)
+- [x] Add Export CSV button to Clients list page
+- [x] Add Export CSV button to Devices list page
+- [x] Add Export CSV button to Invoices list page
+- [x] Add Export CSV button to Leads list page
+- [x] Build Reports page (/reports) with monthly throughput chart, revenue by client, pipeline funnel
+- [x] Add reports tRPC procedures (monthlyStats, revenueByClient, pipelineFunnel)
+- [x] Add Reports nav item to admin sidebar
+- [x] Wire /reports route in App.tsx
+- [x] Build bulk device CSV import modal on Devices page (drag-and-drop, column mapping, validation, preview, submit)
+- [x] Add devices.bulkImport tRPC procedure
+
+## Next Priority Features (Jun 24 2026 — Session 4)
+
+### Overdue Follow-Up Dashboard Widget
+- [x] Add overdue leads count card to admin dashboard using leads.listOverdue procedure
+- [x] Show top 3 overdue leads with follow-up date and quick-link to lead detail
+
+### Content Studio QA
+- [ ] Image templates: clicking fills title + shows visual selected state
+- [ ] Video templates: clicking fills title + shows visual selected state
+- [ ] Image tab: character counter on prompt textarea, clear-form button after generation
+- [ ] Video tab: move templates to left column (above generate button) so visible without scrolling
+- [ ] Captions tab: add caption templates for common NSDS scenarios
+- [ ] Captions tab: prevent deselecting all platforms, add select-all button
+- [ ] Captions tab: show char count live as user types custom description
+- [ ] All tabs: add Clear / Start Over button
+
+### Customer Portal Enhancements
+- [x] Add device search bar to customer inventory view (filter by serial/model)
+- [ ] Add customer invoice PDF download button
+
+### Sales Improvements
+- [ ] Add source field to leads table (Lead Finder, Manual, Referral, Inbound Inquiry, LinkedIn) + migrate
+- [ ] Add source selector to lead create/edit form
+- [ ] Add source badge to lead cards and detail page
+- [ ] Add sales activity log entries for: lead imported, intro email sent, drip enrolled, lead converted
+
+### Reliability
+- [x] Rate limiting on public inquiry form (max 5 per IP per hour)
+- [x] Optimistic UI for device staging status toggle
+- [x] Optimistic UI for lead status change in pipeline
+
+### Account Numbers
+- [x] Display accountNumber on Client Detail page header and customer dashboard
