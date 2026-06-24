@@ -507,6 +507,7 @@ export function ClientDetail() {
   const id = parseInt(params?.id ?? "0");
   const [showEdit, setShowEdit] = useState(false);
   const [showWarehouse, setShowWarehouse] = useState(false);
+  const [sendingPayment, setSendingPayment] = useState(false);
   const [, setLocation] = useLocation();
   const { user } = useAuth();
   const isAdminOrStaff = user?.role === "admin" || user?.role === "staff";
@@ -514,6 +515,38 @@ export function ClientDetail() {
   const { data: packages } = trpc.packages.list.useQuery();
   const { data: clientDocs } = trpc.documents.clientDocs.list.useQuery({ clientId: id }, { enabled: isAdminOrStaff });
   const pkg = packages?.find(p => p.id === client?.packageId);
+
+  async function handleSendPaymentLink() {
+    if (!client) return;
+    // Map package name to tier key
+    const nameToTier: Record<string, string> = {
+      "Project Staging Pilot": "basic",
+      "Shared Staging Shelf": "standard",
+      "Shared Staging Bay": "professional",
+      "Dedicated Staging Area": "enterprise",
+      "Rollout Suite": "custom",
+    };
+    const tier = (pkg ? nameToTier[pkg.name] : null) ?? "standard";
+    setSendingPayment(true);
+    try {
+      const res = await fetch("/api/stripe/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ clientId: id, tier }),
+      });
+      const data = await res.json();
+      if (data.url) {
+        window.open(data.url, "_blank");
+        toast.success("Checkout page opened — copy the URL to share with the client");
+      } else {
+        toast.error(data.error ?? "Failed to create checkout session");
+      }
+    } catch {
+      toast.error("Failed to create payment link");
+    } finally {
+      setSendingPayment(false);
+    }
+  }
 
   if (isLoading) return <DashboardLayout><div className="animate-pulse space-y-4"><div className="h-8 bg-muted/50 rounded w-48" /><div className="h-32 bg-muted/50 rounded" /></div></DashboardLayout>;
   if (!client) return <DashboardLayout><EmptyState icon={Building2} title="Client not found" /></DashboardLayout>;
@@ -537,6 +570,11 @@ export function ClientDetail() {
           <div className="flex gap-2">
             <Button variant="outline" size="sm" onClick={() => setLocation("/clients")}>Back</Button>
             {isAdminOrStaff && <Button variant="outline" size="sm" onClick={() => setShowWarehouse(true)} className="gap-1"><Warehouse className="w-4 h-4" />Assign Space</Button>}
+            {isAdminOrStaff && (client as any).paymentStatus !== "paid" && (
+              <Button variant="outline" size="sm" onClick={handleSendPaymentLink} disabled={sendingPayment} className="gap-1 border-emerald-500/40 text-emerald-400 hover:bg-emerald-500/10">
+                <CreditCard className="w-4 h-4" />{sendingPayment ? "Opening..." : "Send Payment Link"}
+              </Button>
+            )}
             <Button size="sm" onClick={() => setShowEdit(true)}>Edit</Button>
           </div>
         }

@@ -165,10 +165,11 @@ export function registerStripeRoutes(app: Express) {
     }
 
     const pricing = TIER_PRICING[tier];
-    const amount = customAmountCents ?? pricing.amountCents;
     const origin = req.headers.origin || `https://${req.headers.host}`;
 
     try {
+      // Use pre-created Stripe Price ID if available; fall back to dynamic price_data
+      const usePriceId = pricing.stripePriceId && !customAmountCents;
       const sessionParams: Stripe.Checkout.SessionCreateParams = {
         mode: pricing.mode,
         customer_email: client.billingEmail ?? client.contactEmail ?? undefined,
@@ -181,20 +182,19 @@ export function registerStripeRoutes(app: Express) {
           package_name: pricing.name,
         },
         line_items: [
-          {
-            price_data: {
-              currency: "usd",
-              product_data: {
-                name: pricing.name,
-                description: pricing.description,
+          usePriceId
+            ? { price: pricing.stripePriceId, quantity: 1 }
+            : {
+                price_data: {
+                  currency: "usd",
+                  product_data: { name: pricing.name, description: pricing.description },
+                  unit_amount: customAmountCents ?? pricing.amountCents,
+                  ...(pricing.mode === "subscription" && pricing.interval
+                    ? { recurring: { interval: pricing.interval } }
+                    : {}),
+                },
+                quantity: 1,
               },
-              unit_amount: amount,
-              ...(pricing.mode === "subscription" && pricing.interval
-                ? { recurring: { interval: pricing.interval } }
-                : {}),
-            },
-            quantity: 1,
-          },
         ],
         success_url: `${origin}/dashboard?payment=success&clientId=${clientId}`,
         cancel_url: `${origin}/dashboard?payment=cancelled&clientId=${clientId}`,
