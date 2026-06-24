@@ -1,13 +1,15 @@
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
+import { and, eq, gte, isNull, sql } from "drizzle-orm";
 import {
   createPhoto, getDashboardStats, getClientUsage, getClient, getPackage,
   listActivityLogs, listPhotosByClient, listPhotos, listUsers, logActivity,
-  updateUserRole, updateUser, deleteUser, getUserById, createUser,
+  updateUserRole, updateUser, deleteUser, getUserById, createUser, getDb,
 } from "../db";
 import { storagePut } from "../storage";
 import { customerProcedure, protectedProcedure, router } from "../_core/trpc";
 import { sendPortalInviteEmail } from "../email";
+import { devices, outboundShipments, invoices, clients, packageInquiries, quotes, receivingLogs } from "../../drizzle/schema";
 
 const isAdmin = (role: string) => role === "admin";
 const isStaffOrAdmin = (role: string) => role === "admin" || role === "staff";
@@ -98,6 +100,65 @@ export const dashboardRouter = router({
       const pkg = client?.packageId ? await getPackage(client.packageId) : null;
       return { usage, client, pkg };
     }),
+
+  monthlyStats: protectedProcedure
+    .input(z.object({ months: z.number().min(3).max(24).default(12) }))
+    .query(async ({ ctx, input }) => {
+      if (!isStaffOrAdmin(ctx.user.role)) throw new TRPCError({ code: "FORBIDDEN" });
+      const db = await getDb();
+      if (!db) return [];
+      const cutoff = new Date();
+      cutoff.setMonth(cutoff.getMonth() - input.months + 1);
+      cutoff.setDate(1); cutoff.setHours(0, 0, 0, 0);
+      const months: { year: number; month: number; label: string }[] = [];
+      for (let i = input.months - 1; i >= 0; i--) {
+        const d = new Date(); d.setMonth(d.getMonth() - i);
+        months.push({ year: d.getFullYear(), month: d.getMonth() + 1, label: d.toLocaleString("en-US", { month: "short", year: "2-digit" }) });
+      }
+      const devRows = await db.select({ yr: sql<number>`YEAR(createdAt)`, mo: sql<number>`MONTH(createdAt)`, count: sql<number>`COUNT(*)` }).from(devices).where(gte(devices.createdAt, cutoff)).groupBy(sql`YEAR(createdAt), MONTH(createdAt)`);
+      const shipRows = await db.select({ yr: sql<number>`YEAR(createdAt)`, mo: sql<number>`MONTH(createdAt)`, count: sql<number>`COUNT(*)` }).from(outboundShipments).where(gte(outboundShipments.createdAt, cutoff)).groupBy(sql`YEAR(createdAt), MONTH(createdAt)`);
+      const recvRows = await db.select({ yr: sql<number>`YEAR(createdAt)`, mo: sql<number>`MONTH(createdAt)`, count: sql<number>`COUNT(*)` }).from(receivingLogs).where(gte(receivingLogs.createdAt, cutoff)).groupBy(sql`YEAR(createdAt), MONTH(createdAt)`);
+      return months.map(({ year, month, label }) => ({
+        label,
+        devices: Number(devRows.find(r => Number(r.yr) === year && Number(r.mo) === month)?.count ?? 0),
+        shipments: Number(shipRows.find(r => Number(r.yr) === year && Number(r.mo) === month)?.count ?? 0),
+        receivings: Number(recvRows.find(r => Number(r.yr) === year && Number(r.mo) === month)?.count ?? 0),
+      }));
+    }),
+
+  revenueByClient: protectedProcedure
+    .input(z.object({ months: z.number().min(1).max(24).default(12) }))
+    .query(async ({ ctx, input }) => {
+      if (!isStaffOrAdmin(ctx.user.role)) throw new TRPCError({ code: "FORBIDDEN" });
+      const db = await getDb();
+      if (!db) return [];
+      const cutoff = new Date(); cutoff.setMonth(cutoff.getMonth() - input.months);
+      const rows = await db
+        .select({ clientId: invoices.clientId, companyName: clients.companyName, revenue: sql<number>`COALESCE(SUM(CASE WHEN ${invoices.status} IN ('paid','sent') THEN CAST(${invoices.total} AS DECIMAL(12,2)) ELSE 0 END), 0)`, invoiceCount: sql<number>`COUNT(*)` })
+        .from(invoices)
+        .leftJoin(clients, eq(invoices.clientId, clients.id))
+        .where(gte(invoices.createdAt, cutoff))
+        .groupBy(invoices.clientId, clients.companyName)
+        .orderBy(sql`revenue DESC`)
+        .limit(10);
+      return rows.map(r => ({ clientId: r.clientId, companyName: r.companyName ?? `Client #${r.clientId}`, revenue: Number(r.revenue), invoiceCount: Number(r.invoiceCount) }));
+    }),
+
+  pipelineFunnel: protectedProcedure.query(async ({ ctx }) => {
+    if (!isStaffOrAdmin(ctx.user.role)) throw new TRPCError({ code: "FORBIDDEN" });
+    const db = await getDb();
+    if (!db) return [];
+    const [inquiryCount] = await db.select({ count: sql<number>`COUNT(*)` }).from(packageInquiries);
+    const [quotedCount] = await db.select({ count: sql<number>`COUNT(DISTINCT inquiryId)` }).from(quotes);
+    const [paidCount] = await db.select({ count: sql<number>`COUNT(*)` }).from(quotes).where(eq(quotes.status, "paid"));
+    const [activeClients] = await db.select({ count: sql<number>`COUNT(*)` }).from(clients).where(isNull(clients.archivedAt));
+    return [
+      { stage: "Inquiries", count: Number(inquiryCount?.count ?? 0), fill: "#6366f1" },
+      { stage: "Quoted", count: Number(quotedCount?.count ?? 0), fill: "#8b5cf6" },
+      { stage: "Paid", count: Number(paidCount?.count ?? 0), fill: "#06b6d4" },
+      { stage: "Active Clients", count: Number(activeClients?.count ?? 0), fill: "#10b981" },
+    ];
+  }),
 });
 
 // ─── Users ────────────────────────────────────────────────────────────────────

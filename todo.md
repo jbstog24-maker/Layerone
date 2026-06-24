@@ -637,3 +637,16 @@
 - [x] Archived Clients: toggle confirmed present (Archive/Restore buttons + showArchived filter)
 - [x] Staff Management: archive/restore, notes panel, portal invite email all confirmed present
 - [x] Admin Support Tickets Inbox: AdminTickets page confirmed present with reply/status
+
+## CSV Exports, Reports Page, Bulk Device Import (Jun 24 2026)
+
+- [ ] Create shared csvExport utility (client/src/lib/csvExport.ts)
+- [ ] Add Export CSV button to Clients list page
+- [ ] Add Export CSV button to Devices list page
+- [ ] Add Export CSV button to Invoices list page
+- [ ] Build Reports page (/reports) with monthly throughput chart, revenue by client, pipeline funnel
+- [ ] Add reports tRPC procedures (monthlyStats, revenueByClient, pipelineFunnel)
+- [ ] Add Reports nav item to admin sidebar
+- [ ] Wire /reports route in App.tsx
+- [ ] Build bulk device CSV import modal on Devices page (drag-and-drop, column mapping, validation, preview, submit)
+- [ ] Add devices.bulkImport tRPC procedure
