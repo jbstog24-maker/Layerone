@@ -85,7 +85,7 @@ function Hero() {
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/15 bg-white/5 text-[#b7c5d5] text-xs mb-6">
               <span className="w-2 h-2 rounded-full bg-[#6ee7b7] shadow-[0_0_0_5px_rgba(110,231,183,0.15)]" />
-              Now serving Dallas-area MSPs &amp; IT teams
+              Now serving MSPs &amp; IT teams — Carrollton, TX
             </div>
             <h1 className="text-5xl md:text-6xl font-black leading-[0.95] tracking-[-2.5px] mb-6">
               <span className="bg-gradient-to-r from-white via-[#a7d8ff] to-[#a7f3d0] bg-clip-text text-transparent">
@@ -556,7 +556,7 @@ function WhoWeServe() {
               <span className="bg-gradient-to-r from-[#39a7ff] to-[#6ee7b7] bg-clip-text text-transparent">deploy the network.</span>
             </h2>
             <p className="text-[#b7c5d5] text-lg leading-relaxed mb-6">
-              Layer One is purpose-built for the professionals who handle network equipment at scale — from single-site installs to multi-location rollouts across the Dallas metro.
+              Layer One is purpose-built for the professionals who handle network equipment at scale — from single-site installs to multi-location rollouts across the DFW metro.
             </p>
             <ul className="space-y-3">
               {clients.map(c => (
@@ -571,7 +571,7 @@ function WhoWeServe() {
             {[
               { icon: Shield, title: "Chain of Custody", desc: "Every item is logged, photographed, and tracked from receipt to dispatch.", color: "text-[#39a7ff]", bg: "bg-[#39a7ff]/10 border-[#39a7ff]/20" },
               { icon: Zap, title: "Rush Staging", desc: "Need it fast? Rush staging is available on Professional and Enterprise plans.", color: "text-yellow-400", bg: "bg-yellow-500/10 border-yellow-500/20" },
-              { icon: Lock, title: "Secure Facility", desc: "Your equipment is stored in a secure, access-controlled Dallas-area facility.", color: "text-violet-400", bg: "bg-violet-500/10 border-violet-500/20" },
+              { icon: Lock, title: "Secure Facility", desc: "Your equipment is stored in a secure, access-controlled facility at 1501 Randolph St, Carrollton, TX.", color: "text-violet-400", bg: "bg-violet-500/10 border-violet-500/20" },
               { icon: BarChart3, title: "Transparent Billing", desc: "No surprises — every charge is itemized and reviewable before invoicing.", color: "text-[#6ee7b7]", bg: "bg-[#6ee7b7]/10 border-[#6ee7b7]/20" },
             ].map(f => (
               <div key={f.title} className="rounded-2xl border border-white/10 bg-white/5 p-5">
@@ -634,7 +634,7 @@ function FacilityGallery() {
       <div className="max-w-6xl mx-auto px-6">
         <div className="mb-12">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/15 bg-white/5 text-[#b7c5d5] text-xs mb-6">
-            <MapPin className="w-3.5 h-3.5 text-[#39a7ff]" /> North Richland Hills, TX — Dallas Metro
+            <MapPin className="w-3.5 h-3.5 text-[#39a7ff]" /> 1501 Randolph St, Carrollton, TX 75006
           </div>
           <h2 className="text-4xl font-black tracking-[-1.5px] text-white mb-3">
             Our facility, built for<br />
@@ -894,7 +894,7 @@ function Footer() {
       <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4">
         <NsdsLogo />
         <p className="text-[#b7c5d5] text-sm text-center">
-          © {new Date().getFullYear()} Network Staging &amp; Deployment Solutions · Dallas, TX
+          © {new Date().getFullYear()} Network Staging &amp; Deployment Solutions · 1501 Randolph St, Carrollton, TX 75006
         </p>
         <div className="flex gap-5 text-sm text-[#b7c5d5]">
           <a href="#services" className="hover:text-white transition-colors">Services</a>

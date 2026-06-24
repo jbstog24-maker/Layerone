@@ -107,7 +107,7 @@ const IMAGE_TEMPLATES = [
   {
     label: "DFW Headquarters",
     title: "Layer One DFW Headquarters",
-    prompt: "Aerial view of modern Dallas-Fort Worth logistics and technology facility, professional exterior, branded signage, fleet vehicles, corporate campus",
+    prompt: "Aerial view of modern Carrollton, TX logistics and technology facility, professional exterior, branded signage, fleet vehicles, corporate campus",
   },
 ];
 

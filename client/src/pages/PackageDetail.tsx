@@ -640,7 +640,7 @@ export default function PackageDetail() {
       <footer className="border-t border-white/10 py-8">
         <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4">
           <NsdsLogo />
-          <p className="text-[#b7c5d5] text-sm">© {new Date().getFullYear()} Network Staging &amp; Deployment Solutions · Dallas, TX</p>
+          <p className="text-[#b7c5d5] text-sm">© {new Date().getFullYear()} Network Staging &amp; Deployment Solutions · 1501 Randolph St, Carrollton, TX 75006</p>
           <button onClick={() => setLocation("/")} className="text-sm text-[#b7c5d5] hover:text-white transition-colors">
             ← Back to home
           </button>
