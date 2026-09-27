@@ -26,7 +26,7 @@ const ADDONS = [
 ];
 
 const inputClass =
-  "w-full px-4 py-3 rounded-xl bg-white/6 border border-white/12 text-white placeholder-white/30 focus:outline-none focus:border-[#39a7ff]/60 focus:bg-white/8 transition-colors";
+  "w-full px-4 py-3 rounded-xl bg-white/6 border border-white/12 text-white placeholder-white/30 focus:outline-none focus:border-[#0A84FF]/60 focus:bg-white/8 transition-colors";
 
 /**
  * The Layer One quote-request form. Shared by the /get-started page and the
@@ -91,7 +91,7 @@ export default function RequestForm({ onSubmitted }: { onSubmitted?: () => void 
   if (submitted) {
     return (
       <div className="text-center py-6">
-        <div className="w-20 h-20 rounded-full bg-[#39a7ff]/15 border border-[#39a7ff]/30 flex items-center justify-center mx-auto mb-6">
+        <div className="w-20 h-20 rounded-full bg-[#0A84FF]/15 border border-[#0A84FF]/30 flex items-center justify-center mx-auto mb-6">
           <CheckCircle2 className="w-10 h-10 text-[#6ee7b7]" />
         </div>
         <h3 className="text-2xl font-bold text-white mb-3">Request Received!</h3>
@@ -155,7 +155,7 @@ export default function RequestForm({ onSubmitted }: { onSubmitted?: () => void 
               onClick={() => setForm(prev => ({ ...prev, tier: s.value }))}
               className={`text-left px-4 py-3.5 rounded-xl border transition-all ${
                 form.tier === s.value
-                  ? "border-[#39a7ff] bg-[#39a7ff]/15 text-white"
+                  ? "border-[#0A84FF] bg-[#0A84FF]/15 text-white"
                   : "border-white/12 bg-white/4 text-[#b7c5d5] hover:border-white/25 hover:bg-white/8"
               }`}
             >
@@ -194,7 +194,7 @@ export default function RequestForm({ onSubmitted }: { onSubmitted?: () => void 
                 value={form[field]}
                 onChange={set(field)}
                 placeholder={ph}
-                className="w-full px-3 py-2.5 rounded-xl bg-white/6 border border-white/12 text-white placeholder-white/30 focus:outline-none focus:border-[#39a7ff]/60 transition-colors text-sm"
+                className="w-full px-3 py-2.5 rounded-xl bg-white/6 border border-white/12 text-white placeholder-white/30 focus:outline-none focus:border-[#0A84FF]/60 transition-colors text-sm"
               />
             </div>
           ))}
@@ -256,7 +256,7 @@ export default function RequestForm({ onSubmitted }: { onSubmitted?: () => void 
       <button
         type="submit"
         disabled={submitMutation.isPending}
-        className="w-full flex items-center justify-center gap-2 px-6 py-4 rounded-xl font-bold text-lg bg-gradient-to-r from-[#39a7ff] to-[#6ee7b7] text-[#06111f] hover:-translate-y-0.5 active:scale-[0.98] transition-transform shadow-[0_14px_34px_rgba(57,167,255,0.24)] disabled:opacity-60 disabled:cursor-not-allowed disabled:translate-y-0"
+        className="w-full flex items-center justify-center gap-2 px-6 py-4 rounded-xl font-bold text-lg bg-gradient-to-r from-[#0A84FF] to-[#6ee7b7] text-[#06111f] hover:-translate-y-0.5 active:scale-[0.98] transition-transform shadow-[0_14px_34px_rgba(57,167,255,0.24)] disabled:opacity-60 disabled:cursor-not-allowed disabled:translate-y-0"
       >
         {submitMutation.isPending ? (
           <>

@@ -12,7 +12,7 @@ import { useLocation, useParams } from "wouter";
 
 const LOGO_URL = "/images/layerone-logo-on-dark.png";
 
-function NsdsLogo() {
+function LayerOneLogo() {
   return (
     <img src={LOGO_URL} alt="Layer One" className="h-10 w-auto" />
   );
@@ -48,9 +48,9 @@ const TIERS: Record<string, Tier> = {
     price: "$499",
     priceNote: "/project · one-time",
     featured: false,
-    color: "text-[#39a7ff]",
-    accentColor: "#39a7ff",
-    gradient: "from-[#39a7ff]/20 to-transparent",
+    color: "text-[#0A84FF]",
+    accentColor: "#0A84FF",
+    gradient: "from-[#0A84FF]/20 to-transparent",
     devices: "Up to 5 active devices",
     pallets: "No pallet storage included",
     boxes: "Up to 5 boxes received",
@@ -297,7 +297,7 @@ function InquiryForm({ tier }: { tier: Tier }) {
             value={form.name}
             onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
             placeholder="Jane Smith"
-            className="w-full px-3.5 py-2.5 rounded-xl border border-white/15 bg-white/5 text-white text-sm placeholder:text-white/30 focus:outline-none focus:border-[#39a7ff]/60 focus:bg-white/8 transition-colors"
+            className="w-full px-3.5 py-2.5 rounded-xl border border-white/15 bg-white/5 text-white text-sm placeholder:text-white/30 focus:outline-none focus:border-[#0A84FF]/60 focus:bg-white/8 transition-colors"
           />
         </div>
         <div>
@@ -308,7 +308,7 @@ function InquiryForm({ tier }: { tier: Tier }) {
             value={form.company}
             onChange={e => setForm(f => ({ ...f, company: e.target.value }))}
             placeholder="Acme Networks LLC"
-            className="w-full px-3.5 py-2.5 rounded-xl border border-white/15 bg-white/5 text-white text-sm placeholder:text-white/30 focus:outline-none focus:border-[#39a7ff]/60 focus:bg-white/8 transition-colors"
+            className="w-full px-3.5 py-2.5 rounded-xl border border-white/15 bg-white/5 text-white text-sm placeholder:text-white/30 focus:outline-none focus:border-[#0A84FF]/60 focus:bg-white/8 transition-colors"
           />
         </div>
       </div>
@@ -321,7 +321,7 @@ function InquiryForm({ tier }: { tier: Tier }) {
             value={form.email}
             onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
             placeholder="jane@acmenetworks.com"
-            className="w-full px-3.5 py-2.5 rounded-xl border border-white/15 bg-white/5 text-white text-sm placeholder:text-white/30 focus:outline-none focus:border-[#39a7ff]/60 focus:bg-white/8 transition-colors"
+            className="w-full px-3.5 py-2.5 rounded-xl border border-white/15 bg-white/5 text-white text-sm placeholder:text-white/30 focus:outline-none focus:border-[#0A84FF]/60 focus:bg-white/8 transition-colors"
           />
         </div>
         <div>
@@ -331,7 +331,7 @@ function InquiryForm({ tier }: { tier: Tier }) {
             value={form.phone}
             onChange={e => setForm(f => ({ ...f, phone: e.target.value }))}
             placeholder="(817) 555-0100"
-            className="w-full px-3.5 py-2.5 rounded-xl border border-white/15 bg-white/5 text-white text-sm placeholder:text-white/30 focus:outline-none focus:border-[#39a7ff]/60 focus:bg-white/8 transition-colors"
+            className="w-full px-3.5 py-2.5 rounded-xl border border-white/15 bg-white/5 text-white text-sm placeholder:text-white/30 focus:outline-none focus:border-[#0A84FF]/60 focus:bg-white/8 transition-colors"
           />
         </div>
       </div>
@@ -340,7 +340,7 @@ function InquiryForm({ tier }: { tier: Tier }) {
         <select
           value={form.devices}
           onChange={e => setForm(f => ({ ...f, devices: e.target.value }))}
-          className="w-full px-3.5 py-2.5 rounded-xl border border-white/15 bg-[#0d1f35] text-white text-sm focus:outline-none focus:border-[#39a7ff]/60 transition-colors"
+          className="w-full px-3.5 py-2.5 rounded-xl border border-white/15 bg-[#0d1f35] text-white text-sm focus:outline-none focus:border-[#0A84FF]/60 transition-colors"
         >
           <option value="">Select a range...</option>
           <option value="1-25">1–25 devices</option>
@@ -357,13 +357,13 @@ function InquiryForm({ tier }: { tier: Tier }) {
           value={form.message}
           onChange={e => setForm(f => ({ ...f, message: e.target.value }))}
           placeholder="Describe your staging needs, timeline, equipment types, or any special requirements..."
-          className="w-full px-3.5 py-2.5 rounded-xl border border-white/15 bg-white/5 text-white text-sm placeholder:text-white/30 focus:outline-none focus:border-[#39a7ff]/60 focus:bg-white/8 transition-colors resize-none"
+          className="w-full px-3.5 py-2.5 rounded-xl border border-white/15 bg-white/5 text-white text-sm placeholder:text-white/30 focus:outline-none focus:border-[#0A84FF]/60 focus:bg-white/8 transition-colors resize-none"
         />
       </div>
       <button
         type="submit"
         disabled={submitting}
-        className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl font-bold text-sm bg-gradient-to-r from-[#39a7ff] to-[#6ee7b7] text-[#06111f] hover:-translate-y-0.5 transition-transform disabled:opacity-60 disabled:cursor-not-allowed disabled:translate-y-0 shadow-[0_14px_34px_rgba(57,167,255,0.24)]"
+        className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl font-bold text-sm bg-gradient-to-r from-[#0A84FF] to-[#6ee7b7] text-[#06111f] hover:-translate-y-0.5 transition-transform disabled:opacity-60 disabled:cursor-not-allowed disabled:translate-y-0 shadow-[0_14px_34px_rgba(57,167,255,0.24)]"
       >
         {submitting ? (
           <>
@@ -411,7 +411,7 @@ export default function PackageDetail() {
       >
         <div className="text-center">
           <h1 className="text-2xl font-bold text-white mb-3">Package not found</h1>
-          <button onClick={() => setLocation("/")} className="text-[#39a7ff] hover:underline text-sm">
+          <button onClick={() => setLocation("/")} className="text-[#0A84FF] hover:underline text-sm">
             ← Back to home
           </button>
         </div>
@@ -436,7 +436,7 @@ export default function PackageDetail() {
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <button onClick={() => setLocation("/")} className="flex items-center gap-2 text-[#b7c5d5] hover:text-white transition-colors text-sm">
             <ArrowLeft className="w-4 h-4" />
-            <NsdsLogo />
+            <LayerOneLogo />
           </button>
           <div className="flex items-center gap-3">
             <a href="/#packages" className="text-sm text-[#b7c5d5] hover:text-white transition-colors px-3 py-2">
@@ -445,14 +445,14 @@ export default function PackageDetail() {
             {isAuthenticated ? (
               <button
                 onClick={() => setLocation("/dashboard")}
-                className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold bg-gradient-to-r from-[#39a7ff] to-[#6ee7b7] text-[#06111f] hover:-translate-y-0.5 transition-transform"
+                className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold bg-gradient-to-r from-[#0A84FF] to-[#6ee7b7] text-[#06111f] hover:-translate-y-0.5 transition-transform"
               >
                 Dashboard <ArrowRight className="w-3.5 h-3.5" />
               </button>
             ) : (
               <a
                 href={getLoginUrl()}
-                className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold bg-gradient-to-r from-[#39a7ff] to-[#6ee7b7] text-[#06111f] hover:-translate-y-0.5 transition-transform"
+                className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold bg-gradient-to-r from-[#0A84FF] to-[#6ee7b7] text-[#06111f] hover:-translate-y-0.5 transition-transform"
               >
                 Sign In <ArrowRight className="w-3.5 h-3.5" />
               </a>
@@ -543,12 +543,12 @@ export default function PackageDetail() {
                   <InquiryForm tier={tier} />
                   <div className="mt-5 pt-4 border-t border-white/10 flex items-center justify-center gap-5 text-xs text-[#b7c5d5]">
                     <div className="flex items-center gap-1.5">
-                      <Phone className="w-3.5 h-3.5 text-[#39a7ff]" />
+                      <Phone className="w-3.5 h-3.5 text-[#0A84FF]" />
                       (817) 555-Layer One
                     </div>
                     <div className="flex items-center gap-1.5">
-                      <Mail className="w-3.5 h-3.5 text-[#39a7ff]" />
-                      hello@nsds.com
+                      <Mail className="w-3.5 h-3.5 text-[#0A84FF]" />
+                      info@layeronestaging.com
                     </div>
                   </div>
                 </div>
@@ -599,14 +599,14 @@ export default function PackageDetail() {
                     onClick={() => setLocation(`/packages/${tid}`)}
                     className={`rounded-xl border p-4 text-left transition-all hover:-translate-y-0.5 ${
                       isActive
-                        ? "border-[#39a7ff]/40 bg-[#39a7ff]/10"
+                        ? "border-[#0A84FF]/40 bg-[#0A84FF]/10"
                         : "border-white/10 bg-white/5 hover:border-white/20"
                     }`}
                   >
                     {t.featured && (
                       <div className="text-[10px] font-bold text-[#6ee7b7] mb-1">★ Popular</div>
                     )}
-                    <p className={`text-sm font-bold mb-1 ${isActive ? "text-[#39a7ff]" : "text-white"}`}>{t.name}</p>
+                    <p className={`text-sm font-bold mb-1 ${isActive ? "text-[#0A84FF]" : "text-white"}`}>{t.name}</p>
                     <p className="text-[10px] text-[#b7c5d5] leading-relaxed">{t.tagline}</p>
                   </button>
                 );
@@ -639,8 +639,8 @@ export default function PackageDetail() {
       {/* Footer */}
       <footer className="border-t border-white/10 py-8">
         <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4">
-          <NsdsLogo />
-          <p className="text-[#b7c5d5] text-sm">© {new Date().getFullYear()} Network Staging &amp; Deployment Solutions · 1501 Randolph St, Carrollton, TX 75006</p>
+          <LayerOneLogo />
+          <p className="text-[#b7c5d5] text-sm">© {new Date().getFullYear()} Layer One Staging · 1501 Randolph St, Carrollton, TX 75006</p>
           <button onClick={() => setLocation("/")} className="text-sm text-[#b7c5d5] hover:text-white transition-colors">
             ← Back to home
           </button>

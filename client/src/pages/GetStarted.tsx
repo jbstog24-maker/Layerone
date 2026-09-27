@@ -12,20 +12,20 @@ export default function GetStarted() {
           <ArrowLeft className="w-4 h-4" /> Back to Home
         </Link>
         <a href={getLoginUrl()} className="text-sm text-[#b7c5d5] hover:text-white transition-colors">
-          Already have an account? <span className="text-[#39a7ff] font-semibold">Sign In</span>
+          Already have an account? <span className="text-[#0A84FF] font-semibold">Sign In</span>
         </a>
       </nav>
 
       <div className="max-w-2xl mx-auto px-6 py-12">
         {/* Header */}
         <div className="mb-10">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-[#39a7ff]/30 bg-[#39a7ff]/10 text-[#39a7ff] text-xs font-semibold mb-4">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-[#0A84FF]/30 bg-[#0A84FF]/10 text-[#0A84FF] text-xs font-semibold mb-4">
             <span className="w-1.5 h-1.5 rounded-full bg-[#6ee7b7] animate-pulse" />
             Free Consultation — No Commitment
           </div>
           <h1 className="text-4xl font-extrabold text-white mb-3 leading-tight">
             Get Started with<br />
-            <span className="bg-gradient-to-r from-[#39a7ff] to-[#6ee7b7] bg-clip-text text-transparent">Layer One</span>
+            <span className="bg-gradient-to-r from-[#0A84FF] to-[#6ee7b7] bg-clip-text text-transparent">Layer One</span>
           </h1>
           <p className="text-[#b7c5d5] text-lg">
             Tell us about your deployment needs and a rep will build a custom quote for you.

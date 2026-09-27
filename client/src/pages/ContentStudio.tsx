@@ -296,7 +296,7 @@ export default function ContentStudio() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-            <Sparkles className="h-6 w-6 text-[#39a7ff]" />
+            <Sparkles className="h-6 w-6 text-[#0A84FF]" />
             Content Studio
           </h1>
           <p className="text-slate-400 text-sm mt-1">
@@ -314,7 +314,7 @@ export default function ContentStudio() {
 
       <Tabs defaultValue="image" className="space-y-6">
         <TabsList className="bg-slate-800/60 border border-slate-700">
-          <TabsTrigger value="image" className="gap-2 data-[state=active]:bg-[#39a7ff]/20 data-[state=active]:text-[#39a7ff]">
+          <TabsTrigger value="image" className="gap-2 data-[state=active]:bg-[#0A84FF]/20 data-[state=active]:text-[#0A84FF]">
             <ImageIcon className="h-4 w-4" />
             Image Generator
           </TabsTrigger>
@@ -338,7 +338,7 @@ export default function ContentStudio() {
                   <div className="flex items-start justify-between">
                     <div>
                       <CardTitle className="text-white text-base flex items-center gap-2">
-                        <Wand2 className="h-4 w-4 text-[#39a7ff]" />
+                        <Wand2 className="h-4 w-4 text-[#0A84FF]" />
                         Image Settings
                       </CardTitle>
                       <CardDescription className="text-slate-400 text-xs mt-1">
@@ -418,7 +418,7 @@ export default function ContentStudio() {
                   <Button
                     onClick={handleGenerateImage}
                     disabled={generateImageMut.isPending}
-                    className="w-full bg-[#39a7ff] hover:bg-[#2196f3] text-[#07111f] font-semibold gap-2"
+                    className="w-full bg-[#0A84FF] hover:bg-[#2196f3] text-[#07111f] font-semibold gap-2"
                   >
                     {generateImageMut.isPending ? (
                       <>
@@ -441,7 +441,7 @@ export default function ContentStudio() {
                   <div className="flex items-center justify-between">
                     <CardTitle className="text-white text-sm">Quick Templates</CardTitle>
                     {selectedImageTemplate && (
-                      <span className="text-xs text-[#39a7ff] bg-[#39a7ff]/10 px-2 py-0.5 rounded-full">Selected</span>
+                      <span className="text-xs text-[#0A84FF] bg-[#0A84FF]/10 px-2 py-0.5 rounded-full">Selected</span>
                     )}
                   </div>
                 </CardHeader>
@@ -458,11 +458,11 @@ export default function ContentStudio() {
                         }}
                         className={`w-full text-left px-3 py-2 rounded-lg border transition-all group ${
                           isSelected
-                            ? "bg-[#39a7ff]/10 border-[#39a7ff]/50 ring-1 ring-[#39a7ff]/30"
-                            : "bg-slate-800 hover:bg-slate-700 border-slate-700 hover:border-[#39a7ff]/40"
+                            ? "bg-[#0A84FF]/10 border-[#0A84FF]/50 ring-1 ring-[#0A84FF]/30"
+                            : "bg-slate-800 hover:bg-slate-700 border-slate-700 hover:border-[#0A84FF]/40"
                         }`}
                       >
-                        <p className={`text-xs font-medium transition-colors ${isSelected ? "text-[#39a7ff]" : "text-slate-300 group-hover:text-[#39a7ff]"}`}>{t.label}</p>
+                        <p className={`text-xs font-medium transition-colors ${isSelected ? "text-[#0A84FF]" : "text-slate-300 group-hover:text-[#0A84FF]"}`}>{t.label}</p>
                         <p className="text-slate-500 text-xs mt-0.5 line-clamp-1">{t.prompt}</p>
                       </button>
                     );
@@ -484,8 +484,8 @@ export default function ContentStudio() {
                   {generateImageMut.isPending ? (
                     <div className="aspect-video bg-slate-800 rounded-xl flex flex-col items-center justify-center gap-3 border border-slate-700">
                       <div className="relative">
-                        <div className="w-12 h-12 rounded-full border-2 border-[#39a7ff]/30 border-t-[#39a7ff] animate-spin" />
-                        <Sparkles className="h-5 w-5 text-[#39a7ff] absolute inset-0 m-auto" />
+                        <div className="w-12 h-12 rounded-full border-2 border-[#0A84FF]/30 border-t-[#0A84FF] animate-spin" />
+                        <Sparkles className="h-5 w-5 text-[#0A84FF] absolute inset-0 m-auto" />
                       </div>
                       <div className="text-center">
                         <p className="text-slate-300 text-sm font-medium">Creating your image...</p>
@@ -541,10 +541,10 @@ export default function ContentStudio() {
                 <CardContent className="pt-4 space-y-2">
                   <p className="text-slate-400 text-xs font-semibold uppercase tracking-wide">Pro Tips</p>
                   <ul className="space-y-1.5 text-slate-500 text-xs">
-                    <li className="flex gap-2"><Zap className="h-3 w-3 text-[#39a7ff] mt-0.5 shrink-0" />Enable AI Enhancement for significantly better results</li>
-                    <li className="flex gap-2"><Zap className="h-3 w-3 text-[#39a7ff] mt-0.5 shrink-0" />Be specific about lighting, environment, and mood</li>
-                    <li className="flex gap-2"><Zap className="h-3 w-3 text-[#39a7ff] mt-0.5 shrink-0" />Use "Regenerate" to get variations of the same concept</li>
-                    <li className="flex gap-2"><Zap className="h-3 w-3 text-[#39a7ff] mt-0.5 shrink-0" />All assets are saved to the gallery automatically</li>
+                    <li className="flex gap-2"><Zap className="h-3 w-3 text-[#0A84FF] mt-0.5 shrink-0" />Enable AI Enhancement for significantly better results</li>
+                    <li className="flex gap-2"><Zap className="h-3 w-3 text-[#0A84FF] mt-0.5 shrink-0" />Be specific about lighting, environment, and mood</li>
+                    <li className="flex gap-2"><Zap className="h-3 w-3 text-[#0A84FF] mt-0.5 shrink-0" />Use "Regenerate" to get variations of the same concept</li>
+                    <li className="flex gap-2"><Zap className="h-3 w-3 text-[#0A84FF] mt-0.5 shrink-0" />All assets are saved to the gallery automatically</li>
                   </ul>
                 </CardContent>
               </Card>
@@ -710,7 +710,7 @@ export default function ContentStudio() {
                 <CardContent className="space-y-3">
                   {[
                     { icon: Zap, color: "text-yellow-400", title: "Hook Line", desc: "Attention-grabbing opening for the first 3 seconds" },
-                    { icon: Mic, color: "text-[#39a7ff]", title: "Full Voiceover Script", desc: "Complete narration text ready for recording" },
+                    { icon: Mic, color: "text-[#0A84FF]", title: "Full Voiceover Script", desc: "Complete narration text ready for recording" },
                     { icon: Film, color: "text-purple-400", title: "Scene Breakdown", desc: "Timestamped scenes with visual descriptions and text overlays" },
                     { icon: MessageSquare, color: "text-[#6ee7b7]", title: "Call-to-Action", desc: "Optimized CTA text for your target audience" },
                     { icon: Music, color: "text-pink-400", title: "Music Direction", desc: "Mood and style guidance for background music" },
@@ -1138,7 +1138,7 @@ function VideoPackageView({ pkg, thumbnailUrl }: { pkg: any; thumbnailUrl?: stri
       <div className="space-y-1.5">
         <div className="flex items-center justify-between">
           <h3 className="text-slate-300 text-xs font-semibold uppercase tracking-wide flex items-center gap-1.5">
-            <Mic className="h-3.5 w-3.5 text-[#39a7ff]" /> Full Voiceover Script
+            <Mic className="h-3.5 w-3.5 text-[#0A84FF]" /> Full Voiceover Script
           </h3>
           <Button variant="ghost" size="sm" className="h-6 text-xs text-slate-500 hover:text-white" onClick={() => copyToClipboard(pkg.voiceover, "Voiceover")}>
             Copy
@@ -1165,7 +1165,7 @@ function VideoPackageView({ pkg, thumbnailUrl }: { pkg: any; thumbnailUrl?: stri
                 <p className="text-slate-200 text-xs">{scene.visual}</p>
                 {scene.text_overlay && (
                   <div className="bg-slate-700 rounded px-2 py-1 inline-block">
-                    <p className="text-[#39a7ff] text-xs font-medium">"{scene.text_overlay}"</p>
+                    <p className="text-[#0A84FF] text-xs font-medium">"{scene.text_overlay}"</p>
                   </div>
                 )}
               </div>
@@ -1200,7 +1200,7 @@ function VideoPackageView({ pkg, thumbnailUrl }: { pkg: any; thumbnailUrl?: stri
           <h3 className="text-slate-300 text-xs font-semibold uppercase tracking-wide">Key Messages</h3>
           <div className="flex flex-wrap gap-2">
             {pkg.key_messages.map((msg: string, i: number) => (
-              <Badge key={i} className="bg-[#39a7ff]/10 text-[#39a7ff] border-[#39a7ff]/20 text-xs">
+              <Badge key={i} className="bg-[#0A84FF]/10 text-[#0A84FF] border-[#0A84FF]/20 text-xs">
                 {msg}
               </Badge>
             ))}

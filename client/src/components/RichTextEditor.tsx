@@ -86,7 +86,7 @@ function LinkPopover({ editor }: { editor: Editor }) {
           <Input
             value={url}
             onChange={(e) => setUrl(e.target.value)}
-            placeholder="https://nsds.io"
+            placeholder="https://layeronestaging.com"
             className="h-8 text-sm"
             onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); applyLink(); } }}
             autoFocus

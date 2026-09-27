@@ -44,11 +44,11 @@ export default function PendingApproval() {
               <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Need help? Contact Layer One</p>
               <div className="space-y-2">
                 <a
-                  href="mailto:operations@nsds.io"
+                  href="mailto:info@layeronestaging.com"
                   className="flex items-center gap-2 text-sm text-primary hover:underline"
                 >
                   <Mail className="w-4 h-4" />
-                  operations@nsds.io
+                  info@layeronestaging.com
                 </a>
                 <a
                   href="tel:+14695551234"

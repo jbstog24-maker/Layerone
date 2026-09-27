@@ -225,7 +225,7 @@ export default function LeadFinder() {
               <div className="relative flex-1">
                 <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
-                  placeholder="Custom search (e.g. network cabling contractor, IT support company...)"
+                  placeholder="Custom search (e.g. MSP, retail rollout company, data-center contractor...)"
                   value={customQuery}
                   onChange={(e) => setCustomQuery(e.target.value)}
                   className="pl-9"

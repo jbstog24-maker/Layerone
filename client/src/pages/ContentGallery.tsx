@@ -95,7 +95,7 @@ export default function ContentGallery() {
           </Link>
           <div>
             <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-              <Sparkles className="h-6 w-6 text-[#39a7ff]" />
+              <Sparkles className="h-6 w-6 text-[#0A84FF]" />
               Asset Gallery
             </h1>
             <p className="text-slate-400 text-sm mt-0.5">
@@ -104,7 +104,7 @@ export default function ContentGallery() {
           </div>
         </div>
         <Link href="/content-studio">
-          <Button className="bg-[#39a7ff] hover:bg-[#2196f3] text-[#07111f] font-semibold gap-2">
+          <Button className="bg-[#0A84FF] hover:bg-[#2196f3] text-[#07111f] font-semibold gap-2">
             <Sparkles className="h-4 w-4" />
             Create New
           </Button>
@@ -161,7 +161,7 @@ export default function ContentGallery() {
           <p className="text-slate-400 text-lg font-medium">No assets yet</p>
           <p className="text-slate-600 text-sm mt-1">Head to the Content Studio to generate your first marketing asset</p>
           <Link href="/content-studio">
-            <Button className="mt-4 bg-[#39a7ff] hover:bg-[#2196f3] text-[#07111f] font-semibold gap-2">
+            <Button className="mt-4 bg-[#0A84FF] hover:bg-[#2196f3] text-[#07111f] font-semibold gap-2">
               <Sparkles className="h-4 w-4" />
               Open Content Studio
             </Button>
@@ -300,7 +300,7 @@ function AssetCard({
         ) : isGenerating ? (
           <div className="w-full h-full flex items-center justify-center">
             <div className="text-center space-y-2">
-              <RefreshCw className="h-6 w-6 text-[#39a7ff] animate-spin mx-auto" />
+              <RefreshCw className="h-6 w-6 text-[#0A84FF] animate-spin mx-auto" />
               <p className="text-slate-500 text-xs">Generating...</p>
             </div>
           </div>
@@ -341,7 +341,7 @@ function AssetCard({
 
         {/* Type badge */}
         <div className="absolute top-2 left-2">
-          <Badge className={`text-xs px-1.5 py-0.5 ${isImage ? "bg-[#39a7ff]/20 text-[#39a7ff] border-[#39a7ff]/30" : "bg-purple-500/20 text-purple-400 border-purple-500/30"}`}>
+          <Badge className={`text-xs px-1.5 py-0.5 ${isImage ? "bg-[#0A84FF]/20 text-[#0A84FF] border-[#0A84FF]/30" : "bg-purple-500/20 text-purple-400 border-purple-500/30"}`}>
             {isImage ? <ImageIcon className="h-2.5 w-2.5 mr-1" /> : <Film className="h-2.5 w-2.5 mr-1" />}
             {isImage ? "Image" : "Video"}
           </Badge>
@@ -382,7 +382,7 @@ function AssetCard({
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-6 w-6 text-slate-500 hover:text-[#39a7ff]"
+                className="h-6 w-6 text-slate-500 hover:text-[#0A84FF]"
                 onClick={onRegenerate}
                 disabled={isRegenerating}
                 title="Regenerate"
@@ -436,7 +436,7 @@ function VideoPackageView({ pkg, thumbnailUrl }: { pkg: any; thumbnailUrl?: stri
       <div className="space-y-1.5">
         <div className="flex items-center justify-between">
           <h3 className="text-slate-300 text-xs font-semibold uppercase tracking-wide flex items-center gap-1.5">
-            <Mic className="h-3.5 w-3.5 text-[#39a7ff]" /> Voiceover Script
+            <Mic className="h-3.5 w-3.5 text-[#0A84FF]" /> Voiceover Script
           </h3>
           <Button variant="ghost" size="sm" className="h-6 text-xs text-slate-500 hover:text-white" onClick={() => copyToClipboard(pkg.voiceover, "Voiceover")}>Copy</Button>
         </div>
@@ -460,7 +460,7 @@ function VideoPackageView({ pkg, thumbnailUrl }: { pkg: any; thumbnailUrl?: stri
                 <p className="text-slate-200 text-xs">{scene.visual}</p>
                 {scene.text_overlay && (
                   <div className="bg-slate-700 rounded px-2 py-1 inline-block">
-                    <p className="text-[#39a7ff] text-xs font-medium">"{scene.text_overlay}"</p>
+                    <p className="text-[#0A84FF] text-xs font-medium">"{scene.text_overlay}"</p>
                   </div>
                 )}
               </div>
@@ -493,7 +493,7 @@ function VideoPackageView({ pkg, thumbnailUrl }: { pkg: any; thumbnailUrl?: stri
           <h3 className="text-slate-300 text-xs font-semibold uppercase tracking-wide">Key Messages</h3>
           <div className="flex flex-wrap gap-2">
             {pkg.key_messages.map((msg: string, i: number) => (
-              <Badge key={i} className="bg-[#39a7ff]/10 text-[#39a7ff] border-[#39a7ff]/20 text-xs">{msg}</Badge>
+              <Badge key={i} className="bg-[#0A84FF]/10 text-[#0A84FF] border-[#0A84FF]/20 text-xs">{msg}</Badge>
             ))}
           </div>
         </div>
