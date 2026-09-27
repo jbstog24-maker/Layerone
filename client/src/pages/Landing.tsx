@@ -2,13 +2,14 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
 import { useLocation } from "wouter";
 import { useState } from "react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
   Shield, Truck, Package, Warehouse, Box,
   ArrowRight, CheckCircle, ChevronRight, Zap, Lock,
   BarChart3, FileText, Camera, Activity,
   Thermometer, Video, MapPin, ChevronDown, Layers,
   Tags, ClipboardCheck, Send, Network, Users, Store,
-  Server, Repeat,
+  Server, Repeat, Info,
 } from "lucide-react";
 
 const LOGO_URL = "/images/layerone-logo-on-dark.png";
@@ -272,6 +273,7 @@ function HowItWorks() {
 
 function Packages() {
   const [, setLocation] = useLocation();
+  // Detail values pulled from server/stripe-products.ts TIER_PRICING descriptions.
   const tiers = [
     {
       name: "Basic",
@@ -280,6 +282,14 @@ function Packages() {
       desc: "First-time customers testing the service on a small deployment.",
       features: ["One project, up to 14 days", "Up to 5 active devices", "Up to 5 boxes received", "Intake photos & serial/MAC capture", "1 outbound shipment coordination", "Staging labor billed separately"],
       featured: false,
+      details: {
+        billing: "One-time · $499 per project",
+        devices: "Up to 5 active devices",
+        boxes: "Up to 5 boxes received",
+        pallets: "Not included",
+        storage: "14-day project window",
+        shipments: "1 outbound shipment coordination",
+      },
     },
     {
       name: "Standard",
@@ -288,14 +298,30 @@ function Packages() {
       desc: "Light recurring receiving, organization, and short-term storage.",
       features: ["Up to 10 active devices stored", "Up to 10 boxes/month", "Up to 1 pallet/month", "30-day storage per item", "3 outbound shipment coordinations/mo", "Monthly usage summary"],
       featured: false,
+      details: {
+        billing: "Monthly · $750/mo",
+        devices: "Up to 10 active devices",
+        boxes: "Up to 10 boxes / month",
+        pallets: "Up to 1 pallet / month",
+        storage: "30-day storage per item",
+        shipments: "3 outbound shipment coordinations / mo",
+      },
     },
     {
       name: "Professional",
       price: "$1,500",
       priceSuffix: "/month starting",
       desc: "Recurring deployment work with more receiving volume and organized staging capacity.",
-      features: ["Up to 30 active devices stored", "Up to 25 boxes/month", "Up to 2 pallets/month", "30-day storage per item", "8 outbound shipment coordinations/mo", "Dock/ramp coordination available"],
+      features: ["Up to 25 active devices stored", "Up to 30 boxes/month", "Up to 3 pallets/month", "30-day storage per item", "8 outbound shipment coordinations/mo", "Dock/ramp coordination available"],
       featured: true,
+      details: {
+        billing: "Monthly · $1,500/mo",
+        devices: "Up to 25 active devices",
+        boxes: "Up to 30 boxes / month",
+        pallets: "Up to 3 pallets / month",
+        storage: "30-day storage per item",
+        shipments: "8 outbound shipment coordinations / mo",
+      },
     },
     {
       name: "Enterprise",
@@ -304,6 +330,14 @@ function Packages() {
       desc: "Dedicated staging zone with higher volume and a dedicated LayerOne-managed workflow.",
       features: ["Up to 75 active devices stored", "Up to 75 boxes/month", "Up to 6 pallets/month", "45-day storage per item", "20 outbound shipment coordinations/mo", "Weekly inventory report + 1 project call/mo"],
       featured: false,
+      details: {
+        billing: "Monthly · $3,500/mo",
+        devices: "Up to 75 active devices",
+        boxes: "Up to 75 boxes / month",
+        pallets: "Up to 6 pallets / month",
+        storage: "45-day storage per item",
+        shipments: "20 outbound shipment coordinations / mo",
+      },
     },
     {
       name: "Custom",
@@ -312,6 +346,14 @@ function Packages() {
       desc: "Multi-site deployments, national rollouts, POS, security, and franchise tech rollouts.",
       features: ["Up to 150 active devices stored", "Up to 200 boxes/month", "Up to 20 pallets/month", "60-day storage per item", "50 outbound shipment coordinations/mo", "Chain-of-custody tracking & custom labor"],
       featured: false,
+      details: {
+        billing: "Monthly · $5,000/mo base (custom-quoted)",
+        devices: "Up to 150 active devices",
+        boxes: "Up to 200 boxes / month",
+        pallets: "Up to 20 pallets / month",
+        storage: "60-day storage per item",
+        shipments: "50 outbound shipment coordinations / mo",
+      },
     },
   ];
 
@@ -339,7 +381,44 @@ function Packages() {
                   <Zap className="w-3 h-3" /> Most Popular
                 </div>
               )}
-              <h3 className="text-lg font-black text-white mb-1">{t.name}</h3>
+              <div className="flex items-start justify-between gap-2 mb-1">
+                <h3 className="text-lg font-black text-white">{t.name}</h3>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <button
+                      type="button"
+                      aria-label={`${t.name} package details`}
+                      className="shrink-0 p-1.5 rounded-full text-slate-400 hover:text-[#0A84FF] hover:bg-[#0A84FF]/10 transition-colors"
+                    >
+                      <Info className="w-4 h-4" />
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent
+                    align="end"
+                    className="w-72 max-w-[calc(100vw-2rem)] bg-[#0B1320] border border-white/10 rounded-xl p-4 shadow-2xl"
+                  >
+                    <p className="text-sm font-bold text-white mb-1">{t.name} — what's included</p>
+                    <p className="text-xs text-[#0A84FF] font-semibold mb-3">{t.details.billing}</p>
+                    <dl className="space-y-2 text-xs">
+                      {[
+                        ["Devices", t.details.devices],
+                        ["Boxes", t.details.boxes],
+                        ["Pallets", t.details.pallets],
+                        ["Storage", t.details.storage],
+                        ["Outbound", t.details.shipments],
+                      ].map(([label, value]) => (
+                        <div key={label} className="flex justify-between gap-3">
+                          <dt className="text-slate-500 shrink-0">{label}</dt>
+                          <dd className="text-slate-200 text-right">{value}</dd>
+                        </div>
+                      ))}
+                    </dl>
+                    <p className="mt-3 pt-3 border-t border-white/10 text-[11px] leading-relaxed text-slate-500">
+                      Anything beyond the included limits bills as an overage at our published add-on rates.
+                    </p>
+                  </PopoverContent>
+                </Popover>
+              </div>
               <div className="mb-3">
                 <span className="text-2xl font-black text-[#0A84FF]">{t.price}</span>
                 <span className="text-xs text-slate-400 ml-1">{t.priceSuffix}</span>
