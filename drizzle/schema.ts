@@ -16,8 +16,16 @@ export const users = mysqlTable("users", {
   openId: varchar("openId", { length: 64 }).notNull().unique(),
   name: text("name"),
   email: varchar("email", { length: 320 }),
+  passwordHash: varchar("passwordHash", { length: 255 }), // null for legacy OAuth users
   loginMethod: varchar("loginMethod", { length: 64 }),
-  role: mysqlEnum("role", ["admin", "staff", "customer_admin", "customer_viewer"]).default("customer_viewer").notNull(),
+  role: mysqlEnum("role", [
+    "admin",
+    "staff",
+    "customer_admin",
+    "customer_viewer",
+  ])
+    .default("customer_viewer")
+    .notNull(),
   clientId: int("clientId"), // null for admin/staff
   businessName: varchar("businessName", { length: 200 }),
   phone: varchar("phone", { length: 30 }),
@@ -38,9 +46,19 @@ export type InsertUser = typeof users.$inferInsert;
 export const packages = mysqlTable("packages", {
   id: int("id").autoincrement().primaryKey(),
   name: varchar("name", { length: 128 }).notNull(),
-  tier: mysqlEnum("tier", ["basic", "standard", "professional", "enterprise", "custom"]).notNull(),
-  basePrice: decimal("basePrice", { precision: 10, scale: 2 }).notNull().default("0.00"),
-  billingCycle: mysqlEnum("billingCycle", ["one_time", "monthly"]).default("monthly").notNull(),
+  tier: mysqlEnum("tier", [
+    "basic",
+    "standard",
+    "professional",
+    "enterprise",
+    "custom",
+  ]).notNull(),
+  basePrice: decimal("basePrice", { precision: 10, scale: 2 })
+    .notNull()
+    .default("0.00"),
+  billingCycle: mysqlEnum("billingCycle", ["one_time", "monthly"])
+    .default("monthly")
+    .notNull(),
   maxDevices: int("maxDevices").default(0),
   maxBoxes: int("maxBoxes").default(0),
   maxPallets: int("maxPallets").default(0),
@@ -67,7 +85,9 @@ export const clients = mysqlTable("clients", {
   billingEmail: varchar("billingEmail", { length: 320 }),
   packageId: int("packageId"),
   billingCycleStart: timestamp("billingCycleStart"),
-  status: mysqlEnum("status", ["active", "inactive", "onboarding", "suspended"]).default("onboarding").notNull(),
+  status: mysqlEnum("status", ["active", "inactive", "onboarding", "suspended"])
+    .default("onboarding")
+    .notNull(),
   projectNotes: text("projectNotes"),
   address: text("address"),
   // Onboarding / contract
@@ -77,7 +97,15 @@ export const clients = mysqlTable("clients", {
   // Stripe
   stripeCustomerId: varchar("stripeCustomerId", { length: 128 }),
   stripeSubscriptionId: varchar("stripeSubscriptionId", { length: 128 }),
-  paymentStatus: mysqlEnum("paymentStatus", ["unpaid", "pending", "paid", "failed", "cancelled"]).default("unpaid").notNull(),
+  paymentStatus: mysqlEnum("paymentStatus", [
+    "unpaid",
+    "pending",
+    "paid",
+    "failed",
+    "cancelled",
+  ])
+    .default("unpaid")
+    .notNull(),
   // Warehouse space assignment
   warehouseUnitNumber: varchar("warehouseUnitNumber", { length: 64 }),
   warehouseAddress: text("warehouseAddress"),
@@ -107,7 +135,17 @@ export const expectedDeliveries = mysqlTable("expected_deliveries", {
   expectedContents: text("expectedContents"),
   siteName: varchar("siteName", { length: 256 }),
   specialInstructions: text("specialInstructions"),
-  status: mysqlEnum("status", ["expected", "in_transit", "received", "partially_received", "damaged", "exception", "closed"]).default("expected").notNull(),
+  status: mysqlEnum("status", [
+    "expected",
+    "in_transit",
+    "received",
+    "partially_received",
+    "damaged",
+    "exception",
+    "closed",
+  ])
+    .default("expected")
+    .notNull(),
   createdBy: int("createdBy"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
@@ -128,10 +166,14 @@ export const receivingLogs = mysqlTable("receiving_logs", {
   receivedBy: int("receivedBy"),
   boxCount: int("boxCount").default(0),
   palletCount: int("palletCount").default(0),
-  condition: mysqlEnum("condition", ["good", "damaged", "exception", "partial"]).default("good").notNull(),
+  condition: mysqlEnum("condition", ["good", "damaged", "exception", "partial"])
+    .default("good")
+    .notNull(),
   storageLocation: varchar("storageLocation", { length: 128 }),
   notes: text("notes"),
-  status: mysqlEnum("status", ["pending", "processed", "exception"]).default("pending").notNull(),
+  status: mysqlEnum("status", ["pending", "processed", "exception"])
+    .default("pending")
+    .notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
@@ -150,14 +192,27 @@ export const pallets = mysqlTable("pallets", {
   dateReceived: timestamp("dateReceived").defaultNow().notNull(),
   boxCount: int("boxCount").default(0),
   storageLocation: varchar("storageLocation", { length: 128 }),
-  status: mysqlEnum("status", ["received", "in_storage", "staging", "ready_to_ship", "shipped", "exception"]).default("received").notNull(),
+  status: mysqlEnum("status", [
+    "received",
+    "in_storage",
+    "staging",
+    "ready_to_ship",
+    "shipped",
+    "exception",
+  ])
+    .default("received")
+    .notNull(),
   dateRemoved: timestamp("dateRemoved"),
   notes: text("notes"),
   // Forwarding / outbound destination
   forwardingAddress: text("forwardingAddress"),
   forwardingContact: varchar("forwardingContact", { length: 256 }),
   forwardingNotes: text("forwardingNotes"),
-  forwardingStatus: mysqlEnum("forwardingStatus", ["pending", "in_transit", "delivered"]).default("pending"),
+  forwardingStatus: mysqlEnum("forwardingStatus", [
+    "pending",
+    "in_transit",
+    "delivered",
+  ]).default("pending"),
   forwardingUpdatedAt: timestamp("forwardingUpdatedAt"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
@@ -176,16 +231,31 @@ export const boxes = mysqlTable("boxes", {
   deliveryId: int("deliveryId"),
   receivingLogId: int("receivingLogId"),
   trackingNumber: varchar("trackingNumber", { length: 256 }),
-  condition: mysqlEnum("condition", ["good", "damaged", "exception"]).default("good").notNull(),
+  condition: mysqlEnum("condition", ["good", "damaged", "exception"])
+    .default("good")
+    .notNull(),
   contents: text("contents"),
   storageLocation: varchar("storageLocation", { length: 128 }),
-  status: mysqlEnum("status", ["received", "in_storage", "staging", "packed", "shipped", "exception"]).default("received").notNull(),
+  status: mysqlEnum("status", [
+    "received",
+    "in_storage",
+    "staging",
+    "packed",
+    "shipped",
+    "exception",
+  ])
+    .default("received")
+    .notNull(),
   notes: text("notes"),
   // Forwarding / outbound destination
   forwardingAddress: text("forwardingAddress"),
   forwardingContact: varchar("forwardingContact", { length: 256 }),
   forwardingNotes: text("forwardingNotes"),
-  forwardingStatus: mysqlEnum("forwardingStatus", ["pending", "in_transit", "delivered"]).default("pending"),
+  forwardingStatus: mysqlEnum("forwardingStatus", [
+    "pending",
+    "in_transit",
+    "delivered",
+  ]).default("pending"),
   forwardingUpdatedAt: timestamp("forwardingUpdatedAt"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
@@ -211,8 +281,31 @@ export const devices = mysqlTable("devices", {
   palletId: int("palletId"),
   deliveryId: int("deliveryId"),
   firmwareVersion: varchar("firmwareVersion", { length: 128 }),
-  configStatus: mysqlEnum("configStatus", ["pending", "in_progress", "complete", "not_required"]).default("pending").notNull(),
-  stagingStatus: mysqlEnum("stagingStatus", ["expected", "received", "inventory_captured", "waiting_instructions", "ready_for_staging", "in_staging", "staged", "labeled", "packed", "ready_to_ship", "shipped", "picked_up", "exception"]).default("expected").notNull(),
+  configStatus: mysqlEnum("configStatus", [
+    "pending",
+    "in_progress",
+    "complete",
+    "not_required",
+  ])
+    .default("pending")
+    .notNull(),
+  stagingStatus: mysqlEnum("stagingStatus", [
+    "expected",
+    "received",
+    "inventory_captured",
+    "waiting_instructions",
+    "ready_for_staging",
+    "in_staging",
+    "staged",
+    "labeled",
+    "packed",
+    "ready_to_ship",
+    "shipped",
+    "picked_up",
+    "exception",
+  ])
+    .default("expected")
+    .notNull(),
   storageLocation: varchar("storageLocation", { length: 128 }),
   notes: text("notes"),
   receivingLogId: int("receivingLogId"),
@@ -220,7 +313,11 @@ export const devices = mysqlTable("devices", {
   forwardingAddress: text("forwardingAddress"),
   forwardingContact: varchar("forwardingContact", { length: 256 }),
   forwardingNotes: text("forwardingNotes"),
-  forwardingStatus: mysqlEnum("forwardingStatus", ["pending", "in_transit", "delivered"]).default("pending"),
+  forwardingStatus: mysqlEnum("forwardingStatus", [
+    "pending",
+    "in_transit",
+    "delivered",
+  ]).default("pending"),
   forwardingUpdatedAt: timestamp("forwardingUpdatedAt"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
@@ -234,12 +331,35 @@ export const stagingTasks = mysqlTable("staging_tasks", {
   id: int("id").autoincrement().primaryKey(),
   clientId: int("clientId").notNull(),
   projectName: varchar("projectName", { length: 256 }),
-  taskType: mysqlEnum("taskType", ["firmware_update", "labeling", "site_kit_prep", "switch_staging", "firewall_staging", "ap_prep", "camera_nvr_kit", "config_backup", "documentation", "other"]).default("other").notNull(),
+  taskType: mysqlEnum("taskType", [
+    "firmware_update",
+    "labeling",
+    "site_kit_prep",
+    "switch_staging",
+    "firewall_staging",
+    "ap_prep",
+    "camera_nvr_kit",
+    "config_backup",
+    "documentation",
+    "other",
+  ])
+    .default("other")
+    .notNull(),
   title: varchar("title", { length: 256 }).notNull(),
   instructions: text("instructions"),
   assignedTo: int("assignedTo"),
-  status: mysqlEnum("status", ["pending", "in_progress", "completed", "on_hold", "cancelled"]).default("pending").notNull(),
-  priority: mysqlEnum("priority", ["low", "normal", "high", "rush"]).default("normal").notNull(),
+  status: mysqlEnum("status", [
+    "pending",
+    "in_progress",
+    "completed",
+    "on_hold",
+    "cancelled",
+  ])
+    .default("pending")
+    .notNull(),
+  priority: mysqlEnum("priority", ["low", "normal", "high", "rush"])
+    .default("normal")
+    .notNull(),
   startDate: timestamp("startDate"),
   completionDate: timestamp("completionDate"),
   estimatedHours: decimal("estimatedHours", { precision: 6, scale: 2 }),
@@ -273,7 +393,17 @@ export const outboundShipments = mysqlTable("outbound_shipments", {
   datePacked: timestamp("datePacked"),
   dateShipped: timestamp("dateShipped"),
   dateDelivered: timestamp("dateDelivered"),
-  status: mysqlEnum("status", ["requested", "packing", "ready_to_ship", "shipped", "delivered", "exception", "closed"]).default("requested").notNull(),
+  status: mysqlEnum("status", [
+    "requested",
+    "packing",
+    "ready_to_ship",
+    "shipped",
+    "delivered",
+    "exception",
+    "closed",
+  ])
+    .default("requested")
+    .notNull(),
   notes: text("notes"),
   requestedBy: int("requestedBy"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
@@ -298,10 +428,16 @@ export const invoices = mysqlTable("invoices", {
   clientId: int("clientId").notNull(),
   periodStart: timestamp("periodStart").notNull(),
   periodEnd: timestamp("periodEnd").notNull(),
-  subtotal: decimal("subtotal", { precision: 10, scale: 2 }).default("0.00").notNull(),
+  subtotal: decimal("subtotal", { precision: 10, scale: 2 })
+    .default("0.00")
+    .notNull(),
   tax: decimal("tax", { precision: 10, scale: 2 }).default("0.00").notNull(),
-  total: decimal("total", { precision: 10, scale: 2 }).default("0.00").notNull(),
-  status: mysqlEnum("status", ["draft", "sent", "paid", "overdue", "void"]).default("draft").notNull(),
+  total: decimal("total", { precision: 10, scale: 2 })
+    .default("0.00")
+    .notNull(),
+  status: mysqlEnum("status", ["draft", "sent", "paid", "overdue", "void"])
+    .default("draft")
+    .notNull(),
   notes: text("notes"),
   dueDate: timestamp("dueDate"),
   paidAt: timestamp("paidAt"),
@@ -318,8 +454,24 @@ export const invoiceLineItems = mysqlTable("invoice_line_items", {
   id: int("id").autoincrement().primaryKey(),
   invoiceId: int("invoiceId").notNull(),
   description: varchar("description", { length: 512 }).notNull(),
-  category: mysqlEnum("category", ["base_package", "extra_boxes", "extra_pallets", "extra_devices", "storage_overage", "labor_hours", "packing_shipping", "rush_fee", "special_handling", "shipping_materials", "other"]).default("other").notNull(),
-  quantity: decimal("quantity", { precision: 10, scale: 2 }).default("1.00").notNull(),
+  category: mysqlEnum("category", [
+    "base_package",
+    "extra_boxes",
+    "extra_pallets",
+    "extra_devices",
+    "storage_overage",
+    "labor_hours",
+    "packing_shipping",
+    "rush_fee",
+    "special_handling",
+    "shipping_materials",
+    "other",
+  ])
+    .default("other")
+    .notNull(),
+  quantity: decimal("quantity", { precision: 10, scale: 2 })
+    .default("1.00")
+    .notNull(),
   unitPrice: decimal("unitPrice", { precision: 10, scale: 2 }).notNull(),
   total: decimal("total", { precision: 10, scale: 2 }).notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
@@ -331,7 +483,16 @@ export type InsertInvoiceLineItem = typeof invoiceLineItems.$inferInsert;
 // ─── Photos ───────────────────────────────────────────────────────────────────
 export const photos = mysqlTable("photos", {
   id: int("id").autoincrement().primaryKey(),
-  entityType: mysqlEnum("entityType", ["delivery", "receiving_log", "pallet", "box", "device", "staging_task", "shipment", "exception"]).notNull(),
+  entityType: mysqlEnum("entityType", [
+    "delivery",
+    "receiving_log",
+    "pallet",
+    "box",
+    "device",
+    "staging_task",
+    "shipment",
+    "exception",
+  ]).notNull(),
   entityId: int("entityId").notNull(),
   clientId: int("clientId").notNull(),
   fileKey: varchar("fileKey", { length: 512 }).notNull(),
@@ -368,7 +529,13 @@ export const packageInquiries = mysqlTable("package_inquiries", {
   company: varchar("company", { length: 200 }).notNull(),
   email: varchar("email", { length: 320 }).notNull(),
   phone: varchar("phone", { length: 30 }),
-  tier: mysqlEnum("tier", ["basic", "standard", "professional", "enterprise", "custom"]).notNull(),
+  tier: mysqlEnum("tier", [
+    "basic",
+    "standard",
+    "professional",
+    "enterprise",
+    "custom",
+  ]).notNull(),
   deviceVolume: varchar("deviceVolume", { length: 30 }),
   // Detailed requirements captured from Get Started form
   deviceCount: int("deviceCount"),
@@ -377,7 +544,9 @@ export const packageInquiries = mysqlTable("package_inquiries", {
   storageDays: int("storageDays"),
   addons: text("addons"), // JSON array of selected add-on keys
   message: text("message"),
-  status: mysqlEnum("status", ["new", "contacted", "quote_sent", "closed"]).default("new").notNull(),
+  status: mysqlEnum("status", ["new", "contacted", "quote_sent", "closed"])
+    .default("new")
+    .notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
 
@@ -389,14 +558,20 @@ export const quotes = mysqlTable("quotes", {
   id: int("id").autoincrement().primaryKey(),
   inquiryId: int("inquiryId").notNull(),
   lineItems: text("lineItems").notNull(), // JSON: [{label, qty, unitPrice, total}]
-  subtotal: decimal("subtotal", { precision: 10, scale: 2 }).notNull().default("0.00"),
+  subtotal: decimal("subtotal", { precision: 10, scale: 2 })
+    .notNull()
+    .default("0.00"),
   tax: decimal("tax", { precision: 10, scale: 2 }).notNull().default("0.00"),
-  totalAmount: decimal("totalAmount", { precision: 10, scale: 2 }).notNull().default("0.00"),
+  totalAmount: decimal("totalAmount", { precision: 10, scale: 2 })
+    .notNull()
+    .default("0.00"),
   notes: text("notes"),
   stripePaymentLinkId: varchar("stripePaymentLinkId", { length: 255 }),
   stripePaymentLinkUrl: text("stripePaymentLinkUrl"),
   stripePriceId: varchar("stripePriceId", { length: 255 }),
-  status: mysqlEnum("status", ["draft", "sent", "paid", "cancelled"]).default("draft").notNull(),
+  status: mysqlEnum("status", ["draft", "sent", "paid", "cancelled"])
+    .default("draft")
+    .notNull(),
   sentAt: timestamp("sentAt"),
   paidAt: timestamp("paidAt"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
@@ -418,11 +593,15 @@ export const documentTemplates = mysqlTable("document_templates", {
     "authorization",
     "checklist",
     "other",
-  ]).notNull().default("other"),
+  ])
+    .notNull()
+    .default("other"),
   description: text("description"),
   fileKey: varchar("fileKey", { length: 512 }).notNull(),
   fileUrl: text("fileUrl").notNull(),
-  mimeType: varchar("mimeType", { length: 128 }).notNull().default("application/pdf"),
+  mimeType: varchar("mimeType", { length: 128 })
+    .notNull()
+    .default("application/pdf"),
   fileName: varchar("fileName", { length: 255 }).notNull(),
   fileSizeBytes: bigint("fileSizeBytes", { mode: "number" }).default(0),
   version: varchar("version", { length: 32 }).default("1.0"),
@@ -449,7 +628,9 @@ export const clientDocuments = mysqlTable("client_documents", {
     "approved",
     "rejected",
     "expired",
-  ]).default("draft").notNull(),
+  ])
+    .default("draft")
+    .notNull(),
   // Sent metadata
   sentAt: timestamp("sentAt"),
   sentByUserId: int("sentByUserId"),
@@ -481,7 +662,12 @@ export const clientMessages = mysqlTable("client_messages", {
   clientId: int("clientId").notNull(),
   // null senderId = sent by the client (customer); non-null = sent by staff/admin
   senderId: int("senderId"),
-  senderRole: mysqlEnum("senderRole", ["admin", "staff", "customer_admin", "customer_viewer"]).notNull(),
+  senderRole: mysqlEnum("senderRole", [
+    "admin",
+    "staff",
+    "customer_admin",
+    "customer_viewer",
+  ]).notNull(),
   senderName: varchar("senderName", { length: 200 }).notNull(),
   body: text("body").notNull(),
   // When the other side read the message (null = unread)
@@ -529,7 +715,8 @@ export const stagingNotifications = mysqlTable("staging_notifications", {
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
 export type StagingNotification = typeof stagingNotifications.$inferSelect;
-export type InsertStagingNotification = typeof stagingNotifications.$inferInsert;
+export type InsertStagingNotification =
+  typeof stagingNotifications.$inferInsert;
 
 // ─── Leads ────────────────────────────────────────────────────────────────────
 export const leads = mysqlTable("leads", {
@@ -546,9 +733,34 @@ export const leads = mysqlTable("leads", {
   industry: varchar("industry", { length: 128 }),
   employeeCount: varchar("employeeCount", { length: 64 }),
   annualRevenue: varchar("annualRevenue", { length: 64 }),
-  source: mysqlEnum("source", ["manual", "inquiry_form", "google_maps", "referral", "linkedin", "other"]).default("manual").notNull(),
-  status: mysqlEnum("status", ["new", "contacted", "qualified", "proposal_sent", "negotiating", "won", "lost", "on_hold", "unqualified", "follow_up", "demo_scheduled"]).default("new").notNull(),
-  temperature: mysqlEnum("temperature", ["cold", "warm", "hot"]).default("cold").notNull(),
+  source: mysqlEnum("source", [
+    "manual",
+    "inquiry_form",
+    "google_maps",
+    "referral",
+    "linkedin",
+    "other",
+  ])
+    .default("manual")
+    .notNull(),
+  status: mysqlEnum("status", [
+    "new",
+    "contacted",
+    "qualified",
+    "proposal_sent",
+    "negotiating",
+    "won",
+    "lost",
+    "on_hold",
+    "unqualified",
+    "follow_up",
+    "demo_scheduled",
+  ])
+    .default("new")
+    .notNull(),
+  temperature: mysqlEnum("temperature", ["cold", "warm", "hot"])
+    .default("cold")
+    .notNull(),
   score: int("score").default(0),
   notes: text("notes"),
   placeId: varchar("placeId", { length: 512 }),
@@ -565,7 +777,13 @@ export type InsertLead = typeof leads.$inferInsert;
 export const leadCampaignMessages = mysqlTable("lead_campaign_messages", {
   id: int("id").primaryKey().autoincrement(),
   leadId: int("leadId").notNull(),
-  type: mysqlEnum("type", ["cold_email", "follow_up_email", "linkedin_message", "call_script", "sms"]).notNull(),
+  type: mysqlEnum("type", [
+    "cold_email",
+    "follow_up_email",
+    "linkedin_message",
+    "call_script",
+    "sms",
+  ]).notNull(),
   subject: varchar("subject", { length: 512 }),
   body: text("body").notNull(),
   generatedByAi: boolean("generatedByAi").default(true).notNull(),
@@ -573,7 +791,8 @@ export const leadCampaignMessages = mysqlTable("lead_campaign_messages", {
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
 export type LeadCampaignMessage = typeof leadCampaignMessages.$inferSelect;
-export type InsertLeadCampaignMessage = typeof leadCampaignMessages.$inferInsert;
+export type InsertLeadCampaignMessage =
+  typeof leadCampaignMessages.$inferInsert;
 
 export const leadQuotes = mysqlTable("lead_quotes", {
   id: int("id").primaryKey().autoincrement(),
@@ -584,7 +803,9 @@ export const leadQuotes = mysqlTable("lead_quotes", {
   monthlyRate: varchar("monthlyRate", { length: 64 }),
   setupFee: varchar("setupFee", { length: 64 }),
   notes: text("notes"),
-  status: mysqlEnum("status", ["draft", "sent", "accepted", "rejected"]).default("draft").notNull(),
+  status: mysqlEnum("status", ["draft", "sent", "accepted", "rejected"])
+    .default("draft")
+    .notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
 export type LeadQuote = typeof leadQuotes.$inferSelect;
@@ -620,7 +841,9 @@ export const dripEnrollments = mysqlTable("drip_enrollments", {
   sequenceId: int("sequenceId").notNull(),
   leadId: int("leadId").notNull(),
   currentStep: int("currentStep").default(0).notNull(),
-  status: mysqlEnum("status", ["active", "paused", "completed", "unsubscribed"]).default("active").notNull(),
+  status: mysqlEnum("status", ["active", "paused", "completed", "unsubscribed"])
+    .default("active")
+    .notNull(),
   nextSendAt: timestamp("nextSendAt"),
   enrolledAt: timestamp("enrolledAt").defaultNow().notNull(),
   completedAt: timestamp("completedAt"),
@@ -640,7 +863,9 @@ export const marketingAssets = mysqlTable("marketing_assets", {
   fileKey: varchar("fileKey", { length: 512 }),
   fileUrl: varchar("fileUrl", { length: 1024 }),
   thumbnailUrl: varchar("thumbnailUrl", { length: 1024 }),
-  status: mysqlEnum("status", ["generating", "ready", "failed"]).default("generating").notNull(),
+  status: mysqlEnum("status", ["generating", "ready", "failed"])
+    .default("generating")
+    .notNull(),
   errorMessage: text("errorMessage"),
   createdByUserId: int("createdByUserId"),
   createdByName: varchar("createdByName", { length: 256 }),
@@ -658,10 +883,29 @@ export const supportTickets = mysqlTable("support_tickets", {
   submittedByUserId: int("submittedByUserId"),
   submittedByName: varchar("submittedByName", { length: 256 }),
   subject: varchar("subject", { length: 512 }).notNull(),
-  category: mysqlEnum("category", ["billing", "shipping", "staging", "account", "technical", "general"]).default("general").notNull(),
-  priority: mysqlEnum("priority", ["low", "normal", "high", "urgent"]).default("normal").notNull(),
+  category: mysqlEnum("category", [
+    "billing",
+    "shipping",
+    "staging",
+    "account",
+    "technical",
+    "general",
+  ])
+    .default("general")
+    .notNull(),
+  priority: mysqlEnum("priority", ["low", "normal", "high", "urgent"])
+    .default("normal")
+    .notNull(),
   description: text("description").notNull(),
-  status: mysqlEnum("status", ["open", "in_progress", "waiting_on_client", "resolved", "closed"]).default("open").notNull(),
+  status: mysqlEnum("status", [
+    "open",
+    "in_progress",
+    "waiting_on_client",
+    "resolved",
+    "closed",
+  ])
+    .default("open")
+    .notNull(),
   assignedToUserId: int("assignedToUserId"),
   resolvedAt: timestamp("resolvedAt"),
   closedAt: timestamp("closedAt"),
@@ -676,7 +920,12 @@ export const supportTicketReplies = mysqlTable("support_ticket_replies", {
   ticketId: int("ticketId").notNull(),
   senderId: int("senderId"),
   senderName: varchar("senderName", { length: 256 }),
-  senderRole: mysqlEnum("senderRole", ["admin", "staff", "customer_admin", "customer_viewer"]).notNull(),
+  senderRole: mysqlEnum("senderRole", [
+    "admin",
+    "staff",
+    "customer_admin",
+    "customer_viewer",
+  ]).notNull(),
   body: text("body").notNull(),
   isInternal: boolean("isInternal").default(false).notNull(), // staff-only notes
   createdAt: timestamp("createdAt").defaultNow().notNull(),
@@ -702,7 +951,7 @@ export type InsertClientNote = typeof clientNotes.$inferInsert;
 export const clientInstructions = mysqlTable("client_instructions", {
   id: int("id").autoincrement().primaryKey(),
   clientId: int("clientId").notNull().unique(), // one record per client
-  textBody: text("textBody"),                   // rich-text HTML from the editor
+  textBody: text("textBody"), // rich-text HTML from the editor
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
   updatedByUserId: int("updatedByUserId"),
   acknowledgedAt: timestamp("acknowledgedAt"),
@@ -722,4 +971,5 @@ export const clientInstructionFiles = mysqlTable("client_instruction_files", {
   uploadedAt: timestamp("uploadedAt").defaultNow().notNull(),
 });
 export type ClientInstructionFile = typeof clientInstructionFiles.$inferSelect;
-export type InsertClientInstructionFile = typeof clientInstructionFiles.$inferInsert;
+export type InsertClientInstructionFile =
+  typeof clientInstructionFiles.$inferInsert;

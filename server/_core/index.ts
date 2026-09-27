@@ -3,13 +3,16 @@ import express from "express";
 import { createServer } from "http";
 import net from "net";
 import { createExpressMiddleware } from "@trpc/server/adapters/express";
-import { registerOAuthRoutes } from "./oauth";
 import { registerStorageProxy } from "./storageProxy";
 import { appRouter } from "../routers";
 import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
 import { registerStripeRoutes } from "../stripe";
-import { handleMonthlyInvoices, handleDripAutoSend, handleLeadScoreDecay } from "../scheduledHandlers";
+import {
+  handleMonthlyInvoices,
+  handleDripAutoSend,
+  handleLeadScoreDecay,
+} from "../scheduledHandlers";
 import rateLimit from "express-rate-limit";
 import { getLandingPageHtml } from "../landingPage";
 import { ENV } from "./env";
@@ -24,22 +27,15 @@ const apiLimiter = rateLimit({
   skip: () => process.env.NODE_ENV === "development",
 });
 
-const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 30,
-  standardHeaders: true,
-  legacyHeaders: false,
-  message: { error: "Too many authentication attempts, please try again later." },
-  skip: () => process.env.NODE_ENV === "development",
-});
-
 // Strict limiter for public inquiry/request forms — max 5 per IP per hour
 const inquiryLimiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hour
   max: 5,
   standardHeaders: true,
   legacyHeaders: false,
-  message: { error: "Too many submissions. Please wait before submitting again." },
+  message: {
+    error: "Too many submissions. Please wait before submitting again.",
+  },
   skip: () => process.env.NODE_ENV === "development",
 });
 
@@ -71,9 +67,7 @@ async function startServer() {
   app.use(express.json({ limit: "50mb" }));
   app.use(express.urlencoded({ limit: "50mb", extended: true }));
   registerStorageProxy(app);
-  registerOAuthRoutes(app);
   // Apply rate limiting
-  app.use("/api/oauth", authLimiter);
   app.use("/api/trpc", apiLimiter);
   // Strict rate limit on public form submissions
   app.use("/api/trpc/inquiry.submit", inquiryLimiter);
@@ -93,18 +87,6 @@ async function startServer() {
   // GET / is handled by the React SPA (Landing.tsx) in both dev and production.
   // The serveStatic catch-all below will serve index.html for all SPA routes
   // including "/", which renders the Landing component.
-
-  // ── OAuth start redirect (used by landing page Sign In links) ───────────────
-  // Builds the correct OAuth URL server-side so the landing page doesn't need JS.
-  app.get("/api/oauth/start", (req, res) => {
-    const origin = `${req.protocol}://${req.get("host")}`;
-    const appId = process.env.VITE_APP_ID ?? "";
-    const oauthPortalUrl = process.env.VITE_OAUTH_PORTAL_URL ?? "";
-    const redirectUri = `${origin}/api/oauth/callback`;
-    const state = Buffer.from(redirectUri).toString("base64");
-    const loginUrl = `${oauthPortalUrl}/app-auth?appId=${encodeURIComponent(appId)}&redirectUri=${encodeURIComponent(redirectUri)}&state=${encodeURIComponent(state)}&type=signIn`;
-    res.redirect(302, loginUrl);
-  });
 
   // development mode uses Vite, production mode uses static files
   if (process.env.NODE_ENV === "development") {

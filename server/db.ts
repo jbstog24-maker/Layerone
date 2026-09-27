@@ -107,7 +107,7 @@ export async function upsertUser(user: InsertUser): Promise<void> {
   const values: InsertUser = { openId: user.openId };
   const updateSet: Record<string, unknown> = {};
 
-  const textFields = ["name", "email", "loginMethod"] as const;
+  const textFields = ["name", "email", "loginMethod", "passwordHash"] as const;
   for (const field of textFields) {
     const value = user[field];
     if (value === undefined) continue;
@@ -131,13 +131,31 @@ export async function upsertUser(user: InsertUser): Promise<void> {
   if (!values.lastSignedIn) values.lastSignedIn = new Date();
   if (Object.keys(updateSet).length === 0) updateSet.lastSignedIn = new Date();
 
-  await db.insert(users).values(values).onDuplicateKeyUpdate({ set: updateSet });
+  await db
+    .insert(users)
+    .values(values)
+    .onDuplicateKeyUpdate({ set: updateSet });
 }
 
 export async function getUserByOpenId(openId: string) {
   const db = await getDb();
   if (!db) return undefined;
-  const result = await db.select().from(users).where(eq(users.openId, openId)).limit(1);
+  const result = await db
+    .select()
+    .from(users)
+    .where(eq(users.openId, openId))
+    .limit(1);
+  return result[0];
+}
+
+export async function getUserByEmail(email: string) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db
+    .select()
+    .from(users)
+    .where(eq(users.email, email.toLowerCase().trim()))
+    .limit(1);
   return result[0];
 }
 
@@ -147,13 +165,34 @@ export async function listUsers() {
   return db.select().from(users).orderBy(desc(users.createdAt));
 }
 
-export async function updateUserRole(userId: number, role: "admin" | "staff" | "customer_admin" | "customer_viewer", clientId?: number | null) {
+export async function updateUserRole(
+  userId: number,
+  role: "admin" | "staff" | "customer_admin" | "customer_viewer",
+  clientId?: number | null
+) {
   const db = await getDb();
   if (!db) return;
-  await db.update(users).set({ role, clientId: clientId ?? null }).where(eq(users.id, userId));
+  await db
+    .update(users)
+    .set({ role, clientId: clientId ?? null })
+    .where(eq(users.id, userId));
 }
 
-export async function updateUser(userId: number, data: { name?: string; email?: string; role?: "admin" | "staff" | "customer_admin" | "customer_viewer"; clientId?: number | null; businessName?: string | null; phone?: string | null; location?: string | null; jobTitle?: string | null; department?: string | null; isActive?: boolean }) {
+export async function updateUser(
+  userId: number,
+  data: {
+    name?: string;
+    email?: string;
+    role?: "admin" | "staff" | "customer_admin" | "customer_viewer";
+    clientId?: number | null;
+    businessName?: string | null;
+    phone?: string | null;
+    location?: string | null;
+    jobTitle?: string | null;
+    department?: string | null;
+    isActive?: boolean;
+  }
+) {
   const db = await getDb();
   if (!db) return;
   await db.update(users).set(data).where(eq(users.id, userId));
@@ -168,11 +207,25 @@ export async function deleteUser(userId: number) {
 export async function getUserById(userId: number) {
   const db = await getDb();
   if (!db) return undefined;
-  const result = await db.select().from(users).where(eq(users.id, userId)).limit(1);
+  const result = await db
+    .select()
+    .from(users)
+    .where(eq(users.id, userId))
+    .limit(1);
   return result[0];
 }
 
-export async function createUser(data: { name: string; email: string; role: "admin" | "staff" | "customer_admin" | "customer_viewer"; clientId?: number | null; businessName?: string | null; phone?: string | null; location?: string | null; jobTitle?: string | null; department?: string | null }) {
+export async function createUser(data: {
+  name: string;
+  email: string;
+  role: "admin" | "staff" | "customer_admin" | "customer_viewer";
+  clientId?: number | null;
+  businessName?: string | null;
+  phone?: string | null;
+  location?: string | null;
+  jobTitle?: string | null;
+  department?: string | null;
+}) {
   const db = await getDb();
   if (!db) throw new Error("Database unavailable");
   // Generate a placeholder openId — will be replaced when user logs in via OAuth
@@ -202,7 +255,11 @@ export async function listPackages() {
 export async function getPackage(id: number) {
   const db = await getDb();
   if (!db) return undefined;
-  const result = await db.select().from(packages).where(eq(packages.id, id)).limit(1);
+  const result = await db
+    .select()
+    .from(packages)
+    .where(eq(packages.id, id))
+    .limit(1);
   return result[0];
 }
 
@@ -223,19 +280,39 @@ export async function updatePackage(id: number, data: Partial<InsertPackage>) {
 export async function listClients(search?: string, showArchived?: boolean) {
   const db = await getDb();
   if (!db) return [];
-  const archiveFilter = showArchived ? isNotNull(clients.archivedAt) : isNull(clients.archivedAt);
+  const archiveFilter = showArchived
+    ? isNotNull(clients.archivedAt)
+    : isNull(clients.archivedAt);
   if (search) {
-    return db.select().from(clients).where(
-      and(archiveFilter, or(like(clients.companyName, `%${search}%`), like(clients.contactEmail, `%${search}%`)))
-    ).orderBy(desc(clients.createdAt));
+    return db
+      .select()
+      .from(clients)
+      .where(
+        and(
+          archiveFilter,
+          or(
+            like(clients.companyName, `%${search}%`),
+            like(clients.contactEmail, `%${search}%`)
+          )
+        )
+      )
+      .orderBy(desc(clients.createdAt));
   }
-  return db.select().from(clients).where(archiveFilter).orderBy(desc(clients.createdAt));
+  return db
+    .select()
+    .from(clients)
+    .where(archiveFilter)
+    .orderBy(desc(clients.createdAt));
 }
 
 export async function getClient(id: number) {
   const db = await getDb();
   if (!db) return undefined;
-  const result = await db.select().from(clients).where(eq(clients.id, id)).limit(1);
+  const result = await db
+    .select()
+    .from(clients)
+    .where(eq(clients.id, id))
+    .limit(1);
   return result[0];
 }
 
@@ -246,7 +323,10 @@ export async function createClient(data: InsertClient) {
   const insertId = (result[0] as any).insertId as number;
   // Auto-generate accountNumber in format L1-XXXXX (zero-padded 5-digit)
   const accountNumber = `L1-${String(insertId).padStart(5, "0")}`;
-  await db.update(clients).set({ accountNumber }).where(eq(clients.id, insertId));
+  await db
+    .update(clients)
+    .set({ accountNumber })
+    .where(eq(clients.id, insertId));
   return result[0];
 }
 
@@ -261,15 +341,26 @@ export async function listDeliveries(clientId?: number) {
   const db = await getDb();
   if (!db) return [];
   if (clientId) {
-    return db.select().from(expectedDeliveries).where(eq(expectedDeliveries.clientId, clientId)).orderBy(desc(expectedDeliveries.createdAt));
+    return db
+      .select()
+      .from(expectedDeliveries)
+      .where(eq(expectedDeliveries.clientId, clientId))
+      .orderBy(desc(expectedDeliveries.createdAt));
   }
-  return db.select().from(expectedDeliveries).orderBy(desc(expectedDeliveries.createdAt));
+  return db
+    .select()
+    .from(expectedDeliveries)
+    .orderBy(desc(expectedDeliveries.createdAt));
 }
 
 export async function getDelivery(id: number) {
   const db = await getDb();
   if (!db) return undefined;
-  const result = await db.select().from(expectedDeliveries).where(eq(expectedDeliveries.id, id)).limit(1);
+  const result = await db
+    .select()
+    .from(expectedDeliveries)
+    .where(eq(expectedDeliveries.id, id))
+    .limit(1);
   return result[0];
 }
 
@@ -280,10 +371,16 @@ export async function createDelivery(data: InsertExpectedDelivery) {
   return result[0];
 }
 
-export async function updateDelivery(id: number, data: Partial<InsertExpectedDelivery>) {
+export async function updateDelivery(
+  id: number,
+  data: Partial<InsertExpectedDelivery>
+) {
   const db = await getDb();
   if (!db) throw new Error("DB unavailable");
-  await db.update(expectedDeliveries).set(data).where(eq(expectedDeliveries.id, id));
+  await db
+    .update(expectedDeliveries)
+    .set(data)
+    .where(eq(expectedDeliveries.id, id));
 }
 
 // ─── Receiving Logs ───────────────────────────────────────────────────────────
@@ -291,15 +388,26 @@ export async function listReceivingLogs(clientId?: number) {
   const db = await getDb();
   if (!db) return [];
   if (clientId) {
-    return db.select().from(receivingLogs).where(eq(receivingLogs.clientId, clientId)).orderBy(desc(receivingLogs.receivedAt));
+    return db
+      .select()
+      .from(receivingLogs)
+      .where(eq(receivingLogs.clientId, clientId))
+      .orderBy(desc(receivingLogs.receivedAt));
   }
-  return db.select().from(receivingLogs).orderBy(desc(receivingLogs.receivedAt));
+  return db
+    .select()
+    .from(receivingLogs)
+    .orderBy(desc(receivingLogs.receivedAt));
 }
 
 export async function getReceivingLog(id: number) {
   const db = await getDb();
   if (!db) return undefined;
-  const result = await db.select().from(receivingLogs).where(eq(receivingLogs.id, id)).limit(1);
+  const result = await db
+    .select()
+    .from(receivingLogs)
+    .where(eq(receivingLogs.id, id))
+    .limit(1);
   return result[0];
 }
 
@@ -310,7 +418,10 @@ export async function createReceivingLog(data: InsertReceivingLog) {
   return result[0];
 }
 
-export async function updateReceivingLog(id: number, data: Partial<InsertReceivingLog>) {
+export async function updateReceivingLog(
+  id: number,
+  data: Partial<InsertReceivingLog>
+) {
   const db = await getDb();
   if (!db) throw new Error("DB unavailable");
   await db.update(receivingLogs).set(data).where(eq(receivingLogs.id, id));
@@ -325,7 +436,11 @@ export async function listPallets(clientId?: number) {
   const db = await getDb();
   if (!db) return [];
   if (clientId) {
-    return db.select().from(pallets).where(eq(pallets.clientId, clientId)).orderBy(desc(pallets.createdAt));
+    return db
+      .select()
+      .from(pallets)
+      .where(eq(pallets.clientId, clientId))
+      .orderBy(desc(pallets.createdAt));
   }
   return db.select().from(pallets).orderBy(desc(pallets.createdAt));
 }
@@ -333,7 +448,11 @@ export async function listPallets(clientId?: number) {
 export async function getPallet(id: number) {
   const db = await getDb();
   if (!db) return undefined;
-  const result = await db.select().from(pallets).where(eq(pallets.id, id)).limit(1);
+  const result = await db
+    .select()
+    .from(pallets)
+    .where(eq(pallets.id, id))
+    .limit(1);
   return result[0];
 }
 
@@ -356,7 +475,11 @@ export async function listBoxes(clientId?: number) {
   const db = await getDb();
   if (!db) return [];
   if (clientId) {
-    return db.select().from(boxes).where(eq(boxes.clientId, clientId)).orderBy(desc(boxes.createdAt));
+    return db
+      .select()
+      .from(boxes)
+      .where(eq(boxes.clientId, clientId))
+      .orderBy(desc(boxes.createdAt));
   }
   return db.select().from(boxes).orderBy(desc(boxes.createdAt));
 }
@@ -389,16 +512,22 @@ export async function listDevices(clientId?: number, search?: string) {
   const conditions = [];
   if (clientId) conditions.push(eq(devices.clientId, clientId));
   if (search) {
-    conditions.push(or(
-      like(devices.serialNumber, `%${search}%`),
-      like(devices.macAddress, `%${search}%`),
-      like(devices.model, `%${search}%`),
-      like(devices.deviceCode, `%${search}%`),
-      like(devices.assetTag, `%${search}%`)
-    ));
+    conditions.push(
+      or(
+        like(devices.serialNumber, `%${search}%`),
+        like(devices.macAddress, `%${search}%`),
+        like(devices.model, `%${search}%`),
+        like(devices.deviceCode, `%${search}%`),
+        like(devices.assetTag, `%${search}%`)
+      )
+    );
   }
   if (conditions.length > 0) {
-    return db.select().from(devices).where(and(...conditions)).orderBy(desc(devices.createdAt));
+    return db
+      .select()
+      .from(devices)
+      .where(and(...conditions))
+      .orderBy(desc(devices.createdAt));
   }
   return db.select().from(devices).orderBy(desc(devices.createdAt));
 }
@@ -406,7 +535,11 @@ export async function listDevices(clientId?: number, search?: string) {
 export async function getDevice(id: number) {
   const db = await getDb();
   if (!db) return undefined;
-  const result = await db.select().from(devices).where(eq(devices.id, id)).limit(1);
+  const result = await db
+    .select()
+    .from(devices)
+    .where(eq(devices.id, id))
+    .limit(1);
   return result[0];
 }
 
@@ -429,7 +562,11 @@ export async function listStagingTasks(clientId?: number) {
   const db = await getDb();
   if (!db) return [];
   if (clientId) {
-    return db.select().from(stagingTasks).where(eq(stagingTasks.clientId, clientId)).orderBy(desc(stagingTasks.createdAt));
+    return db
+      .select()
+      .from(stagingTasks)
+      .where(eq(stagingTasks.clientId, clientId))
+      .orderBy(desc(stagingTasks.createdAt));
   }
   return db.select().from(stagingTasks).orderBy(desc(stagingTasks.createdAt));
 }
@@ -437,7 +574,11 @@ export async function listStagingTasks(clientId?: number) {
 export async function getStagingTask(id: number) {
   const db = await getDb();
   if (!db) return undefined;
-  const result = await db.select().from(stagingTasks).where(eq(stagingTasks.id, id)).limit(1);
+  const result = await db
+    .select()
+    .from(stagingTasks)
+    .where(eq(stagingTasks.id, id))
+    .limit(1);
   return result[0];
 }
 
@@ -448,7 +589,10 @@ export async function createStagingTask(data: InsertStagingTask) {
   return result[0];
 }
 
-export async function updateStagingTask(id: number, data: Partial<InsertStagingTask>) {
+export async function updateStagingTask(
+  id: number,
+  data: Partial<InsertStagingTask>
+) {
   const db = await getDb();
   if (!db) throw new Error("DB unavailable");
   await db.update(stagingTasks).set(data).where(eq(stagingTasks.id, id));
@@ -457,7 +601,10 @@ export async function updateStagingTask(id: number, data: Partial<InsertStagingT
 export async function getStagingTaskDevices(taskId: number) {
   const db = await getDb();
   if (!db) return [];
-  return db.select().from(stagingTaskDevices).where(eq(stagingTaskDevices.taskId, taskId));
+  return db
+    .select()
+    .from(stagingTaskDevices)
+    .where(eq(stagingTaskDevices.taskId, taskId));
 }
 
 export async function addDeviceToTask(taskId: number, deviceId: number) {
@@ -469,7 +616,14 @@ export async function addDeviceToTask(taskId: number, deviceId: number) {
 export async function removeDeviceFromTask(taskId: number, deviceId: number) {
   const db = await getDb();
   if (!db) throw new Error("DB unavailable");
-  await db.delete(stagingTaskDevices).where(and(eq(stagingTaskDevices.taskId, taskId), eq(stagingTaskDevices.deviceId, deviceId)));
+  await db
+    .delete(stagingTaskDevices)
+    .where(
+      and(
+        eq(stagingTaskDevices.taskId, taskId),
+        eq(stagingTaskDevices.deviceId, deviceId)
+      )
+    );
 }
 
 // ─── Outbound Shipments ───────────────────────────────────────────────────────
@@ -477,39 +631,67 @@ export async function listShipments(clientId?: number) {
   const db = await getDb();
   if (!db) return [];
   if (clientId) {
-    return db.select().from(outboundShipments).where(eq(outboundShipments.clientId, clientId)).orderBy(desc(outboundShipments.createdAt));
+    return db
+      .select()
+      .from(outboundShipments)
+      .where(eq(outboundShipments.clientId, clientId))
+      .orderBy(desc(outboundShipments.createdAt));
   }
-  return db.select().from(outboundShipments).orderBy(desc(outboundShipments.createdAt));
+  return db
+    .select()
+    .from(outboundShipments)
+    .orderBy(desc(outboundShipments.createdAt));
 }
 
 export async function getShipment(id: number) {
   const db = await getDb();
   if (!db) return undefined;
-  const result = await db.select().from(outboundShipments).where(eq(outboundShipments.id, id)).limit(1);
+  const result = await db
+    .select()
+    .from(outboundShipments)
+    .where(eq(outboundShipments.id, id))
+    .limit(1);
   return result[0];
 }
 
-export async function createShipment(data: Omit<InsertOutboundShipment, "shipmentCode">) {
+export async function createShipment(
+  data: Omit<InsertOutboundShipment, "shipmentCode">
+) {
   const db = await getDb();
   if (!db) throw new Error("DB unavailable");
   const shipmentCode = generateCode("SHP");
-  const result = await db.insert(outboundShipments).values({ ...data, shipmentCode });
+  const result = await db
+    .insert(outboundShipments)
+    .values({ ...data, shipmentCode });
   return { insertId: result[0], shipmentCode };
 }
 
-export async function updateShipment(id: number, data: Partial<InsertOutboundShipment>) {
+export async function updateShipment(
+  id: number,
+  data: Partial<InsertOutboundShipment>
+) {
   const db = await getDb();
   if (!db) throw new Error("DB unavailable");
-  await db.update(outboundShipments).set(data).where(eq(outboundShipments.id, id));
+  await db
+    .update(outboundShipments)
+    .set(data)
+    .where(eq(outboundShipments.id, id));
 }
 
 export async function getShipmentItems(shipmentId: number) {
   const db = await getDb();
   if (!db) return [];
-  return db.select().from(shipmentItems).where(eq(shipmentItems.shipmentId, shipmentId));
+  return db
+    .select()
+    .from(shipmentItems)
+    .where(eq(shipmentItems.shipmentId, shipmentId));
 }
 
-export async function addShipmentItem(shipmentId: number, itemType: "device" | "box" | "pallet", itemId: number) {
+export async function addShipmentItem(
+  shipmentId: number,
+  itemType: "device" | "box" | "pallet",
+  itemId: number
+) {
   const db = await getDb();
   if (!db) throw new Error("DB unavailable");
   await db.insert(shipmentItems).values({ shipmentId, itemType, itemId });
@@ -520,7 +702,11 @@ export async function listInvoices(clientId?: number) {
   const db = await getDb();
   if (!db) return [];
   if (clientId) {
-    return db.select().from(invoices).where(eq(invoices.clientId, clientId)).orderBy(desc(invoices.createdAt));
+    return db
+      .select()
+      .from(invoices)
+      .where(eq(invoices.clientId, clientId))
+      .orderBy(desc(invoices.createdAt));
   }
   return db.select().from(invoices).orderBy(desc(invoices.createdAt));
 }
@@ -528,7 +714,11 @@ export async function listInvoices(clientId?: number) {
 export async function getInvoice(id: number) {
   const db = await getDb();
   if (!db) return undefined;
-  const result = await db.select().from(invoices).where(eq(invoices.id, id)).limit(1);
+  const result = await db
+    .select()
+    .from(invoices)
+    .where(eq(invoices.id, id))
+    .limit(1);
   return result[0];
 }
 
@@ -548,7 +738,10 @@ export async function updateInvoice(id: number, data: Partial<InsertInvoice>) {
 export async function getInvoiceLineItems(invoiceId: number) {
   const db = await getDb();
   if (!db) return [];
-  return db.select().from(invoiceLineItems).where(eq(invoiceLineItems.invoiceId, invoiceId));
+  return db
+    .select()
+    .from(invoiceLineItems)
+    .where(eq(invoiceLineItems.invoiceId, invoiceId));
 }
 
 export async function createLineItem(data: InsertInvoiceLineItem) {
@@ -567,15 +760,26 @@ export async function deleteLineItem(id: number) {
 export async function listPhotos(entityType: string, entityId: number) {
   const db = await getDb();
   if (!db) return [];
-  return db.select().from(photos).where(
-    and(eq(photos.entityType, entityType as any), eq(photos.entityId, entityId))
-  ).orderBy(desc(photos.createdAt));
+  return db
+    .select()
+    .from(photos)
+    .where(
+      and(
+        eq(photos.entityType, entityType as any),
+        eq(photos.entityId, entityId)
+      )
+    )
+    .orderBy(desc(photos.createdAt));
 }
 
 export async function listPhotosByClient(clientId: number) {
   const db = await getDb();
   if (!db) return [];
-  return db.select().from(photos).where(eq(photos.clientId, clientId)).orderBy(desc(photos.createdAt));
+  return db
+    .select()
+    .from(photos)
+    .where(eq(photos.clientId, clientId))
+    .orderBy(desc(photos.createdAt));
 }
 
 export async function createPhoto(data: InsertPhoto) {
@@ -596,9 +800,18 @@ export async function listActivityLogs(clientId?: number, limit = 100) {
   const db = await getDb();
   if (!db) return [];
   if (clientId) {
-    return db.select().from(activityLogs).where(eq(activityLogs.clientId, clientId)).orderBy(desc(activityLogs.createdAt)).limit(limit);
+    return db
+      .select()
+      .from(activityLogs)
+      .where(eq(activityLogs.clientId, clientId))
+      .orderBy(desc(activityLogs.createdAt))
+      .limit(limit);
   }
-  return db.select().from(activityLogs).orderBy(desc(activityLogs.createdAt)).limit(limit);
+  return db
+    .select()
+    .from(activityLogs)
+    .orderBy(desc(activityLogs.createdAt))
+    .limit(limit);
 }
 
 // ─── Usage / Dashboard Stats ──────────────────────────────────────────────────
@@ -606,13 +819,34 @@ export async function getClientUsage(clientId: number) {
   const db = await getDb();
   if (!db) return null;
 
-  const [deviceCount] = await db.select({ count: sql<number>`count(*)` }).from(devices).where(eq(devices.clientId, clientId));
-  const [boxCount] = await db.select({ count: sql<number>`count(*)` }).from(boxes).where(eq(boxes.clientId, clientId));
-  const [palletCount] = await db.select({ count: sql<number>`count(*)` }).from(pallets).where(eq(pallets.clientId, clientId));
-  const [shipmentCount] = await db.select({ count: sql<number>`count(*)` }).from(outboundShipments).where(eq(outboundShipments.clientId, clientId));
-  const [stagingCount] = await db.select({ count: sql<number>`count(*)` }).from(stagingTasks).where(eq(stagingTasks.clientId, clientId));
-  const [deliveryCount] = await db.select({ count: sql<number>`count(*)` }).from(expectedDeliveries).where(eq(expectedDeliveries.clientId, clientId));
-  const [receivingCount] = await db.select({ count: sql<number>`count(*)` }).from(receivingLogs).where(eq(receivingLogs.clientId, clientId));
+  const [deviceCount] = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(devices)
+    .where(eq(devices.clientId, clientId));
+  const [boxCount] = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(boxes)
+    .where(eq(boxes.clientId, clientId));
+  const [palletCount] = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(pallets)
+    .where(eq(pallets.clientId, clientId));
+  const [shipmentCount] = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(outboundShipments)
+    .where(eq(outboundShipments.clientId, clientId));
+  const [stagingCount] = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(stagingTasks)
+    .where(eq(stagingTasks.clientId, clientId));
+  const [deliveryCount] = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(expectedDeliveries)
+    .where(eq(expectedDeliveries.clientId, clientId));
+  const [receivingCount] = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(receivingLogs)
+    .where(eq(receivingLogs.clientId, clientId));
 
   return {
     devices: Number(deviceCount?.count ?? 0),
@@ -629,15 +863,37 @@ export async function getDashboardStats() {
   const db = await getDb();
   if (!db) return null;
 
-  const [clientCount] = await db.select({ count: sql<number>`count(*)` }).from(clients);
-  const [deviceCount] = await db.select({ count: sql<number>`count(*)` }).from(devices);
-  const [boxCount] = await db.select({ count: sql<number>`count(*)` }).from(boxes);
-  const [palletCount] = await db.select({ count: sql<number>`count(*)` }).from(pallets);
-  const [pendingTasks] = await db.select({ count: sql<number>`count(*)` }).from(stagingTasks).where(eq(stagingTasks.status, "pending"));
-  const [inProgressTasks] = await db.select({ count: sql<number>`count(*)` }).from(stagingTasks).where(eq(stagingTasks.status, "in_progress"));
-  const [pendingShipments] = await db.select({ count: sql<number>`count(*)` }).from(outboundShipments).where(eq(outboundShipments.status, "requested"));
-  const [draftInvoices] = await db.select({ count: sql<number>`count(*)` }).from(invoices).where(eq(invoices.status, "draft"));
-  const [deliveryCount] = await db.select({ count: sql<number>`count(*)` }).from(expectedDeliveries);
+  const [clientCount] = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(clients);
+  const [deviceCount] = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(devices);
+  const [boxCount] = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(boxes);
+  const [palletCount] = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(pallets);
+  const [pendingTasks] = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(stagingTasks)
+    .where(eq(stagingTasks.status, "pending"));
+  const [inProgressTasks] = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(stagingTasks)
+    .where(eq(stagingTasks.status, "in_progress"));
+  const [pendingShipments] = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(outboundShipments)
+    .where(eq(outboundShipments.status, "requested"));
+  const [draftInvoices] = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(invoices)
+    .where(eq(invoices.status, "draft"));
+  const [deliveryCount] = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(expectedDeliveries);
 
   return {
     clients: Number(clientCount?.count ?? 0),
@@ -657,15 +913,26 @@ export async function listDocumentTemplates(activeOnly = true) {
   const db = await getDb();
   if (!db) return [];
   if (activeOnly) {
-    return db.select().from(documentTemplates).where(eq(documentTemplates.isActive, true)).orderBy(documentTemplates.category, documentTemplates.name);
+    return db
+      .select()
+      .from(documentTemplates)
+      .where(eq(documentTemplates.isActive, true))
+      .orderBy(documentTemplates.category, documentTemplates.name);
   }
-  return db.select().from(documentTemplates).orderBy(documentTemplates.category, documentTemplates.name);
+  return db
+    .select()
+    .from(documentTemplates)
+    .orderBy(documentTemplates.category, documentTemplates.name);
 }
 
 export async function getDocumentTemplate(id: number) {
   const db = await getDb();
   if (!db) return undefined;
-  const result = await db.select().from(documentTemplates).where(eq(documentTemplates.id, id)).limit(1);
+  const result = await db
+    .select()
+    .from(documentTemplates)
+    .where(eq(documentTemplates.id, id))
+    .limit(1);
   return result[0];
 }
 
@@ -676,23 +943,37 @@ export async function createDocumentTemplate(data: InsertDocumentTemplate) {
   return result[0];
 }
 
-export async function updateDocumentTemplate(id: number, data: Partial<InsertDocumentTemplate>) {
+export async function updateDocumentTemplate(
+  id: number,
+  data: Partial<InsertDocumentTemplate>
+) {
   const db = await getDb();
   if (!db) throw new Error("DB unavailable");
-  await db.update(documentTemplates).set(data).where(eq(documentTemplates.id, id));
+  await db
+    .update(documentTemplates)
+    .set(data)
+    .where(eq(documentTemplates.id, id));
 }
 
 // ─── Client Documents ─────────────────────────────────────────────────────────
 export async function listClientDocuments(clientId: number) {
   const db = await getDb();
   if (!db) return [];
-  return db.select().from(clientDocuments).where(eq(clientDocuments.clientId, clientId)).orderBy(desc(clientDocuments.createdAt));
+  return db
+    .select()
+    .from(clientDocuments)
+    .where(eq(clientDocuments.clientId, clientId))
+    .orderBy(desc(clientDocuments.createdAt));
 }
 
 export async function getClientDocument(id: number) {
   const db = await getDb();
   if (!db) return undefined;
-  const result = await db.select().from(clientDocuments).where(eq(clientDocuments.id, id)).limit(1);
+  const result = await db
+    .select()
+    .from(clientDocuments)
+    .where(eq(clientDocuments.id, id))
+    .limit(1);
   return result[0];
 }
 
@@ -703,7 +984,10 @@ export async function createClientDocument(data: InsertClientDocument) {
   return result[0];
 }
 
-export async function updateClientDocument(id: number, data: Partial<InsertClientDocument>) {
+export async function updateClientDocument(
+  id: number,
+  data: Partial<InsertClientDocument>
+) {
   const db = await getDb();
   if (!db) throw new Error("DB unavailable");
   await db.update(clientDocuments).set(data).where(eq(clientDocuments.id, id));
@@ -712,7 +996,10 @@ export async function updateClientDocument(id: number, data: Partial<InsertClien
 export async function listAllClientDocuments() {
   const db = await getDb();
   if (!db) return [];
-  return db.select().from(clientDocuments).orderBy(desc(clientDocuments.createdAt));
+  return db
+    .select()
+    .from(clientDocuments)
+    .orderBy(desc(clientDocuments.createdAt));
 }
 
 // ─── Package Inquiries ────────────────────────────────────────────────────────
@@ -726,7 +1013,10 @@ export async function listInquiries(opts?: {
 
   const conditions: ReturnType<typeof eq>[] = [];
   if (opts?.status) conditions.push(eq(packageInquiries.status, opts.status));
-  if (opts?.tier) conditions.push(eq(packageInquiries.tier, opts.tier as PackageInquiry["tier"]));
+  if (opts?.tier)
+    conditions.push(
+      eq(packageInquiries.tier, opts.tier as PackageInquiry["tier"])
+    );
 
   let query = db.select().from(packageInquiries).$dynamic();
   if (conditions.length > 0) query = query.where(and(...conditions));
@@ -740,7 +1030,7 @@ export async function listInquiries(opts?: {
         r.name.toLowerCase().includes(q) ||
         r.company.toLowerCase().includes(q) ||
         r.email.toLowerCase().includes(q) ||
-        (r.message ?? "").toLowerCase().includes(q),
+        (r.message ?? "").toLowerCase().includes(q)
     );
   }
   return rows;
@@ -749,14 +1039,23 @@ export async function listInquiries(opts?: {
 export async function getInquiry(id: number) {
   const db = await getDb();
   if (!db) return undefined;
-  const [row] = await db.select().from(packageInquiries).where(eq(packageInquiries.id, id));
+  const [row] = await db
+    .select()
+    .from(packageInquiries)
+    .where(eq(packageInquiries.id, id));
   return row;
 }
 
-export async function updateInquiryStatus(id: number, status: "new" | "contacted" | "quote_sent" | "closed") {
+export async function updateInquiryStatus(
+  id: number,
+  status: "new" | "contacted" | "quote_sent" | "closed"
+) {
   const db = await getDb();
   if (!db) throw new Error("DB unavailable");
-  await db.update(packageInquiries).set({ status }).where(eq(packageInquiries.id, id));
+  await db
+    .update(packageInquiries)
+    .set({ status })
+    .where(eq(packageInquiries.id, id));
 }
 
 export async function deleteInquiry(id: number) {
@@ -793,7 +1092,10 @@ export async function sendClientMessage(data: InsertClientMessage) {
   return result[0];
 }
 
-export async function markClientMessagesRead(clientId: number, readByStaff: boolean) {
+export async function markClientMessagesRead(
+  clientId: number,
+  readByStaff: boolean
+) {
   // readByStaff=true → mark customer messages as read (staff opened thread)
   // readByStaff=false → mark staff messages as read (customer opened thread)
   const db = await getDb();
@@ -808,12 +1110,15 @@ export async function markClientMessagesRead(clientId: number, readByStaff: bool
         readByStaff
           ? sql`${clientMessages.senderId} IS NULL OR ${clientMessages.senderRole} IN ('customer_admin','customer_viewer')`
           : sql`${clientMessages.senderRole} IN ('admin','staff')`,
-        sql`${clientMessages.readAt} IS NULL`,
-      ),
+        sql`${clientMessages.readAt} IS NULL`
+      )
     );
 }
 
-export async function countUnreadClientMessages(clientId: number, forStaff: boolean) {
+export async function countUnreadClientMessages(
+  clientId: number,
+  forStaff: boolean
+) {
   const db = await getDb();
   if (!db) return 0;
   const [row] = await db
@@ -825,8 +1130,8 @@ export async function countUnreadClientMessages(clientId: number, forStaff: bool
         forStaff
           ? sql`${clientMessages.senderRole} IN ('customer_admin','customer_viewer')`
           : sql`${clientMessages.senderRole} IN ('admin','staff')`,
-        sql`${clientMessages.readAt} IS NULL`,
-      ),
+        sql`${clientMessages.readAt} IS NULL`
+      )
     );
   return Number(row?.count ?? 0);
 }
@@ -852,17 +1157,27 @@ export async function listAllThreads() {
     .orderBy(sql`latestAt DESC`);
 
   // Fetch client names for the thread list
-  const clientIds = rows.map((r) => r.clientId);
+  const clientIds = rows.map(r => r.clientId);
   if (clientIds.length === 0) return [];
 
   const clientRows = await db
-    .select({ id: clients.id, companyName: clients.companyName, contactName: clients.contactName, status: clients.status })
+    .select({
+      id: clients.id,
+      companyName: clients.companyName,
+      contactName: clients.contactName,
+      status: clients.status,
+    })
     .from(clients)
-    .where(sql`${clients.id} IN (${sql.join(clientIds.map((id) => sql`${id}`), sql`, `)})`);
+    .where(
+      sql`${clients.id} IN (${sql.join(
+        clientIds.map(id => sql`${id}`),
+        sql`, `
+      )})`
+    );
 
-  const clientMap = Object.fromEntries(clientRows.map((c) => [c.id, c]));
+  const clientMap = Object.fromEntries(clientRows.map(c => [c.id, c]));
 
-  return rows.map((r) => ({
+  return rows.map(r => ({
     clientId: r.clientId,
     companyName: clientMap[r.clientId]?.companyName ?? "Unknown",
     contactName: clientMap[r.clientId]?.contactName ?? null,
@@ -885,8 +1200,8 @@ export async function countTotalUnread() {
     .where(
       and(
         sql`${clientMessages.senderRole} IN ('customer_admin','customer_viewer')`,
-        sql`${clientMessages.readAt} IS NULL`,
-      ),
+        sql`${clientMessages.readAt} IS NULL`
+      )
     );
   return Number(row?.count ?? 0);
 }
@@ -903,11 +1218,21 @@ export interface ForwardingUpdate {
 }
 
 /** Update forwarding info on a device. Returns the updated device row. */
-export async function updateDeviceForwarding(id: number, data: ForwardingUpdate) {
+export async function updateDeviceForwarding(
+  id: number,
+  data: ForwardingUpdate
+) {
   const db = await getDb();
   if (!db) throw new Error("DB unavailable");
-  await db.update(devices).set({ ...data, forwardingUpdatedAt: new Date() }).where(eq(devices.id, id));
-  const result = await db.select().from(devices).where(eq(devices.id, id)).limit(1);
+  await db
+    .update(devices)
+    .set({ ...data, forwardingUpdatedAt: new Date() })
+    .where(eq(devices.id, id));
+  const result = await db
+    .select()
+    .from(devices)
+    .where(eq(devices.id, id))
+    .limit(1);
   return result[0];
 }
 
@@ -915,17 +1240,30 @@ export async function updateDeviceForwarding(id: number, data: ForwardingUpdate)
 export async function updateBoxForwarding(id: number, data: ForwardingUpdate) {
   const db = await getDb();
   if (!db) throw new Error("DB unavailable");
-  await db.update(boxes).set({ ...data, forwardingUpdatedAt: new Date() }).where(eq(boxes.id, id));
+  await db
+    .update(boxes)
+    .set({ ...data, forwardingUpdatedAt: new Date() })
+    .where(eq(boxes.id, id));
   const result = await db.select().from(boxes).where(eq(boxes.id, id)).limit(1);
   return result[0];
 }
 
 /** Update forwarding info on a pallet. Returns the updated pallet row. */
-export async function updatePalletForwarding(id: number, data: ForwardingUpdate) {
+export async function updatePalletForwarding(
+  id: number,
+  data: ForwardingUpdate
+) {
   const db = await getDb();
   if (!db) throw new Error("DB unavailable");
-  await db.update(pallets).set({ ...data, forwardingUpdatedAt: new Date() }).where(eq(pallets.id, id));
-  const result = await db.select().from(pallets).where(eq(pallets.id, id)).limit(1);
+  await db
+    .update(pallets)
+    .set({ ...data, forwardingUpdatedAt: new Date() })
+    .where(eq(pallets.id, id));
+  const result = await db
+    .select()
+    .from(pallets)
+    .where(eq(pallets.id, id))
+    .limit(1);
   return result[0];
 }
 
@@ -933,11 +1271,13 @@ export async function updatePalletForwarding(id: number, data: ForwardingUpdate)
 export async function listStagedDevicesForClient(clientId: number) {
   const db = await getDb();
   if (!db) return [];
-  return db.select().from(devices)
+  return db
+    .select()
+    .from(devices)
     .where(
       and(
         eq(devices.clientId, clientId),
-        sql`${devices.stagingStatus} IN ('staged','labeled','packed','ready_to_ship','shipped','picked_up')`,
+        sql`${devices.stagingStatus} IN ('staged','labeled','packed','ready_to_ship','shipped','picked_up')`
       )
     )
     .orderBy(desc(devices.updatedAt));
@@ -947,11 +1287,13 @@ export async function listStagedDevicesForClient(clientId: number) {
 export async function listStagedBoxesForClient(clientId: number) {
   const db = await getDb();
   if (!db) return [];
-  return db.select().from(boxes)
+  return db
+    .select()
+    .from(boxes)
     .where(
       and(
         eq(boxes.clientId, clientId),
-        sql`${boxes.status} IN ('staging','packed','shipped')`,
+        sql`${boxes.status} IN ('staging','packed','shipped')`
       )
     )
     .orderBy(desc(boxes.updatedAt));
@@ -961,11 +1303,13 @@ export async function listStagedBoxesForClient(clientId: number) {
 export async function listStagedPalletsForClient(clientId: number) {
   const db = await getDb();
   if (!db) return [];
-  return db.select().from(pallets)
+  return db
+    .select()
+    .from(pallets)
     .where(
       and(
         eq(pallets.clientId, clientId),
-        sql`${pallets.status} IN ('staging','ready_to_ship','shipped')`,
+        sql`${pallets.status} IN ('staging','ready_to_ship','shipped')`
       )
     )
     .orderBy(desc(pallets.updatedAt));
@@ -976,7 +1320,9 @@ export async function listStagedPalletsForClient(clientId: number) {
 export async function listShipmentDocuments(shipmentId: number) {
   const db = await getDb();
   if (!db) return [];
-  return db.select().from(shipmentDocuments)
+  return db
+    .select()
+    .from(shipmentDocuments)
     .where(eq(shipmentDocuments.shipmentId, shipmentId))
     .orderBy(desc(shipmentDocuments.createdAt));
 }
@@ -997,7 +1343,9 @@ export async function addShipmentDocument(data: {
   const db = await getDb();
   if (!db) throw new Error("DB unavailable");
   const result = await db.insert(shipmentDocuments).values(data);
-  const [row] = await db.select().from(shipmentDocuments)
+  const [row] = await db
+    .select()
+    .from(shipmentDocuments)
     .where(eq(shipmentDocuments.id, (result as any).insertId))
     .limit(1);
   return row;
@@ -1006,8 +1354,11 @@ export async function addShipmentDocument(data: {
 export async function getShipmentDocument(id: number) {
   const db = await getDb();
   if (!db) return null;
-  const [row] = await db.select().from(shipmentDocuments)
-    .where(eq(shipmentDocuments.id, id)).limit(1);
+  const [row] = await db
+    .select()
+    .from(shipmentDocuments)
+    .where(eq(shipmentDocuments.id, id))
+    .limit(1);
   return row ?? null;
 }
 
@@ -1042,82 +1393,124 @@ export async function createStagingNotification(data: {
     message: data.message ?? null,
     emailSent: data.emailSent ?? false,
   });
-  const [row] = await db.select().from(stagingNotifications)
-    .where(eq(stagingNotifications.id, (result as any).insertId)).limit(1);
+  const [row] = await db
+    .select()
+    .from(stagingNotifications)
+    .where(eq(stagingNotifications.id, (result as any).insertId))
+    .limit(1);
   return row;
 }
 
-export async function listStagingNotifications(clientId: number): Promise<StagingNotification[]> {
+export async function listStagingNotifications(
+  clientId: number
+): Promise<StagingNotification[]> {
   const db = await getDb();
   if (!db) return [];
-  return db.select().from(stagingNotifications)
+  return db
+    .select()
+    .from(stagingNotifications)
     .where(eq(stagingNotifications.clientId, clientId))
     .orderBy(desc(stagingNotifications.createdAt));
 }
 
-export async function listAllStagingNotifications(): Promise<StagingNotification[]> {
+export async function listAllStagingNotifications(): Promise<
+  StagingNotification[]
+> {
   const db = await getDb();
   if (!db) return [];
-  return db.select().from(stagingNotifications)
+  return db
+    .select()
+    .from(stagingNotifications)
     .orderBy(desc(stagingNotifications.createdAt));
 }
 
-export async function getStagingNotification(id: number): Promise<StagingNotification | null> {
+export async function getStagingNotification(
+  id: number
+): Promise<StagingNotification | null> {
   const db = await getDb();
   if (!db) return null;
-  const [row] = await db.select().from(stagingNotifications)
-    .where(eq(stagingNotifications.id, id)).limit(1);
+  const [row] = await db
+    .select()
+    .from(stagingNotifications)
+    .where(eq(stagingNotifications.id, id))
+    .limit(1);
   return row ?? null;
 }
 
-export async function acknowledgeStagingNotification(id: number, userId: number): Promise<void> {
+export async function acknowledgeStagingNotification(
+  id: number,
+  userId: number
+): Promise<void> {
   const db = await getDb();
   if (!db) throw new Error("DB unavailable");
-  await db.update(stagingNotifications)
+  await db
+    .update(stagingNotifications)
     .set({ acknowledgedAt: new Date(), acknowledgedByUserId: userId })
     .where(eq(stagingNotifications.id, id));
 }
 
-export async function countUnacknowledgedNotifications(clientId: number): Promise<number> {
+export async function countUnacknowledgedNotifications(
+  clientId: number
+): Promise<number> {
   const db = await getDb();
   if (!db) return 0;
-  const [row] = await db.select({ count: sql<number>`COUNT(*)` })
+  const [row] = await db
+    .select({ count: sql<number>`COUNT(*)` })
     .from(stagingNotifications)
-    .where(and(
-      eq(stagingNotifications.clientId, clientId),
-      sql`${stagingNotifications.acknowledgedAt} IS NULL`
-    ));
+    .where(
+      and(
+        eq(stagingNotifications.clientId, clientId),
+        sql`${stagingNotifications.acknowledgedAt} IS NULL`
+      )
+    );
   return Number(row?.count ?? 0);
 }
 
 export async function getUsersByClientId(clientId: number) {
   const db = await getDb();
   if (!db) return [];
-  return db.select().from(users)
-    .where(eq(users.clientId, clientId));
+  return db.select().from(users).where(eq(users.clientId, clientId));
 }
 
 // ─── Leads ────────────────────────────────────────────────────────────────────
-export async function listLeads(opts?: { search?: string; status?: string; source?: string; temperature?: string }) {
+export async function listLeads(opts?: {
+  search?: string;
+  status?: string;
+  source?: string;
+  temperature?: string;
+}) {
   const db = await getDb();
   if (!db) return [];
   const conditions: ReturnType<typeof eq>[] = [];
-  if (opts?.status) conditions.push(eq(leads.status, opts.status as Lead["status"]));
-  if (opts?.source) conditions.push(eq(leads.source, opts.source as Lead["source"]));
-  if (opts?.temperature) conditions.push(eq(leads.temperature, opts.temperature as Lead["temperature"]));
-  const base = conditions.length > 0
-    ? db.select().from(leads).where(and(...conditions))
-    : db.select().from(leads);
+  if (opts?.status)
+    conditions.push(eq(leads.status, opts.status as Lead["status"]));
+  if (opts?.source)
+    conditions.push(eq(leads.source, opts.source as Lead["source"]));
+  if (opts?.temperature)
+    conditions.push(
+      eq(leads.temperature, opts.temperature as Lead["temperature"])
+    );
+  const base =
+    conditions.length > 0
+      ? db
+          .select()
+          .from(leads)
+          .where(and(...conditions))
+      : db.select().from(leads);
   if (opts?.search) {
-    return db.select().from(leads).where(
-      or(
-        like(leads.companyName, `%${opts.search}%`),
-        like(leads.contactName, `%${opts.search}%`),
-        like(leads.email, `%${opts.search}%`),
-        like(leads.city, `%${opts.search}%`),
-        like(leads.industry, `%${opts.search}%`)
+    return db
+      .select()
+      .from(leads)
+      .where(
+        or(
+          like(leads.companyName, `%${opts.search}%`),
+          like(leads.contactName, `%${opts.search}%`),
+          like(leads.email, `%${opts.search}%`),
+          like(leads.city, `%${opts.search}%`),
+          like(leads.industry, `%${opts.search}%`)
+        )
       )
-    ).orderBy(desc(leads.createdAt));
+      .orderBy(desc(leads.createdAt));
   }
   return base.orderBy(desc(leads.createdAt));
 }
@@ -1136,7 +1529,10 @@ export async function createLead(data: InsertLead): Promise<{ id: number }> {
   return { id: (result[0] as any).insertId as number };
 }
 
-export async function updateLead(id: number, data: Partial<InsertLead>): Promise<void> {
+export async function updateLead(
+  id: number,
+  data: Partial<InsertLead>
+): Promise<void> {
   const db = await getDb();
   if (!db) throw new Error("DB unavailable");
   await db.update(leads).set(data).where(eq(leads.id, id));
@@ -1148,24 +1544,37 @@ export async function deleteLead(id: number): Promise<void> {
   await db.delete(leads).where(eq(leads.id, id));
 }
 
-export async function countLeadsByStatus(): Promise<{ status: string; count: number }[]> {
+export async function countLeadsByStatus(): Promise<
+  { status: string; count: number }[]
+> {
   const db = await getDb();
   if (!db) return [];
-  const result = await db.select({
-    status: leads.status,
-    count: sql<number>`count(*)`,
-  }).from(leads).groupBy(leads.status);
+  const result = await db
+    .select({
+      status: leads.status,
+      count: sql<number>`count(*)`,
+    })
+    .from(leads)
+    .groupBy(leads.status);
   return result.map(r => ({ status: r.status, count: Number(r.count) }));
 }
 
 // ─── Lead Campaign Messages ───────────────────────────────────────────────────
-export async function listLeadMessages(leadId: number): Promise<LeadCampaignMessage[]> {
+export async function listLeadMessages(
+  leadId: number
+): Promise<LeadCampaignMessage[]> {
   const db = await getDb();
   if (!db) return [];
-  return db.select().from(leadCampaignMessages).where(eq(leadCampaignMessages.leadId, leadId)).orderBy(desc(leadCampaignMessages.createdAt));
+  return db
+    .select()
+    .from(leadCampaignMessages)
+    .where(eq(leadCampaignMessages.leadId, leadId))
+    .orderBy(desc(leadCampaignMessages.createdAt));
 }
 
-export async function createLeadMessage(data: InsertLeadCampaignMessage): Promise<{ id: number }> {
+export async function createLeadMessage(
+  data: InsertLeadCampaignMessage
+): Promise<{ id: number }> {
   const db = await getDb();
   if (!db) throw new Error("DB unavailable");
   const result = await db.insert(leadCampaignMessages).values(data);
@@ -1182,17 +1591,26 @@ export async function deleteLeadMessage(id: number): Promise<void> {
 export async function listLeadQuotes(leadId: number): Promise<LeadQuote[]> {
   const db = await getDb();
   if (!db) return [];
-  return db.select().from(leadQuotes).where(eq(leadQuotes.leadId, leadId)).orderBy(desc(leadQuotes.createdAt));
+  return db
+    .select()
+    .from(leadQuotes)
+    .where(eq(leadQuotes.leadId, leadId))
+    .orderBy(desc(leadQuotes.createdAt));
 }
 
-export async function createLeadQuote(data: InsertLeadQuote): Promise<{ id: number }> {
+export async function createLeadQuote(
+  data: InsertLeadQuote
+): Promise<{ id: number }> {
   const db = await getDb();
   if (!db) throw new Error("DB unavailable");
   const result = await db.insert(leadQuotes).values(data);
   return { id: (result[0] as any).insertId as number };
 }
 
-export async function updateLeadQuote(id: number, data: Partial<InsertLeadQuote>): Promise<void> {
+export async function updateLeadQuote(
+  id: number,
+  data: Partial<InsertLeadQuote>
+): Promise<void> {
   const db = await getDb();
   if (!db) throw new Error("DB unavailable");
   await db.update(leadQuotes).set(data).where(eq(leadQuotes.id, id));
@@ -1208,17 +1626,26 @@ export async function deleteLeadQuote(id: number): Promise<void> {
 export async function listInquiryQuotes(inquiryId: number): Promise<Quote[]> {
   const db = await getDb();
   if (!db) return [];
-  return db.select().from(quotes).where(eq(quotes.inquiryId, inquiryId)).orderBy(desc(quotes.createdAt));
+  return db
+    .select()
+    .from(quotes)
+    .where(eq(quotes.inquiryId, inquiryId))
+    .orderBy(desc(quotes.createdAt));
 }
 
-export async function createInquiryQuote(data: InsertQuote): Promise<{ id: number }> {
+export async function createInquiryQuote(
+  data: InsertQuote
+): Promise<{ id: number }> {
   const db = await getDb();
   if (!db) throw new Error("DB unavailable");
   const result = await db.insert(quotes).values(data);
   return { id: (result[0] as any).insertId as number };
 }
 
-export async function updateInquiryQuote(id: number, data: Partial<InsertQuote>): Promise<void> {
+export async function updateInquiryQuote(
+  id: number,
+  data: Partial<InsertQuote>
+): Promise<void> {
   const db = await getDb();
   if (!db) throw new Error("DB unavailable");
   await db.update(quotes).set(data).where(eq(quotes.id, id));
@@ -1237,21 +1664,32 @@ export async function listDripSequences(): Promise<DripSequence[]> {
   return db.select().from(dripSequences).orderBy(desc(dripSequences.createdAt));
 }
 
-export async function getDripSequence(id: number): Promise<DripSequence | undefined> {
+export async function getDripSequence(
+  id: number
+): Promise<DripSequence | undefined> {
   const db = await getDb();
   if (!db) return undefined;
-  const result = await db.select().from(dripSequences).where(eq(dripSequences.id, id)).limit(1);
+  const result = await db
+    .select()
+    .from(dripSequences)
+    .where(eq(dripSequences.id, id))
+    .limit(1);
   return result[0];
 }
 
-export async function createDripSequence(data: InsertDripSequence): Promise<{ id: number }> {
+export async function createDripSequence(
+  data: InsertDripSequence
+): Promise<{ id: number }> {
   const db = await getDb();
   if (!db) throw new Error("DB unavailable");
   const result = await db.insert(dripSequences).values(data);
   return { id: (result[0] as any).insertId as number };
 }
 
-export async function updateDripSequence(id: number, data: Partial<InsertDripSequence>): Promise<void> {
+export async function updateDripSequence(
+  id: number,
+  data: Partial<InsertDripSequence>
+): Promise<void> {
   const db = await getDb();
   if (!db) throw new Error("DB unavailable");
   await db.update(dripSequences).set(data).where(eq(dripSequences.id, id));
@@ -1264,23 +1702,37 @@ export async function deleteDripSequence(id: number): Promise<void> {
 }
 
 // ─── Drip Sequence Steps ──────────────────────────────────────────────────────
-export async function listDripSteps(sequenceId: number): Promise<DripSequenceStep[]> {
+export async function listDripSteps(
+  sequenceId: number
+): Promise<DripSequenceStep[]> {
   const db = await getDb();
   if (!db) return [];
-  return db.select().from(dripSequenceSteps).where(eq(dripSequenceSteps.sequenceId, sequenceId)).orderBy(dripSequenceSteps.stepNumber);
+  return db
+    .select()
+    .from(dripSequenceSteps)
+    .where(eq(dripSequenceSteps.sequenceId, sequenceId))
+    .orderBy(dripSequenceSteps.stepNumber);
 }
 
-export async function createDripStep(data: InsertDripSequenceStep): Promise<{ id: number }> {
+export async function createDripStep(
+  data: InsertDripSequenceStep
+): Promise<{ id: number }> {
   const db = await getDb();
   if (!db) throw new Error("DB unavailable");
   const result = await db.insert(dripSequenceSteps).values(data);
   return { id: (result[0] as any).insertId as number };
 }
 
-export async function updateDripStep(id: number, data: Partial<InsertDripSequenceStep>): Promise<void> {
+export async function updateDripStep(
+  id: number,
+  data: Partial<InsertDripSequenceStep>
+): Promise<void> {
   const db = await getDb();
   if (!db) throw new Error("DB unavailable");
-  await db.update(dripSequenceSteps).set(data).where(eq(dripSequenceSteps.id, id));
+  await db
+    .update(dripSequenceSteps)
+    .set(data)
+    .where(eq(dripSequenceSteps.id, id));
 }
 
 export async function deleteDripStep(id: number): Promise<void> {
@@ -1290,33 +1742,55 @@ export async function deleteDripStep(id: number): Promise<void> {
 }
 
 // ─── Drip Enrollments ─────────────────────────────────────────────────────────
-export async function listDripEnrollments(opts?: { leadId?: number; sequenceId?: number }): Promise<DripEnrollment[]> {
+export async function listDripEnrollments(opts?: {
+  leadId?: number;
+  sequenceId?: number;
+}): Promise<DripEnrollment[]> {
   const db = await getDb();
   if (!db) return [];
   const conditions = [];
   if (opts?.leadId) conditions.push(eq(dripEnrollments.leadId, opts.leadId));
-  if (opts?.sequenceId) conditions.push(eq(dripEnrollments.sequenceId, opts.sequenceId));
+  if (opts?.sequenceId)
+    conditions.push(eq(dripEnrollments.sequenceId, opts.sequenceId));
   if (conditions.length > 0) {
-    return db.select().from(dripEnrollments).where(and(...conditions)).orderBy(desc(dripEnrollments.enrolledAt));
+    return db
+      .select()
+      .from(dripEnrollments)
+      .where(and(...conditions))
+      .orderBy(desc(dripEnrollments.enrolledAt));
   }
-  return db.select().from(dripEnrollments).orderBy(desc(dripEnrollments.enrolledAt));
+  return db
+    .select()
+    .from(dripEnrollments)
+    .orderBy(desc(dripEnrollments.enrolledAt));
 }
 
-export async function getDripEnrollment(id: number): Promise<DripEnrollment | undefined> {
+export async function getDripEnrollment(
+  id: number
+): Promise<DripEnrollment | undefined> {
   const db = await getDb();
   if (!db) return undefined;
-  const result = await db.select().from(dripEnrollments).where(eq(dripEnrollments.id, id)).limit(1);
+  const result = await db
+    .select()
+    .from(dripEnrollments)
+    .where(eq(dripEnrollments.id, id))
+    .limit(1);
   return result[0];
 }
 
-export async function enrollLeadInDrip(data: InsertDripEnrollment): Promise<{ id: number }> {
+export async function enrollLeadInDrip(
+  data: InsertDripEnrollment
+): Promise<{ id: number }> {
   const db = await getDb();
   if (!db) throw new Error("DB unavailable");
   const result = await db.insert(dripEnrollments).values(data);
   return { id: (result[0] as any).insertId as number };
 }
 
-export async function updateDripEnrollment(id: number, data: Partial<InsertDripEnrollment>): Promise<void> {
+export async function updateDripEnrollment(
+  id: number,
+  data: Partial<InsertDripEnrollment>
+): Promise<void> {
   const db = await getDb();
   if (!db) throw new Error("DB unavailable");
   await db.update(dripEnrollments).set(data).where(eq(dripEnrollments.id, id));
@@ -1325,41 +1799,60 @@ export async function updateDripEnrollment(id: number, data: Partial<InsertDripE
 export async function listDueEnrollments(): Promise<DripEnrollment[]> {
   const db = await getDb();
   if (!db) return [];
-  return db.select().from(dripEnrollments).where(
-    and(
-      eq(dripEnrollments.status, "active"),
-      sql`${dripEnrollments.nextSendAt} IS NOT NULL AND ${dripEnrollments.nextSendAt} <= NOW()`
+  return db
+    .select()
+    .from(dripEnrollments)
+    .where(
+      and(
+        eq(dripEnrollments.status, "active"),
+        sql`${dripEnrollments.nextSendAt} IS NOT NULL AND ${dripEnrollments.nextSendAt} <= NOW()`
+      )
     )
-  ).orderBy(dripEnrollments.nextSendAt);
+    .orderBy(dripEnrollments.nextSendAt);
 }
 
 // ─── Marketing Assets ─────────────────────────────────────────────────────────
-export async function listMarketingAssets(filters?: { assetType?: string; status?: string }): Promise<MarketingAsset[]> {
+export async function listMarketingAssets(filters?: {
+  assetType?: string;
+  status?: string;
+}): Promise<MarketingAsset[]> {
   const db = await getDb();
   if (!db) return [];
   let query = db.select().from(marketingAssets).$dynamic();
   const conditions = [];
-  if (filters?.assetType) conditions.push(eq(marketingAssets.assetType, filters.assetType as any));
-  if (filters?.status) conditions.push(eq(marketingAssets.status, filters.status as any));
+  if (filters?.assetType)
+    conditions.push(eq(marketingAssets.assetType, filters.assetType as any));
+  if (filters?.status)
+    conditions.push(eq(marketingAssets.status, filters.status as any));
   if (conditions.length > 0) query = query.where(and(...conditions));
   return query.orderBy(desc(marketingAssets.createdAt));
 }
 
-export async function getMarketingAsset(id: number): Promise<MarketingAsset | null> {
+export async function getMarketingAsset(
+  id: number
+): Promise<MarketingAsset | null> {
   const db = await getDb();
   if (!db) return null;
-  const rows = await db.select().from(marketingAssets).where(eq(marketingAssets.id, id));
+  const rows = await db
+    .select()
+    .from(marketingAssets)
+    .where(eq(marketingAssets.id, id));
   return rows[0] ?? null;
 }
 
-export async function createMarketingAsset(data: InsertMarketingAsset): Promise<{ id: number }> {
+export async function createMarketingAsset(
+  data: InsertMarketingAsset
+): Promise<{ id: number }> {
   const db = await getDb();
   if (!db) return { id: 0 };
   const [result] = await db.insert(marketingAssets).values(data);
   return { id: (result as any).insertId };
 }
 
-export async function updateMarketingAsset(id: number, data: Partial<InsertMarketingAsset>): Promise<void> {
+export async function updateMarketingAsset(
+  id: number,
+  data: Partial<InsertMarketingAsset>
+): Promise<void> {
   const db = await getDb();
   if (!db) return;
   await db.update(marketingAssets).set(data).where(eq(marketingAssets.id, id));
@@ -1376,15 +1869,26 @@ export async function listSupportTickets(clientId?: number) {
   const db = await getDb();
   if (!db) return [];
   if (clientId) {
-    return db.select().from(supportTickets).where(eq(supportTickets.clientId, clientId)).orderBy(desc(supportTickets.createdAt));
+    return db
+      .select()
+      .from(supportTickets)
+      .where(eq(supportTickets.clientId, clientId))
+      .orderBy(desc(supportTickets.createdAt));
   }
-  return db.select().from(supportTickets).orderBy(desc(supportTickets.createdAt));
+  return db
+    .select()
+    .from(supportTickets)
+    .orderBy(desc(supportTickets.createdAt));
 }
 
 export async function getSupportTicket(id: number) {
   const db = await getDb();
   if (!db) return undefined;
-  const result = await db.select().from(supportTickets).where(eq(supportTickets.id, id)).limit(1);
+  const result = await db
+    .select()
+    .from(supportTickets)
+    .where(eq(supportTickets.id, id))
+    .limit(1);
   return result[0];
 }
 
@@ -1395,7 +1899,10 @@ export async function createSupportTicket(data: InsertSupportTicket) {
   return result[0];
 }
 
-export async function updateSupportTicket(id: number, data: Partial<InsertSupportTicket>) {
+export async function updateSupportTicket(
+  id: number,
+  data: Partial<InsertSupportTicket>
+) {
   const db = await getDb();
   if (!db) throw new Error("DB unavailable");
   await db.update(supportTickets).set(data).where(eq(supportTickets.id, id));
@@ -1404,7 +1911,11 @@ export async function updateSupportTicket(id: number, data: Partial<InsertSuppor
 export async function listTicketReplies(ticketId: number) {
   const db = await getDb();
   if (!db) return [];
-  return db.select().from(supportTicketReplies).where(eq(supportTicketReplies.ticketId, ticketId)).orderBy(supportTicketReplies.createdAt);
+  return db
+    .select()
+    .from(supportTicketReplies)
+    .where(eq(supportTicketReplies.ticketId, ticketId))
+    .orderBy(supportTicketReplies.createdAt);
 }
 
 export async function createTicketReply(data: InsertSupportTicketReply) {
@@ -1418,7 +1929,10 @@ export async function createTicketReply(data: InsertSupportTicketReply) {
 export async function listClientNotes(clientId: number) {
   const db = await getDb();
   if (!db) return [];
-  return db.select().from(clientNotes).where(eq(clientNotes.clientId, clientId))
+  return db
+    .select()
+    .from(clientNotes)
+    .where(eq(clientNotes.clientId, clientId))
     .orderBy(desc(clientNotes.isPinned), desc(clientNotes.createdAt));
 }
 export async function createClientNote(data: InsertClientNote) {
@@ -1427,7 +1941,10 @@ export async function createClientNote(data: InsertClientNote) {
   const result = await db.insert(clientNotes).values(data);
   return { id: (result as any)[0]?.insertId ?? 0 };
 }
-export async function updateClientNote(id: number, data: Partial<InsertClientNote>) {
+export async function updateClientNote(
+  id: number,
+  data: Partial<InsertClientNote>
+) {
   const db = await getDb();
   if (!db) throw new Error("DB unavailable");
   await db.update(clientNotes).set(data).where(eq(clientNotes.id, id));
@@ -1442,22 +1959,35 @@ export async function deleteClientNote(id: number) {
 export async function getClientInstructions(clientId: number) {
   const db = await getDb();
   if (!db) return undefined;
-  const result = await db.select().from(clientInstructions).where(eq(clientInstructions.clientId, clientId)).limit(1);
+  const result = await db
+    .select()
+    .from(clientInstructions)
+    .where(eq(clientInstructions.clientId, clientId))
+    .limit(1);
   return result[0];
 }
 
-export async function upsertClientInstructions(clientId: number, textBody: string, updatedByUserId: number) {
+export async function upsertClientInstructions(
+  clientId: number,
+  textBody: string,
+  updatedByUserId: number
+) {
   const db = await getDb();
   if (!db) throw new Error("DB unavailable");
-  await db.insert(clientInstructions)
+  await db
+    .insert(clientInstructions)
     .values({ clientId, textBody, updatedByUserId })
     .onDuplicateKeyUpdate({ set: { textBody, updatedByUserId } });
 }
 
-export async function acknowledgeClientInstructions(clientId: number, acknowledgedByUserId: number) {
+export async function acknowledgeClientInstructions(
+  clientId: number,
+  acknowledgedByUserId: number
+) {
   const db = await getDb();
   if (!db) throw new Error("DB unavailable");
-  await db.update(clientInstructions)
+  await db
+    .update(clientInstructions)
     .set({ acknowledgedAt: new Date(), acknowledgedByUserId })
     .where(eq(clientInstructions.clientId, clientId));
 }
@@ -1465,7 +1995,9 @@ export async function acknowledgeClientInstructions(clientId: number, acknowledg
 export async function listInstructionFiles(clientId: number) {
   const db = await getDb();
   if (!db) return [];
-  return db.select().from(clientInstructionFiles)
+  return db
+    .select()
+    .from(clientInstructionFiles)
     .where(eq(clientInstructionFiles.clientId, clientId))
     .orderBy(desc(clientInstructionFiles.uploadedAt));
 }
@@ -1480,6 +2012,12 @@ export async function addInstructionFile(data: InsertClientInstructionFile) {
 export async function deleteInstructionFile(id: number, clientId: number) {
   const db = await getDb();
   if (!db) throw new Error("DB unavailable");
-  await db.delete(clientInstructionFiles)
-    .where(and(eq(clientInstructionFiles.id, id), eq(clientInstructionFiles.clientId, clientId)));
+  await db
+    .delete(clientInstructionFiles)
+    .where(
+      and(
+        eq(clientInstructionFiles.id, id),
+        eq(clientInstructionFiles.clientId, clientId)
+      )
+    );
 }
