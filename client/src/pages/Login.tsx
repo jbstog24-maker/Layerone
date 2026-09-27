@@ -14,12 +14,17 @@ import {
 
 export default function Login() {
   const [, setLocation] = useLocation();
+  const utils = trpc.useUtils();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
 
   const loginMutation = trpc.auth.login.useMutation({
-    onSuccess: () => {
+    onSuccess: async () => {
+      // Refresh the cached auth state before entering the dashboard:
+      // otherwise the dashboard sees the stale "not signed in" cache
+      // and bounces back to the homepage.
+      await utils.auth.me.invalidate();
       setLocation("/dashboard");
     },
     onError: err => {

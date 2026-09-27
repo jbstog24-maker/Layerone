@@ -14,6 +14,7 @@ import {
 
 export default function Register() {
   const [, setLocation] = useLocation();
+  const utils = trpc.useUtils();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -21,7 +22,11 @@ export default function Register() {
   const [error, setError] = useState<string | null>(null);
 
   const registerMutation = trpc.auth.register.useMutation({
-    onSuccess: () => {
+    onSuccess: async () => {
+      // Refresh the cached auth state before entering the dashboard:
+      // otherwise the dashboard sees the stale "not signed in" cache
+      // and bounces back to the homepage.
+      await utils.auth.me.invalidate();
       setLocation("/dashboard");
     },
     onError: err => {
