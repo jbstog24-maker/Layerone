@@ -2,7 +2,7 @@ import { Resend } from "resend";
 import { ENV } from "./_core/env";
 
 // Layer One brand SVG — kept in sync with Documents.tsx
-const NSDS_LOGO_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 120" width="200" height="43">
+const LAYER_ONE_LOGO_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 120" width="200" height="43">
   <defs>
     <linearGradient id="shieldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" style="stop-color:#39a7ff;stop-opacity:1"/>
@@ -26,7 +26,7 @@ const NSDS_LOGO_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 
     <line x1="65" y1="55" x2="50" y2="70" stroke="#6ee7b7" stroke-width="1.5" opacity="0.7"/>
   </g>
   <text x="115" y="52" font-family="Inter,Arial,sans-serif" font-size="38" font-weight="700" fill="url(#textGrad)" letter-spacing="2">Layer One</text>
-  <text x="116" y="75" font-family="Inter,Arial,sans-serif" font-size="11" font-weight="400" fill="#94a3b8" letter-spacing="1.5">NETWORK STAGING &amp; DEPLOYMENT SOLUTIONS</text>
+  <text x="116" y="75" font-family="Inter,Arial,sans-serif" font-size="11" font-weight="400" fill="#94a3b8" letter-spacing="1.5">DEPLOYMENT STAGING &amp; WAREHOUSE SOLUTIONS</text>
 </svg>`;
 
 let _resend: Resend | null = null;
@@ -106,7 +106,7 @@ function buildWelcomeHtml(params: WelcomeEmailParams): string {
     <div class="card">
       <!-- Header / Logo -->
       <div class="header">
-        ${NSDS_LOGO_SVG}
+        ${LAYER_ONE_LOGO_SVG}
       </div>
 
       <!-- Body -->
@@ -210,7 +210,7 @@ function buildWelcomeHtml(params: WelcomeEmailParams): string {
 
       <!-- Footer -->
       <div class="footer">
-        <p>© ${new Date().getFullYear()} Network Staging &amp; Deployment Solutions (Layer One). All rights reserved.</p>
+        <p>© ${new Date().getFullYear()} Layer One Staging. All rights reserved.</p>
         <p style="margin-top:4px;">Layer One Staging Solutions Portal — Warehouse &amp; Device Staging Management</p>
       </div>
     </div>
@@ -253,6 +253,91 @@ export async function sendWelcomeEmail(params: WelcomeEmailParams): Promise<bool
   }
 }
 
+// ─── Inquiry Owner Notification Email ─────────────────────────────────────────
+// Sent to the Layer One owner inbox when a prospect submits a package inquiry.
+// (notifyOwner targets the Manus platform notification service, which is not
+// available on self-hosted Render — this email is the production path.)
+
+export type InquiryOwnerEmailParams = {
+  to: string;
+  name: string;
+  company: string;
+  email: string;
+  phone?: string | null;
+  tierLabel: string;
+  deviceCount?: number | null;
+  palletCount?: number | null;
+  boxCount?: number | null;
+  storageDays?: number | null;
+  addons?: string[];
+  message?: string | null;
+};
+
+export async function sendInquiryOwnerEmail(params: InquiryOwnerEmailParams): Promise<boolean> {
+  if (!ENV.resendApiKey || !ENV.resendFromEmail) {
+    console.warn("[Email] RESEND_API_KEY or RESEND_FROM_EMAIL not configured — skipping inquiry owner email");
+    return false;
+  }
+
+  const row = (label: string, value: string | null | undefined) =>
+    value ? `<tr><td style="padding:8px 12px;font-size:13px;color:#64748b;width:38%;">${label}</td><td style="padding:8px 12px;font-size:14px;color:#e2e8f0;">${value}</td></tr>` : "";
+
+  const details =
+    row("Name", params.name) +
+    row("Company", params.company) +
+    row("Email", params.email) +
+    row("Phone", params.phone) +
+    row("Package", params.tierLabel) +
+    row("Devices", params.deviceCount != null ? String(params.deviceCount) : null) +
+    row("Pallets", params.palletCount != null ? String(params.palletCount) : null) +
+    row("Boxes", params.boxCount != null ? String(params.boxCount) : null) +
+    row("Storage Days", params.storageDays != null ? String(params.storageDays) : null) +
+    row("Add-ons", params.addons?.length ? params.addons.join(", ") : null);
+
+  const html = `<!DOCTYPE html>
+<html><head><meta charset="UTF-8"/><title>New Package Inquiry</title></head>
+<body style="margin:0;padding:0;background:#07111f;font-family:'Segoe UI',Arial,sans-serif;color:#e2e8f0;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#07111f;padding:32px 16px;">
+    <tr><td align="center">
+      <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;background:#0d1f35;border-radius:12px;border:1px solid #1e3a5f;overflow:hidden;">
+        <tr><td style="padding:28px 40px;border-bottom:1px solid #1e3a5f;">
+          <p style="margin:0;font-size:20px;font-weight:800;color:#0A84FF;letter-spacing:1px;">New Package Inquiry</p>
+          <p style="margin:6px 0 0;font-size:13px;color:#94a3b8;">${params.tierLabel} — ${params.company}</p>
+        </td></tr>
+        <tr><td style="padding:24px 40px;">
+          <table width="100%" cellpadding="0" cellspacing="0" style="background:#0a1929;border-radius:8px;border:1px solid #1e3a5f;margin-bottom:20px;">${details}</table>
+          ${params.message ? `<p style="font-size:13px;color:#94a3b8;background:#0a1929;padding:12px 16px;border-radius:6px;border-left:3px solid #0A84FF;"><strong style="color:#ffffff;">Message:</strong> ${params.message}</p>` : ""}
+          <p style="font-size:13px;color:#64748b;">Reply directly to this email to respond to ${params.name} at ${params.email}.</p>
+        </td></tr>
+        <tr><td style="padding:16px 40px;border-top:1px solid #1e3a5f;text-align:center;">
+          <p style="margin:0;font-size:12px;color:#475569;">© ${new Date().getFullYear()} Layer One Staging</p>
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body></html>`;
+
+  try {
+    const resend = getResend();
+    const { error } = await resend.emails.send({
+      from: ENV.resendFromEmail,
+      to: params.to,
+      replyTo: params.email,
+      subject: `New Package Inquiry — ${params.tierLabel} (${params.company})`,
+      html,
+    });
+    if (error) {
+      console.warn("[Email] Resend error (inquiry owner):", error);
+      return false;
+    }
+    console.log(`[Email] Inquiry owner notification sent to ${params.to}`);
+    return true;
+  } catch (err) {
+    console.warn("[Email] Failed to send inquiry owner email:", err);
+    return false;
+  }
+}
+
 // ─── Portal Invite Email (admin-provisioned users) ────────────────────────────
 
 export type PortalInviteEmailParams = {
@@ -274,7 +359,7 @@ function buildPortalInviteHtml(params: PortalInviteEmailParams): string {
   const firstName = params.name.split(" ")[0] ?? params.name;
   const portalUrl = params.portalUrl ?? ENV.portalUrl ?? "https://stagingops.manus.space";
   const roleLabel = ROLE_LABELS[params.role] ?? params.role;
-  const supportEmail = ENV.supportEmail ?? "support@nsds.com";
+  const supportEmail = ENV.supportEmail ?? "info@layeronestaging.com";
   const supportPhone = ENV.supportPhone ?? "(800) 000-0000";
 
   return `<!DOCTYPE html>
@@ -355,7 +440,7 @@ function buildPortalInviteHtml(params: PortalInviteEmailParams): string {
         <!-- Footer -->
         <tr><td style="padding:20px 40px;border-top:1px solid #1e3a5f;text-align:center;">
           <p style="margin:0;font-size:12px;color:#475569;">
-            © ${new Date().getFullYear()} Layer One — Network Staging &amp; Deployment Solutions<br />
+            © ${new Date().getFullYear()} Layer One Staging<br />
             This email was sent because an admin created a portal account for you.
           </p>
         </td></tr>
@@ -440,7 +525,7 @@ export async function sendStagingCompleteEmail(params: StagingCompleteEmailParam
         <!-- Header -->
         <tr><td style="background:linear-gradient(135deg,#0d1f35 0%,#0a2540 100%);padding:32px 40px;border-bottom:1px solid #1e3a5f;">
           <p style="margin:0;font-size:22px;font-weight:800;color:#38bdf8;letter-spacing:3px;">Layer One</p>
-          <p style="margin:4px 0 0;font-size:10px;color:#64748b;letter-spacing:2px;text-transform:uppercase;">Network Staging &amp; Deployment Solutions</p>
+          <p style="margin:4px 0 0;font-size:10px;color:#64748b;letter-spacing:2px;text-transform:uppercase;">Deployment Staging &amp; Warehouse Solutions</p>
         </td></tr>
 
         <!-- Alert Banner -->
@@ -492,7 +577,7 @@ export async function sendStagingCompleteEmail(params: StagingCompleteEmailParam
 
         <!-- Footer -->
         <tr><td style="padding:20px 40px;border-top:1px solid #1e3a5f;text-align:center;">
-          <p style="margin:0;font-size:12px;color:#475569;">© ${new Date().getFullYear()} Network Staging &amp; Deployment Solutions (Layer One). All rights reserved.</p>
+          <p style="margin:0;font-size:12px;color:#475569;">© ${new Date().getFullYear()} Layer One Staging. All rights reserved.</p>
           <p style="margin:4px 0 0;font-size:12px;color:#475569;">Layer One Staging Solutions Portal — Warehouse &amp; Device Staging Management</p>
         </td></tr>
       </table>
@@ -577,7 +662,7 @@ export async function sendIntroductionEmail(params: IntroductionEmailParams): Pr
         <!-- Header -->
         <tr><td style="background:linear-gradient(135deg,#0d1f35 0%,#0a2540 100%);padding:28px 40px;border-bottom:1px solid #1e3a5f;text-align:center;">
           <span style="font-size:28px;font-weight:800;background:linear-gradient(90deg,#39a7ff,#6ee7b7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:3px;">Layer One</span>
-          <p style="margin:4px 0 0;font-size:10px;color:#64748b;letter-spacing:2px;text-transform:uppercase;">NETWORK STAGING &amp; DEPLOYMENT SOLUTIONS</p>
+          <p style="margin:4px 0 0;font-size:10px;color:#64748b;letter-spacing:2px;text-transform:uppercase;">DEPLOYMENT STAGING &amp; WAREHOUSE SOLUTIONS</p>
         </td></tr>
         <!-- Body -->
         <tr><td style="padding:32px 40px;">
@@ -585,7 +670,7 @@ export async function sendIntroductionEmail(params: IntroductionEmailParams): Pr
         </td></tr>
         <!-- Footer -->
         <tr><td style="padding:20px 40px;border-top:1px solid #1e3a5f;text-align:center;">
-          <p style="margin:0;font-size:12px;color:#475569;">© ${new Date().getFullYear()} Network Staging &amp; Deployment Solutions (Layer One) · 1501 Randolph St, Carrollton, TX 75006</p>
+          <p style="margin:0;font-size:12px;color:#475569;">© ${new Date().getFullYear()} Layer One Staging · 1501 Randolph St, Carrollton, TX 75006</p>
           <p style="margin:4px 0 0;font-size:12px;color:#475569;">You are receiving this because Layer One identified your business as a potential fit for our services. To opt out, simply reply with "unsubscribe".</p>
         </td></tr>
       </table>
@@ -656,13 +741,13 @@ export async function sendDripEmail(params: DripEmailParams): Promise<boolean> {
       <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;background:#0d1f35;border-radius:12px;border:1px solid #1e3a5f;overflow:hidden;">
         <tr><td style="background:linear-gradient(135deg,#0d1f35 0%,#0a2540 100%);padding:28px 40px;border-bottom:1px solid #1e3a5f;text-align:center;">
           <span style="font-size:28px;font-weight:800;background:linear-gradient(90deg,#39a7ff,#6ee7b7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:3px;">Layer One</span>
-          <p style="margin:4px 0 0;font-size:10px;color:#64748b;letter-spacing:2px;text-transform:uppercase;">NETWORK STAGING &amp; DEPLOYMENT SOLUTIONS</p>
+          <p style="margin:4px 0 0;font-size:10px;color:#64748b;letter-spacing:2px;text-transform:uppercase;">DEPLOYMENT STAGING &amp; WAREHOUSE SOLUTIONS</p>
         </td></tr>
         <tr><td style="padding:32px 40px;">
           ${bodyHtml}
         </td></tr>
         <tr><td style="padding:20px 40px;border-top:1px solid #1e3a5f;text-align:center;">
-          <p style="margin:0;font-size:12px;color:#475569;">© ${new Date().getFullYear()} Network Staging &amp; Deployment Solutions (Layer One) · 1501 Randolph St, Carrollton, TX 75006</p>
+          <p style="margin:0;font-size:12px;color:#475569;">© ${new Date().getFullYear()} Layer One Staging · 1501 Randolph St, Carrollton, TX 75006</p>
           <p style="margin:4px 0 0;font-size:12px;color:#475569;">You are receiving this as part of an outreach sequence. Reply "unsubscribe" to opt out.</p>
         </td></tr>
       </table>
@@ -717,7 +802,7 @@ export async function sendDeliveryNotificationEmail(params: DeliveryNotification
       <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;background:#0d1f35;border-radius:12px;border:1px solid #1e3a5f;overflow:hidden;">
         <tr><td style="background:linear-gradient(135deg,#0d1f35,#0a2540);padding:28px 40px;border-bottom:1px solid #1e3a5f;text-align:center;">
           <span style="font-size:28px;font-weight:800;background:linear-gradient(90deg,#39a7ff,#6ee7b7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:3px;">Layer One</span>
-          <p style="margin:4px 0 0;font-size:10px;color:#64748b;letter-spacing:2px;text-transform:uppercase;">NETWORK STAGING &amp; DEPLOYMENT SOLUTIONS</p>
+          <p style="margin:4px 0 0;font-size:10px;color:#64748b;letter-spacing:2px;text-transform:uppercase;">DEPLOYMENT STAGING &amp; WAREHOUSE SOLUTIONS</p>
         </td></tr>
         <tr><td style="padding:32px 40px;">
           <h2 style="margin:0 0 8px;font-size:20px;color:#ffffff;">Delivery Received ✓</h2>
@@ -734,7 +819,7 @@ export async function sendDeliveryNotificationEmail(params: DeliveryNotification
           <p style="font-size:14px;color:#94a3b8;">Your items are now securely stored at our facility. Log in to your portal to view inventory details and track staging progress.</p>
         </td></tr>
         <tr><td style="padding:20px 40px;border-top:1px solid #1e3a5f;text-align:center;">
-          <p style="margin:0;font-size:12px;color:#475569;">© ${new Date().getFullYear()} Layer One · 1501 Randolph St, Carrollton, TX 75006 · <a href="mailto:support@nsds.io" style="color:#39a7ff;">support@nsds.io</a></p>
+          <p style="margin:0;font-size:12px;color:#475569;">© ${new Date().getFullYear()} Layer One · 1501 Randolph St, Carrollton, TX 75006 · <a href="mailto:info@layeronestaging.com" style="color:#39a7ff;">info@layeronestaging.com</a></p>
         </td></tr>
       </table>
     </td></tr>
@@ -921,7 +1006,7 @@ export async function sendQuoteEmail(params: QuoteEmailParams): Promise<boolean>
         <!-- Header -->
         <tr><td style="background:linear-gradient(135deg,#0d1f35 0%,#07111f 100%);padding:32px 40px;border-bottom:1px solid #1e3a5f;text-align:center;">
           <span style="font-size:28px;font-weight:800;background:linear-gradient(90deg,#39a7ff,#6ee7b7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:3px;">Layer One</span>
-          <p style="margin:4px 0 0;font-size:10px;color:#64748b;letter-spacing:2px;text-transform:uppercase;">NETWORK STAGING &amp; DEPLOYMENT SOLUTIONS</p>
+          <p style="margin:4px 0 0;font-size:10px;color:#64748b;letter-spacing:2px;text-transform:uppercase;">DEPLOYMENT STAGING &amp; WAREHOUSE SOLUTIONS</p>
         </td></tr>
 
         <!-- Body -->
@@ -987,7 +1072,7 @@ export async function sendQuoteEmail(params: QuoteEmailParams): Promise<boolean>
 
         <!-- Footer -->
         <tr><td style="padding:20px 40px;border-top:1px solid #1e3a5f;text-align:center;">
-          <p style="margin:0;font-size:12px;color:#475569;">© ${new Date().getFullYear()} Network Staging &amp; Deployment Solutions (Layer One) · 1501 Randolph St, Carrollton, TX 75006</p>
+          <p style="margin:0;font-size:12px;color:#475569;">© ${new Date().getFullYear()} Layer One Staging · 1501 Randolph St, Carrollton, TX 75006</p>
           <p style="margin:4px 0 0;font-size:12px;color:#475569;">Layer One Staging Solutions Portal — Warehouse &amp; Device Staging Management</p>
         </td></tr>
       </table>
@@ -1067,7 +1152,7 @@ export async function sendTrackingNotificationEmail(params: TrackingNotification
           </p>
         </td></tr>
         <tr><td style="padding:20px 40px;border-top:1px solid #1e3a5f;text-align:center;">
-          <p style="margin:0;font-size:12px;color:#475569;">© ${new Date().getFullYear()} Network Staging &amp; Deployment Solutions (Layer One) · 1501 Randolph St, Carrollton, TX 75006</p>
+          <p style="margin:0;font-size:12px;color:#475569;">© ${new Date().getFullYear()} Layer One Staging · 1501 Randolph St, Carrollton, TX 75006</p>
         </td></tr>
       </table>
     </td></tr>

@@ -10,6 +10,7 @@ export const ENV = {
   resendApiKey: process.env.RESEND_API_KEY ?? "",
   resendFromEmail: process.env.RESEND_FROM_EMAIL ?? "",
   portalUrl: process.env.PORTAL_URL ?? "https://stagingops-khmxpmyr.manus.space",
-  supportEmail: process.env.SUPPORT_EMAIL ?? "hello@nsds.com",
+  supportEmail: process.env.SUPPORT_EMAIL ?? "info@layeronestaging.com",
   supportPhone: process.env.SUPPORT_PHONE ?? "(800) 000-0000",
+  ownerNotifyEmail: process.env.OWNER_NOTIFY_EMAIL ?? "info@layeronestaging.com",
 };

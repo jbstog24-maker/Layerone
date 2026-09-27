@@ -1,7 +1,8 @@
 import { z } from "zod";
 import { publicProcedure, protectedProcedure, router } from "../_core/trpc";
 import { notifyOwner } from "../_core/notification";
-import { sendWelcomeEmail, sendQuoteEmail } from "../email";
+import { ENV } from "../_core/env";
+import { sendWelcomeEmail, sendQuoteEmail, sendInquiryOwnerEmail } from "../email";
 import {
   getDb,
   listInquiries,
@@ -91,6 +92,23 @@ export const inquiryRouter = router({
       await notifyOwner({
         title: `New Package Inquiry — ${tierLabel} (${input.company})`,
         content,
+      }).catch(() => {});
+
+      // Email the owner inbox directly (notifyOwner targets the Manus platform
+      // notification service, which is unavailable on self-hosted Render).
+      await sendInquiryOwnerEmail({
+        to: ENV.ownerNotifyEmail,
+        name: input.name,
+        company: input.company,
+        email: input.email,
+        phone: input.phone ?? null,
+        tierLabel,
+        deviceCount: input.deviceCount ?? null,
+        palletCount: input.palletCount ?? null,
+        boxCount: input.boxCount ?? null,
+        storageDays: input.storageDays ?? null,
+        addons: input.addons ?? [],
+        message: input.message ?? null,
       }).catch(() => {});
 
       // Send branded welcome email to the prospect
