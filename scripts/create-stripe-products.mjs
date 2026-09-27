@@ -51,35 +51,35 @@ const ADDON_PRODUCTS = [
     key: "extra_device",
     name: "Extra Device Storage (per device/month)",
     description: "Additional device stored beyond package limit. Billed per device per month.",
-    amountCents: 2500, // $25/device/mo (midpoint of $15–$35)
+    amountCents: 1800, // $18/device/mo (midpoint of $15–$25)
     mode: "payment",
   },
   {
     key: "extra_box",
     name: "Extra Parcel Received (per box)",
     description: "Additional parcel received beyond package limit. Includes intake logging, photos & project assignment.",
-    amountCents: 1750, // $17.50/box (midpoint of $10–$25)
+    amountCents: 750, // $7.50/box (midpoint of $5–$10)
     mode: "payment",
   },
   {
     key: "extra_pallet",
     name: "Extra Pallet (per pallet)",
     description: "Additional pallet beyond package limit. Rate depends on facility, size, handling & storage duration.",
-    amountCents: 17500, // $175/pallet (midpoint of $100–$250)
+    amountCents: 3000, // $30/pallet (midpoint of $25–$40)
     mode: "payment",
   },
   {
     key: "extended_storage",
     name: "Extended Storage (per item/day)",
     description: "Storage beyond included duration. After 14d Pilot · 30d Shelf/Bay · 45d Dedicated · 60d Rollout.",
-    amountCents: 1750, // $17.50/day (midpoint of $10–$25)
+    amountCents: 350, // $3.50/day (midpoint of $2–$5)
     mode: "payment",
   },
   {
     key: "extra_shipment",
     name: "Extra Outbound Shipment",
     description: "Outbound shipment coordination beyond package limit. Includes packing, labels, carrier handoff & documentation.",
-    amountCents: 5000, // $50/shipment (midpoint of $25–$75)
+    amountCents: 2500, // $25/shipment (midpoint of $20–$35)
     mode: "payment",
   },
   {

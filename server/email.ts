@@ -47,11 +47,11 @@ export type WelcomeEmailParams = {
 };
 
 const TIER_DETAILS: Record<string, { label: string; price: string; description: string }> = {
-  basic:        { label: "Basic",        price: "$499 one-time",    description: "Up to 50 devices, standard staging, 30-day storage" },
-  standard:     { label: "Standard",     price: "$750/month",       description: "Up to 150 devices, priority staging, 60-day storage" },
-  professional: { label: "Professional", price: "$1,500/month",     description: "Up to 500 devices, dedicated tech, 90-day storage" },
-  enterprise:   { label: "Enterprise",   price: "$3,500/month",     description: "Unlimited devices, 24/7 support, custom SLA" },
-  custom:       { label: "Custom",       price: "Contact us",       description: "Tailored solution for your unique requirements" },
+  basic:        { label: "Basic",        price: "$499 one-time",    description: "Up to 5 devices, 5 boxes received, 14-day project window" },
+  standard:     { label: "Standard",     price: "$750/month",       description: "Up to 10 devices, 10 boxes/month, 1 pallet/month, 30-day storage" },
+  professional: { label: "Professional", price: "$1,500/month",     description: "Up to 25 devices, 30 boxes/month, 3 pallets/month, 30-day storage" },
+  enterprise:   { label: "Enterprise",   price: "$3,500/month",     description: "Up to 75 devices, 75 boxes/month, 6 pallets/month, 45-day storage" },
+  custom:       { label: "Custom",       price: "Contact us",       description: "Up to 150 devices, 200 boxes/month, 20 pallets/month, 60-day storage" },
 };
 
 function buildWelcomeHtml(params: WelcomeEmailParams): string {

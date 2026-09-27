@@ -76,31 +76,31 @@ export const TIER_PRICING: Record<PackageTier, TierPricing> = {
 export const ADDON_PRICING = {
   extra_device: {
     name: "Extra Device Storage (per device/month)",
-    amountCents: 2500, // $25/device/mo
+    amountCents: 1800, // $18/device/mo
     stripeProductId: "prod_UlTpicu5U4krfg",
     stripePriceId: "price_1TlwrZBWI1iQIlucVz8fskrE",
   },
   extra_box: {
     name: "Extra Parcel Received (per box)",
-    amountCents: 1750, // $17.50/box
+    amountCents: 750, // $7.50/box
     stripeProductId: "prod_UlTpa5jrrPSxFr",
     stripePriceId: "price_1TlwrZBWI1iQIlucIZNS9ESt",
   },
   extra_pallet: {
     name: "Extra Pallet (per pallet)",
-    amountCents: 17500, // $175/pallet
+    amountCents: 3000, // $30/pallet
     stripeProductId: "prod_UlTp8cPV1b8vkK",
     stripePriceId: "price_1TlwraBWI1iQIlucfnlVRJaU",
   },
   extended_storage: {
     name: "Extended Storage (per item/day)",
-    amountCents: 1750, // $17.50/day
+    amountCents: 350, // $3.50/day
     stripeProductId: "prod_UlTpPSAbKJVS8b",
     stripePriceId: "price_1TlwraBWI1iQIlucFGry61iY",
   },
   extra_shipment: {
     name: "Extra Outbound Shipment",
-    amountCents: 5000, // $50/shipment
+    amountCents: 2500, // $25/shipment
     stripeProductId: "prod_UlTpknojKw5ViG",
     stripePriceId: "price_1TlwraBWI1iQIlucrYXziXCj",
   },
@@ -134,14 +134,14 @@ export type AddonKey = keyof typeof ADDON_PRICING;
 
 /** Legacy add-on rates kept for backward compatibility with invoice line-item calculations */
 export const ADDON_RATES = {
-  extraDevicePerMonth: 2500,       // $25/device/mo
-  extraBoxPerMonth: 1750,          // $17.50/box
-  extraPalletPerMonth: 17500,      // $175/pallet
-  extraStorageDayPerBox: 1750,     // $17.50/day
+  extraDevicePerMonth: 1800,       // $18/device/mo
+  extraBoxPerMonth: 750,           // $7.50/box
+  extraPalletPerMonth: 3000,        // $30/pallet
+  extraStorageDayPerBox: 350,        // $3.50/day
   laborHourStandard: 11000,        // $110/hr
   laborHourRush: 15500,            // $155/hr
   rushFeeFlat: 15000,              // $150 flat rush fee
-  inboundReceivingPerPallet: 2500, // $25/pallet
-  outboundShippingPerPallet: 5000, // $50/shipment
+  inboundReceivingPerPallet: 1200, // $12/pallet
+  outboundShippingPerPallet: 2500, // $25/shipment
   photoDocumentationFlat: 5000,    // $50 flat
 };

@@ -378,13 +378,13 @@ function Packages() {
 
 function AddOns() {
   const addons = [
-    { item: "Extra device stored", rate: "$15–$35/device/mo", note: "When stored device count exceeds package limit" },
-    { item: "Extra parcel received", rate: "$10–$25/box", note: "Includes intake logging, photos & project assignment" },
-    { item: "Extra pallet", rate: "$100–$250/pallet", note: "Rate depends on facility, size, handling & storage duration" },
-    { item: "Extended storage", rate: "$10–$25/day", note: "After included duration: 14d Pilot · 30d Shelf/Bay · 45d Dedicated · 60d Rollout" },
-    { item: "Extra outbound shipment", rate: "$25–$75/shipment", note: "Packing coordination, labels, carrier handoff & documentation" },
+    { item: "Extra device stored", rate: "$15–$25/device/mo", note: "When stored device count exceeds package limit" },
+    { item: "Extra parcel received", rate: "$5–$10/box", note: "Includes intake logging, photos & project assignment" },
+    { item: "Extra pallet", rate: "$25–$40/pallet", note: "Rate depends on facility, size, handling & storage duration" },
+    { item: "Extended storage", rate: "$2–$5/day", note: "After included duration: 14d Pilot · 30d Shelf/Bay · 45d Dedicated · 60d Rollout" },
+    { item: "Extra outbound shipment", rate: "$20–$35/shipment", note: "Packing coordination, labels, carrier handoff & documentation" },
     { item: "Inventory & asset capture", rate: "$15/device", note: "Model, serial, MAC address, asset photo & inventory log" },
-    { item: "Site-kit assembly", rate: "$250+/site kit", note: "Devices, patch cables, labels, packing list & install notes" },
+    { item: "Site-kit assembly", rate: "$250+/site kit", note: "Up to 2 hrs staging labor, QA checklist & photo docs — devices, patch cables, labels, packing list & install notes" },
     { item: "Layer One staging technician", rate: "$95–$125/hr", note: "Labeling, firmware checks, packing, site-kit prep & approved staging tasks" },
     { item: "Senior network technician", rate: "$135–$175/hr", note: "Switch, firewall, VLAN, VPN, IP plan & deployment readiness review" },
     { item: "Rush / weekend / after-hours", rate: "1.5×–2× rate", note: "Minimum labor block may apply" },

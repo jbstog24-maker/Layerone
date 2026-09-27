@@ -79,14 +79,14 @@ export const TIER_PRICING: Record<PackageTier, TierPricing> = {
 
 /** Add-on rates for quote line items (in cents) */
 export const ADDON_RATES = {
-  extraDevicePerMonth: 1500,       // $15/device/mo
-  extraBoxPerMonth: 500,            // $5/box/mo
-  extraPalletPerMonth: 2500,        // $25/pallet/mo
-  extraStorageDayPerBox: 100,       // $1/box/day
-  laborHourStandard: 7500,          // $75/hr
-  laborHourRush: 12500,             // $125/hr
+  extraDevicePerMonth: 1800,       // $18/device/mo
+  extraBoxPerMonth: 750,            // $7.50/box/mo
+  extraPalletPerMonth: 3000,        // $30/pallet/mo
+  extraStorageDayPerBox: 350,       // $3.50/box/day
+  laborHourStandard: 11000,         // $110/hr
+  laborHourRush: 15500,            // $155/hr
   rushFeeFlat: 15000,               // $150 flat rush fee
-  inboundReceivingPerPallet: 2500,  // $25/pallet
-  outboundShippingPerPallet: 3500,  // $35/pallet
+  inboundReceivingPerPallet: 1200,  // $12/pallet
+  outboundShippingPerPallet: 2500,  // $25/shipment
   photoDocumentationFlat: 5000,     // $50 flat
 };
