@@ -41,6 +41,8 @@ import { PalletDetail } from "./pages/Pallets";
 import GetStarted from "./pages/GetStarted";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import SignMsa from "./pages/SignMsa";
+import Onboarding from "./pages/Onboarding";
 
 function Router() {
   return (
@@ -49,6 +51,7 @@ function Router() {
       <Route path="/get-started" component={GetStarted} />
       <Route path="/login" component={Login} />
       <Route path="/register" component={Register} />
+      <Route path="/sign/:token" component={SignMsa} />
       <Route path="/dashboard" component={Home} />
 
       {/* Clients */}
@@ -91,6 +94,7 @@ function Router() {
       <Route path="/activity" component={ActivityLog} />
       <Route path="/users" component={Users} />
       <Route path="/inquiries" component={Inquiries} />
+      <Route path="/onboarding" component={Onboarding} />
       <Route path="/messages" component={Messages} />
       <Route path="/support-messages" component={SupportMessages} />
       <Route path="/my-devices" component={MyDevices} />

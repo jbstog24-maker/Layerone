@@ -26,6 +26,9 @@ import {
   usersRouter,
 } from "./routers/misc";
 import { inquiryRouter } from "./routers/inquiry";
+import { msaRouter } from "./routers/msa";
+import { quotesRouter } from "./routers/quotes";
+import { onboardingRouter } from "./routers/onboarding";
 import { documentsRouter } from "./routers/documents";
 import { messagesRouter } from "./routers/messages";
 import { forwardingRouter } from "./routers/forwarding";
@@ -180,6 +183,9 @@ export const appRouter = router({
   dashboard: dashboardRouter,
   users: usersRouter,
   inquiry: inquiryRouter,
+  msa: msaRouter,
+  quotes: quotesRouter,
+  onboarding: onboardingRouter,
   documents: documentsRouter,
   messages: messagesRouter,
   forwarding: forwardingRouter,

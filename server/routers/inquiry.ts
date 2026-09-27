@@ -7,7 +7,9 @@ import {
   getDb,
   listInquiries,
   getInquiry,
+  getInquiryById,
   updateInquiryStatus,
+  updateInquiryStatusById,
   deleteInquiry,
   countNewInquiries,
   listInquiryQuotes,
@@ -15,6 +17,7 @@ import {
   updateInquiryQuote,
   deleteInquiryQuote,
 } from "../db";
+import { buildDraftQuote } from "../quoting";
 import { packageInquiries } from "../../drizzle/schema";
 import { TRPCError } from "@trpc/server";
 import Stripe from "stripe";
@@ -57,8 +60,9 @@ export const inquiryRouter = router({
     }))
     .mutation(async ({ input }) => {
       const db = await getDb();
+      let inquiryId: number | null = null;
       if (db) {
-        await db.insert(packageInquiries).values({
+        const result = await db.insert(packageInquiries).values({
           name: input.name,
           company: input.company,
           email: input.email,
@@ -72,6 +76,21 @@ export const inquiryRouter = router({
           addons: input.addons ? JSON.stringify(input.addons) : null,
           message: input.message ?? null,
         });
+        inquiryId = (result[0] as any)?.insertId ?? null;
+      }
+
+      // Autonomous quoting pipeline: auto-build a draft quote for rep review.
+      // Wrapped so it can never fail the public submit.
+      if (db && inquiryId) {
+        try {
+          const inquiryRow = await getInquiryById(inquiryId);
+          if (inquiryRow) {
+            await buildDraftQuote(db, inquiryRow);
+            await updateInquiryStatusById(inquiryId, "needs_review");
+          }
+        } catch (err) {
+          console.error("[Quote] Failed to auto-build draft quote:", err);
+        }
       }
 
       const tierLabel = input.tier.charAt(0).toUpperCase() + input.tier.slice(1);

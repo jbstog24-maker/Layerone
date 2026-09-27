@@ -54,13 +54,18 @@ import {
   Layers,
   Box,
   ExternalLink,
+  PenLine,
+  Copy,
 } from "lucide-react";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { toast } from "sonner";
 import { ADDON_RATES, TIER_PRICING } from "@/lib/pricingConstants";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
-type InquiryStatus = "new" | "contacted" | "quote_sent" | "closed";
+type InquiryStatus = "new" | "contacted" | "quote_sent" | "proposal_sent" | "msa_signed" | "closed";
+// Statuses the staff UI can filter/set (server inquiry.list/updateStatus only
+// accept these; proposal_sent/msa_signed are set by the autonomous flow).
+type InquiryStatusFilter = "new" | "contacted" | "quote_sent" | "closed";
 
 type Inquiry = {
   id: number;
@@ -92,10 +97,37 @@ type Quote = {
   notes: string | null;
   stripePaymentLinkId: string | null;
   stripePaymentLinkUrl: string | null;
+  msaStatus: "pending" | "signed" | "waived" | null;
+  msaDocumentId: number | null;
   status: "draft" | "sent" | "paid" | "cancelled";
   sentAt: Date | null;
   createdAt: Date;
 };
+
+function MsaChip({ status }: { status: Quote["msaStatus"] }) {
+  if (!status) return null;
+  const cfg =
+    status === "signed"
+      ? "bg-emerald-500/15 text-emerald-300 border-emerald-500/30"
+      : status === "waived"
+        ? "bg-slate-500/15 text-slate-400 border-slate-500/30"
+        : "bg-amber-500/15 text-amber-300 border-amber-500/30";
+  const label =
+    status === "signed" ? "MSA signed" : status === "waived" ? "MSA waived" : "MSA pending";
+  return (
+    <span className={`text-xs font-medium px-1.5 py-0.5 rounded border inline-flex items-center gap-1 ${cfg}`}>
+      <PenLine className="w-3 h-3" />
+      {label}
+    </span>
+  );
+}
+
+function copyLink(text: string, label: string) {
+  navigator.clipboard
+    .writeText(text)
+    .then(() => toast.success(`${label} copied to clipboard`))
+    .catch(() => toast.error("Copy failed"));
+}
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const TIER_LABELS: Record<string, string> = {
@@ -118,6 +150,8 @@ const STATUS_CONFIG: Record<InquiryStatus, { label: string; icon: any; color: st
   new: { label: "New", icon: Clock, color: "bg-[#0A84FF]/15 text-[#0A84FF] border-[#0A84FF]/30" },
   contacted: { label: "Contacted", icon: CheckCircle2, color: "bg-amber-500/15 text-amber-300 border-amber-500/30" },
   quote_sent: { label: "Quote Sent", icon: FileText, color: "bg-violet-500/15 text-violet-300 border-violet-500/30" },
+  proposal_sent: { label: "Proposal Sent", icon: Send, color: "bg-cyan-500/15 text-cyan-300 border-cyan-500/30" },
+  msa_signed: { label: "MSA Signed", icon: PenLine, color: "bg-emerald-500/15 text-emerald-300 border-emerald-500/30" },
   closed: { label: "Closed", icon: XCircle, color: "bg-slate-500/15 text-slate-400 border-slate-500/30" },
 };
 
@@ -497,17 +531,34 @@ function InquiryDetailDialog({
 }: {
   inquiry: Inquiry | null;
   onClose: () => void;
-  onStatusChange: (id: number, status: InquiryStatus) => void;
+  onStatusChange: (id: number, status: InquiryStatusFilter) => void;
   onDelete: (id: number) => void;
   onBuildQuote: (inquiry: Inquiry) => void;
   isAdmin: boolean;
 }) {
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [approvedLinks, setApprovedLinks] = useState<{ msaUrl: string; payUrl: string } | null>(null);
+  const utils = trpc.useUtils();
 
   const { data: quotes = [] } = trpc.inquiry.listQuotes.useQuery(
     { inquiryId: inquiry?.id ?? 0 },
     { enabled: !!inquiry }
   );
+
+  // Reset any just-generated links when a different inquiry is opened.
+  useEffect(() => {
+    setApprovedLinks(null);
+  }, [inquiry?.id]);
+
+  const approveAndSend = trpc.quotes.approveAndSend.useMutation({
+    onSuccess: (data) => {
+      setApprovedLinks({ msaUrl: data.msaUrl, payUrl: data.payUrl });
+      utils.inquiry.listQuotes.invalidate({ inquiryId: inquiry!.id });
+      utils.inquiry.list.invalidate();
+      toast.success("Proposal sent — MSA + payment link emailed to the customer");
+    },
+    onError: (err) => toast.error(err.message || "Failed to approve quote"),
+  });
 
   if (!inquiry) return null;
 
@@ -632,26 +683,76 @@ function InquiryDetailDialog({
                 <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Quotes</p>
                 <div className="space-y-2">
                   {(quotes as Quote[]).map(q => (
-                    <div key={q.id} className="rounded-lg border border-white/8 bg-white/3 px-3 py-2.5 flex items-center justify-between gap-2">
-                      <div>
-                        <span className={`text-xs font-medium px-1.5 py-0.5 rounded border ${
-                          q.status === "sent" ? "bg-violet-500/15 text-violet-300 border-violet-500/30" :
-                          q.status === "paid" ? "bg-emerald-500/15 text-emerald-300 border-emerald-500/30" :
-                          q.status === "cancelled" ? "bg-red-500/15 text-red-300 border-red-500/30" :
-                          "bg-slate-500/15 text-slate-400 border-slate-500/30"
-                        }`}>{q.status}</span>
-                        <span className="text-sm font-bold text-[#6ee7b7] ml-2">${parseFloat(q.totalAmount).toFixed(2)}</span>
-                        <span className="text-xs text-slate-500 ml-2">{new Date(q.createdAt).toLocaleDateString()}</span>
+                    <div key={q.id} className="rounded-lg border border-white/8 bg-white/3 px-3 py-2.5">
+                      <div className="flex items-center justify-between gap-2 flex-wrap">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className={`text-xs font-medium px-1.5 py-0.5 rounded border ${
+                            q.status === "sent" ? "bg-violet-500/15 text-violet-300 border-violet-500/30" :
+                            q.status === "paid" ? "bg-emerald-500/15 text-emerald-300 border-emerald-500/30" :
+                            q.status === "cancelled" ? "bg-red-500/15 text-red-300 border-red-500/30" :
+                            "bg-slate-500/15 text-slate-400 border-slate-500/30"
+                          }`}>{q.status}</span>
+                          {q.status !== "draft" && <MsaChip status={q.msaStatus} />}
+                          <span className="text-sm font-bold text-[#6ee7b7]">${parseFloat(q.totalAmount).toFixed(2)}</span>
+                          <span className="text-xs text-slate-500">{new Date(q.createdAt).toLocaleDateString()}</span>
+                        </div>
+                        {q.status === "draft" ? (
+                          <Button
+                            size="sm"
+                            className="bg-gradient-to-r from-[#0A84FF] to-[#6ee7b7] text-[#06111f] font-semibold h-7 text-xs"
+                            disabled={approveAndSend.isPending}
+                            onClick={() => approveAndSend.mutate({ quoteId: q.id })}
+                          >
+                            <Send className="w-3 h-3 mr-1" />
+                            {approveAndSend.isPending ? "Sending…" : "Approve & Send"}
+                          </Button>
+                        ) : (
+                          q.stripePaymentLinkUrl && (
+                            <a href={q.stripePaymentLinkUrl} target="_blank" rel="noopener noreferrer"
+                              className="text-xs text-[#0A84FF] hover:underline flex items-center gap-1">
+                              <ExternalLink className="w-3 h-3" /> Payment Link
+                            </a>
+                          )
+                        )}
                       </div>
-                      {q.stripePaymentLinkUrl && (
-                        <a href={q.stripePaymentLinkUrl} target="_blank" rel="noopener noreferrer"
-                          className="text-xs text-[#0A84FF] hover:underline flex items-center gap-1">
-                          <ExternalLink className="w-3 h-3" /> Payment Link
-                        </a>
+                      {q.status === "draft" && (
+                        <p className="text-[11px] text-slate-500 mt-1.5">
+                          Approving creates the Stripe payment link, mints the MSA, and emails the proposal to the customer.
+                        </p>
                       )}
                     </div>
                   ))}
                 </div>
+              </div>
+            )}
+
+            {/* Customer-facing links generated by Approve & Send */}
+            {approvedLinks && (
+              <div className="rounded-xl border border-[#6ee7b7]/25 bg-[#6ee7b7]/5 p-4 space-y-3">
+                <p className="text-xs font-semibold text-[#6ee7b7] uppercase tracking-wider flex items-center gap-1.5">
+                  <CheckCircle2 className="w-3.5 h-3.5" /> Proposal sent — customer links
+                </p>
+                {[
+                  { label: "Sign MSA", url: approvedLinks.msaUrl },
+                  { label: "Pay", url: approvedLinks.payUrl },
+                ].map(row => (
+                  <div key={row.label} className="flex items-center gap-2">
+                    <span className="text-xs font-medium text-slate-400 w-16 shrink-0">{row.label}</span>
+                    <input
+                      readOnly
+                      value={row.url}
+                      onClick={e => (e.target as HTMLInputElement).select()}
+                      className="flex-1 min-w-0 px-2.5 py-1.5 rounded-lg bg-white/5 border border-white/10 text-xs text-slate-300 truncate focus:outline-none"
+                    />
+                    <button
+                      onClick={() => copyLink(row.url, row.label)}
+                      className="p-1.5 rounded-lg text-slate-400 hover:text-[#6ee7b7] hover:bg-[#6ee7b7]/10 transition-colors shrink-0"
+                      title={`Copy ${row.label} link`}
+                    >
+                      <Copy className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                ))}
               </div>
             )}
           </div>
@@ -718,7 +819,7 @@ export default function Inquiries() {
   const isAdmin = user?.role === "admin";
 
   const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState<"all" | InquiryStatus>("all");
+  const [statusFilter, setStatusFilter] = useState<"all" | InquiryStatusFilter>("all");
   const [tierFilter, setTierFilter] = useState<"all" | "basic" | "standard" | "professional" | "enterprise" | "custom">("all");
   const [selected, setSelected] = useState<Inquiry | null>(null);
   const [quoteTarget, setQuoteTarget] = useState<Inquiry | null>(null);

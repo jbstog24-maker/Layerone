@@ -8,6 +8,7 @@ import { appRouter } from "../routers";
 import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
 import { registerStripeRoutes } from "../stripe";
+import { runOnceMigration } from "../migrate-once";
 import {
   handleMonthlyInvoices,
   handleDripAutoSend,
@@ -61,6 +62,8 @@ async function findAvailablePort(startPort: number = 3000): Promise<number> {
 async function startServer() {
   const app = express();
   const server = createServer(app);
+  // One-time additive DB migration (only runs when RUN_ONCE_MIGRATION=1). Never throws.
+  await runOnceMigration();
   // Register Stripe webhook BEFORE express.json() so raw body is available for signature verification
   registerStripeRoutes(app);
   // Configure body parser with larger size limit for file uploads

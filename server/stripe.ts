@@ -1,8 +1,11 @@
 import express, { type Express, type Request, type Response } from "express";
 import Stripe from "stripe";
-import { getClient, updateClient, logActivity } from "./db";
+import { eq } from "drizzle-orm";
+import { getClient, getDb, updateClient, logActivity } from "./db";
 import { notifyOwner } from "./_core/notification";
 import { TIER_PRICING, type PackageTier } from "./stripe-products";
+import { packageInquiries, quotes } from "../drizzle/schema";
+import { sendOwnerEmail } from "./onboarding";
 
 function getStripe(): Stripe | null {
   const key = process.env.STRIPE_SECRET_KEY;
@@ -89,6 +92,83 @@ export function registerStripeRoutes(app: Express) {
                 title: `💳 Payment Received: ${updatedClient?.companyName ?? "Client"}`,
                 content: `Payment confirmed for ${updatedClient?.companyName ?? "a client"}.\n\nStripe Customer ID: ${stripeCustomerId ?? "N/A"}\nSubscription ID: ${subscriptionId ?? "N/A"}\nGo-Live Date: ${goLive}\n\nNext Steps:\n• Assign warehouse space if not yet done\n• Confirm tech assignments\n• Send warehouse details to client`,
               });
+            }
+
+            // ── Quote/inquiry payment flow (staging packages) ──────────────
+            // Runs after the legacy client flow above. Wrapped in try/catch so
+            // the webhook still returns 200 even if this flow fails.
+            try {
+              const inquiryId = session.metadata?.inquiry_id
+                ? parseInt(session.metadata.inquiry_id, 10)
+                : null;
+              const quoteId = session.metadata?.quote_id
+                ? parseInt(session.metadata.quote_id, 10)
+                : null;
+
+              if (inquiryId && quoteId) {
+                const db = await getDb();
+                if (db) {
+                  await db
+                    .update(quotes)
+                    .set({
+                      status: "paid",
+                      paidAt: new Date(),
+                      stripeCheckoutSessionId: session.id,
+                    })
+                    .where(eq(quotes.id, quoteId));
+
+                  await db
+                    .update(packageInquiries)
+                    .set({ status: "paid" })
+                    .where(eq(packageInquiries.id, inquiryId));
+
+                  const [quote] = await db
+                    .select()
+                    .from(quotes)
+                    .where(eq(quotes.id, quoteId));
+                  const [inquiry] = await db
+                    .select()
+                    .from(packageInquiries)
+                    .where(eq(packageInquiries.id, inquiryId));
+
+                  const amount =
+                    session.amount_total != null
+                      ? `$${(session.amount_total / 100).toLocaleString("en-US", {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })}`
+                      : "N/A";
+                  const msaNote =
+                    quote?.msaStatus === "signed"
+                      ? "MSA signed ✅"
+                      : "awaiting MSA signature";
+
+                  await sendOwnerEmail({
+                    subject: `💳 Payment received — ${inquiry?.company ?? "unknown company"}`,
+                    title: "Payment Received",
+                    contentHtml: `
+                      <p style="font-size:15px;color:#e2e8f0;margin:0 0 16px;">Payment of <strong style="color:#6ee7b7;">${amount}</strong> received for <strong>${inquiry?.company ?? "unknown company"}</strong>.</p>
+                      <table width="100%" cellpadding="0" cellspacing="0" style="background:#0a1929;border-radius:8px;border:1px solid #1e3a5f;margin-bottom:20px;">
+                        <tr><td style="padding:8px 12px;font-size:13px;color:#64748b;width:38%;">Quote</td><td style="padding:8px 12px;font-size:14px;color:#e2e8f0;">#${quoteId} — ${amount}</td></tr>
+                        <tr><td style="padding:8px 12px;font-size:13px;color:#64748b;">MSA status</td><td style="padding:8px 12px;font-size:14px;color:#e2e8f0;">${msaNote}</td></tr>
+                        <tr><td style="padding:8px 12px;font-size:13px;color:#64748b;">Stripe session</td><td style="padding:8px 12px;font-size:14px;color:#e2e8f0;">${session.id}</td></tr>
+                      </table>
+                      <p style="font-size:13px;color:#64748b;margin:0;">${quote?.msaStatus === "signed" ? "Both payment and MSA are complete — the onboarding checklist will be opened automatically." : "Onboarding will open automatically once the MSA is signed."}</p>`,
+                  });
+
+                  try {
+                    const { checkAndTriggerHandoff } = await import("./onboarding");
+                    await checkAndTriggerHandoff(inquiryId);
+                  } catch (err) {
+                    console.error(
+                      "[Stripe Webhook] checkAndTriggerHandoff failed:",
+                      err
+                    );
+                  }
+                }
+              }
+            } catch (err) {
+              console.error("[Stripe Webhook] Quote payment flow failed:", err);
             }
             break;
           }

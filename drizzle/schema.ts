@@ -3,6 +3,7 @@ import {
   mysqlEnum,
   mysqlTable,
   text,
+  mediumtext,
   timestamp,
   varchar,
   decimal,
@@ -544,7 +545,19 @@ export const packageInquiries = mysqlTable("package_inquiries", {
   storageDays: int("storageDays"),
   addons: text("addons"), // JSON array of selected add-on keys
   message: text("message"),
-  status: mysqlEnum("status", ["new", "contacted", "quote_sent", "closed"])
+  status: mysqlEnum("status", [
+    "new",
+    "needs_review",
+    "contacted",
+    "proposal_sent",
+    "quote_sent",
+    "msa_signed",
+    "paid",
+    "onboarding",
+    "won",
+    "lost",
+    "closed",
+  ])
     .default("new")
     .notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
@@ -572,6 +585,12 @@ export const quotes = mysqlTable("quotes", {
   status: mysqlEnum("status", ["draft", "sent", "paid", "cancelled"])
     .default("draft")
     .notNull(),
+  // Autonomous quoting pipeline
+  msaStatus: mysqlEnum("msaStatus", ["pending", "signed", "waived"])
+    .default("pending")
+    .notNull(),
+  stripeCheckoutSessionId: varchar("stripeCheckoutSessionId", { length: 255 }),
+  msaDocumentId: int("msaDocumentId"),
   sentAt: timestamp("sentAt"),
   paidAt: timestamp("paidAt"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
@@ -973,3 +992,59 @@ export const clientInstructionFiles = mysqlTable("client_instruction_files", {
 export type ClientInstructionFile = typeof clientInstructionFiles.$inferSelect;
 export type InsertClientInstructionFile =
   typeof clientInstructionFiles.$inferInsert;
+
+// ─── MSA Documents (signing links for the autonomous quoting pipeline) ───────
+export const msaDocuments = mysqlTable("msa_documents", {
+  id: int("id").autoincrement().primaryKey(),
+  inquiryId: int("inquiryId").notNull(),
+  quoteId: int("quoteId").notNull(),
+  token: varchar("token", { length: 64 }).notNull().unique(),
+  tokenExpiresAt: timestamp("tokenExpiresAt").notNull(),
+  htmlSnapshot: mediumtext("htmlSnapshot").notNull(),
+  status: mysqlEnum("status", ["pending", "signed", "expired"])
+    .default("pending")
+    .notNull(),
+  signedByName: varchar("signedByName", { length: 120 }),
+  signerTitle: varchar("signerTitle", { length: 120 }),
+  signedAt: timestamp("signedAt"),
+  signatureIp: varchar("signatureIp", { length: 45 }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type MsaDocument = typeof msaDocuments.$inferSelect;
+export type InsertMsaDocument = typeof msaDocuments.$inferInsert;
+
+// ─── Onboarding Checklists ────────────────────────────────────────────────────
+export const onboardingChecklists = mysqlTable("onboarding_checklists", {
+  id: int("id").autoincrement().primaryKey(),
+  inquiryId: int("inquiryId").notNull().unique(),
+  clientId: int("clientId"),
+  template: varchar("template", { length: 60 }).default("standard").notNull(),
+  status: mysqlEnum("status", ["open", "in_progress", "complete"])
+    .default("open")
+    .notNull(),
+  unitAssignment: text("unitAssignment"), // JSON: assigned warehouse unit / bay details
+  notes: text("notes"),
+  completedAt: timestamp("completedAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type OnboardingChecklist = typeof onboardingChecklists.$inferSelect;
+export type InsertOnboardingChecklist =
+  typeof onboardingChecklists.$inferInsert;
+
+// ─── Onboarding Tasks ─────────────────────────────────────────────────────────
+export const onboardingTasks = mysqlTable("onboarding_tasks", {
+  id: int("id").autoincrement().primaryKey(),
+  checklistId: int("checklistId").notNull(),
+  label: varchar("label", { length: 255 }).notNull(),
+  detail: text("detail"),
+  sortOrder: int("sortOrder").default(0).notNull(),
+  completedAt: timestamp("completedAt"),
+  completedBy: varchar("completedBy", { length: 120 }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type OnboardingTask = typeof onboardingTasks.$inferSelect;
+export type InsertOnboardingTask = typeof onboardingTasks.$inferInsert;

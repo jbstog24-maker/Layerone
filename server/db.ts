@@ -2021,3 +2021,57 @@ export async function deleteInstructionFile(id: number, clientId: number) {
       )
     );
 }
+
+// ─── Quote records (autonomous quoting pipeline) ─────────────────────────────
+export async function createQuoteRecord(
+  data: InsertQuote
+): Promise<{ id: number }> {
+  const db = await getDb();
+  if (!db) throw new Error("DB unavailable");
+  const result = await db.insert(quotes).values(data);
+  return { id: (result[0] as any).insertId as number };
+}
+
+export async function getQuoteByInquiry(
+  inquiryId: number
+): Promise<Quote | undefined> {
+  const db = await getDb();
+  if (!db) return undefined;
+  const [row] = await db
+    .select()
+    .from(quotes)
+    .where(eq(quotes.inquiryId, inquiryId))
+    .orderBy(desc(quotes.createdAt))
+    .limit(1);
+  return row;
+}
+
+export async function updateQuoteById(
+  id: number,
+  patch: Partial<InsertQuote>
+): Promise<void> {
+  const db = await getDb();
+  if (!db) throw new Error("DB unavailable");
+  await db.update(quotes).set(patch).where(eq(quotes.id, id));
+}
+
+export async function getInquiryById(
+  id: number
+): Promise<PackageInquiry | undefined> {
+  const db = await getDb();
+  if (!db) return undefined;
+  const [row] = await db
+    .select()
+    .from(packageInquiries)
+    .where(eq(packageInquiries.id, id));
+  return row;
+}
+
+export async function updateInquiryStatusById(
+  id: number,
+  status: PackageInquiry["status"]
+): Promise<void> {
+  const db = await getDb();
+  if (!db) throw new Error("DB unavailable");
+  await db.update(packageInquiries).set({ status }).where(eq(packageInquiries.id, id));
+}
