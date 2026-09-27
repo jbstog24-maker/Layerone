@@ -457,16 +457,107 @@ function Packages() {
 
 function AddOns() {
   const addons = [
-    { item: "Extra device stored", rate: "$15–$25/device/mo", note: "When stored device count exceeds package limit" },
-    { item: "Extra parcel received", rate: "$5–$10/box", note: "Includes intake logging, photos & project assignment" },
-    { item: "Extra pallet", rate: "$25–$40/pallet", note: "Rate depends on facility, size, handling & storage duration" },
-    { item: "Extended storage", rate: "$2–$5/day", note: "After included duration: 14d Pilot · 30d Shelf/Bay · 45d Dedicated · 60d Rollout" },
-    { item: "Extra outbound shipment", rate: "$20–$35/shipment", note: "Packing coordination, labels, carrier handoff & documentation" },
-    { item: "Inventory & asset capture", rate: "$15/device", note: "Model, serial, MAC address, asset photo & inventory log" },
-    { item: "Site-kit assembly", rate: "$250+/site kit", note: "Up to 2 hrs staging labor, QA checklist & photo docs — devices, patch cables, labels, packing list & install notes" },
-    { item: "Layer One staging technician", rate: "$95–$125/hr", note: "Labeling, firmware checks, packing, site-kit prep & approved staging tasks" },
-    { item: "Senior network technician", rate: "$135–$175/hr", note: "Switch, firewall, VLAN, VPN, IP plan & deployment readiness review" },
-    { item: "Rush / weekend / after-hours", rate: "1.5×–2× rate", note: "Minimum labor block may apply" },
+    {
+      item: "Extra device stored",
+      rate: "$15–$25/device/mo",
+      note: "When stored device count exceeds package limit",
+      points: [
+        "Applies when your stored device count goes over your package's included limit.",
+        "Secure, inventoried storage with full visibility in your client portal.",
+        "Billed monthly per device — only for devices above your included limit.",
+      ],
+    },
+    {
+      item: "Extra parcel received",
+      rate: "$5–$10/box",
+      note: "Includes intake logging, photos & project assignment",
+      points: [
+        "Applies to inbound parcels beyond your package's included allowance.",
+        "Receiving inspection, photo documentation, portal logging, and assignment to your project.",
+        "Billed per box received.",
+      ],
+    },
+    {
+      item: "Extra pallet",
+      rate: "$25–$40/pallet",
+      note: "Rate depends on facility, size, handling & storage duration",
+      points: [
+        "Applies to pallets received or stored beyond your included allowance.",
+        "Forklift receiving, inspection, and secure floor or rack storage.",
+        "Billed per pallet — final rate depends on facility, size, handling, and duration.",
+      ],
+    },
+    {
+      item: "Extended storage",
+      rate: "$2–$5/day",
+      note: "After included duration: 14d Pilot · 30d Shelf/Bay · 45d Dedicated · 60d Rollout",
+      points: [
+        "Applies when gear stays in storage past your package's included window: 14 days (Pilot), 30 days (Shelf/Bay), 45 days (Dedicated), 60 days (Rollout).",
+        "Keeps your equipment secure and inventoried while you finalize deployment dates.",
+        "Billed per day until the gear ships or the project closes.",
+      ],
+    },
+    {
+      item: "Extra outbound shipment",
+      rate: "$20–$35/shipment",
+      note: "Packing coordination, labels, carrier handoff & documentation",
+      points: [
+        "Applies to outbound shipments beyond your package's included allowance.",
+        "Packing coordination, shipping labels, carrier handoff, and shipment documentation.",
+        "Billed per shipment.",
+      ],
+    },
+    {
+      item: "Inventory & asset capture",
+      rate: "$15/device",
+      note: "Model, serial, MAC address, asset photo & inventory log",
+      points: [
+        "Per-device service available on any package.",
+        "Captures model, serial number, MAC address, asset photo, and inventory log entry.",
+        "Billed once per device.",
+      ],
+    },
+    {
+      item: "Site-kit assembly",
+      rate: "$250+/site kit",
+      note: "Up to 2 hrs staging labor, QA checklist & photo docs — devices, patch cables, labels, packing list & install notes",
+      points: [
+        "Fixed-price kit build for a single site deployment.",
+        "Up to 2 hours of staging labor, QA checklist, and photo documentation.",
+        "Includes devices, patch cables, labels, packing list, and install notes.",
+        "Billed per site kit.",
+      ],
+    },
+    {
+      item: "Layer One staging technician",
+      rate: "$95–$125/hr",
+      note: "Labeling, firmware checks, packing, site-kit prep & approved staging tasks",
+      points: [
+        "Hands-on staging labor: labeling, firmware checks, packing, site-kit prep, and other approved staging tasks.",
+        "Work is approved by you before it starts.",
+        "Billed by the hour.",
+      ],
+    },
+    {
+      item: "Senior network technician",
+      rate: "$135–$175/hr",
+      note: "Switch, firewall, VLAN, VPN, IP plan & deployment readiness review",
+      points: [
+        "Engineering-level work: switch and firewall configuration, VLANs, VPN, IP planning, and deployment readiness review.",
+        "Scoped and approved by you before work starts.",
+        "Billed by the hour.",
+      ],
+    },
+    {
+      item: "Rush / weekend / after-hours",
+      rate: "1.5×–2× rate",
+      note: "Minimum labor block may apply",
+      points: [
+        "Expedited turnaround when your timeline can't wait for standard scheduling.",
+        "Applies a 1.5×–2× multiplier to the standard labor rate.",
+        "A minimum labor block may apply — confirmed with you before work starts.",
+      ],
+    },
   ];
 
   return (
@@ -491,7 +582,38 @@ function AddOns() {
                 i % 2 === 0 ? "bg-white/[0.03]" : "bg-transparent"
               } border-t border-white/10`}
             >
-              <span className="font-semibold text-white">{a.item}</span>
+              <span className="font-semibold text-white flex items-center gap-1.5">
+                {a.item}
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <button
+                      type="button"
+                      aria-label={`${a.item} details`}
+                      className="shrink-0 p-1 rounded-full text-slate-500 hover:text-[#0A84FF] hover:bg-[#0A84FF]/10 transition-colors"
+                    >
+                      <Info className="w-3.5 h-3.5" />
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent
+                    align="start"
+                    className="w-72 max-w-[calc(100vw-2rem)] bg-[#0B1320] border border-white/10 rounded-xl p-4 shadow-2xl"
+                  >
+                    <p className="text-sm font-bold text-white mb-1">{a.item}</p>
+                    <p className="text-xs text-[#0A84FF] font-semibold mb-3">{a.rate}</p>
+                    <ul className="space-y-2">
+                      {a.points.map(p => (
+                        <li key={p} className="flex gap-2 text-xs leading-relaxed text-slate-300">
+                          <span className="text-[#0A84FF] shrink-0">•</span>
+                          <span>{p}</span>
+                        </li>
+                      ))}
+                    </ul>
+                    <p className="mt-3 pt-3 border-t border-white/10 text-[11px] leading-relaxed text-slate-500">
+                      All overages and add-ons are approved by you before they're billed.
+                    </p>
+                  </PopoverContent>
+                </Popover>
+              </span>
               <span className="text-[#0A84FF] font-bold">{a.rate}</span>
               <span className="text-slate-400 text-xs leading-relaxed">{a.note}</span>
             </div>
