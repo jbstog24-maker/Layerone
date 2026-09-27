@@ -131,6 +131,8 @@ function Router() {
   );
 }
 
+import RequestQuoteFab from "@/components/RequestQuoteFab";
+
 function App() {
   return (
     <ErrorBoundary>
@@ -139,6 +141,7 @@ function App() {
           <Toaster />
           <OnboardingTour />
           <Router />
+          <RequestQuoteFab />
         </TooltipProvider>
       </ThemeProvider>
     </ErrorBoundary>
