@@ -10,7 +10,7 @@
     "check": "tsc --noEmit",
     "format": "prettier --write .",
     "test": "vitest run",
-    "db:push": "drizzle-kit push"
+    "db:push": "echo 'db:push disabled: schema syncs run explicitly, never during builds.'"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.693.0",
