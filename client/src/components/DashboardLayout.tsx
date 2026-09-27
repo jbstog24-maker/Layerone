@@ -334,7 +334,7 @@ function DashboardLayoutContent({
                 }`}
               >
                   <img
-                    src="/manus-storage/layerone-logo-on-dark_6114040f.png"
+                    src="/images/layerone-logo-on-dark.png"
                     alt="Layer One Staging Solutions"
                     className="h-7 w-auto object-contain shrink-0"
                   />

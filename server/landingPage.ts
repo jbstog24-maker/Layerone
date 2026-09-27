@@ -261,7 +261,7 @@ export function getLandingPageHtml(opts: {
     <!-- Navigation -->
     <nav>
       <a href="/" class="nav-logo" style="display:flex;align-items:center;text-decoration:none;">
-        <img src="/manus-storage/layerone-logo-on-dark_6114040f.png" alt="Layer One Staging Solutions" style="height:36px;width:auto;object-fit:contain;" />
+        <img src="/images/layerone-logo-on-dark.png" alt="Layer One Staging Solutions" style="height:36px;width:auto;object-fit:contain;" />
       </a>
       <div class="nav-links">
         <a href="${loginUrl}" class="nav-signin">Sign In</a>

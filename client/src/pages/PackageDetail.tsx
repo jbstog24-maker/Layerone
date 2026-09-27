@@ -10,7 +10,7 @@ import {
 import { useState, useEffect } from "react";
 import { useLocation, useParams } from "wouter";
 
-const LOGO_URL = "/manus-storage/layerone-logo-on-dark_6114040f.png";
+const LOGO_URL = "/images/layerone-logo-on-dark.png";
 
 function NsdsLogo() {
   return (

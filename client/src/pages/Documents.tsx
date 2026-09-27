@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 
 // Layer One Staging Solutions logo URL
-const LAYERONE_LOGO_URL = "/manus-storage/layerone-logo-on-dark_6114040f.png";
+const LAYERONE_LOGO_URL = "/images/layerone-logo-on-dark.png";
 
 const DOC_STATUS_COLORS: Record<string, string> = {
   draft: "bg-slate-500/20 text-slate-300 border-slate-500/30",

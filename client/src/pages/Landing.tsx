@@ -9,7 +9,7 @@ import {
   Thermometer, Video, Dock, MapPin, ChevronDown
 } from "lucide-react";
 
-const LOGO_URL = "/manus-storage/layerone-logo-on-dark_6114040f.png";
+const LOGO_URL = "/images/layerone-logo-on-dark.png";
 
 function NsdsLogo({ className = "" }: { className?: string }) {
   return (
@@ -591,34 +591,16 @@ function WhoWeServe() {
 
 const FACILITY_IMAGES = [
   {
-    src: "/manus-storage/facility-shelving-enhanced_6e6d074b.png",
-    title: "Secure Inventory Storage",
-    desc: "Network equipment organized on industrial pallet racking — Cisco, Dell, Juniper, and HP gear stored safely until deployment.",
-    callouts: [
-      { icon: Video, label: "24/7 Camera Surveillance", pos: "top-4 left-4" },
-      { icon: Thermometer, label: "Climate Controlled · 68°F", pos: "top-4 right-4" },
-    ],
-  },
-  {
-    src: "/manus-storage/facility-corridor-enhanced_ce9b4877.png",
+    src: "/images/facility-corridor.jpg",
     title: "Secure Access Corridor",
-    desc: "Individual secured units line the main corridor — each client's equipment is isolated, labeled, and access-controlled.",
+    desc: "Individual secured units line the main corridor — network equipment organized on industrial racking, each client's gear isolated, labeled, and access-controlled.",
     callouts: [
       { icon: Video, label: "Multi-Camera Coverage", pos: "top-4 left-4" },
       { icon: Shield, label: "Keypad-Secured Units", pos: "bottom-4 left-4" },
     ],
   },
   {
-    src: "/manus-storage/facility-staging-unit-enhanced_6f9fc568.png",
-    title: "Dedicated Staging Bay",
-    desc: "Each staging unit has a dedicated ESD-safe workbench for configuring switches, routers, and servers to your exact specs.",
-    callouts: [
-      { icon: Video, label: "In-Unit Camera", pos: "top-4 right-4" },
-      { icon: Thermometer, label: "Climate Sensor · 68°F", pos: "bottom-4 left-4" },
-    ],
-  },
-  {
-    src: "/manus-storage/facility-dock-enhanced_40a695dc.png",
+    src: "/images/facility-dock.jpg",
     title: "Dock Access for Deliveries",
     desc: "Roll-up dock doors with yellow safety bumpers accept palletized freight from any carrier — FedEx, UPS, LTL, and white-glove.",
     callouts: [
