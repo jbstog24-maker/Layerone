@@ -63,7 +63,10 @@ export function serveStatic(app: Express) {
 
   // Catch-all: serve index.html for all SPA routes including "/".
   // The React app (Landing.tsx at route path="/") handles the landing page.
+  // Never cache index.html: hashed asset filenames already bust the JS/CSS
+  // cache, so a fresh HTML guarantees the browser loads the current bundle.
   app.use("*", (req, res) => {
+    res.set("Cache-Control", "no-cache");
     res.sendFile(path.resolve(distPath, "index.html"));
   });
 }
