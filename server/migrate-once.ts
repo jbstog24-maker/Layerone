@@ -148,6 +148,20 @@ export async function runOnceMigration(): Promise<void> {
       }
     }
 
+    // 2026-09-27: invite / password-reset token columns on users (set-password flow)
+    const USER_COLUMN_DEFS: Record<string, string> = {
+      inviteToken: "varchar(128) NULL",
+      inviteTokenExpiresAt: "timestamp NULL",
+    };
+    for (const [col, def] of Object.entries(USER_COLUMN_DEFS)) {
+      if (await columnExists(db, "users", col)) {
+        console.log(`[Migration] users.${col} already exists — skipping`);
+      } else {
+        await db.execute(sql.raw(`ALTER TABLE \`users\` ADD \`${col}\` ${def}`));
+        console.log(`[Migration] users.${col} added`);
+      }
+    }
+
     console.log("[Migration] one-time migration complete");
   } catch (err: any) {
     console.error("[Migration] FAILED (non-fatal):", err?.message ?? err);

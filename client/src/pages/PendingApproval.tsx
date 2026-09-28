@@ -16,7 +16,7 @@ export default function PendingApproval() {
           </div>
           <h1 className="text-2xl font-bold tracking-tight">Account Pending Approval</h1>
           <p className="text-muted-foreground text-sm leading-relaxed max-w-sm mx-auto">
-            Your account has been created successfully. An Layer One team member will review and approve your access shortly.
+            Your account has been created successfully. A Layer One team member will review and approve your access shortly.
           </p>
         </div>
 

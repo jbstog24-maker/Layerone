@@ -346,6 +346,8 @@ export type PortalInviteEmailParams = {
   businessName?: string | null;
   role: string;
   portalUrl?: string;
+  /** Set-password link (single-use token). When present, the CTA sets the password. */
+  setPasswordUrl?: string | null;
 };
 
 const ROLE_LABELS: Record<string, string> = {
@@ -361,6 +363,8 @@ export function buildPortalInviteHtml(params: PortalInviteEmailParams): string {
   const roleLabel = ROLE_LABELS[params.role] ?? params.role;
   const supportEmail = ENV.supportEmail ?? "info@layeronestaging.com";
   const supportPhone = ENV.supportPhone ?? "(800) 000-0000";
+  const ctaUrl = params.setPasswordUrl ?? portalUrl;
+  const ctaLabel = params.setPasswordUrl ? "Set Your Password →" : "Access Your Portal →";
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -400,17 +404,18 @@ export function buildPortalInviteHtml(params: PortalInviteEmailParams): string {
           <!-- Access CTA -->
           <table cellpadding="0" cellspacing="0" style="margin:0 0 28px;">
             <tr><td style="background:linear-gradient(135deg,#0284c7,#0ea5e9);border-radius:8px;padding:14px 28px;">
-              <a href="${portalUrl}" style="color:#fff;font-size:15px;font-weight:600;text-decoration:none;display:block;text-align:center;">
-                Access Your Portal →
+              <a href="${ctaUrl}" style="color:#fff;font-size:15px;font-weight:600;text-decoration:none;display:block;text-align:center;">
+                ${ctaLabel}
               </a>
             </td></tr>
           </table>
+          ${params.setPasswordUrl ? `<p style="margin:-16px 0 28px;font-size:13px;color:#94a3b8;">This link expires in 72 hours. If it expires, use "Forgot password?" on the sign-in page.</p>` : ""}
 
           <!-- Steps -->
           <p style="margin:0 0 16px;font-size:14px;font-weight:600;color:#cbd5e1;text-transform:uppercase;letter-spacing:0.5px;">Getting Started</p>
           <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:28px;">
             ${[
-              ["1", "Sign In", `Visit <a href="${portalUrl}" style="color:#38bdf8;">${portalUrl}</a> and click <strong>Sign In</strong>. Use the email address this message was sent to.`],
+              ["1", params.setPasswordUrl ? "Set Your Password" : "Sign In", params.setPasswordUrl ? `Click the button above to choose your password, then sign in with the email address this message was sent to.` : `Visit <a href="${portalUrl}" style="color:#38bdf8;">${portalUrl}</a> and click <strong>Sign In</strong>. Use the email address this message was sent to.`],
               ["2", "Explore Your Dashboard", "View your devices, staging tasks, shipments, and documents — all in one place."],
               ["3", "Message Your Team", "Use the Support Messages section to communicate directly with Layer One staff."],
               ["4", "Track Onboarding Progress", "Your onboarding timeline, go-live date, and warehouse assignment are visible on your profile."],
@@ -478,6 +483,64 @@ export async function sendPortalInviteEmail(params: PortalInviteEmailParams): Pr
     return true;
   } catch (err) {
     console.warn("[Email] Failed to send portal invite email:", err);
+    return false;
+  }
+}
+
+// ─── Password Reset Email ────────────────────────────────────────────────────
+
+export type PasswordResetEmailParams = {
+  to: string;
+  name: string;
+  resetUrl: string;
+};
+
+export async function sendPasswordResetEmail(params: PasswordResetEmailParams): Promise<boolean> {
+  if (!ENV.resendApiKey || !ENV.resendFromEmail) {
+    console.warn("[Email] RESEND_API_KEY or RESEND_FROM_EMAIL not configured — skipping password reset email");
+    return false;
+  }
+  const firstName = params.name.split(" ")[0] ?? params.name;
+  try {
+    const resend = getResend();
+    const { error } = await resend.emails.send({
+      from: ENV.resendFromEmail,
+      to: params.to,
+      subject: "Reset your Layer One portal password",
+      html: `<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Reset your password</title></head>
+<body style="margin:0;padding:0;background:#07111f;font-family:'Segoe UI',Arial,sans-serif;color:#e2e8f0;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#07111f;padding:32px 16px;">
+    <tr><td align="center">
+      <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;background:#0d1f35;border-radius:12px;border:1px solid #1e3a5f;overflow:hidden;">
+        <tr><td style="padding:36px 40px;">
+          <h1 style="margin:0 0 8px;font-size:24px;font-weight:700;color:#f1f5f9;">Reset your password</h1>
+          <p style="margin:0 0 24px;color:#94a3b8;font-size:15px;line-height:1.6;">
+            Hi ${firstName}, click the button below to choose a new password for your Layer One portal account. This link expires in 1 hour.
+          </p>
+          <table cellpadding="0" cellspacing="0" style="margin:0 0 24px;">
+            <tr><td style="background:linear-gradient(135deg,#0284c7,#0ea5e9);border-radius:8px;padding:14px 28px;">
+              <a href="${params.resetUrl}" style="color:#fff;font-size:15px;font-weight:600;text-decoration:none;display:block;text-align:center;">Set New Password →</a>
+            </td></tr>
+          </table>
+          <p style="margin:0;font-size:13px;color:#64748b;">If you didn't request this, you can safely ignore this email — your password won't change.</p>
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`,
+    });
+    if (error) {
+      console.warn("[Email] Resend error (password reset):", error);
+      return false;
+    }
+    console.log(`[Email] Password reset email sent to ${params.to}`);
+    return true;
+  } catch (err) {
+    console.warn("[Email] Failed to send password reset email:", err);
     return false;
   }
 }

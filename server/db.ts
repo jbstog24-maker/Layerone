@@ -225,6 +225,8 @@ export async function createUser(data: {
   location?: string | null;
   jobTitle?: string | null;
   department?: string | null;
+  inviteToken?: string | null;
+  inviteTokenExpiresAt?: Date | null;
 }) {
   const db = await getDb();
   if (!db) throw new Error("Database unavailable");
@@ -241,8 +243,54 @@ export async function createUser(data: {
     location: data.location ?? null,
     jobTitle: data.jobTitle ?? null,
     department: data.department ?? null,
+    inviteToken: data.inviteToken ?? null,
+    inviteTokenExpiresAt: data.inviteTokenExpiresAt ?? null,
   });
   return { id: (row as any).insertId as number };
+}
+
+/** Find a user by their single-use invite / password-reset token. */
+export async function getUserByInviteToken(token: string) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db
+    .select()
+    .from(users)
+    .where(eq(users.inviteToken, token))
+    .limit(1);
+  return result[0];
+}
+
+/** Set (or refresh) a user's invite / password-reset token. */
+export async function setInviteToken(
+  userId: number,
+  token: string | null,
+  expiresAt: Date | null
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database unavailable");
+  await db
+    .update(users)
+    .set({ inviteToken: token, inviteTokenExpiresAt: expiresAt })
+    .where(eq(users.id, userId));
+}
+
+/**
+ * Complete a set-password flow: store the new password hash, mark the login
+ * method as password, and burn the single-use token.
+ */
+export async function consumeInviteToken(userId: number, passwordHash: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database unavailable");
+  await db
+    .update(users)
+    .set({
+      passwordHash,
+      loginMethod: "password",
+      inviteToken: null,
+      inviteTokenExpiresAt: null,
+    })
+    .where(eq(users.id, userId));
 }
 
 // ─── Packages ─────────────────────────────────────────────────────────────────

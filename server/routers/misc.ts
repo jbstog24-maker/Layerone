@@ -5,10 +5,13 @@ import {
   createPhoto, getDashboardStats, getClientUsage, getClient, getPackage,
   listActivityLogs, listPhotosByClient, listPhotos, listUsers, logActivity,
   updateUserRole, updateUser, deleteUser, getUserById, createUser, getDb,
+  setInviteToken,
 } from "../db";
 import { storagePut } from "../storage";
 import { customerProcedure, protectedProcedure, router } from "../_core/trpc";
 import { sendPortalInviteEmail } from "../email";
+import { ENV } from "../_core/env";
+import { randomBytes } from "crypto";
 import { devices, outboundShipments, invoices, clients, packageInquiries, quotes, receivingLogs } from "../../drizzle/schema";
 
 const isAdmin = (role: string) => role === "admin";
@@ -243,14 +246,20 @@ export const usersRouter = router({
     }))
     .mutation(async ({ ctx, input }) => {
       if (!isAdmin(ctx.user.role)) throw new TRPCError({ code: "FORBIDDEN" });
-      const result = await createUser(input);
+      // New accounts are created without a password — generate a single-use
+      // set-password token so the invite email can activate the account.
+      const inviteToken = randomBytes(32).toString("hex");
+      const inviteTokenExpiresAt = new Date(Date.now() + 72 * 60 * 60 * 1000);
+      const result = await createUser({ ...input, inviteToken, inviteTokenExpiresAt });
       await logActivity({ userId: ctx.user.id, action: `Pre-provisioned user ${input.email} with role ${input.role}`, entityType: "user", entityId: result.id });
       // Send portal invite email to the newly created user
+      const portalBase = (ENV.portalUrl ?? "https://www.layeronestaging.com").replace(/\/+$/, "");
       await sendPortalInviteEmail({
         to: input.email,
         name: input.name,
         businessName: input.businessName,
         role: input.role,
+        setPasswordUrl: `${portalBase}/set-password?token=${inviteToken}`,
       }).catch(() => {});
       return result;
     }),
@@ -262,11 +271,17 @@ export const usersRouter = router({
       const user = await getUserById(input.userId);
       if (!user) throw new TRPCError({ code: "NOT_FOUND", message: "User not found" });
       if (!user.email) throw new TRPCError({ code: "BAD_REQUEST", message: "User has no email address" });
+      // Issue a fresh single-use set-password token (the old one may have expired).
+      const inviteToken = randomBytes(32).toString("hex");
+      const inviteTokenExpiresAt = new Date(Date.now() + 72 * 60 * 60 * 1000);
+      await setInviteToken(user.id, inviteToken, inviteTokenExpiresAt);
+      const portalBase = (ENV.portalUrl ?? "https://www.layeronestaging.com").replace(/\/+$/, "");
       await sendPortalInviteEmail({
         to: user.email,
         name: user.name ?? user.email,
         businessName: (user as any).businessName ?? null,
         role: user.role,
+        setPasswordUrl: `${portalBase}/set-password?token=${inviteToken}`,
       });
       await logActivity({ userId: ctx.user.id, action: `Resent portal invite to ${user.email}`, entityType: "user", entityId: user.id });
       return { success: true };

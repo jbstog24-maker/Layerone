@@ -1,6 +1,7 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import { appRouter } from "./routers";
 import type { TrpcContext } from "./_core/context";
+import { getUserByInviteToken, consumeInviteToken, getUserByEmail, setInviteToken } from "./db";
 
 // Mock the db module so tests don't need a real database
 vi.mock("./db", () => ({
@@ -56,6 +57,10 @@ vi.mock("./db", () => ({
   deleteUser: vi.fn().mockResolvedValue(undefined),
   getUserById: vi.fn().mockResolvedValue({ id: 2, name: "Test User", email: "test@example.com", role: "staff", clientId: null, openId: "oid_2", lastSignedIn: new Date(), createdAt: new Date() }),
   createUser: vi.fn().mockResolvedValue({ id: 99, name: "Jane Doe", email: "jane@company.com", role: "customer_admin", businessName: "Acme Corp", phone: "555-1234", location: "Austin, TX", openId: "placeholder_99", createdAt: new Date() }),
+  setInviteToken: vi.fn().mockResolvedValue(undefined),
+  getUserByEmail: vi.fn().mockResolvedValue(undefined),
+  getUserByInviteToken: vi.fn().mockResolvedValue(undefined),
+  consumeInviteToken: vi.fn().mockResolvedValue(undefined),
   getDashboardStats: vi.fn().mockResolvedValue({ clients: 0, devices: 0, boxes: 0, pallets: 0, pendingTasks: 0, inProgressTasks: 0, pendingShipments: 0, draftInvoices: 0 }),
   getClientUsage: vi.fn().mockResolvedValue({ devices: 0, boxes: 0, pallets: 0, shipments: 0, stagingTasks: 0, deliveries: 0, receivingLogs: 0 }),
   logActivity: vi.fn().mockResolvedValue(undefined),
@@ -154,6 +159,7 @@ vi.mock("./_core/llm", () => ({
 
 vi.mock("./email", () => ({
   sendPortalInviteEmail: vi.fn().mockResolvedValue(undefined),
+  sendPasswordResetEmail: vi.fn().mockResolvedValue(true),
   sendWelcomeEmail: vi.fn().mockResolvedValue(true),
   sendStagingCompleteEmail: vi.fn().mockResolvedValue(undefined),
   sendIntroductionEmail: vi.fn().mockResolvedValue(true),
@@ -201,6 +207,65 @@ describe("auth.me", () => {
     const caller = appRouter.createCaller(ctx);
     const result = await caller.auth.me();
     expect(result).toBeNull();
+  });
+});
+
+describe("auth.setupPassword", () => {
+  it("sets the password and burns the token for a valid invite", async () => {
+    vi.mocked(getUserByInviteToken).mockResolvedValue({
+      id: 7,
+      inviteTokenExpiresAt: new Date(Date.now() + 3600_000),
+    } as any);
+    const ctx = makeCtx("admin");
+    const caller = appRouter.createCaller(ctx);
+    const result = await caller.auth.setupPassword({
+      token: "a".repeat(32),
+      password: "newpassword123",
+    });
+    expect(result.success).toBe(true);
+    expect(consumeInviteToken).toHaveBeenCalledWith(7, expect.any(String));
+  });
+
+  it("rejects an unknown token", async () => {
+    vi.mocked(getUserByInviteToken).mockResolvedValue(undefined);
+    const ctx = makeCtx("admin");
+    const caller = appRouter.createCaller(ctx);
+    await expect(
+      caller.auth.setupPassword({ token: "b".repeat(32), password: "newpassword123" })
+    ).rejects.toThrow("invalid or has expired");
+  });
+
+  it("rejects an expired token", async () => {
+    vi.mocked(getUserByInviteToken).mockResolvedValue({
+      id: 7,
+      inviteTokenExpiresAt: new Date(Date.now() - 1000),
+    } as any);
+    const ctx = makeCtx("admin");
+    const caller = appRouter.createCaller(ctx);
+    await expect(
+      caller.auth.setupPassword({ token: "c".repeat(32), password: "newpassword123" })
+    ).rejects.toThrow("invalid or has expired");
+  });
+});
+
+describe("auth.requestPasswordReset", () => {
+  it("issues a reset token for an existing user without leaking existence", async () => {
+    vi.mocked(getUserByEmail).mockResolvedValue({
+      id: 7, email: "user@example.com", name: "User",
+    } as any);
+    const ctx = makeCtx("admin");
+    const caller = appRouter.createCaller(ctx);
+    const result = await caller.auth.requestPasswordReset({ email: "user@example.com" });
+    expect(result.success).toBe(true);
+    expect(setInviteToken).toHaveBeenCalledWith(7, expect.any(String), expect.any(Date));
+  });
+
+  it("returns success even when the email is unknown", async () => {
+    vi.mocked(getUserByEmail).mockResolvedValue(undefined);
+    const ctx = makeCtx("admin");
+    const caller = appRouter.createCaller(ctx);
+    const result = await caller.auth.requestPasswordReset({ email: "nobody@example.com" });
+    expect(result.success).toBe(true);
   });
 });
 

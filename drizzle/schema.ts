@@ -35,6 +35,9 @@ export const users = mysqlTable("users", {
   department: varchar("department", { length: 128 }),
   isActive: boolean("isActive").default(true).notNull(),
   hasSeenTour: boolean("hasSeenTour").default(false).notNull(),
+  // Single-use token for invite / password-reset flows (set-password link)
+  inviteToken: varchar("inviteToken", { length: 128 }),
+  inviteTokenExpiresAt: timestamp("inviteTokenExpiresAt"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
   lastSignedIn: timestamp("lastSignedIn").defaultNow().notNull(),

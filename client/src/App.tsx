@@ -41,6 +41,7 @@ import { PalletDetail } from "./pages/Pallets";
 import GetStarted from "./pages/GetStarted";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import SetPassword from "./pages/SetPassword";
 import SignMsa from "./pages/SignMsa";
 import Onboarding from "./pages/Onboarding";
 
@@ -51,6 +52,7 @@ function Router() {
       <Route path="/get-started" component={GetStarted} />
       <Route path="/login" component={Login} />
       <Route path="/register" component={Register} />
+      <Route path="/set-password" component={SetPassword} />
       <Route path="/sign/:token" component={SignMsa} />
       <Route path="/dashboard" component={Home} />
 

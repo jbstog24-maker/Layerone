@@ -2,7 +2,14 @@ import { COOKIE_NAME, ONE_YEAR_MS } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { hashPassword, verifyPassword } from "./_core/password";
 import { sdk } from "./_core/sdk";
-import { getUserByEmail, upsertUser } from "./db";
+import {
+  getUserByEmail,
+  getUserByInviteToken,
+  setInviteToken,
+  consumeInviteToken,
+  upsertUser,
+} from "./db";
+import { randomBytes } from "crypto";
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, router } from "./_core/trpc";
 import { TRPCError } from "@trpc/server";
@@ -38,6 +45,11 @@ import { leadsRouter } from "./routers/leads";
 import { contentRouter } from "./routers/content";
 import { supportRouter } from "./routers/support";
 import { instructionsRouter } from "./routers/instructions";
+import { ENV } from "./_core/env";
+
+function getPortalBaseUrl(): string {
+  return (ENV.portalUrl ?? "https://www.layeronestaging.com").replace(/\/+$/, "");
+}
 
 // Simple in-memory brute-force guard for the login mutation:
 // max 10 failed attempts per email per 15 minutes.
@@ -165,6 +177,53 @@ export const appRouter = router({
           ...getSessionCookieOptions(ctx.req),
           maxAge: ONE_YEAR_MS,
         });
+        return { success: true } as const;
+      }),
+
+    // Set an initial password (or reset it) via a single-use invite token.
+    // This is how admin-invited users — who are created without a password —
+    // activate their accounts.
+    setupPassword: publicProcedure
+      .input(
+        z.object({
+          token: z.string().min(16).max(128),
+          password: z.string().min(8, "Password must be at least 8 characters").max(128),
+        })
+      )
+      .mutation(async ({ input }) => {
+        const user = await getUserByInviteToken(input.token);
+        if (
+          !user ||
+          !user.inviteTokenExpiresAt ||
+          user.inviteTokenExpiresAt.getTime() < Date.now()
+        ) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "This link is invalid or has expired. Ask your Layer One admin for a new invite.",
+          });
+        }
+        const passwordHash = await hashPassword(input.password);
+        await consumeInviteToken(user.id, passwordHash);
+        return { success: true } as const;
+      }),
+
+    // Request a password-reset email. Always returns success so account
+    // existence can't be probed.
+    requestPasswordReset: publicProcedure
+      .input(z.object({ email: z.string().trim().toLowerCase().email().max(320) }))
+      .mutation(async ({ input }) => {
+        const user = await getUserByEmail(input.email);
+        if (user && user.email) {
+          const token = randomBytes(32).toString("hex");
+          const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+          await setInviteToken(user.id, token, expiresAt);
+          const { sendPasswordResetEmail } = await import("./email");
+          await sendPasswordResetEmail({
+            to: user.email,
+            name: user.name ?? user.email,
+            resetUrl: `${getPortalBaseUrl()}/set-password?token=${token}`,
+          }).catch(() => {});
+        }
         return { success: true } as const;
       }),
   }),
