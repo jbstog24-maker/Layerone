@@ -51,8 +51,16 @@ export function registerProspectSyncRoute(app: Express) {
 
       const prospects = await Promise.all(
         inquiries.map(async (inq) => {
+          // Select only the columns the sync needs, so an unrelated schema
+          // drift in the quotes table can never break prospect sync again.
           const [quote] = await db
-            .select()
+            .select({
+              totalAmount: quotes.totalAmount,
+              status: quotes.status,
+              msaStatus: quotes.msaStatus,
+              paidAt: quotes.paidAt,
+              createdAt: quotes.createdAt,
+            })
             .from(quotes)
             .where(eq(quotes.inquiryId, inq.id))
             .orderBy(desc(quotes.createdAt))

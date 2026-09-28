@@ -130,6 +130,24 @@ export async function runOnceMigration(): Promise<void> {
       }
     }
 
+    // 2026-09-27: ensure quotes columns from the earlier Stripe/payment-link
+    // migration are present (some environments missed them).
+    const QUOTE_COLUMN_DEFS: Record<string, string> = {
+      stripePaymentLinkId: "varchar(255)",
+      stripePaymentLinkUrl: "text",
+      stripePriceId: "varchar(255)",
+      sentAt: "timestamp NULL",
+      paidAt: "timestamp NULL",
+    };
+    for (const [col, def] of Object.entries(QUOTE_COLUMN_DEFS)) {
+      if (await columnExists(db, "quotes", col)) {
+        console.log(`[Migration] quotes.${col} already exists — skipping`);
+      } else {
+        await db.execute(sql.raw(`ALTER TABLE \`quotes\` ADD \`${col}\` ${def}`));
+        console.log(`[Migration] quotes.${col} added`);
+      }
+    }
+
     console.log("[Migration] one-time migration complete");
   } catch (err: any) {
     console.error("[Migration] FAILED (non-fatal):", err?.message ?? err);
