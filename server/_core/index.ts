@@ -10,6 +10,7 @@ import { serveStatic, setupVite } from "./vite";
 import { registerStripeRoutes } from "../stripe";
 import { runOnceMigration } from "../migrate-once";
 import { registerProspectSyncRoute } from "../prospectSync";
+import { registerMessageSyncRoutes } from "../messageSync";
 import {
   handleMonthlyInvoices,
   handleDripAutoSend,
@@ -82,6 +83,8 @@ async function startServer() {
   app.post("/api/scheduled/lead-score-decay", handleLeadScoreDecay);
   // Prospect tracking sheet sync (token-authenticated, read-only)
   registerProspectSyncRoute(app);
+  // Client message monitoring + owner-approved replies (token-authenticated)
+  registerMessageSyncRoutes(app);
   // tRPC API
   app.use(
     "/api/trpc",
