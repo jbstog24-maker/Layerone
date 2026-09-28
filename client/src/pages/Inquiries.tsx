@@ -56,16 +56,24 @@ import {
   ExternalLink,
   PenLine,
   Copy,
+  FileSearch,
+  CreditCard,
+  Rocket,
+  Trophy,
+  ThumbsDown,
 } from "lucide-react";
 import { useState, useMemo, useEffect } from "react";
 import { toast } from "sonner";
 import { ADDON_RATES, TIER_PRICING } from "@/lib/pricingConstants";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
-type InquiryStatus = "new" | "contacted" | "quote_sent" | "proposal_sent" | "msa_signed" | "closed";
-// Statuses the staff UI can filter/set (server inquiry.list/updateStatus only
-// accept these; proposal_sent/msa_signed are set by the autonomous flow).
-type InquiryStatusFilter = "new" | "contacted" | "quote_sent" | "closed";
+// Full inquiry lifecycle (matches the DB enum in drizzle/schema.ts).
+type InquiryStatus =
+  | "new" | "needs_review" | "contacted" | "quote_sent" | "proposal_sent"
+  | "msa_signed" | "paid" | "onboarding" | "won" | "lost" | "closed";
+// Statuses the staff UI can filter/set. proposal_sent/msa_signed/paid/onboarding
+// are normally set by the autonomous flow, but reps can correct them manually.
+type InquiryStatusFilter = InquiryStatus;
 
 type Inquiry = {
   id: number;
@@ -148,18 +156,24 @@ const TIER_COLORS: Record<string, string> = {
 
 const STATUS_CONFIG: Record<InquiryStatus, { label: string; icon: any; color: string }> = {
   new: { label: "New", icon: Clock, color: "bg-[#0A84FF]/15 text-[#0A84FF] border-[#0A84FF]/30" },
+  needs_review: { label: "Needs Review", icon: FileSearch, color: "bg-orange-500/15 text-orange-300 border-orange-500/30" },
   contacted: { label: "Contacted", icon: CheckCircle2, color: "bg-amber-500/15 text-amber-300 border-amber-500/30" },
   quote_sent: { label: "Quote Sent", icon: FileText, color: "bg-violet-500/15 text-violet-300 border-violet-500/30" },
   proposal_sent: { label: "Proposal Sent", icon: Send, color: "bg-cyan-500/15 text-cyan-300 border-cyan-500/30" },
   msa_signed: { label: "MSA Signed", icon: PenLine, color: "bg-emerald-500/15 text-emerald-300 border-emerald-500/30" },
+  paid: { label: "Paid", icon: CreditCard, color: "bg-emerald-500/15 text-emerald-200 border-emerald-500/40" },
+  onboarding: { label: "Onboarding", icon: Rocket, color: "bg-sky-500/15 text-sky-300 border-sky-500/30" },
+  won: { label: "Won", icon: Trophy, color: "bg-yellow-500/15 text-yellow-300 border-yellow-500/30" },
+  lost: { label: "Lost", icon: ThumbsDown, color: "bg-rose-500/15 text-rose-300 border-rose-500/30" },
   closed: { label: "Closed", icon: XCircle, color: "bg-slate-500/15 text-slate-400 border-slate-500/30" },
 };
+const FALLBACK_STATUS = { label: "Unknown", icon: Clock, color: "bg-slate-500/15 text-slate-400 border-slate-500/30" };
 
 const fmt = (n: number) => n.toLocaleString("en-US", { style: "currency", currency: "USD" });
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 function StatusBadge({ status }: { status: InquiryStatus }) {
-  const cfg = STATUS_CONFIG[status];
+  const cfg = STATUS_CONFIG[status] ?? FALLBACK_STATUS;
   const Icon = cfg.icon;
   return (
     <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium border ${cfg.color}`}>
@@ -562,7 +576,7 @@ function InquiryDetailDialog({
 
   if (!inquiry) return null;
 
-  const otherStatuses = (["new", "contacted", "quote_sent", "closed"] as const).filter(s => s !== inquiry.status);
+  const otherStatuses = (["new", "contacted", "quote_sent", "won", "lost", "closed"] as const).filter(s => s !== inquiry.status);
 
   return (
     <>
@@ -862,12 +876,9 @@ export default function Inquiries() {
 
   const counts = useMemo(() => {
     const all = inquiries as Inquiry[];
-    return {
-      new: all.filter(i => i.status === "new").length,
-      contacted: all.filter(i => i.status === "contacted").length,
-      quote_sent: all.filter(i => i.status === "quote_sent").length,
-      closed: all.filter(i => i.status === "closed").length,
-    };
+    const c: Record<string, number> = {};
+    for (const i of all) c[i.status] = (c[i.status] ?? 0) + 1;
+    return c;
   }, [inquiries]);
 
   return (
@@ -898,8 +909,8 @@ export default function Inquiries() {
         </div>
 
         {/* Summary cards */}
-        <div className="grid grid-cols-4 gap-3">
-          {(["new", "contacted", "quote_sent", "closed"] as const).map(s => {
+        <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
+          {(["new", "needs_review", "proposal_sent", "msa_signed", "paid", "won"] as const).map(s => {
             const cfg = STATUS_CONFIG[s];
             const Icon = cfg.icon;
             return (
@@ -914,7 +925,7 @@ export default function Inquiries() {
                   <Icon className="w-3.5 h-3.5 text-slate-400" />
                   <span className="text-xs text-slate-400">{cfg.label}</span>
                 </div>
-                <p className="text-xl font-bold text-slate-100">{counts[s]}</p>
+                <p className="text-xl font-bold text-slate-100">{counts[s] ?? 0}</p>
               </button>
             );
           })}
@@ -938,10 +949,9 @@ export default function Inquiries() {
             </SelectTrigger>
             <SelectContent className="bg-[#0d1f35] border-white/12">
               <SelectItem value="all">All Statuses</SelectItem>
-              <SelectItem value="new">New</SelectItem>
-              <SelectItem value="contacted">Contacted</SelectItem>
-              <SelectItem value="quote_sent">Quote Sent</SelectItem>
-              <SelectItem value="closed">Closed</SelectItem>
+              {(Object.keys(STATUS_CONFIG) as InquiryStatus[]).map(s => (
+                <SelectItem key={s} value={s}>{STATUS_CONFIG[s].label}</SelectItem>
+              ))}
             </SelectContent>
           </Select>
           <Select value={tierFilter} onValueChange={v => setTierFilter(v as any)}>

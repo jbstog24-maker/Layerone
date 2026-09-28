@@ -1004,7 +1004,7 @@ export async function listAllClientDocuments() {
 
 // ─── Package Inquiries ────────────────────────────────────────────────────────
 export async function listInquiries(opts?: {
-  status?: "new" | "contacted" | "quote_sent" | "closed";
+  status?: PackageInquiry["status"];
   tier?: string;
   search?: string;
 }) {
@@ -1048,7 +1048,7 @@ export async function getInquiry(id: number) {
 
 export async function updateInquiryStatus(
   id: number,
-  status: "new" | "contacted" | "quote_sent" | "closed"
+  status: PackageInquiry["status"]
 ) {
   const db = await getDb();
   if (!db) throw new Error("DB unavailable");

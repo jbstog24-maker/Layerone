@@ -144,7 +144,7 @@ export const inquiryRouter = router({
   // ── Admin/Staff: list inquiries with optional filters ─────────────────────
   list: protectedProcedure
     .input(z.object({
-      status: z.enum(["new", "contacted", "quote_sent", "closed"]).optional(),
+      status: z.enum(["new", "needs_review", "contacted", "quote_sent", "proposal_sent", "msa_signed", "paid", "onboarding", "won", "lost", "closed"]).optional(),
       tier: z.enum(["basic", "standard", "professional", "enterprise", "custom"]).optional(),
       search: z.string().max(200).optional(),
     }).optional())
@@ -171,7 +171,7 @@ export const inquiryRouter = router({
   updateStatus: protectedProcedure
     .input(z.object({
       id: z.number(),
-      status: z.enum(["new", "contacted", "quote_sent", "closed"]),
+      status: z.enum(["new", "needs_review", "contacted", "quote_sent", "proposal_sent", "msa_signed", "paid", "onboarding", "won", "lost", "closed"]),
     }))
     .mutation(async ({ ctx, input }) => {
       requireStaffOrAdmin(ctx.user?.role);
