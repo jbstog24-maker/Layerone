@@ -31,6 +31,16 @@ function tokenOk(provided: unknown): boolean {
   return timingSafeEqual(a, b);
 }
 
+/** Runs a sub-query, returning undefined instead of throwing on failure. */
+async function safeQuery<T>(fn: () => Promise<T>): Promise<T | undefined> {
+  try {
+    return await fn();
+  } catch (err: any) {
+    console.error("[ProspectSync] sub-query failed:", err?.message ?? err);
+    return undefined;
+  }
+}
+
 export function registerProspectSyncRoute(app: Express) {
   app.get("/api/prospect-sync", async (req: Request, res: Response) => {
     if (!tokenOk(req.query.token)) {
@@ -51,31 +61,37 @@ export function registerProspectSyncRoute(app: Express) {
 
       const prospects = await Promise.all(
         inquiries.map(async (inq) => {
-          // Select only the columns the sync needs, so an unrelated schema
-          // drift in the quotes table can never break prospect sync again.
-          const [quote] = await db
-            .select({
-              totalAmount: quotes.totalAmount,
-              status: quotes.status,
-              msaStatus: quotes.msaStatus,
-              paidAt: quotes.paidAt,
-              createdAt: quotes.createdAt,
-            })
-            .from(quotes)
-            .where(eq(quotes.inquiryId, inq.id))
-            .orderBy(desc(quotes.createdAt))
-            .limit(1);
-          const [msa] = await db
-            .select({ status: msaDocuments.status })
-            .from(msaDocuments)
-            .where(eq(msaDocuments.inquiryId, inq.id))
-            .orderBy(desc(msaDocuments.createdAt))
-            .limit(1);
-          const [ob] = await db
-            .select({ status: onboardingChecklists.status })
-            .from(onboardingChecklists)
-            .where(eq(onboardingChecklists.inquiryId, inq.id))
-            .limit(1);
+          // Each sub-query is fault-tolerant: a problem with one inquiry's
+          // related rows must never fail the whole sync.
+          const quote = await safeQuery(() =>
+            db
+              .select({
+                totalAmount: quotes.totalAmount,
+                status: quotes.status,
+                msaStatus: quotes.msaStatus,
+                paidAt: quotes.paidAt,
+                createdAt: quotes.createdAt,
+              })
+              .from(quotes)
+              .where(eq(quotes.inquiryId, inq.id))
+              .orderBy(desc(quotes.createdAt))
+              .limit(1).then((rows) => rows[0])
+          );
+          const msa = await safeQuery(() =>
+            db
+              .select({ status: msaDocuments.status })
+              .from(msaDocuments)
+              .where(eq(msaDocuments.inquiryId, inq.id))
+              .orderBy(desc(msaDocuments.createdAt))
+              .limit(1).then((rows) => rows[0])
+          );
+          const ob = await safeQuery(() =>
+            db
+              .select({ status: onboardingChecklists.status })
+              .from(onboardingChecklists)
+              .where(eq(onboardingChecklists.inquiryId, inq.id))
+              .limit(1).then((rows) => rows[0])
+          );
 
           let addons: string[] = [];
           try {
@@ -117,8 +133,11 @@ export function registerProspectSyncRoute(app: Express) {
 
       res.json({ prospects, exportedAt: new Date().toISOString() });
     } catch (err: any) {
-      console.error("[ProspectSync] failed:", err?.message ?? err);
-      res.status(500).json({ error: "sync failed" });
+      const message = err?.message ?? String(err);
+      console.error("[ProspectSync] failed:", message);
+      // Token-gated endpoint: returning the message here is what lets the
+      // owner's agent diagnose a sync failure without DB access.
+      res.status(500).json({ error: "sync failed", detail: message.slice(0, 500) });
     }
   });
 }
