@@ -733,7 +733,7 @@ export async function sendIntroductionEmail(params: IntroductionEmailParams): Pr
         </td></tr>
         <!-- Footer -->
         <tr><td style="padding:20px 40px;border-top:1px solid #1e3a5f;text-align:center;">
-          <p style="margin:0;font-size:12px;color:#475569;">© ${new Date().getFullYear()} Layer One Staging · 1501 Randolph St, Carrollton, TX 75006</p>
+          <p style="margin:0;font-size:12px;color:#475569;">© ${new Date().getFullYear()} Layer One Staging · Dallas-Fort Worth, TX</p>
           <p style="margin:4px 0 0;font-size:12px;color:#475569;">You are receiving this because Layer One identified your business as a potential fit for our services. To opt out, simply reply with "unsubscribe".</p>
         </td></tr>
       </table>
@@ -810,7 +810,7 @@ export async function sendDripEmail(params: DripEmailParams): Promise<boolean> {
           ${bodyHtml}
         </td></tr>
         <tr><td style="padding:20px 40px;border-top:1px solid #1e3a5f;text-align:center;">
-          <p style="margin:0;font-size:12px;color:#475569;">© ${new Date().getFullYear()} Layer One Staging · 1501 Randolph St, Carrollton, TX 75006</p>
+          <p style="margin:0;font-size:12px;color:#475569;">© ${new Date().getFullYear()} Layer One Staging · Dallas-Fort Worth, TX</p>
           <p style="margin:4px 0 0;font-size:12px;color:#475569;">You are receiving this as part of an outreach sequence. Reply "unsubscribe" to opt out.</p>
         </td></tr>
       </table>
@@ -882,7 +882,7 @@ export async function sendDeliveryNotificationEmail(params: DeliveryNotification
           <p style="font-size:14px;color:#94a3b8;">Your items are now securely stored at our facility. Log in to your portal to view inventory details and track staging progress.</p>
         </td></tr>
         <tr><td style="padding:20px 40px;border-top:1px solid #1e3a5f;text-align:center;">
-          <p style="margin:0;font-size:12px;color:#475569;">© ${new Date().getFullYear()} Layer One · 1501 Randolph St, Carrollton, TX 75006 · <a href="mailto:info@layeronestaging.com" style="color:#39a7ff;">info@layeronestaging.com</a></p>
+          <p style="margin:0;font-size:12px;color:#475569;">© ${new Date().getFullYear()} Layer One · Dallas-Fort Worth, TX · <a href="mailto:info@layeronestaging.com" style="color:#39a7ff;">info@layeronestaging.com</a></p>
         </td></tr>
       </table>
     </td></tr>
@@ -941,7 +941,7 @@ export async function sendShipmentApprovalRequestEmail(params: ShipmentApprovalR
           <p style="text-align:center;"><a href="${params.portalUrl}/shipments/${params.shipmentId}" style="display:inline-block;background:#39a7ff;color:#ffffff;text-decoration:none;padding:12px 28px;border-radius:8px;font-weight:600;font-size:15px;">Review &amp; Approve</a></p>
         </td></tr>
         <tr><td style="padding:20px 40px;border-top:1px solid #1e3a5f;text-align:center;">
-          <p style="margin:0;font-size:12px;color:#475569;">© ${new Date().getFullYear()} Layer One · 1501 Randolph St, Carrollton, TX 75006</p>
+          <p style="margin:0;font-size:12px;color:#475569;">© ${new Date().getFullYear()} Layer One · Dallas-Fort Worth, TX</p>
         </td></tr>
       </table>
     </td></tr>
@@ -1003,7 +1003,7 @@ export async function sendSupportTicketEmail(params: SupportTicketEmailParams): 
           <p style="margin-top:20px;font-size:12px;color:#64748b;">Log in to the Layer One Staging Solutions Portal to respond to this ticket.</p>
         </td></tr>
         <tr><td style="padding:16px 32px;border-top:1px solid #1e3a5f;text-align:center;">
-          <p style="margin:0;font-size:12px;color:#475569;">© ${new Date().getFullYear()} Layer One · 1501 Randolph St, Carrollton, TX 75006</p>
+          <p style="margin:0;font-size:12px;color:#475569;">© ${new Date().getFullYear()} Layer One · Dallas-Fort Worth, TX</p>
         </td></tr>
       </table>
     </td></tr>
@@ -1135,7 +1135,7 @@ export async function sendQuoteEmail(params: QuoteEmailParams): Promise<boolean>
 
         <!-- Footer -->
         <tr><td style="padding:20px 40px;border-top:1px solid #1e3a5f;text-align:center;">
-          <p style="margin:0;font-size:12px;color:#475569;">© ${new Date().getFullYear()} Layer One Staging · 1501 Randolph St, Carrollton, TX 75006</p>
+          <p style="margin:0;font-size:12px;color:#475569;">© ${new Date().getFullYear()} Layer One Staging · Dallas-Fort Worth, TX</p>
           <p style="margin:4px 0 0;font-size:12px;color:#475569;">Layer One Staging Solutions Portal — Warehouse &amp; Device Staging Management</p>
         </td></tr>
       </table>
@@ -1215,7 +1215,7 @@ export async function sendTrackingNotificationEmail(params: TrackingNotification
           </p>
         </td></tr>
         <tr><td style="padding:20px 40px;border-top:1px solid #1e3a5f;text-align:center;">
-          <p style="margin:0;font-size:12px;color:#475569;">© ${new Date().getFullYear()} Layer One Staging · 1501 Randolph St, Carrollton, TX 75006</p>
+          <p style="margin:0;font-size:12px;color:#475569;">© ${new Date().getFullYear()} Layer One Staging · Dallas-Fort Worth, TX</p>
         </td></tr>
       </table>
     </td></tr>
