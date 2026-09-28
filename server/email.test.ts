@@ -74,3 +74,18 @@ describe("sendWelcomeEmail", () => {
     );
   });
 });
+
+describe("buildPortalInviteHtml", () => {
+  it("points at the production portal and uses correct grammar", async () => {
+    const { buildPortalInviteHtml } = await import("./email");
+    const html = buildPortalInviteHtml({
+      to: "user@example.com",
+      name: "Test User",
+      role: "customer_admin",
+    });
+    expect(html).toContain("https://www.layeronestaging.com");
+    expect(html).not.toContain("manus.space");
+    expect(html).toContain("A Layer One admin has created a portal account");
+    expect(html).not.toContain("An Layer One admin");
+  });
+});

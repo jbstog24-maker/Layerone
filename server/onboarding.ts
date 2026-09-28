@@ -129,10 +129,7 @@ export async function sendOwnerEmail(params: {
 
 /** Base URL for admin links in owner emails. */
 function portalBase(): string {
-  // ENV.portalUrl still defaults to the legacy Manus preview URL; prefer the
-  // production domain when it hasn't been explicitly configured.
-  if (ENV.portalUrl && !ENV.portalUrl.includes("manus.space")) return ENV.portalUrl;
-  return "https://www.layeronestaging.com";
+  return ENV.portalUrl;
 }
 
 // ─── Checklist lifecycle ──────────────────────────────────────────────────────

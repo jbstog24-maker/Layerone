@@ -355,9 +355,9 @@ const ROLE_LABELS: Record<string, string> = {
   customer_viewer: "Customer Viewer",
 };
 
-function buildPortalInviteHtml(params: PortalInviteEmailParams): string {
+export function buildPortalInviteHtml(params: PortalInviteEmailParams): string {
   const firstName = params.name.split(" ")[0] ?? params.name;
-  const portalUrl = params.portalUrl ?? ENV.portalUrl ?? "https://stagingops.manus.space";
+  const portalUrl = params.portalUrl ?? ENV.portalUrl ?? "https://www.layeronestaging.com";
   const roleLabel = ROLE_LABELS[params.role] ?? params.role;
   const supportEmail = ENV.supportEmail ?? "info@layeronestaging.com";
   const supportPhone = ENV.supportPhone ?? "(800) 000-0000";
@@ -394,7 +394,7 @@ function buildPortalInviteHtml(params: PortalInviteEmailParams): string {
             Your portal account is ready, ${firstName}!
           </h1>
           <p style="margin:0 0 24px;color:#94a3b8;font-size:15px;line-height:1.6;">
-            An Layer One admin has created a portal account for you${params.businessName ? ` on behalf of <strong style="color:#e2e8f0;">${params.businessName}</strong>` : ""}. Your role is <strong style="color:#38bdf8;">${roleLabel}</strong>.
+            A Layer One admin has created a portal account for you${params.businessName ? ` on behalf of <strong style="color:#e2e8f0;">${params.businessName}</strong>` : ""}. Your role is <strong style="color:#38bdf8;">${roleLabel}</strong>.
           </p>
 
           <!-- Access CTA -->
@@ -500,7 +500,7 @@ export async function sendStagingCompleteEmail(params: StagingCompleteEmailParam
   }
 
   const firstName = params.recipientName.split(" ")[0] ?? params.recipientName;
-  const portalUrl = params.portalUrl ?? ENV.portalUrl ?? "https://stagingops-khmxpmyr.manus.space";
+  const portalUrl = params.portalUrl ?? ENV.portalUrl ?? "https://www.layeronestaging.com";
   const deviceCount = params.devices.length;
   const deviceWord = deviceCount === 1 ? "device" : "devices";
 
