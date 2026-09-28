@@ -43,6 +43,17 @@ export default function Messages() {
   const bottomRef = useRef<HTMLDivElement>(null);
   const utils = trpc.useUtils();
 
+  // Deep link: /messages?client=<id> preselects that client's thread
+  // (used by the admin Action Center alerts).
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const fromUrl = params.get("client");
+    if (fromUrl) {
+      const id = parseInt(fromUrl, 10);
+      if (Number.isFinite(id)) setSelectedClientId(id);
+    }
+  }, []);
+
   // Thread list
   const { data: threads = [], isLoading: threadsLoading, isError: threadsError, refetch: refetchThreads } = trpc.messages.threads.useQuery(
     undefined,

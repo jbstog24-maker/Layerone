@@ -38,6 +38,7 @@ import { quotesRouter } from "./routers/quotes";
 import { onboardingRouter } from "./routers/onboarding";
 import { documentsRouter } from "./routers/documents";
 import { messagesRouter } from "./routers/messages";
+import { alertsRouter } from "./routers/alerts";
 import { forwardingRouter } from "./routers/forwarding";
 import { shipmentDocsRouter } from "./routers/shipmentDocs";
 import { stagingNotifyRouter } from "./routers/stagingNotify";
@@ -247,6 +248,7 @@ export const appRouter = router({
   onboarding: onboardingRouter,
   documents: documentsRouter,
   messages: messagesRouter,
+  alerts: alertsRouter,
   forwarding: forwardingRouter,
   shipmentDocs: shipmentDocsRouter,
   stagingNotify: stagingNotifyRouter,

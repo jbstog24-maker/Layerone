@@ -1,7 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Clock, Mail, Phone, LogOut } from "lucide-react";
+import { Clock, Mail, Phone, LogOut, ListChecks } from "lucide-react";
 import { useAuth } from "@/_core/hooks/useAuth";
+import InfoTip from "@/components/InfoTip";
 
 export default function PendingApproval() {
   const { user, logout } = useAuth();
@@ -39,6 +40,35 @@ export default function PendingApproval() {
                 {user.email && <span> ({user.email})</span>}
               </div>
             )}
+
+            {/* What do I need to do? */}
+            <div className="border-t border-border/50 pt-4">
+              <div className="flex items-center gap-2 mb-2">
+                <ListChecks className="w-4 h-4 text-primary" />
+                <p className="text-xs font-semibold text-foreground uppercase tracking-wide">
+                  What do I need to do?
+                </p>
+                <InfoTip title="Why am I seeing this?">
+                  Customer accounts must be linked to a client record before the
+                  portal opens up. Nothing is wrong with your sign-in — this is
+                  just the approval step.
+                </InfoTip>
+              </div>
+              <ol className="space-y-2 text-sm text-muted-foreground list-none">
+                <li className="flex gap-2.5">
+                  <span className="w-5 h-5 rounded-full bg-primary/15 text-primary text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">1</span>
+                  <span><span className="text-foreground font-medium">Wait for approval</span> — a Layer One team member links your account to your company's client record.</span>
+                </li>
+                <li className="flex gap-2.5">
+                  <span className="w-5 h-5 rounded-full bg-primary/15 text-primary text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">2</span>
+                  <span><span className="text-foreground font-medium">Watch your email</span> — you'll get a message at {user?.email ?? "your email address"} once access is granted.</span>
+                </li>
+                <li className="flex gap-2.5">
+                  <span className="w-5 h-5 rounded-full bg-primary/15 text-primary text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">3</span>
+                  <span><span className="text-foreground font-medium">Sign in again</span> — you'll land on your dashboard with messages, documents, and onboarding.</span>
+                </li>
+              </ol>
+            </div>
 
             <div className="border-t border-border/50 pt-4 space-y-3">
               <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Need help? Contact Layer One</p>

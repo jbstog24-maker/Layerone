@@ -6,10 +6,13 @@ import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { trpc } from "@/lib/trpc";
+import InfoTip from "@/components/InfoTip";
 import {
   Truck, Server, Archive, Ship, FileText,
   Package, Warehouse, Box, ArrowRight, Loader2,
-  AlertTriangle, Clock, ChevronRight, Hash
+  AlertTriangle, Clock, ChevronRight, Hash,
+  MessageSquare, Inbox, PenLine, User, ClipboardList,
+  CheckCircle2, BellRing
 } from "lucide-react";
 import { useEffect } from "react";
 import { useLocation } from "wouter";
@@ -125,6 +128,95 @@ function OverdueFollowUpWidget() {
   );
 }
 
+function ActionCenter() {
+  const { data: alerts = [], isLoading } = trpc.alerts.list.useQuery(
+    undefined,
+    { refetchInterval: 30_000 }
+  );
+  const [, setLocation] = useLocation();
+
+  const kindIcon: Record<string, React.ElementType> = {
+    message: MessageSquare,
+    inquiry: Inbox,
+    quote: FileText,
+    msa: PenLine,
+    user: User,
+    onboarding: ClipboardList,
+  };
+  const severityStyle: Record<string, string> = {
+    urgent: "bg-red-500/10 text-red-400 border-red-500/30",
+    warning: "bg-amber-500/10 text-amber-400 border-amber-500/30",
+    info: "bg-blue-500/10 text-blue-400 border-blue-500/30",
+  };
+
+  if (isLoading) return null;
+
+  return (
+    <Card className="bg-card/60 border-border/50">
+      <CardHeader className="pb-3">
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-sm flex items-center gap-2">
+            <BellRing className="w-4 h-4 text-primary" />
+            Needs Attention
+            {alerts.length > 0 && (
+              <Badge className="bg-primary/20 text-primary border-primary/30 text-xs px-1.5 py-0 h-5">
+                {alerts.length}
+              </Badge>
+            )}
+          </CardTitle>
+          {alerts.length > 0 && (
+            <span className="text-xs text-muted-foreground">
+              Tap an item to jump to it
+            </span>
+          )}
+        </div>
+      </CardHeader>
+      <CardContent className="pt-0">
+        {alerts.length === 0 ? (
+          <div className="flex items-center gap-2 text-sm text-muted-foreground py-2">
+            <CheckCircle2 className="w-4 h-4 text-green-400" />
+            All caught up — nothing needs your attention.
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {alerts.slice(0, 8).map(alert => {
+              const Icon = kindIcon[alert.kind] ?? Inbox;
+              return (
+                <div
+                  key={alert.id}
+                  onClick={() => setLocation(alert.href)}
+                  className={`flex items-center gap-3 p-2.5 rounded-lg border cursor-pointer transition-all hover:bg-white/5 ${severityStyle[alert.severity] ?? severityStyle.info}`}
+                >
+                  <div className="w-8 h-8 rounded-lg bg-black/20 flex items-center justify-center shrink-0">
+                    <Icon className="w-4 h-4" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-white truncate">
+                      {alert.title}
+                    </p>
+                    {alert.detail && (
+                      <p className="text-xs text-muted-foreground truncate">
+                        {alert.detail}
+                      </p>
+                    )}
+                  </div>
+                  <InfoTip title="What to do">{alert.actionHint}</InfoTip>
+                  <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
+                </div>
+              );
+            })}
+            {alerts.length > 8 && (
+              <p className="text-xs text-muted-foreground text-center pt-1">
+                +{alerts.length - 8} more items
+              </p>
+            )}
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
 function AdminDashboard() {
   const { data: stats } = trpc.dashboard.adminStats.useQuery();
   const { data: recentActivity } = trpc.activity.list.useQuery({ limit: 8 });
@@ -144,6 +236,9 @@ function AdminDashboard() {
 
       {/* Overdue Follow-Up Widget */}
       <OverdueFollowUpWidget />
+
+      {/* Action Center: pending alerts routed to the right customer/item */}
+      <ActionCenter />
 
       <div className="grid md:grid-cols-2 gap-4">
         <Card className="bg-card/60 border-border/50">
@@ -206,6 +301,9 @@ function CustomerDashboard() {
           <span className="text-xs font-mono font-semibold text-primary">{client.accountNumber}</span>
         </div>
       )}
+
+      {/* What needs your attention */}
+      <CustomerAttention />
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <StatCard icon={Truck} label="Deliveries" value={stats?.deliveries ?? 0} color="bg-blue-500/10 text-blue-400" href="/deliveries" />
@@ -301,6 +399,67 @@ function CustomerDashboard() {
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+function CustomerAttention() {
+  const { data: alerts = [], isLoading } = trpc.alerts.myList.useQuery(
+    undefined,
+    { refetchInterval: 30_000 }
+  );
+  const [, setLocation] = useLocation();
+
+  const kindIcon: Record<string, React.ElementType> = {
+    message: MessageSquare,
+    inquiry: Inbox,
+    quote: FileText,
+    msa: PenLine,
+    user: User,
+    onboarding: ClipboardList,
+  };
+
+  if (isLoading || alerts.length === 0) return null;
+
+  return (
+    <Card className="bg-amber-500/5 border-amber-500/30">
+      <CardHeader className="pb-3">
+        <CardTitle className="text-sm flex items-center gap-2">
+          <BellRing className="w-4 h-4 text-amber-400" />
+          What needs your attention
+          <Badge className="bg-amber-500/20 text-amber-400 border-amber-500/30 text-xs px-1.5 py-0 h-5">
+            {alerts.length}
+          </Badge>
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-2 pt-0">
+        {alerts.map(alert => {
+          const Icon = kindIcon[alert.kind] ?? Inbox;
+          return (
+            <div
+              key={alert.id}
+              className="flex items-center gap-3 p-2.5 rounded-lg bg-black/20 border border-amber-500/20"
+            >
+              <div className="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center shrink-0">
+                <Icon className="w-4 h-4 text-amber-400" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-white">{alert.title}</p>
+                <p className="text-xs text-muted-foreground">{alert.detail}</p>
+              </div>
+              <InfoTip title="What do I need to do?">{alert.actionHint}</InfoTip>
+              <Button
+                size="sm"
+                variant="outline"
+                className="shrink-0 border-amber-500/30 text-amber-300 hover:text-amber-200 h-8"
+                onClick={() => setLocation(alert.href)}
+              >
+                View
+              </Button>
+            </div>
+          );
+        })}
+      </CardContent>
+    </Card>
   );
 }
 
