@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "wouter";
 import { trpc } from "@/lib/trpc";
+import { humanizeError } from "@/lib/humanizeError";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -23,7 +24,7 @@ export default function SetPassword() {
 
   const setupMutation = trpc.auth.setupPassword.useMutation({
     onSuccess: () => setDone(true),
-    onError: err => setError(err.message),
+    onError: err => setError(humanizeError(err)),
   });
 
   const handleSubmit = (e: React.FormEvent) => {

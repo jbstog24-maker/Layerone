@@ -28,7 +28,7 @@ export default function PendingApproval() {
               <div>
                 <p className="text-sm font-medium text-yellow-400">Awaiting admin approval</p>
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  Your account is linked to a client record that is under review. You will receive an email once access is granted.
+                  Your account isn't linked to an approved client record yet. You will receive an email once access is granted.
                 </p>
               </div>
             </div>

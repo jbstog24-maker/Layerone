@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
+import { humanizeError } from "@/lib/humanizeError";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -34,7 +35,7 @@ export default function Login() {
       setLocation("/dashboard");
     },
     onError: err => {
-      setError(err.message);
+      setError(humanizeError(err));
     },
   });
 
@@ -43,7 +44,7 @@ export default function Login() {
       setResetSent(true);
       setResetError(null);
     },
-    onError: err => setResetError(err.message),
+    onError: err => setResetError(humanizeError(err)),
   });
 
   const handleSubmit = (e: React.FormEvent) => {
