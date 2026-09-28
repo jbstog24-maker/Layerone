@@ -168,6 +168,32 @@ North Richland Hills, TX | nsds.com
 }
 
 /**
+ * Human-readable labels for inquiry add-on keys (request form checkboxes).
+ * Used when auto-importing add-ons into the MSA so the document reads
+ * cleanly instead of showing raw keys like "onsite_delivery".
+ */
+export const ADDON_LABELS: Record<string, string> = {
+  inbound_receiving: "Inbound receiving",
+  asset_capture: "Inventory & asset capture (tagging & labeling)",
+  asset_tagging: "Inventory & asset capture (tagging & labeling)",
+  photo_documentation: "Photo documentation (chain-of-custody)",
+  photo_doc: "Photo documentation (chain-of-custody)",
+  rush_fee: "Expedited turnaround (rush fee)",
+  expedited: "Expedited turnaround (rush fee)",
+  site_kit: "Site-kit assembly (custom kitting)",
+  site_kit_assembly: "Site-kit assembly (custom kitting)",
+  custom_kitting: "Site-kit assembly (custom kitting)",
+  staging_tech: "Staging technician",
+  senior_network_tech: "Senior network technician",
+  onsite_delivery: "On-site delivery (DFW metro)",
+  firmware: "Firmware & config staging",
+};
+
+export function addonKeyToLabel(key: string): string {
+  return ADDON_LABELS[key] ?? key;
+}
+
+/**
  * Auto-import a client's requested package/volumes for MSA generation.
  * Links client -> inquiry via the onboarding checklist (created by the
  * autonomous quote flow), falling back to matching the client's contact
@@ -410,7 +436,7 @@ export const documentsRouter = router({
         const manualAddOns = (input.addOns ?? []).map(a => a.trim()).filter(Boolean);
         const addOns = manualAddOns.length > 0
           ? manualAddOns
-          : (prefill.inquiry?.addons ?? []);
+          : (prefill.inquiry?.addons ?? []).map(addonKeyToLabel);
         const scope: MsaScope | undefined = prefill.inquiry
           ? {
               tier: prefill.inquiry.tier,

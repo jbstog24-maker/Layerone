@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 
-import { buildMsaContent } from "./documents";
+import { buildMsaContent, addonKeyToLabel, ADDON_LABELS } from "./documents";
 
 const base = {
   clientName: "Acme Corp",
@@ -73,5 +73,39 @@ describe("buildMsaContent scope import", () => {
     expect(content).toContain("ADD-ON SERVICES");
     expect(content).toContain("Rush staging service");
     expect(content).toContain("SCHEDULE A — SCOPE OF WORK");
+  });
+});
+
+describe("addonKeyToLabel", () => {
+  it("maps known inquiry add-on keys to human labels", () => {
+    expect(addonKeyToLabel("onsite_delivery")).toBe("On-site delivery (DFW metro)");
+    expect(addonKeyToLabel("expedited")).toBe("Expedited turnaround (rush fee)");
+    expect(addonKeyToLabel("asset_tagging")).toBe(
+      "Inventory & asset capture (tagging & labeling)"
+    );
+    expect(addonKeyToLabel("photo_doc")).toBe(
+      "Photo documentation (chain-of-custody)"
+    );
+    expect(addonKeyToLabel("custom_kitting")).toBe(
+      "Site-kit assembly (custom kitting)"
+    );
+  });
+
+  it("falls back to the raw key for unknown add-ons", () => {
+    expect(addonKeyToLabel("mystery_addon")).toBe("mystery_addon");
+  });
+
+  it("covers every key the request form can submit", () => {
+    const formKeys = [
+      "photo_doc",
+      "asset_tagging",
+      "firmware",
+      "custom_kitting",
+      "expedited",
+      "onsite_delivery",
+    ];
+    for (const key of formKeys) {
+      expect(ADDON_LABELS[key], key).toBeTruthy();
+    }
   });
 });

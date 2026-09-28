@@ -40,6 +40,8 @@ const ADDON_RATES = {
   photoDocumentationFlat: 5000, // $50 flat
   assetCapturePerDevice: 1500, // $15/device
   siteKitAssemblyFlat: 25000, // $250 flat
+  deliveryDfwPerPallet: 17500, // $175/pallet (DFW metro, within 30 mi)
+  deliveryDfwPerDevice: 3000, // $30/device (DFW metro, loose devices/boxes)
 } as const;
 
 /** Included allowances per tier (from the approved tier descriptions). */
@@ -184,6 +186,24 @@ export async function buildDraftQuote(
           1,
           ADDON_RATES.laborHourRush / 100
         );
+        break;
+      case "onsite_delivery":
+        // DFW metro delivery: per-pallet for palletized freight, per-device
+        // for loose devices/boxes. Competitive local rates (30-mi radius).
+        if (palletCount > 0) {
+          push(
+            `DFW metro delivery — ${palletCount} pallet(s)`,
+            palletCount,
+            ADDON_RATES.deliveryDfwPerPallet / 100
+          );
+        } else {
+          const units = deviceCount || boxCount || 1;
+          push(
+            `DFW metro delivery — ${units} device(s)/box(es)`,
+            units,
+            ADDON_RATES.deliveryDfwPerDevice / 100
+          );
+        }
         break;
       default:
         // Unknown add-on key — skip so a rep can price it manually.

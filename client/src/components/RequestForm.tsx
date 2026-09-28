@@ -22,7 +22,7 @@ const ADDONS = [
   { key: "firmware", label: "Firmware & Config Staging", desc: "Pre-configure before deployment" },
   { key: "custom_kitting", label: "Custom Kitting", desc: "Per-site box assembly" },
   { key: "expedited", label: "Expedited Turnaround", desc: "Priority processing" },
-  { key: "onsite_delivery", label: "On-site Delivery", desc: "DFW metro delivery" },
+  { key: "onsite_delivery", label: "On-site Delivery", desc: "DFW metro — $175/pallet, $30/device" },
 ];
 
 const inputClass =

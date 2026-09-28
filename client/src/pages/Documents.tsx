@@ -177,11 +177,27 @@ function SendDocumentDialog({ open, onClose, onSuccess, templateId, templateName
 }
 
 // ─── Auto-Draft MSA Dialog ────────────────────────────────────────────────────
+// Human-readable labels for inquiry add-on keys (mirrors server ADDON_LABELS).
+const ADDON_LABELS: Record<string, string> = {
+  inbound_receiving: "Inbound receiving",
+  asset_capture: "Inventory & asset capture (tagging & labeling)",
+  asset_tagging: "Inventory & asset capture (tagging & labeling)",
+  photo_documentation: "Photo documentation (chain-of-custody)",
+  photo_doc: "Photo documentation (chain-of-custody)",
+  rush_fee: "Expedited turnaround (rush fee)",
+  expedited: "Expedited turnaround (rush fee)",
+  site_kit: "Site-kit assembly (custom kitting)",
+  site_kit_assembly: "Site-kit assembly (custom kitting)",
+  custom_kitting: "Site-kit assembly (custom kitting)",
+  staging_tech: "Staging technician",
+  senior_network_tech: "Senior network technician",
+  onsite_delivery: "On-site delivery (DFW metro)",
+  firmware: "Firmware & config staging",
+};
 function AutoDraftMsaDialog({ open, onClose, onSuccess }: { open: boolean; onClose: () => void; onSuccess: () => void }) {
   const [clientId, setClientId] = useState("");
   const [addOns, setAddOns] = useState("");
   const [addOnsTouched, setAddOnsTouched] = useState(false);
-
   const { data: clientsData2 } = trpc.clients.list.useQuery({});
   const clientsList2 = Array.isArray(clientsData2) ? clientsData2 : (clientsData2 as any)?.clients ?? [];
 
@@ -194,7 +210,7 @@ function AutoDraftMsaDialog({ open, onClose, onSuccess }: { open: boolean; onClo
   // Prefill the add-ons box from the inquiry (until the user edits it)
   useEffect(() => {
     if (!addOnsTouched && prefill?.inquiry && prefill.inquiry.addons.length > 0) {
-      setAddOns(prefill.inquiry.addons.join("\n"));
+      setAddOns(prefill.inquiry.addons.map(k => ADDON_LABELS[k] ?? k).join("\n"));
     }
   }, [prefill, addOnsTouched]);
 
