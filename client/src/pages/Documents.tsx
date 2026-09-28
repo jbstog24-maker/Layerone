@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import DashboardLayout from "@/components/DashboardLayout";
 import { trpc } from "@/lib/trpc";
@@ -180,13 +180,37 @@ function SendDocumentDialog({ open, onClose, onSuccess, templateId, templateName
 function AutoDraftMsaDialog({ open, onClose, onSuccess }: { open: boolean; onClose: () => void; onSuccess: () => void }) {
   const [clientId, setClientId] = useState("");
   const [addOns, setAddOns] = useState("");
+  const [addOnsTouched, setAddOnsTouched] = useState(false);
 
   const { data: clientsData2 } = trpc.clients.list.useQuery({});
   const clientsList2 = Array.isArray(clientsData2) ? clientsData2 : (clientsData2 as any)?.clients ?? [];
+
+  // Auto-import the client's requested package/volumes from their request form / quote
+  const { data: prefill, isLoading: prefillLoading } = trpc.documents.clientDocs.msaPrefill.useQuery(
+    { clientId: parseInt(clientId) },
+    { enabled: !!clientId }
+  );
+
+  // Prefill the add-ons box from the inquiry (until the user edits it)
+  useEffect(() => {
+    if (!addOnsTouched && prefill?.inquiry && prefill.inquiry.addons.length > 0) {
+      setAddOns(prefill.inquiry.addons.join("\n"));
+    }
+  }, [prefill, addOnsTouched]);
+
   const draftMut = trpc.documents.clientDocs.autoDraftMsa.useMutation({
     onSuccess: () => { toast.success("MSA auto-drafted successfully"); onSuccess(); onClose(); },
     onError: (e) => toast.error(e.message),
   });
+
+  const inq = prefill?.inquiry ?? null;
+  const quote = prefill?.quote ?? null;
+  const scopeBits: string[] = [];
+  if (inq?.tier) scopeBits.push(`${inq.tier} package`);
+  if (inq?.deviceCount != null) scopeBits.push(`${inq.deviceCount} devices`);
+  if (inq?.palletCount != null) scopeBits.push(`${inq.palletCount} pallets`);
+  if (inq?.boxCount != null) scopeBits.push(`${inq.boxCount} boxes`);
+  if (inq?.storageDays != null) scopeBits.push(`${inq.storageDays} days storage`);
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -197,7 +221,7 @@ function AutoDraftMsaDialog({ open, onClose, onSuccess }: { open: boolean; onClo
         <p className="text-sm text-slate-400">Automatically generate a Master Service Agreement based on the client's assigned package. The MSA will include all package terms, pricing, add-on clauses, and the 2-week onboarding period.</p>
         <div className="space-y-4">
           <div><Label>Client *</Label>
-            <Select value={clientId} onValueChange={setClientId}>
+            <Select value={clientId} onValueChange={v => { setClientId(v); setAddOns(""); setAddOnsTouched(false); }}>
               <SelectTrigger className="bg-[#07111f] border-[#1e3a5f] text-white mt-1"><SelectValue placeholder="Select client..." /></SelectTrigger>
               <SelectContent className="bg-[#0d1f35] border-[#1e3a5f] text-white">
                 {clientsList2.map((c: any) => (
@@ -210,11 +234,32 @@ function AutoDraftMsaDialog({ open, onClose, onSuccess }: { open: boolean; onClo
             <Label>Add-On Services (one per line)</Label>
             <Textarea
               value={addOns}
-              onChange={e => setAddOns(e.target.value)}
+              onChange={e => { setAddOns(e.target.value); setAddOnsTouched(true); }}
               placeholder={"Extended storage (per pallet/mo)\nRush staging service\nDedicated tech support"}
               className="bg-[#07111f] border-[#1e3a5f] text-white mt-1 h-28"
             />
+            {inq && inq.addons.length > 0 && (
+              <p className="text-[11px] text-slate-500 mt-1">Imported from the client's request — edit as needed.</p>
+            )}
           </div>
+          {clientId && (
+            <div className="bg-green-500/10 border border-green-500/20 rounded-lg p-3 text-xs text-green-300">
+              {prefillLoading ? (
+                "Looking up the client's request…"
+              ) : inq ? (
+                <>
+                  <strong>Imported from request:</strong> {scopeBits.length > 0 ? scopeBits.join(" · ") : "request on file"}
+                  {quote && (
+                    <span className="block mt-0.5 text-green-400/80">
+                      Quote #{quote.id} ({quote.status}) — ${Number(quote.totalAmount).toLocaleString()} total
+                    </span>
+                  )}
+                </>
+              ) : (
+                <span className="text-slate-400">No request/quote found for this client — the MSA will use the assigned package only.</span>
+              )}
+            </div>
+          )}
           <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-3 text-xs text-blue-300">
             <strong>Layer One Logo</strong> will be included in the document header. The MSA will be stored securely and linked to the client's account.
           </div>

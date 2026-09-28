@@ -1,5 +1,6 @@
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
+import { and, desc, eq, sql } from "drizzle-orm";
 import {
   listDocumentTemplates,
   getDocumentTemplate,
@@ -11,10 +12,16 @@ import {
   updateClientDocument,
   listAllClientDocuments,
   getClient,
+  getDb,
   updateClient,
   listPackages,
   logActivity,
 } from "../db";
+import {
+  onboardingChecklists,
+  packageInquiries,
+  quotes,
+} from "../../drizzle/schema";
 import { notifyOwner } from "../_core/notification";
 import { storagePut } from "../storage";
 import { protectedProcedure, router } from "../_core/trpc";
@@ -23,7 +30,20 @@ import { TIER_PRICING, type PackageTier } from "../stripe-products";
 const isAdminOrStaff = (role: string) => role === "admin" || role === "staff";
 
 // ─── MSA Template Content per Tier ───────────────────────────────────────────
-function buildMsaContent(params: {
+export interface MsaScope {
+  /** Requested package tier from the inquiry/request form */
+  tier?: string | null;
+  deviceCount?: number | null;
+  palletCount?: number | null;
+  boxCount?: number | null;
+  storageDays?: number | null;
+  deviceVolume?: string | null;
+  /** Quoted totals from the latest quote, when one exists */
+  quoteTotal?: string | null;
+  quoteLineItems?: { label: string; qty?: number; unitPrice?: string; total?: string }[];
+}
+
+export function buildMsaContent(params: {
   clientName: string;
   packageName: string;
   tierKey: PackageTier;
@@ -31,14 +51,39 @@ function buildMsaContent(params: {
   basePrice: string;
   billingCycle: string;
   goLiveDate: string;
+  scope?: MsaScope;
 }): string {
-  const { clientName, packageName, tierKey, addOns, basePrice, billingCycle, goLiveDate } = params;
+  const { clientName, packageName, tierKey, addOns, basePrice, billingCycle, goLiveDate, scope } = params;
   const today = new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
   const tier = TIER_PRICING[tierKey];
 
   const addOnSection = addOns.length > 0
     ? `\n\nADD-ON SERVICES\nThe following add-on services are included in this agreement:\n${addOns.map(a => `  • ${a}`).join("\n")}`
     : "";
+
+  // Scope auto-imported from the client's request form / quote
+  let scopeSection = "";
+  if (scope) {
+    const lines: string[] = [];
+    if (scope.tier) lines.push(`  • Requested package: ${scope.tier}`);
+    if (scope.deviceCount != null) lines.push(`  • Devices: ${scope.deviceCount}`);
+    if (scope.palletCount != null) lines.push(`  • Pallets: ${scope.palletCount}`);
+    if (scope.boxCount != null) lines.push(`  • Boxes: ${scope.boxCount}`);
+    if (scope.storageDays != null) lines.push(`  • Storage term: ${scope.storageDays} days`);
+    if (scope.deviceVolume) lines.push(`  • Device volume: ${scope.deviceVolume}`);
+    if (scope.quoteLineItems && scope.quoteLineItems.length > 0) {
+      lines.push(`  • Quoted services:`);
+      for (const li of scope.quoteLineItems) {
+        const qty = li.qty != null ? ` (x${li.qty})` : "";
+        const total = li.total != null ? ` — $${li.total}` : "";
+        lines.push(`      – ${li.label}${qty}${total}`);
+      }
+    }
+    if (scope.quoteTotal) lines.push(`  • Quoted total: $${scope.quoteTotal}`);
+    if (lines.length > 0) {
+      scopeSection = `\n\nSCHEDULE A — SCOPE OF WORK\nThe following volumes and services from the client's request and approved quote are incorporated into this agreement:\n${lines.join("\n")}`;
+    }
+  }
 
   return `MASTER SERVICE AGREEMENT
 NETWORK STAGING & DEPLOYMENT SOLUTIONS (Layer One)
@@ -60,7 +105,7 @@ Layer One agrees to provide the following staging and logistics services to the 
   • Inbound receiving and inventory tracking
   • Device staging, configuration support, and QA
   • Outbound shipment coordination and tracking
-  • Customer portal access for real-time visibility${addOnSection}
+  • Customer portal access for real-time visibility${addOnSection}${scopeSection}
 
 2. FEES AND PAYMENT
 
@@ -120,6 +165,117 @@ Title: ___________________________
 Layer One | Layer One Staging Solutions
 North Richland Hills, TX | nsds.com
 `;
+}
+
+/**
+ * Auto-import a client's requested package/volumes for MSA generation.
+ * Links client -> inquiry via the onboarding checklist (created by the
+ * autonomous quote flow), falling back to matching the client's contact
+ * email against inquiry emails. Also pulls the latest quote for that
+ * inquiry so quoted line items and totals land in the MSA.
+ */
+export async function getMsaPrefillData(clientId: number): Promise<{
+  inquiry: {
+    id: number;
+    company: string;
+    tier: string;
+    deviceCount: number | null;
+    palletCount: number | null;
+    boxCount: number | null;
+    storageDays: number | null;
+    deviceVolume: string | null;
+    addons: string[];
+  } | null;
+  quote: {
+    id: number;
+    status: string;
+    totalAmount: string;
+    lineItems: { label: string; qty?: number; unitPrice?: string; total?: string }[];
+  } | null;
+}> {
+  const db = await getDb();
+  if (!db) return { inquiry: null, quote: null };
+
+  const client = await getClient(clientId);
+  if (!client) return { inquiry: null, quote: null };
+
+  // 1. Find the inquiry: onboarding checklist link first, then email match.
+  let inquiryId: number | null = null;
+  const [checklist] = await db
+    .select({ inquiryId: onboardingChecklists.inquiryId })
+    .from(onboardingChecklists)
+    .where(eq(onboardingChecklists.clientId, clientId))
+    .orderBy(desc(onboardingChecklists.createdAt))
+    .limit(1);
+  if (checklist?.inquiryId) {
+    inquiryId = checklist.inquiryId;
+  } else if (client.contactEmail) {
+    const email = client.contactEmail.trim().toLowerCase();
+    const [byEmail] = await db
+      .select({ id: packageInquiries.id })
+      .from(packageInquiries)
+      .where(sql`LOWER(${packageInquiries.email}) = ${email}`)
+      .orderBy(desc(packageInquiries.createdAt))
+      .limit(1);
+    if (byEmail) inquiryId = byEmail.id;
+  }
+
+  if (!inquiryId) return { inquiry: null, quote: null };
+
+  const [inq] = await db
+    .select()
+    .from(packageInquiries)
+    .where(eq(packageInquiries.id, inquiryId))
+    .limit(1);
+  if (!inq) return { inquiry: null, quote: null };
+
+  let addons: string[] = [];
+  try {
+    const parsed = JSON.parse(inq.addons ?? "[]");
+    if (Array.isArray(parsed)) addons = parsed.map(String).filter(Boolean);
+  } catch {
+    addons = [];
+  }
+
+  // 2. Latest quote for the inquiry (whatever the quote was produced off of).
+  const [q] = await db
+    .select()
+    .from(quotes)
+    .where(eq(quotes.inquiryId, inquiryId))
+    .orderBy(desc(quotes.createdAt))
+    .limit(1);
+
+  let lineItems: { label: string; qty?: number; unitPrice?: string; total?: string }[] = [];
+  if (q?.lineItems) {
+    try {
+      const parsed = JSON.parse(q.lineItems);
+      if (Array.isArray(parsed)) lineItems = parsed;
+    } catch {
+      lineItems = [];
+    }
+  }
+
+  return {
+    inquiry: {
+      id: inq.id,
+      company: inq.company,
+      tier: inq.tier,
+      deviceCount: inq.deviceCount,
+      palletCount: inq.palletCount,
+      boxCount: inq.boxCount,
+      storageDays: inq.storageDays,
+      deviceVolume: inq.deviceVolume,
+      addons,
+    },
+    quote: q
+      ? {
+          id: q.id,
+          status: q.status,
+          totalAmount: String(q.totalAmount ?? "0.00"),
+          lineItems,
+        }
+      : null,
+  };
 }
 
 export const documentsRouter = router({
@@ -209,6 +365,14 @@ export const documentsRouter = router({
     }),
 
     /** Auto-draft an MSA for a client based on their assigned package */
+    /** Prefill data for the Auto-Draft MSA dialog: the client's request volumes + latest quote. */
+    msaPrefill: protectedProcedure
+      .input(z.object({ clientId: z.number() }))
+      .query(async ({ ctx, input }) => {
+        if (!isAdminOrStaff(ctx.user.role)) throw new TRPCError({ code: "FORBIDDEN" });
+        return getMsaPrefillData(input.clientId);
+      }),
+
     autoDraftMsa: protectedProcedure
       .input(z.object({
         clientId: z.number(),
@@ -240,14 +404,35 @@ export const documentsRouter = router({
         const goLiveDate = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000)
           .toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
 
+        // Auto-import the client's requested package/volumes from their
+        // request form (inquiry) and the quote it produced.
+        const prefill = await getMsaPrefillData(input.clientId);
+        const manualAddOns = (input.addOns ?? []).map(a => a.trim()).filter(Boolean);
+        const addOns = manualAddOns.length > 0
+          ? manualAddOns
+          : (prefill.inquiry?.addons ?? []);
+        const scope: MsaScope | undefined = prefill.inquiry
+          ? {
+              tier: prefill.inquiry.tier,
+              deviceCount: prefill.inquiry.deviceCount,
+              palletCount: prefill.inquiry.palletCount,
+              boxCount: prefill.inquiry.boxCount,
+              storageDays: prefill.inquiry.storageDays,
+              deviceVolume: prefill.inquiry.deviceVolume,
+              quoteTotal: prefill.quote?.totalAmount ?? null,
+              quoteLineItems: prefill.quote?.lineItems ?? [],
+            }
+          : undefined;
+
         const msaContent = buildMsaContent({
           clientName: client.companyName,
           packageName,
           tierKey,
-          addOns: input.addOns ?? [],
+          addOns,
           basePrice,
           billingCycle,
           goLiveDate,
+          scope,
         });
 
         // Store MSA as a text file in S3
@@ -263,7 +448,9 @@ export const documentsRouter = router({
           sentByUserId: ctx.user.id,
           signedFileKey: key,
           signedFileUrl: url,
-          notes: `Auto-generated MSA for ${packageName}. Add-ons: ${(input.addOns ?? []).join(", ") || "None"}`,
+          notes: `Auto-generated MSA for ${packageName}. Add-ons: ${addOns.join(", ") || "None"}${
+            scope ? ` Scope imported from request #${prefill.inquiry!.id}${prefill.quote ? ` + quote #${prefill.quote.id}` : ""}.` : ""
+          }`,
         });
 
         await logActivity({
