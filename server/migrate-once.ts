@@ -8,7 +8,9 @@
  * Statements applied (additive only, no data touched):
  *  - CREATE TABLE msa_documents / onboarding_checklists / onboarding_tasks
  *  - package_inquiries.status enum extended with new workflow values
- *  - quotes gains msaStatus, stripeCheckoutSessionId, msaDocumentId columns
+ *  - quotes gains msaStatus, stripeCheckoutSessionId, msaDocumentId
+ *  - quotes gains stripePaymentLinkId, stripePaymentLinkUrl, stripePriceId, sentAt, paidAt
+ *  - users gains inviteToken, inviteTokenExpiresAt (set-password / reset flow)
  */
 import { sql } from "drizzle-orm";
 import { getDb } from "./db";
@@ -65,29 +67,55 @@ ALTER TABLE \`package_inquiries\` MODIFY COLUMN \`status\`
 enum('new','needs_review','contacted','proposal_sent','quote_sent','msa_signed','paid','onboarding','won','lost','closed')
 NOT NULL DEFAULT 'new'`;
 
-async function tableExists(db: any, name: string): Promise<boolean> {
-  const rows = await db.execute(
+// NOTE (2026-09-27): db.execute() on the mysql2 driver resolves to the raw
+// mysql2 [rows, fields] tuple, NOT the rows array. Reading `.length` on the
+// tuple is always 2 (truthy), which made every existence check below report
+// "already exists" — so this migration silently skipped everything it was
+// supposed to apply. Always unwrap to the data rows first.
+export async function execRows(db: any, query: any): Promise<any[]> {
+  const res = await db.execute(query);
+  const rows = Array.isArray(res) ? res[0] : res;
+  return (Array.isArray(rows) ? rows : []) as any[];
+}
+
+export async function tableExists(db: any, name: string): Promise<boolean> {
+  const rows = await execRows(
+    db,
     sql`SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ${name} LIMIT 1`
   );
-  return (rows as any[]).length > 0;
+  return rows.length > 0;
 }
 
-async function columnExists(db: any, table: string, column: string): Promise<boolean> {
-  const rows = await db.execute(
+export async function columnExists(db: any, table: string, column: string): Promise<boolean> {
+  const rows = await execRows(
+    db,
     sql`SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ${table} AND COLUMN_NAME = ${column} LIMIT 1`
   );
-  return (rows as any[]).length > 0;
+  return rows.length > 0;
 }
 
-async function inquiryStatusHas(db: any, value: string): Promise<boolean> {
-  const rows: any[] = await db.execute(sql`SHOW COLUMNS FROM \`package_inquiries\` LIKE 'status'`);
+export async function inquiryStatusHas(db: any, value: string): Promise<boolean> {
+  const rows = await execRows(db, sql`SHOW COLUMNS FROM \`package_inquiries\` LIKE 'status'`);
   const type = rows?.[0]?.Type as string | undefined;
   return !!type && type.includes(`'${value}'`);
 }
 
+/**
+ * Run one additive step without letting it abort the remaining steps.
+ * A failure here is never fatal to boot; it is logged and we continue so a
+ * single duplicate/partial state can't block the columns the app needs.
+ */
+async function applyStep(label: string, fn: () => Promise<void>): Promise<void> {
+  try {
+    await fn();
+  } catch (err: any) {
+    console.error(`[Migration] step "${label}" failed (non-fatal, continuing):`, err?.message ?? err);
+  }
+}
+
 export async function runOnceMigration(): Promise<void> {
   if (process.env.RUN_ONCE_MIGRATION !== "1") return;
-  console.log("[Migration] RUN_ONCE_MIGRATION=1 — starting one-time migration (2026-09-27 autonomous flow)");
+  console.log("[Migration] RUN_ONCE_MIGRATION=1 — starting one-time migration (invite-token fix)");
   try {
     const db = await getDb();
     if (!db) {
@@ -100,34 +128,40 @@ export async function runOnceMigration(): Promise<void> {
       ["onboarding_checklists", CREATE_ONBOARDING_CHECKLISTS],
       ["onboarding_tasks", CREATE_ONBOARDING_TASKS],
     ] as const) {
-      if (await tableExists(db, name)) {
-        console.log(`[Migration] table ${name} already exists — skipping`);
-      } else {
-        await db.execute(sql.raw(ddl));
-        console.log(`[Migration] table ${name} created`);
-      }
+      await applyStep(`create table ${name}`, async () => {
+        if (await tableExists(db, name)) {
+          console.log(`[Migration] table ${name} already exists — skipping`);
+        } else {
+          await db.execute(sql.raw(ddl));
+          console.log(`[Migration] table ${name} created`);
+        }
+      });
     }
 
-    if (await inquiryStatusHas(db, "needs_review")) {
-      console.log("[Migration] package_inquiries.status already extended — skipping");
-    } else {
-      await db.execute(sql.raw(EXTEND_INQUIRY_STATUS));
-      console.log("[Migration] package_inquiries.status enum extended");
-    }
+    await applyStep("extend package_inquiries.status enum", async () => {
+      if (await inquiryStatusHas(db, "needs_review")) {
+        console.log("[Migration] package_inquiries.status already extended — skipping");
+      } else {
+        await db.execute(sql.raw(EXTEND_INQUIRY_STATUS));
+        console.log("[Migration] package_inquiries.status enum extended");
+      }
+    });
 
     for (const col of ["msaStatus", "stripeCheckoutSessionId", "msaDocumentId"] as const) {
-      if (await columnExists(db, "quotes", col)) {
-        console.log(`[Migration] quotes.${col} already exists — skipping`);
-      } else if (col === "msaStatus") {
-        await db.execute(sql.raw(`ALTER TABLE \`quotes\` ADD \`${col}\` enum('pending','signed','waived') DEFAULT 'pending' NOT NULL`));
-        console.log(`[Migration] quotes.${col} added`);
-      } else if (col === "stripeCheckoutSessionId") {
-        await db.execute(sql.raw(`ALTER TABLE \`quotes\` ADD \`${col}\` varchar(255)`));
-        console.log(`[Migration] quotes.${col} added`);
-      } else {
-        await db.execute(sql.raw(`ALTER TABLE \`quotes\` ADD \`${col}\` int`));
-        console.log(`[Migration] quotes.${col} added`);
-      }
+      await applyStep(`add quotes.${col}`, async () => {
+        if (await columnExists(db, "quotes", col)) {
+          console.log(`[Migration] quotes.${col} already exists — skipping`);
+        } else if (col === "msaStatus") {
+          await db.execute(sql.raw(`ALTER TABLE \`quotes\` ADD \`${col}\` enum('pending','signed','waived') DEFAULT 'pending' NOT NULL`));
+          console.log(`[Migration] quotes.${col} added`);
+        } else if (col === "stripeCheckoutSessionId") {
+          await db.execute(sql.raw(`ALTER TABLE \`quotes\` ADD \`${col}\` varchar(255)`));
+          console.log(`[Migration] quotes.${col} added`);
+        } else {
+          await db.execute(sql.raw(`ALTER TABLE \`quotes\` ADD \`${col}\` int`));
+          console.log(`[Migration] quotes.${col} added`);
+        }
+      });
     }
 
     // 2026-09-27: ensure quotes columns from the earlier Stripe/payment-link
@@ -140,12 +174,14 @@ export async function runOnceMigration(): Promise<void> {
       paidAt: "timestamp NULL",
     };
     for (const [col, def] of Object.entries(QUOTE_COLUMN_DEFS)) {
-      if (await columnExists(db, "quotes", col)) {
-        console.log(`[Migration] quotes.${col} already exists — skipping`);
-      } else {
-        await db.execute(sql.raw(`ALTER TABLE \`quotes\` ADD \`${col}\` ${def}`));
-        console.log(`[Migration] quotes.${col} added`);
-      }
+      await applyStep(`add quotes.${col}`, async () => {
+        if (await columnExists(db, "quotes", col)) {
+          console.log(`[Migration] quotes.${col} already exists — skipping`);
+        } else {
+          await db.execute(sql.raw(`ALTER TABLE \`quotes\` ADD \`${col}\` ${def}`));
+          console.log(`[Migration] quotes.${col} added`);
+        }
+      });
     }
 
     // 2026-09-27: invite / password-reset token columns on users (set-password flow)
@@ -154,12 +190,14 @@ export async function runOnceMigration(): Promise<void> {
       inviteTokenExpiresAt: "timestamp NULL",
     };
     for (const [col, def] of Object.entries(USER_COLUMN_DEFS)) {
-      if (await columnExists(db, "users", col)) {
-        console.log(`[Migration] users.${col} already exists — skipping`);
-      } else {
-        await db.execute(sql.raw(`ALTER TABLE \`users\` ADD \`${col}\` ${def}`));
-        console.log(`[Migration] users.${col} added`);
-      }
+      await applyStep(`add users.${col}`, async () => {
+        if (await columnExists(db, "users", col)) {
+          console.log(`[Migration] users.${col} already exists — skipping`);
+        } else {
+          await db.execute(sql.raw(`ALTER TABLE \`users\` ADD \`${col}\` ${def}`));
+          console.log(`[Migration] users.${col} added`);
+        }
+      });
     }
 
     console.log("[Migration] one-time migration complete");
