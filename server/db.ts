@@ -1190,15 +1190,19 @@ export async function listAllThreads() {
   if (!db) return [];
 
   // Get all clients that have messages, with latest message info
+  // NOTE: every raw sql<> fragment below carries an explicit .as() alias.
+  // Without them the generated SQL has no column aliases and
+  // `ORDER BY latestAt DESC` fails with "unknown column" (2026-09-27:
+  // the Messages thread list never loaded because of this).
   const rows = await db
     .select({
       clientId: clientMessages.clientId,
-      latestBody: sql<string>`(SELECT body FROM client_messages cm2 WHERE cm2.clientId = ${clientMessages.clientId} ORDER BY cm2.createdAt DESC LIMIT 1)`,
-      latestAt: sql<Date>`(SELECT createdAt FROM client_messages cm2 WHERE cm2.clientId = ${clientMessages.clientId} ORDER BY cm2.createdAt DESC LIMIT 1)`,
-      latestSenderRole: sql<string>`(SELECT senderRole FROM client_messages cm2 WHERE cm2.clientId = ${clientMessages.clientId} ORDER BY cm2.createdAt DESC LIMIT 1)`,
-      latestSenderName: sql<string>`(SELECT senderName FROM client_messages cm2 WHERE cm2.clientId = ${clientMessages.clientId} ORDER BY cm2.createdAt DESC LIMIT 1)`,
-      unreadCount: sql<number>`SUM(CASE WHEN ${clientMessages.senderRole} IN ('customer_admin','customer_viewer') AND ${clientMessages.readAt} IS NULL THEN 1 ELSE 0 END)`,
-      totalMessages: sql<number>`COUNT(*)`,
+      latestBody: sql<string>`(SELECT body FROM client_messages cm2 WHERE cm2.clientId = ${clientMessages.clientId} ORDER BY cm2.createdAt DESC LIMIT 1)`.as("latestBody"),
+      latestAt: sql<Date>`(SELECT createdAt FROM client_messages cm2 WHERE cm2.clientId = ${clientMessages.clientId} ORDER BY cm2.createdAt DESC LIMIT 1)`.as("latestAt"),
+      latestSenderRole: sql<string>`(SELECT senderRole FROM client_messages cm2 WHERE cm2.clientId = ${clientMessages.clientId} ORDER BY cm2.createdAt DESC LIMIT 1)`.as("latestSenderRole"),
+      latestSenderName: sql<string>`(SELECT senderName FROM client_messages cm2 WHERE cm2.clientId = ${clientMessages.clientId} ORDER BY cm2.createdAt DESC LIMIT 1)`.as("latestSenderName"),
+      unreadCount: sql<number>`SUM(CASE WHEN ${clientMessages.senderRole} IN ('customer_admin','customer_viewer') AND ${clientMessages.readAt} IS NULL THEN 1 ELSE 0 END)`.as("unreadCount"),
+      totalMessages: sql<number>`COUNT(*)`.as("totalMessages"),
     })
     .from(clientMessages)
     .groupBy(clientMessages.clientId)
