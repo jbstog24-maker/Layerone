@@ -163,7 +163,6 @@ Title: ___________________________
 
 ─────────────────────────────────────────────────────────────────────────────
 Layer One | Layer One Staging Solutions
-North Richland Hills, TX | nsds.com
 `;
 }
 
