@@ -48,7 +48,7 @@ export const inquiryRouter = router({
       name: z.string().min(1).max(120),
       company: z.string().min(1).max(200),
       email: z.string().email().max(320),
-      phone: z.string().max(30).optional(),
+      phone: z.string().min(7, "Please enter a valid phone number.").max(30),
       tier: z.enum(["basic", "standard", "professional", "enterprise", "custom"]),
       deviceVolume: z.string().max(30).optional(),
       deviceCount: z.number().int().min(0).optional(),

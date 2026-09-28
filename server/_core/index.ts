@@ -9,6 +9,7 @@ import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
 import { registerStripeRoutes } from "../stripe";
 import { runOnceMigration } from "../migrate-once";
+import { registerProspectSyncRoute } from "../prospectSync";
 import {
   handleMonthlyInvoices,
   handleDripAutoSend,
@@ -79,6 +80,8 @@ async function startServer() {
   app.post("/api/scheduled/monthly-invoices", handleMonthlyInvoices);
   app.post("/api/scheduled/drip-auto-send", handleDripAutoSend);
   app.post("/api/scheduled/lead-score-decay", handleLeadScoreDecay);
+  // Prospect tracking sheet sync (token-authenticated, read-only)
+  registerProspectSyncRoute(app);
   // tRPC API
   app.use(
     "/api/trpc",

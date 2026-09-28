@@ -72,7 +72,7 @@ export default function RequestForm({ onSubmitted }: { onSubmitted?: () => void 
       name: form.name,
       company: form.company,
       email: form.email,
-      phone: form.phone || undefined,
+      phone: form.phone,
       tier: form.tier as Tier,
       deviceCount: form.deviceCount ? parseInt(form.deviceCount) : undefined,
       palletCount: form.palletCount ? parseInt(form.palletCount) : undefined,
@@ -135,9 +135,9 @@ export default function RequestForm({ onSubmitted }: { onSubmitted?: () => void 
           </div>
           <div>
             <label className="block text-sm font-medium text-[#b7c5d5] mb-1.5">
-              <Phone className="inline w-3.5 h-3.5 mr-1 opacity-70" />Phone <span className="text-[#b7c5d5]/50 font-normal">(optional)</span>
+              <Phone className="inline w-3.5 h-3.5 mr-1 opacity-70" />Phone <span className="text-red-400">*</span>
             </label>
-            <input type="tel" value={form.phone} onChange={set("phone")} placeholder="(214) 555-0100" className={inputClass} />
+            <input required type="tel" value={form.phone} onChange={set("phone")} placeholder="(214) 555-0100" className={inputClass} />
           </div>
         </div>
       </section>

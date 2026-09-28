@@ -263,7 +263,7 @@ function InquiryForm({ tier }: { tier: Tier }) {
       name: form.name,
       company: form.company,
       email: form.email,
-      phone: form.phone || undefined,
+      phone: form.phone,
       tier: tier.id as "basic" | "standard" | "professional" | "enterprise" | "custom",
       deviceVolume: form.devices || undefined,
       message: form.message || undefined,
@@ -325,8 +325,9 @@ function InquiryForm({ tier }: { tier: Tier }) {
           />
         </div>
         <div>
-          <label className="block text-xs font-semibold text-[#b7c5d5] mb-1.5">Phone</label>
+          <label className="block text-xs font-semibold text-[#b7c5d5] mb-1.5">Phone <span className="text-red-400">*</span></label>
           <input
+            required
             type="tel"
             value={form.phone}
             onChange={e => setForm(f => ({ ...f, phone: e.target.value }))}
