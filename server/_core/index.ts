@@ -17,7 +17,6 @@ import {
   handleLeadScoreDecay,
 } from "../scheduledHandlers";
 import rateLimit from "express-rate-limit";
-import { getLandingPageHtml } from "../landingPage";
 import { ENV } from "./env";
 
 // Rate limiters — disabled in development to avoid friction

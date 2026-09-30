@@ -61,7 +61,17 @@ import {
   Rocket,
   Trophy,
   ThumbsDown,
+  MapPin,
+  CalendarDays,
 } from "lucide-react";
+
+const DURATION_LABELS: Record<string, string> = {
+  "under-1-month": "Under 1 month",
+  "1-3-months": "1–3 months",
+  "3-6-months": "3–6 months",
+  "6-12-months": "6–12 months",
+  "12-plus": "12+ months / ongoing",
+};
 import { useState, useMemo, useEffect } from "react";
 import { toast } from "sonner";
 import { ADDON_RATES, TIER_PRICING } from "@/lib/pricingConstants";
@@ -89,6 +99,10 @@ type Inquiry = {
   storageDays: number | null;
   addons: string | null;
   message: string | null;
+  locationCount: number | null;
+  equipmentTypes: string | null;
+  startDate: string | null;
+  rolloutDuration: string | null;
   status: InquiryStatus;
   createdAt: Date;
 };
@@ -389,7 +403,30 @@ function QuoteBuilderDialog({
                   <Clock className="w-3 h-3" /> {inquiry.storageDays} days storage
                 </span>
               )}
+              {inquiry.locationCount != null && (
+                <span className="inline-flex items-center gap-1 text-xs bg-white/5 border border-white/10 px-2 py-0.5 rounded-full text-slate-300">
+                  <MapPin className="w-3 h-3" /> {inquiry.locationCount} locations
+                </span>
+              )}
+              {inquiry.startDate && (
+                <span className="inline-flex items-center gap-1 text-xs bg-white/5 border border-white/10 px-2 py-0.5 rounded-full text-slate-300">
+                  <CalendarDays className="w-3 h-3" /> starts {inquiry.startDate}
+                </span>
+              )}
+              {inquiry.rolloutDuration && (
+                <span className="inline-flex items-center gap-1 text-xs bg-white/5 border border-white/10 px-2 py-0.5 rounded-full text-slate-300">
+                  <Clock className="w-3 h-3" /> {DURATION_LABELS[inquiry.rolloutDuration] ?? inquiry.rolloutDuration}
+                </span>
+              )}
             </div>
+            {inquiry.equipmentTypes && (() => {
+              try {
+                const types: string[] = JSON.parse(inquiry.equipmentTypes);
+                return types.length > 0 ? (
+                  <p className="text-xs text-slate-400">Equipment: {types.join(", ")}</p>
+                ) : null;
+              } catch { return null; }
+            })()}
             {inquiry.addons && (() => {
               try {
                 const addons: string[] = JSON.parse(inquiry.addons);

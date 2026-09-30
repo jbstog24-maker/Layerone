@@ -24,11 +24,11 @@ export default function GetStarted() {
             Free Consultation — No Commitment
           </div>
           <h1 className="text-4xl font-extrabold text-white mb-3 leading-tight">
-            Get Started with<br />
-            <span className="bg-gradient-to-r from-[#0A84FF] to-[#6ee7b7] bg-clip-text text-transparent">Layer One</span>
+            Request Your<br />
+            <span className="bg-gradient-to-r from-[#0A84FF] to-[#6ee7b7] bg-clip-text text-transparent">Rollout Quote</span>
           </h1>
           <p className="text-[#b7c5d5] text-lg">
-            Tell us about your deployment needs and a rep will build a custom quote for you.
+            Tell us the number of locations, devices, services required, storage needs, and deployment schedule — we&apos;ll build a staging and logistics quote around your rollout.
           </p>
         </div>
 

@@ -39,6 +39,8 @@ import MyInstructions from "./pages/MyInstructions";
 import OnboardingTour from "./components/OnboardingTour";
 import { PalletDetail } from "./pages/Pallets";
 import GetStarted from "./pages/GetStarted";
+import ServicePage from "./pages/services/ServicePage";
+import ServiceIndex from "./pages/services/ServiceIndex";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import SetPassword from "./pages/SetPassword";
@@ -130,6 +132,10 @@ function Router() {
 
       {/* Package detail */}
       <Route path="/packages/:tier" component={PackageDetail} />
+
+      {/* SEO service pages */}
+      <Route path="/services" component={ServiceIndex} />
+      <Route path="/services/:slug" component={ServicePage} />
 
       <Route path="/404" component={NotFound} />
       <Route component={NotFound} />

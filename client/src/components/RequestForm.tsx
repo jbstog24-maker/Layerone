@@ -2,6 +2,7 @@ import { useState } from "react";
 import {
   CheckCircle2, Loader2, Building2, User, Mail, Phone,
   Package, MessageSquare, ChevronRight, Server, Box, Layers, Clock, Wrench,
+  MapPin, CalendarDays, Cpu,
 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
@@ -25,6 +26,24 @@ const ADDONS = [
   { key: "onsite_delivery", label: "On-site Delivery", desc: "DFW metro — $175/pallet, $30/device" },
 ];
 
+const EQUIPMENT_TYPES = [
+  "Network & Switching",
+  "Wi-Fi / Access Points",
+  "POS Systems",
+  "Servers & Compute",
+  "Kiosks & Displays",
+  "Cabling & Infrastructure",
+  "Other",
+];
+
+const ROLLOUT_DURATIONS = [
+  { value: "under-1-month", label: "Under 1 month" },
+  { value: "1-3-months", label: "1–3 months" },
+  { value: "3-6-months", label: "3–6 months" },
+  { value: "6-12-months", label: "6–12 months" },
+  { value: "12-plus", label: "12+ months / ongoing" },
+];
+
 const inputClass =
   "w-full px-4 py-3 rounded-xl bg-white/6 border border-white/12 text-white placeholder-white/30 focus:outline-none focus:border-[#0A84FF]/60 focus:bg-white/8 transition-colors";
 
@@ -36,6 +55,7 @@ const inputClass =
 export default function RequestForm({ onSubmitted }: { onSubmitted?: () => void }) {
   const [submitted, setSubmitted] = useState(false);
   const [selectedAddons, setSelectedAddons] = useState<string[]>([]);
+  const [selectedEquipment, setSelectedEquipment] = useState<string[]>([]);
   const [form, setForm] = useState({
     name: "",
     company: "",
@@ -46,6 +66,9 @@ export default function RequestForm({ onSubmitted }: { onSubmitted?: () => void 
     palletCount: "",
     boxCount: "",
     storageDays: "",
+    locationCount: "",
+    startDate: "",
+    rolloutDuration: "",
     message: "",
   });
 
@@ -60,6 +83,11 @@ export default function RequestForm({ onSubmitted }: { onSubmitted?: () => void 
   const toggleAddon = (key: string) =>
     setSelectedAddons(prev =>
       prev.includes(key) ? prev.filter(k => k !== key) : [...prev, key]
+    );
+
+  const toggleEquipment = (label: string) =>
+    setSelectedEquipment(prev =>
+      prev.includes(label) ? prev.filter(k => k !== label) : [...prev, label]
     );
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -80,6 +108,10 @@ export default function RequestForm({ onSubmitted }: { onSubmitted?: () => void 
       storageDays: form.storageDays ? parseInt(form.storageDays) : undefined,
       addons: selectedAddons.length > 0 ? selectedAddons : undefined,
       message: form.message || undefined,
+      locationCount: form.locationCount ? parseInt(form.locationCount) : undefined,
+      equipmentTypes: selectedEquipment.length > 0 ? selectedEquipment : undefined,
+      startDate: form.startDate || undefined,
+      rolloutDuration: form.rolloutDuration || undefined,
     });
   };
 
@@ -201,6 +233,85 @@ export default function RequestForm({ onSubmitted }: { onSubmitted?: () => void 
         </div>
       </section>
 
+      {/* ── Rollout Details ── */}
+      <section>
+        <h2 className="text-sm font-semibold text-[#b7c5d5] uppercase tracking-wider mb-1 flex items-center gap-2">
+          <MapPin className="w-4 h-4" /> Rollout Details <span className="text-[#b7c5d5]/50 font-normal normal-case tracking-normal">(optional)</span>
+        </h2>
+        <p className="text-xs text-[#b7c5d5]/60 mb-4">For multi-site projects — helps us scope staging, kitting, and scheduling.</p>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-5">
+          <div>
+            <label className="block text-xs font-medium text-[#b7c5d5] mb-1.5 flex items-center gap-1">
+              <MapPin className="w-3 h-3" /> Deployment Locations
+            </label>
+            <input
+              type="number"
+              min="0"
+              value={form.locationCount}
+              onChange={set("locationCount")}
+              placeholder="e.g. 25"
+              className="w-full px-3 py-2.5 rounded-xl bg-white/6 border border-white/12 text-white placeholder-white/30 focus:outline-none focus:border-[#0A84FF]/60 transition-colors text-sm"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-[#b7c5d5] mb-1.5 flex items-center gap-1">
+              <CalendarDays className="w-3 h-3" /> Est. Start Date
+            </label>
+            <input
+              type="date"
+              value={form.startDate}
+              onChange={set("startDate")}
+              className="w-full px-3 py-2.5 rounded-xl bg-white/6 border border-white/12 text-white placeholder-white/30 focus:outline-none focus:border-[#0A84FF]/60 transition-colors text-sm [color-scheme:dark]"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-[#b7c5d5] mb-1.5 flex items-center gap-1">
+              <Clock className="w-3 h-3" /> Rollout Duration
+            </label>
+            <select
+              value={form.rolloutDuration}
+              onChange={set("rolloutDuration")}
+              className="w-full px-3 py-2.5 rounded-xl bg-white/6 border border-white/12 text-white focus:outline-none focus:border-[#0A84FF]/60 transition-colors text-sm"
+            >
+              <option value="" className="bg-[#0B1320]">Select…</option>
+              {ROLLOUT_DURATIONS.map(d => (
+                <option key={d.value} value={d.value} className="bg-[#0B1320]">{d.label}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+        <label className="block text-xs font-medium text-[#b7c5d5] mb-2 flex items-center gap-1">
+          <Cpu className="w-3 h-3" /> Equipment Types
+        </label>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+          {EQUIPMENT_TYPES.map(label => (
+            <button
+              key={label}
+              type="button"
+              onClick={() => toggleEquipment(label)}
+              className={`text-left px-4 py-2.5 rounded-xl border transition-all flex items-center gap-3 ${
+                selectedEquipment.includes(label)
+                  ? "border-[#0A84FF]/60 bg-[#0A84FF]/10 text-white"
+                  : "border-white/10 bg-white/4 text-[#b7c5d5] hover:border-white/20 hover:bg-white/6"
+              }`}
+            >
+              <div
+                className={`w-4 h-4 rounded border flex-shrink-0 flex items-center justify-center transition-colors ${
+                  selectedEquipment.includes(label) ? "bg-[#0A84FF] border-[#0A84FF]" : "border-white/25"
+                }`}
+              >
+                {selectedEquipment.includes(label) && (
+                  <svg className="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 12 12">
+                    <path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                )}
+              </div>
+              <div className="text-sm font-medium">{label}</div>
+            </button>
+          ))}
+        </div>
+      </section>
+
       {/* ── Add-ons ── */}
       <section>
         <h2 className="text-sm font-semibold text-[#b7c5d5] uppercase tracking-wider mb-4 flex items-center gap-2">
@@ -264,7 +375,7 @@ export default function RequestForm({ onSubmitted }: { onSubmitted?: () => void 
           </>
         ) : (
           <>
-            Request a Quote <ChevronRight className="w-5 h-5" />
+            Request Your Rollout Quote <ChevronRight className="w-5 h-5" />
           </>
         )}
       </button>

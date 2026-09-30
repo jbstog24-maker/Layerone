@@ -101,6 +101,14 @@ export function registerProspectSyncRoute(app: Express) {
             addons = [];
           }
 
+          let equipmentTypes: string[] = [];
+          try {
+            const parsed: unknown = inq.equipmentTypes ? JSON.parse(inq.equipmentTypes) : [];
+            if (Array.isArray(parsed)) equipmentTypes = parsed.filter((k): k is string => typeof k === "string");
+          } catch {
+            equipmentTypes = [];
+          }
+
           return {
             id: inq.id,
             createdAt: inq.createdAt,
@@ -115,6 +123,10 @@ export function registerProspectSyncRoute(app: Express) {
             storageDays: inq.storageDays,
             addons,
             message: inq.message,
+            locationCount: inq.locationCount,
+            equipmentTypes,
+            startDate: inq.startDate,
+            rolloutDuration: inq.rolloutDuration,
             status: inq.status,
             quote: quote
               ? {

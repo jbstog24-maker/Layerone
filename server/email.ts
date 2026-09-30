@@ -271,6 +271,10 @@ export type InquiryOwnerEmailParams = {
   storageDays?: number | null;
   addons?: string[];
   message?: string | null;
+  locationCount?: number | null;
+  equipmentTypes?: string[];
+  startDate?: string | null;
+  rolloutDuration?: string | null;
 };
 
 export async function sendInquiryOwnerEmail(params: InquiryOwnerEmailParams): Promise<boolean> {
@@ -292,6 +296,10 @@ export async function sendInquiryOwnerEmail(params: InquiryOwnerEmailParams): Pr
     row("Pallets", params.palletCount != null ? String(params.palletCount) : null) +
     row("Boxes", params.boxCount != null ? String(params.boxCount) : null) +
     row("Storage Days", params.storageDays != null ? String(params.storageDays) : null) +
+    row("Locations", params.locationCount != null ? String(params.locationCount) : null) +
+    row("Equipment Types", params.equipmentTypes?.length ? params.equipmentTypes.join(", ") : null) +
+    row("Start Date", params.startDate) +
+    row("Rollout Duration", params.rolloutDuration) +
     row("Add-ons", params.addons?.length ? params.addons.join(", ") : null);
 
   const html = `<!DOCTYPE html>

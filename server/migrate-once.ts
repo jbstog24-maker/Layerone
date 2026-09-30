@@ -11,6 +11,7 @@
  *  - quotes gains msaStatus, stripeCheckoutSessionId, msaDocumentId
  *  - quotes gains stripePaymentLinkId, stripePaymentLinkUrl, stripePriceId, sentAt, paidAt
  *  - users gains inviteToken, inviteTokenExpiresAt (set-password / reset flow)
+ *  - package_inquiries gains locationCount, equipmentTypes, startDate, rolloutDuration (rollout scoping)
  */
 import { sql } from "drizzle-orm";
 import { getDb } from "./db";
@@ -196,6 +197,24 @@ export async function runOnceMigration(): Promise<void> {
         } else {
           await db.execute(sql.raw(`ALTER TABLE \`users\` ADD \`${col}\` ${def}`));
           console.log(`[Migration] users.${col} added`);
+        }
+      });
+    }
+
+    // 2026-09-30: rollout scoping columns on package_inquiries (project-quote form)
+    const INQUIRY_COLUMN_DEFS: Record<string, string> = {
+      locationCount: "int NULL",
+      equipmentTypes: "text NULL",
+      startDate: "varchar(20) NULL",
+      rolloutDuration: "varchar(40) NULL",
+    };
+    for (const [col, def] of Object.entries(INQUIRY_COLUMN_DEFS)) {
+      await applyStep(`add package_inquiries.${col}`, async () => {
+        if (await columnExists(db, "package_inquiries", col)) {
+          console.log(`[Migration] package_inquiries.${col} already exists — skipping`);
+        } else {
+          await db.execute(sql.raw(`ALTER TABLE \`package_inquiries\` ADD \`${col}\` ${def}`));
+          console.log(`[Migration] package_inquiries.${col} added`);
         }
       });
     }

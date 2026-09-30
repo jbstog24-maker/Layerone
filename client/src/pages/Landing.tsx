@@ -62,7 +62,7 @@ function NavBar() {
                 href="/get-started"
                 className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold bg-[#0A84FF] text-white hover:bg-[#3d9dff] transition-colors"
               >
-                Get a Quote <ArrowRight className="w-3.5 h-3.5" />
+                Request a Project Quote <ArrowRight className="w-3.5 h-3.5" />
               </a>
             </>
           )}
@@ -88,15 +88,15 @@ function Hero() {
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/15 bg-white/5 text-slate-400 text-xs mb-6">
               <span className="w-2 h-2 rounded-full bg-[#0A84FF] shadow-[0_0_0_5px_rgba(10,132,255,0.15)]" />
-              Deployment Staging &amp; Warehouse Solutions — Carrollton, TX
+              IT Staging &amp; Rollout Logistics — Dallas–Fort Worth, TX
             </div>
             <h1 className="text-5xl md:text-6xl font-black leading-[1.02] tracking-[-2px] mb-6 text-white">
-              Deployment Logistics.
+              IT Equipment Staged, Kitted
               <br />
-              <span className="text-[#0A84FF]">Staged. Tracked. Ready.</span>
+              <span className="text-[#0A84FF]">&amp; Deployment-Ready.</span>
             </h1>
             <p className="text-slate-400 text-lg leading-relaxed mb-8 max-w-lg">
-              Professional receiving, staging, storage, kitting, and outbound logistics for technology deployments.
+              Ship your equipment to us. We receive, inventory, configure, label, QA, kit by location, and forward it to the field — ready for installation.
             </p>
             <div className="flex flex-wrap gap-3 mb-8">
               {isAuthenticated ? (
@@ -112,19 +112,19 @@ function Hero() {
                     href="/get-started"
                     className="flex items-center gap-2 px-5 py-3 rounded-xl font-bold bg-[#0A84FF] text-white hover:bg-[#3d9dff] transition-colors shadow-[0_14px_34px_rgba(10,132,255,0.3)]"
                   >
-                    Get a Quote <ArrowRight className="w-4 h-4" />
+                    Request a Project Quote <ArrowRight className="w-4 h-4" />
                   </a>
                   <a
                     href="#services"
                     className="flex items-center gap-2 px-5 py-3 rounded-xl font-bold border border-white/15 bg-white/5 text-white hover:border-white/30 transition-colors"
                   >
-                    View Our Services
+                    Explore Our Services
                   </a>
                 </>
               )}
             </div>
             <div className="flex flex-wrap gap-2">
-              {["Secure Receiving", "Staged & Organized", "Pack & Ship Nationwide"].map(b => (
+              {["Received & inventoried", "Configured & labeled", "Kitted by site, shipped nationwide"].map(b => (
                 <span key={b} className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-white/10 bg-white/5 text-slate-400 text-xs">
                   <CheckCircle className="w-3.5 h-3.5 text-[#0A84FF]" />{b}
                 </span>
@@ -167,57 +167,77 @@ function Services() {
   const services = [
     {
       icon: Truck,
-      title: "Equipment Receiving & Inbound Documentation",
-      desc: "We accept inbound freight on your behalf, count and inspect every pallet, box, and device, capture photos, and flag damage immediately.",
+      title: "Receiving & Inventory Control",
+      desc: "We accept inbound freight on your behalf — every pallet, box, and device counted, inspected, photographed, and logged. Damage is flagged immediately.",
     },
     {
       icon: Warehouse,
-      title: "Secure Short-Term Project Storage",
-      desc: "Access-controlled, camera-monitored storage for project gear — isolated per client, organized on industrial racking.",
+      title: "Secure Equipment Storage",
+      desc: "Access-controlled, camera-monitored storage. Your equipment is isolated per client and organized on industrial racking.",
     },
     {
-      icon: Layers,
-      title: "Deployment Staging & Organization",
-      desc: "Equipment sorted, configured, and staged to your exact project specifications so deployment day runs without surprises.",
-    },
-    {
-      icon: Package,
-      title: "Equipment Kitting & Site-by-Site Preparation",
-      desc: "Site kits assembled per location — devices, patch cables, labels, packing lists, and install notes, ready to ship.",
+      icon: BarChart3,
+      title: "Serial Number / MAC Capture",
+      desc: "Model, serial number, and MAC address captured per device and recorded in your portal inventory.",
     },
     {
       icon: Tags,
-      title: "Asset Labeling / Inventory Tracking",
-      desc: "Hierarchical tracking across pallets, boxes, and individual devices with QR-ready IDs and real-time status.",
+      title: "Asset Tagging & Labeling",
+      desc: "Barcode and QR asset tags plus site labels applied to your specification — scannable from receiving to install.",
+    },
+    {
+      icon: Zap,
+      title: "Firmware & Device Configuration",
+      desc: "Firmware updates and baseline device configuration completed to your spec sheet before anything ships.",
     },
     {
       icon: ClipboardCheck,
-      title: "QA / Deployment-Readiness Verification",
-      desc: "Firmware checks, serial/MAC capture, and readiness review before anything leaves the dock.",
-    },
-    {
-      icon: Send,
-      title: "Pack-and-Ship / Forward Logistics",
-      desc: "Professional packing and outbound dispatch to your sites nationwide, with carrier tracking and delivery confirmation.",
+      title: "QA Verification",
+      desc: "Deployment-readiness verification on every device — power-on checks, config review, and a signed QA checklist.",
     },
     {
       icon: Camera,
-      title: "Photo Documentation & Customer Visibility",
-      desc: "Every step photographed — inbound condition, staging progress, outbound packing — all visible in your customer portal.",
+      title: "Photo Documentation",
+      desc: "Every stage photographed — inbound condition, staging progress, outbound packing — visible in your customer portal.",
+    },
+    {
+      icon: Package,
+      title: "Site-Specific Kitting",
+      desc: "Kits assembled per location: devices, patch cables, labels, packing lists, and install notes — ready to open and install.",
+    },
+    {
+      icon: Box,
+      title: "Palletization & Shipping",
+      desc: "Professional packing and palletizing with outbound dispatch to your sites nationwide, carrier-tracked.",
+    },
+    {
+      icon: MapPin,
+      title: "Local DFW Delivery",
+      desc: "Palletized freight or loose-device delivery across the Dallas–Fort Worth metro, coordinated to your schedule.",
+    },
+    {
+      icon: Shield,
+      title: "Chain-of-Custody Tracking",
+      desc: "Every item tracked from receipt to dispatch with a complete audit trail — nothing moves without a record.",
+    },
+    {
+      icon: Users,
+      title: "Dedicated Staging Support",
+      desc: "Staging labor scoped to your rollout and approved by you — labeling, config, packing, and kit prep handled by our team.",
     },
   ];
 
   return (
-    <section id="services" className="py-20">
+    <section id="services" className="py-20 border-t border-white/10">
       <div className="max-w-6xl mx-auto px-6">
         <div className="mb-12">
-          <span className="inline-block text-xs font-semibold tracking-widest uppercase text-[#0A84FF] mb-3">Our Services</span>
+          <span className="inline-block text-xs font-semibold tracking-widest uppercase text-[#0A84FF] mb-3">What we do</span>
           <h2 className="text-4xl font-black tracking-[-1.5px] text-white mb-3">
-            End-to-end deployment logistics,<br />
-            <span className="text-[#0A84FF]">handled before the truck rolls.</span>
+            A complete staging operation,<br />
+            <span className="text-[#0A84FF]">not a storage unit with a forklift.</span>
           </h2>
           <p className="text-slate-400 text-lg max-w-2xl">
-            Layer One is a fully managed staging and logistics operation. We don&apos;t offer self-service — every project is handled by our warehouse team with full accountability.
+            Every capability your rollout needs between procurement and installation — run by our warehouse team with full accountability and portal visibility.
           </p>
         </div>
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -236,33 +256,139 @@ function Services() {
   );
 }
 
+function WhyLayerOne() {
+  const points = [
+    { title: "Deployment-ready equipment", desc: "Configured, labeled, and QA-verified before it leaves our dock." },
+    { title: "Reduced onsite technician time", desc: "Techs install instead of unboxing, sorting, and troubleshooting." },
+    { title: "Fewer missing or wrong devices", desc: "Per-site kits are checked against the site list before they ship." },
+    { title: "Standardized configurations", desc: "Every location gets the same baseline — no snowflake installs." },
+    { title: "Documented QA", desc: "A signed readiness checklist and photos travel with every kit." },
+    { title: "Site-specific kits", desc: "Each location receives exactly what it needs — nothing more, nothing less." },
+    { title: "Centralized rollout inventory", desc: "One live inventory across all sites, visible in your portal." },
+    { title: "One staging point for multi-site deployments", desc: "A single accountable partner between your vendors and your field teams." },
+  ];
+
+  return (
+    <section id="why-layer-one" className="py-20 border-t border-white/10 bg-[#1F2937]/30">
+      <div className="max-w-6xl mx-auto px-6">
+        <div className="grid md:grid-cols-2 gap-12 items-start">
+          <div className="md:sticky md:top-24">
+            <span className="inline-block text-xs font-semibold tracking-widest uppercase text-[#0A84FF] mb-3">Why Layer One</span>
+            <h2 className="text-4xl font-black tracking-[-1.5px] text-white mb-4">
+              Rollouts fail in the gaps<br />between vendors and techs.<br />
+              <span className="text-[#0A84FF]">We close the gaps.</span>
+            </h2>
+            <p className="text-slate-400 text-lg leading-relaxed">
+              Most deployment problems aren&apos;t installation problems — they&apos;re staging problems. Wrong gear at the wrong site, missing cables, unconfigured devices, no record of what shipped where. Layer One exists to eliminate that entire category of failure.
+            </p>
+          </div>
+          <ul className="space-y-3">
+            {points.map(p => (
+              <li key={p.title} className="flex items-start gap-4 rounded-2xl border border-white/10 bg-[#0B1320]/60 p-5">
+                <CheckCircle className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-sm font-bold text-white">{p.title}</p>
+                  <p className="text-sm text-slate-400 mt-0.5 leading-relaxed">{p.desc}</p>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Rollouts() {
+  const useCases = [
+    { icon: Store, title: "Retail Rollouts", desc: "Identical kits for every store — POS, network, and peripherals staged to the planogram." },
+    { icon: Users, title: "Restaurant & Franchise Deployments", desc: "Repeatable site kits that make 10 locations feel like one." },
+    { icon: Network, title: "Network Refreshes", desc: "Switches and firewalls configured, labeled, and shipped per site cutover schedule." },
+    { icon: BarChart3, title: "POS Deployments", desc: "Terminals, printers, and payment hardware kitted complete with install guides." },
+    { icon: Zap, title: "Wi-Fi Upgrades", desc: "Access points pre-configured and labeled by mounting location." },
+    { icon: Repeat, title: "SD-WAN Deployments", desc: "Edge devices staged with site-specific configs, ready for zero-touch or assisted install." },
+    { icon: Box, title: "Kiosk Rollouts", desc: "Kiosks and displays assembled, tested, and packed for safe transit." },
+    { icon: Server, title: "Data Center Equipment", desc: "Rack-ready gear labeled and QA-verified for tight install windows." },
+    { icon: MapPin, title: "New Store Openings", desc: "Full technology packages delivered on opening-day timelines." },
+  ];
+
+  return (
+    <section id="rollouts" className="py-20 border-t border-white/10">
+      <div className="max-w-6xl mx-auto px-6">
+        <div className="text-center mb-12">
+          <span className="inline-block text-xs font-semibold tracking-widest uppercase text-[#0A84FF] mb-3">Multi-site rollouts</span>
+          <h2 className="text-4xl font-black tracking-[-1.5px] text-white mb-4">
+            Built for dozens, hundreds, or<br />
+            <span className="text-[#0A84FF]">thousands of locations.</span>
+          </h2>
+          <p className="text-slate-400 text-lg max-w-2xl mx-auto">
+            One staging point, one inventory, one accountable team — whether you&apos;re opening five stores or refreshing five hundred sites.
+          </p>
+        </div>
+        <div className="grid md:grid-cols-3 gap-4">
+          {useCases.map(u => (
+            <div key={u.title} className="rounded-2xl border border-white/10 bg-white/5 p-6 hover:border-[#0A84FF]/40 transition-colors">
+              <div className="w-10 h-10 rounded-xl bg-[#0A84FF]/10 border border-[#0A84FF]/25 flex items-center justify-center mb-4">
+                <u.icon className="w-5 h-5 text-[#0A84FF]" />
+              </div>
+              <h3 className="text-base font-bold text-white mb-2">{u.title}</h3>
+              <p className="text-sm text-slate-400 leading-relaxed">{u.desc}</p>
+            </div>
+          ))}
+        </div>
+        <div className="mt-10 text-center">
+          <a
+            href="/get-started"
+            className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl font-bold bg-[#0A84FF] text-white hover:bg-[#3d9dff] transition-colors shadow-[0_14px_34px_rgba(10,132,255,0.3)]"
+          >
+            Request a Project Quote <ArrowRight className="w-4 h-4" />
+          </a>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function HowItWorks() {
   const steps = [
-    { n: "01", title: "Submit Expected Delivery", desc: "Log your inbound shipment details through the portal so we know what's coming." },
-    { n: "02", title: "We Receive & Document", desc: "Our team receives, counts, photographs, and logs every pallet, box, and device." },
-    { n: "03", title: "Stage to Your Specs", desc: "Devices are organized, labeled, kitted, and staged according to your project requirements." },
-    { n: "04", title: "Pack & Ship Out", desc: "We pack outbound shipments and dispatch with full carrier tracking." },
-    { n: "05", title: "Portal Visibility", desc: "Track every step in real-time through your customer portal — photos, status, and invoices included." },
+    { n: "01", icon: Truck, title: "Receive", desc: "Inbound freight accepted on your behalf — every pallet, box, and device counted and inspected at the dock." },
+    { n: "02", icon: ClipboardCheck, title: "Inventory", desc: "Every item logged into your portal inventory with photos, quantities, and condition notes." },
+    { n: "03", icon: Zap, title: "Configure", desc: "Firmware updates and baseline device configuration completed to your spec sheet before anything ships." },
+    { n: "04", icon: Tags, title: "Asset Tag", desc: "Asset tags and labels applied; serial numbers and MAC addresses captured per device." },
+    { n: "05", icon: Shield, title: "QA", desc: "Deployment-readiness verification — power-on checks, config review, and a signed QA checklist." },
+    { n: "06", icon: Package, title: "Kit by Site", desc: "Site-specific kits assembled: devices, patch cables, labels, packing lists, and install notes per location." },
+    { n: "07", icon: Camera, title: "Document", desc: "Photo documentation at every stage — inbound, staging, and outbound — visible in your portal." },
+    { n: "08", icon: Send, title: "Ship / Deliver", desc: "Palletized or parcel outbound shipped nationwide with tracking — or local DFW delivery to your sites." },
   ];
 
   return (
     <section id="how-it-works" className="py-20 border-t border-white/10">
       <div className="max-w-6xl mx-auto px-6">
-        <div className="mb-12">
-          <h2 className="text-4xl font-black tracking-[-1.5px] text-white mb-3">How it works</h2>
-          <p className="text-slate-400 text-lg">A simple, transparent process from first shipment to final delivery.</p>
+        <div className="mb-10">
+          <span className="inline-block text-xs font-semibold tracking-widest uppercase text-[#0A84FF] mb-3">How it works</span>
+          <h2 className="text-4xl font-black tracking-[-1.5px] text-white mb-4">
+            The operational bridge between procurement<br className="hidden md:block" />
+            <span className="text-[#0A84FF]"> and installation.</span>
+          </h2>
+          <p className="text-slate-400 text-lg max-w-3xl leading-relaxed">
+            Your vendors ship to us. Your technicians receive finished kits. In between, Layer One runs a disciplined staging operation —{" "}
+            <span className="text-slate-100 font-semibold">every technician receives the correct equipment, configured correctly, labeled, documented, and ready to install before they arrive onsite.</span>
+          </p>
         </div>
-        <div className="grid md:grid-cols-5 gap-4">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {steps.map((s, i) => (
-            <div key={s.n} className="relative rounded-2xl border border-white/10 bg-white/5 p-5">
-              {i < steps.length - 1 && (
-                <ChevronRight className="hidden md:block absolute -right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/20 z-10" />
-              )}
-              <div className="w-8 h-8 rounded-lg bg-[#0A84FF] flex items-center justify-center text-white text-xs font-black mb-4">
-                {s.n}
+            <div key={s.n} className="relative rounded-2xl border border-white/10 bg-white/5 p-5 hover:border-[#0A84FF]/40 transition-colors">
+              <div className="flex items-center justify-between mb-4">
+                <div className="w-9 h-9 rounded-xl bg-[#0A84FF]/10 border border-[#0A84FF]/25 flex items-center justify-center">
+                  <s.icon className="w-5 h-5 text-[#0A84FF]" />
+                </div>
+                <span className="text-xs font-black text-white/20">{s.n}</span>
               </div>
-              <h3 className="text-sm font-bold text-white mb-2">{s.title}</h3>
+              <h3 className="text-base font-bold text-white mb-1.5">{s.title}</h3>
               <p className="text-xs text-slate-400 leading-relaxed">{s.desc}</p>
+              {i < steps.length - 1 && (
+                <ChevronRight className="hidden lg:block absolute top-1/2 -right-3 -translate-y-1/2 w-5 h-5 text-[#0A84FF]/40 z-10 bg-[#0B1320] rounded-full" />
+              )}
             </div>
           ))}
         </div>
@@ -360,10 +486,34 @@ function Packages() {
   return (
     <section id="packages" className="py-20 border-t border-white/10">
       <div className="max-w-6xl mx-auto px-6">
+        {/* Project-quote lead-in */}
+        <div className="relative rounded-3xl border border-[#0A84FF]/30 bg-gradient-to-br from-[#0A84FF]/10 to-white/[0.03] p-8 md:p-10 mb-12 overflow-hidden">
+          <div className="absolute inset-0 pointer-events-none">
+            <div className="absolute -top-10 left-1/3 w-[400px] h-[200px] rounded-full bg-[#0A84FF]/10 blur-[70px]" />
+          </div>
+          <div className="relative grid md:grid-cols-[1fr_auto] gap-6 items-center">
+            <div>
+              <span className="inline-block text-xs font-semibold tracking-widest uppercase text-[#0A84FF] mb-3">Project-based &amp; volume pricing</span>
+              <h2 className="text-3xl md:text-4xl font-black tracking-[-1.5px] text-white mb-3">
+                Every rollout is quoted as a project.
+              </h2>
+              <p className="text-slate-400 text-lg max-w-2xl leading-relaxed">
+                Tell us the number of locations, devices, services required, storage needs, and deployment schedule — we&apos;ll build a staging and logistics quote around your rollout. Volume discounts apply: per-device and per-site rates come down as quantities scale, itemized in your quote.
+              </p>
+            </div>
+            <a
+              href="/get-started"
+              className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl font-bold bg-[#0A84FF] text-white hover:bg-[#3d9dff] transition-colors shadow-[0_14px_34px_rgba(10,132,255,0.3)] whitespace-nowrap"
+            >
+              Request a Project Quote <ArrowRight className="w-4 h-4" />
+            </a>
+          </div>
+        </div>
+
         <div className="mb-12">
           <h2 className="text-4xl font-black tracking-[-1.5px] text-white mb-3">Managed service packages</h2>
           <p className="text-slate-400 text-lg max-w-2xl">
-            Every package includes full portal access, photo documentation, and transparent billing. All pricing is custom — contact us for a quote.
+            Our package tiers are starting frameworks for recurring work — most multi-site projects are custom-quoted. Every package includes full portal access, photo documentation, and transparent billing.
           </p>
         </div>
         <div className="grid md:grid-cols-3 lg:grid-cols-5 gap-4">
@@ -566,7 +716,7 @@ function AddOns() {
         <div className="mb-10">
           <h2 className="text-4xl font-black tracking-[-1.5px] text-white mb-3">Overages &amp; add-on services</h2>
           <p className="text-slate-400 text-lg max-w-2xl">
-            Package limits keep pricing predictable. Any volume or work outside the included allowance is billed as an overage or add-on after approval.
+            Package limits keep pricing predictable. Any volume or work outside the included allowance is billed as an overage or add-on after approval. On large rollouts, per-device and per-site rates are discounted by volume — your project quote will show the scaled pricing.
           </p>
         </div>
         <div className="rounded-2xl border border-white/10 overflow-hidden">
@@ -829,14 +979,14 @@ function FacilityGallery() {
       <div className="max-w-6xl mx-auto px-6">
         <div className="mb-12">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/15 bg-white/5 text-slate-400 text-xs mb-6">
-            <MapPin className="w-3.5 h-3.5 text-[#0A84FF]" /> 1501 Randolph St, Carrollton, TX 75006
+            <MapPin className="w-3.5 h-3.5 text-[#0A84FF]" /> Dallas–Fort Worth, TX
           </div>
           <h2 className="text-4xl font-black tracking-[-1.5px] text-white mb-3">
             Our facility, built for<br />
             <span className="text-[#0A84FF]">professional-grade staging.</span>
           </h2>
           <p className="text-slate-400 text-lg max-w-2xl">
-            Climate-controlled, camera-monitored, and dock-accessible — every square foot is purpose-built for receiving, staging, and shipping technology equipment.
+            Purpose-built for receiving, staging, and shipping technology equipment — every device tracked from dock to dispatch.
           </p>
         </div>
 
@@ -1057,24 +1207,33 @@ function CTA() {
           </div>
           <div className="relative">
             <h2 className="text-4xl md:text-5xl font-black tracking-[-2px] text-white mb-4">
-              Ready to stage smarter?
+              Planning a Multi-Site<br className="hidden md:block" /> Technology Rollout?
             </h2>
             <p className="text-slate-400 text-lg max-w-xl mx-auto mb-8">
-              Sign in to access your Layer One customer portal, or contact us to discuss a package for your team.
+              Send us your equipment list, site count, and deployment schedule. We&apos;ll build a staging and logistics plan around your rollout.
             </p>
             <div className="flex flex-wrap gap-3 justify-center">
               <a
-                href={isAuthenticated ? "/dashboard" : getLoginUrl()}
+                href="/get-started"
                 className="flex items-center gap-2 px-6 py-3.5 rounded-xl font-bold bg-[#0A84FF] text-white hover:bg-[#3d9dff] transition-colors shadow-[0_14px_34px_rgba(10,132,255,0.3)]"
               >
-                {isAuthenticated ? "Open Dashboard" : "Sign In to Portal"} <ArrowRight className="w-4 h-4" />
+                Request a Project Quote <ArrowRight className="w-4 h-4" />
               </a>
-              <a
-                href="mailto:info@layeronestaging.com"
-                className="flex items-center gap-2 px-6 py-3.5 rounded-xl font-bold border border-white/15 bg-white/5 text-white hover:border-white/30 transition-colors"
-              >
-                Contact Us
-              </a>
+              {isAuthenticated ? (
+                <a
+                  href="/dashboard"
+                  className="flex items-center gap-2 px-6 py-3.5 rounded-xl font-bold border border-white/15 bg-white/5 text-white hover:border-white/30 transition-colors"
+                >
+                  Open Dashboard
+                </a>
+              ) : (
+                <a
+                  href="mailto:info@layeronestaging.com"
+                  className="flex items-center gap-2 px-6 py-3.5 rounded-xl font-bold border border-white/15 bg-white/5 text-white hover:border-white/30 transition-colors"
+                >
+                  Contact Us
+                </a>
+              )}
             </div>
           </div>
         </div>
@@ -1083,23 +1242,92 @@ function CTA() {
   );
 }
 
+const FOOTER_SERVICES = [
+  { href: "/services/it-equipment-staging-dallas-fort-worth", label: "IT Equipment Staging — DFW" },
+  { href: "/services/network-equipment-staging", label: "Network Equipment Staging" },
+  { href: "/services/it-rollout-logistics", label: "IT Rollout Logistics" },
+  { href: "/services/technology-deployment-logistics", label: "Technology Deployment Logistics" },
+  { href: "/services/pos-deployment-staging", label: "POS Deployment Staging" },
+  { href: "/services/network-deployment-kitting", label: "Network Deployment Kitting" },
+  { href: "/services/it-equipment-kitting-services", label: "IT Equipment Kitting" },
+  { href: "/services/multi-site-technology-rollouts", label: "Multi-Site Technology Rollouts" },
+  { href: "/services/it-asset-tagging-inventory", label: "IT Asset Tagging & Inventory" },
+  { href: "/services/device-configuration-firmware-staging", label: "Device Configuration & Firmware" },
+  { href: "/services/retail-technology-deployment", label: "Retail Technology Deployment" },
+  { href: "/services/restaurant-franchise-technology-rollouts", label: "Restaurant & Franchise Rollouts" },
+];
+
 function Footer() {
   return (
-    <footer className="border-t border-white/10 py-10">
-      <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4">
-        <LayerOneLogo />
-        <p className="text-slate-400 text-sm text-center">
-          © {new Date().getFullYear()} Layer One Staging · 1501 Randolph St, Carrollton, TX 75006
-        </p>
-        <div className="flex gap-5 text-sm text-slate-400">
-          <a href="#services" className="hover:text-white transition-colors">Services</a>
-          <a href="#packages" className="hover:text-white transition-colors">Packages</a>
-          <a href={getLoginUrl()} className="hover:text-white transition-colors">Portal Login</a>
+    <footer className="border-t border-white/10 pt-14 pb-10">
+      <div className="max-w-6xl mx-auto px-6">
+        <div className="grid md:grid-cols-3 gap-10 mb-10">
+          <div>
+            <LayerOneLogo />
+            <p className="text-slate-400 text-sm leading-relaxed mt-4 max-w-xs">
+              The operational layer between equipment procurement and field deployment — serving the Dallas–Fort Worth metro and shipping nationwide.
+            </p>
+          </div>
+          <div>
+            <p className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-4">Services</p>
+            <ul className="grid grid-cols-1 gap-2.5">
+              {FOOTER_SERVICES.map(s => (
+                <li key={s.href}>
+                  <a href={s.href} className="text-sm text-slate-400 hover:text-white transition-colors">{s.label}</a>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div>
+            <p className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-4">Company</p>
+            <ul className="space-y-2.5">
+              <li><a href="#how-it-works" className="text-sm text-slate-400 hover:text-white transition-colors">How It Works</a></li>
+              <li><a href="#why-layer-one" className="text-sm text-slate-400 hover:text-white transition-colors">Why Layer One</a></li>
+              <li><a href="#rollouts" className="text-sm text-slate-400 hover:text-white transition-colors">Multi-Site Rollouts</a></li>
+              <li><a href="#packages" className="text-sm text-slate-400 hover:text-white transition-colors">Pricing</a></li>
+              <li><a href="#faq" className="text-sm text-slate-400 hover:text-white transition-colors">FAQ</a></li>
+              <li><a href="/get-started" className="text-sm text-slate-400 hover:text-white transition-colors">Request a Project Quote</a></li>
+              <li><a href={getLoginUrl()} className="text-sm text-slate-400 hover:text-white transition-colors">Portal Login</a></li>
+            </ul>
+          </div>
+        </div>
+        <div className="pt-8 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-4">
+          <p className="text-slate-500 text-xs text-center">
+            © {new Date().getFullYear()} Layer One Staging · Dallas–Fort Worth, TX
+          </p>
+          <p className="text-slate-500 text-xs">Deployment staging &amp; rollout logistics · DFW &amp; nationwide</p>
         </div>
       </div>
     </footer>
   );
 }
+
+const LOCAL_BUSINESS_SCHEMA = {
+  "@context": "https://schema.org",
+  "@type": "ProfessionalService",
+  "@id": "https://www.layeronestaging.com/#business",
+  name: "Layer One Staging",
+  description:
+    "IT equipment staging, kitting, and deployment logistics. We receive, inventory, configure, label, QA, kit by location, and ship technology equipment deployment-ready — serving Dallas–Fort Worth and shipping nationwide.",
+  url: "https://www.layeronestaging.com",
+  email: "info@layeronestaging.com",
+  priceRange: "$$",
+  areaServed: [
+    { "@type": "City", name: "Dallas–Fort Worth" },
+    { "@type": "State", name: "Texas" },
+    { "@type": "Country", name: "United States" },
+  ],
+  knowsAbout: [
+    "IT equipment staging",
+    "Network equipment staging",
+    "Technology deployment logistics",
+    "IT equipment kitting",
+    "Multi-site technology rollouts",
+    "POS deployment staging",
+    "IT asset tagging and inventory",
+    "Device configuration and firmware staging",
+  ],
+};
 
 export default function Landing() {
   return (
@@ -1111,11 +1339,14 @@ export default function Landing() {
         color: "#f5f8fc",
       }}
     >
+      <script type="application/ld+json">{JSON.stringify(LOCAL_BUSINESS_SCHEMA)}</script>
       <NavBar />
       <main>
         <Hero />
-        <Services />
         <HowItWorks />
+        <Services />
+        <WhyLayerOne />
+        <Rollouts />
         <Packages />
         <AddOns />
         <PortalSection />

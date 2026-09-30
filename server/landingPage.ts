@@ -504,7 +504,7 @@ export function getLandingPageHtml(opts: {
     <!-- Footer -->
     <footer>
       <p>© ${new Date().getFullYear()} ${appTitle}. All rights reserved.</p>
-      <p>Layer One Staging Solutions — 1501 Randolph St, Carrollton, TX 75006</p>
+      <p>Layer One Staging Solutions — Dallas–Fort Worth, TX</p>
     </footer>
 
   </div><!-- /.landing-page-shell -->

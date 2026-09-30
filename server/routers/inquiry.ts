@@ -31,7 +31,7 @@ function requireStaffOrAdmin(role: string | undefined) {
 function getStripe(): Stripe | null {
   const key = process.env.STRIPE_SECRET_KEY;
   if (!key) return null;
-  return new Stripe(key, { apiVersion: "2026-05-27.dahlia" });
+  return new Stripe(key, { apiVersion: "2026-08-26.dahlia" });
 }
 
 const lineItemSchema = z.object({
@@ -57,6 +57,11 @@ export const inquiryRouter = router({
       storageDays: z.number().int().min(0).optional(),
       addons: z.array(z.string()).optional(),
       message: z.string().max(2000).optional(),
+      // Rollout scoping (project-quote path)
+      locationCount: z.number().int().min(0).max(1000000).optional(),
+      equipmentTypes: z.array(z.string().max(40)).max(12).optional(),
+      startDate: z.string().max(20).optional(),
+      rolloutDuration: z.string().max(40).optional(),
     }))
     .mutation(async ({ input }) => {
       const db = await getDb();
@@ -75,6 +80,10 @@ export const inquiryRouter = router({
           storageDays: input.storageDays ?? null,
           addons: input.addons ? JSON.stringify(input.addons) : null,
           message: input.message ?? null,
+          locationCount: input.locationCount ?? null,
+          equipmentTypes: input.equipmentTypes ? JSON.stringify(input.equipmentTypes) : null,
+          startDate: input.startDate ?? null,
+          rolloutDuration: input.rolloutDuration ?? null,
         });
         inquiryId = (result[0] as any)?.insertId ?? null;
       }
@@ -104,6 +113,10 @@ export const inquiryRouter = router({
         input.palletCount != null ? `**Pallets:** ${input.palletCount}` : null,
         input.boxCount != null ? `**Boxes:** ${input.boxCount}` : null,
         input.storageDays != null ? `**Storage Days:** ${input.storageDays}` : null,
+        input.locationCount != null ? `**Locations:** ${input.locationCount}` : null,
+        input.equipmentTypes?.length ? `**Equipment Types:** ${input.equipmentTypes.join(", ")}` : null,
+        input.startDate ? `**Start Date:** ${input.startDate}` : null,
+        input.rolloutDuration ? `**Rollout Duration:** ${input.rolloutDuration}` : null,
         input.addons?.length ? `**Add-ons:** ${input.addons.join(", ")}` : null,
         input.message ? `**Message:** ${input.message}` : null,
       ].filter(Boolean).join("\n");
@@ -128,6 +141,10 @@ export const inquiryRouter = router({
         storageDays: input.storageDays ?? null,
         addons: input.addons ?? [],
         message: input.message ?? null,
+        locationCount: input.locationCount ?? null,
+        equipmentTypes: input.equipmentTypes ?? [],
+        startDate: input.startDate ?? null,
+        rolloutDuration: input.rolloutDuration ?? null,
       }).catch(() => {});
 
       // Send branded welcome email to the prospect
