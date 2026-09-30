@@ -49,7 +49,10 @@ export const inquiryRouter = router({
       company: z.string().min(1).max(200),
       email: z.string().email().max(320),
       phone: z.string().min(7, "Please enter a valid phone number.").max(30),
-      tier: z.enum(["basic", "standard", "professional", "enterprise", "custom"]),
+      // Quote path: "project" (rollout scoping) or "pallet" (per-pallet pricing).
+      // Optional for backwards compatibility (PackageDetail posts a fixed tier).
+      quoteType: z.enum(["project", "pallet"]).optional(),
+      tier: z.enum(["basic", "standard", "professional", "enterprise", "custom"]).optional(),
       deviceVolume: z.string().max(30).optional(),
       deviceCount: z.number().int().min(0).optional(),
       palletCount: z.number().int().min(0).optional(),
@@ -65,6 +68,8 @@ export const inquiryRouter = router({
     }))
     .mutation(async ({ input }) => {
       const db = await getDb();
+      const quoteType = input.quoteType ?? "project";
+      const tier = input.tier ?? "custom";
       let inquiryId: number | null = null;
       if (db) {
         const result = await db.insert(packageInquiries).values({
@@ -72,7 +77,8 @@ export const inquiryRouter = router({
           company: input.company,
           email: input.email,
           phone: input.phone ?? null,
-          tier: input.tier,
+          quoteType,
+          tier,
           deviceVolume: input.deviceVolume ?? null,
           deviceCount: input.deviceCount ?? null,
           palletCount: input.palletCount ?? null,
@@ -102,12 +108,14 @@ export const inquiryRouter = router({
         }
       }
 
-      const tierLabel = input.tier.charAt(0).toUpperCase() + input.tier.slice(1);
+      const tierLabel = quoteType === "pallet" ? "Per-Pallet" : tier.charAt(0).toUpperCase() + tier.slice(1);
+      const quoteTypeLabel = quoteType === "pallet" ? "Per-Pallet Quote" : "Project Quote";
       const content = [
         `**Name:** ${input.name}`,
         `**Company:** ${input.company}`,
         `**Email:** ${input.email}`,
         input.phone ? `**Phone:** ${input.phone}` : null,
+        `**Quote Type:** ${quoteTypeLabel}`,
         `**Package:** ${tierLabel}`,
         input.deviceCount != null ? `**Devices:** ${input.deviceCount}` : null,
         input.palletCount != null ? `**Pallets:** ${input.palletCount}` : null,
@@ -122,7 +130,7 @@ export const inquiryRouter = router({
       ].filter(Boolean).join("\n");
 
       await notifyOwner({
-        title: `New Package Inquiry — ${tierLabel} (${input.company})`,
+        title: `New Package Inquiry — ${quoteTypeLabel} (${input.company})`,
         content,
       }).catch(() => {});
 
@@ -134,6 +142,7 @@ export const inquiryRouter = router({
         company: input.company,
         email: input.email,
         phone: input.phone ?? null,
+        quoteType: quoteTypeLabel,
         tierLabel,
         deviceCount: input.deviceCount ?? null,
         palletCount: input.palletCount ?? null,
@@ -152,7 +161,7 @@ export const inquiryRouter = router({
         to: input.email,
         name: input.name,
         company: input.company,
-        tier: input.tier,
+        tier,
       }).catch(() => {});
 
       return { success: true };

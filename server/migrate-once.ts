@@ -12,6 +12,7 @@
  *  - quotes gains stripePaymentLinkId, stripePaymentLinkUrl, stripePriceId, sentAt, paidAt
  *  - users gains inviteToken, inviteTokenExpiresAt (set-password / reset flow)
  *  - package_inquiries gains locationCount, equipmentTypes, startDate, rolloutDuration (rollout scoping)
+ *  - package_inquiries gains quoteType (project vs per-pallet quote path)
  */
 import { sql } from "drizzle-orm";
 import { getDb } from "./db";
@@ -218,6 +219,16 @@ export async function runOnceMigration(): Promise<void> {
         }
       });
     }
+
+    // 2026-09-30: quoteType column on package_inquiries (project vs per-pallet path)
+    await applyStep("add package_inquiries.quoteType", async () => {
+      if (await columnExists(db, "package_inquiries", "quoteType")) {
+        console.log("[Migration] package_inquiries.quoteType already exists — skipping");
+      } else {
+        await db.execute(sql.raw("ALTER TABLE `package_inquiries` ADD `quoteType` varchar(20) NULL"));
+        console.log("[Migration] package_inquiries.quoteType added");
+      }
+    });
 
     console.log("[Migration] one-time migration complete");
   } catch (err: any) {

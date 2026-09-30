@@ -1,21 +1,28 @@
 import { useState } from "react";
 import {
   CheckCircle2, Loader2, Building2, User, Mail, Phone,
-  Package, MessageSquare, ChevronRight, Server, Box, Layers, Clock, Wrench,
-  MapPin, CalendarDays, Cpu,
+  MessageSquare, ChevronRight, Server, Box, Layers, Clock, Wrench,
+  MapPin, CalendarDays, Cpu, ClipboardList, Forklift,
 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 
-const SERVICES = [
-  { value: "basic", label: "Basic", desc: "Up to 25 devices / month", price: "From $299/mo" },
-  { value: "standard", label: "Standard", desc: "Up to 100 devices / month", price: "From $699/mo" },
-  { value: "professional", label: "Professional", desc: "Up to 500 devices / month", price: "From $1,499/mo" },
-  { value: "enterprise", label: "Enterprise", desc: "Unlimited scale", price: "Custom pricing" },
-  { value: "custom", label: "Not Sure Yet", desc: "We'll recommend the right tier", price: "Let us help" },
-] as const;
+type QuoteType = "project" | "pallet";
 
-type Tier = typeof SERVICES[number]["value"];
+const QUOTE_TYPES: { value: QuoteType; label: string; desc: string; price: string }[] = [
+  {
+    value: "project",
+    label: "Project Quote",
+    desc: "Multi-site rollout — locations, devices, services & schedule scoped into one custom project price.",
+    price: "Custom",
+  },
+  {
+    value: "pallet",
+    label: "Per-Pallet Quote",
+    desc: "Straightforward pallet pricing — $12/pallet receiving, $30/pallet/month storage, plus the services you pick.",
+    price: "Per pallet",
+  },
+];
 
 const ADDONS = [
   { key: "photo_doc", label: "Photo Documentation", desc: "Full chain-of-custody photos" },
@@ -47,13 +54,21 @@ const ROLLOUT_DURATIONS = [
 const inputClass =
   "w-full px-4 py-3 rounded-xl bg-white/6 border border-white/12 text-white placeholder-white/30 focus:outline-none focus:border-[#0A84FF]/60 focus:bg-white/8 transition-colors";
 
+const smallInputClass =
+  "w-full px-3 py-2.5 rounded-xl bg-white/6 border border-white/12 text-white placeholder-white/30 focus:outline-none focus:border-[#0A84FF]/60 transition-colors text-sm";
+
 /**
  * The Layer One quote-request form. Shared by the /get-started page and the
  * site-wide floating "Request a Quote" dialog so the branding, fields, and
  * behavior stay identical everywhere.
+ *
+ * Two quote paths: "project" (multi-site rollout scoping -> custom project
+ * price) and "pallet" (per-pallet receiving + storage + chosen services).
+ * Both flow into the same inquiry -> draft quote -> Approve & Send pipeline.
  */
 export default function RequestForm({ onSubmitted }: { onSubmitted?: () => void }) {
   const [submitted, setSubmitted] = useState(false);
+  const [quoteType, setQuoteType] = useState<QuoteType>("project");
   const [selectedAddons, setSelectedAddons] = useState<string[]>([]);
   const [selectedEquipment, setSelectedEquipment] = useState<string[]>([]);
   const [form, setForm] = useState({
@@ -61,7 +76,6 @@ export default function RequestForm({ onSubmitted }: { onSubmitted?: () => void 
     company: "",
     email: "",
     phone: "",
-    tier: "" as Tier | "",
     deviceCount: "",
     palletCount: "",
     boxCount: "",
@@ -71,6 +85,9 @@ export default function RequestForm({ onSubmitted }: { onSubmitted?: () => void 
     rolloutDuration: "",
     message: "",
   });
+  type FormField = keyof typeof form;
+
+  const isPallet = quoteType === "pallet";
 
   const submitMutation = trpc.inquiry.submit.useMutation({
     onSuccess: () => {
@@ -92,8 +109,9 @@ export default function RequestForm({ onSubmitted }: { onSubmitted?: () => void 
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.tier) {
-      toast.error("Please select a service tier.");
+    const pallets = form.palletCount ? parseInt(form.palletCount) : 0;
+    if (isPallet && pallets < 1) {
+      toast.error("Please enter the number of pallets for a per-pallet quote.");
       return;
     }
     submitMutation.mutate({
@@ -101,17 +119,19 @@ export default function RequestForm({ onSubmitted }: { onSubmitted?: () => void 
       company: form.company,
       email: form.email,
       phone: form.phone,
-      tier: form.tier as Tier,
+      quoteType,
+      tier: "custom",
       deviceCount: form.deviceCount ? parseInt(form.deviceCount) : undefined,
       palletCount: form.palletCount ? parseInt(form.palletCount) : undefined,
       boxCount: form.boxCount ? parseInt(form.boxCount) : undefined,
       storageDays: form.storageDays ? parseInt(form.storageDays) : undefined,
       addons: selectedAddons.length > 0 ? selectedAddons : undefined,
       message: form.message || undefined,
-      locationCount: form.locationCount ? parseInt(form.locationCount) : undefined,
+      // Rollout scoping only applies to the project path.
+      locationCount: !isPallet && form.locationCount ? parseInt(form.locationCount) : undefined,
       equipmentTypes: selectedEquipment.length > 0 ? selectedEquipment : undefined,
-      startDate: form.startDate || undefined,
-      rolloutDuration: form.rolloutDuration || undefined,
+      startDate: !isPallet && form.startDate ? form.startDate : undefined,
+      rolloutDuration: !isPallet && form.rolloutDuration ? form.rolloutDuration : undefined,
     });
   };
 
@@ -174,115 +194,148 @@ export default function RequestForm({ onSubmitted }: { onSubmitted?: () => void 
         </div>
       </section>
 
-      {/* ── Service Tier ── */}
+      {/* ── Quote Type ── */}
       <section>
         <h2 className="text-sm font-semibold text-[#b7c5d5] uppercase tracking-wider mb-4 flex items-center gap-2">
-          <Package className="w-4 h-4" /> Service Tier <span className="text-red-400 font-normal normal-case tracking-normal">*</span>
+          <ClipboardList className="w-4 h-4" /> Quote Type <span className="text-red-400 font-normal normal-case tracking-normal">*</span>
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {SERVICES.map(s => (
-            <button
-              key={s.value}
-              type="button"
-              onClick={() => setForm(prev => ({ ...prev, tier: s.value }))}
-              className={`text-left px-4 py-3.5 rounded-xl border transition-all ${
-                form.tier === s.value
-                  ? "border-[#0A84FF] bg-[#0A84FF]/15 text-white"
-                  : "border-white/12 bg-white/4 text-[#b7c5d5] hover:border-white/25 hover:bg-white/8"
-              }`}
-            >
-              <div className="flex items-center justify-between mb-0.5">
-                <span className="font-semibold text-sm">{s.label}</span>
-                <span className={`text-xs font-medium ${form.tier === s.value ? "text-[#6ee7b7]" : "text-[#b7c5d5]/60"}`}>{s.price}</span>
-              </div>
-              <div className="text-xs opacity-70">{s.desc}</div>
-            </button>
-          ))}
+          {QUOTE_TYPES.map(q => {
+            const Icon = q.value === "project" ? MapPin : Forklift;
+            const active = quoteType === q.value;
+            return (
+              <button
+                key={q.value}
+                type="button"
+                onClick={() => setQuoteType(q.value)}
+                className={`text-left px-4 py-3.5 rounded-xl border transition-all ${
+                  active
+                    ? "border-[#0A84FF] bg-[#0A84FF]/15 text-white"
+                    : "border-white/12 bg-white/4 text-[#b7c5d5] hover:border-white/25 hover:bg-white/8"
+                }`}
+              >
+                <div className="flex items-center justify-between mb-0.5">
+                  <span className="font-semibold text-sm flex items-center gap-2">
+                    <Icon className="w-4 h-4" /> {q.label}
+                  </span>
+                  <span className={`text-xs font-medium ${active ? "text-[#6ee7b7]" : "text-[#b7c5d5]/60"}`}>{q.price}</span>
+                </div>
+                <div className="text-xs opacity-70">{q.desc}</div>
+              </button>
+            );
+          })}
         </div>
       </section>
 
       {/* ── Volume Requirements ── */}
       <section>
         <h2 className="text-sm font-semibold text-[#b7c5d5] uppercase tracking-wider mb-1 flex items-center gap-2">
-          <Server className="w-4 h-4" /> Volume Requirements
+          <Server className="w-4 h-4" /> {isPallet ? "Pallet Details" : "Volume Requirements"}
         </h2>
-        <p className="text-xs text-[#b7c5d5]/60 mb-4">Estimates are fine — this helps us build an accurate quote.</p>
+        <p className="text-xs text-[#b7c5d5]/60 mb-4">
+          {isPallet
+            ? "How many pallets are we receiving, and how long should we hold them?"
+            : "Estimates are fine — this helps us build an accurate quote."}
+        </p>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           {(
-            [
-              { field: "deviceCount", label: "Devices", icon: Server, ph: "e.g. 50" },
-              { field: "palletCount", label: "Pallets", icon: Layers, ph: "e.g. 4" },
-              { field: "boxCount", label: "Boxes", icon: Box, ph: "e.g. 20" },
-              { field: "storageDays", label: "Storage Days", icon: Clock, ph: "e.g. 30" },
-            ] as const
-          ).map(({ field, label, icon: Icon, ph }) => (
+            (
+              isPallet
+                ? [
+                    { field: "palletCount", label: "Pallets", icon: Layers, ph: "e.g. 4", required: true },
+                    { field: "deviceCount", label: "Devices", icon: Server, ph: "e.g. 50", required: false },
+                    { field: "storageDays", label: "Storage Days", icon: Clock, ph: "e.g. 30", required: false },
+                  ]
+                : [
+                    { field: "deviceCount", label: "Devices", icon: Server, ph: "e.g. 50", required: false },
+                    { field: "palletCount", label: "Pallets", icon: Layers, ph: "e.g. 4", required: false },
+                    { field: "boxCount", label: "Boxes", icon: Box, ph: "e.g. 20", required: false },
+                    { field: "storageDays", label: "Storage Days", icon: Clock, ph: "e.g. 30", required: false },
+                  ]
+            ) as { field: FormField; label: string; icon: typeof Layers; ph: string; required: boolean }[]
+          ).map(({ field, label, icon: Icon, ph, required }) => (
             <div key={field}>
               <label className="block text-xs font-medium text-[#b7c5d5] mb-1.5 flex items-center gap-1">
-                <Icon className="w-3 h-3" /> {label}
+                <Icon className="w-3 h-3" /> {label} {required && <span className="text-red-400">*</span>}
               </label>
               <input
                 type="number"
-                min="0"
+                min={required ? 1 : 0}
                 value={form[field]}
                 onChange={set(field)}
                 placeholder={ph}
-                className="w-full px-3 py-2.5 rounded-xl bg-white/6 border border-white/12 text-white placeholder-white/30 focus:outline-none focus:border-[#0A84FF]/60 transition-colors text-sm"
+                className={smallInputClass}
               />
             </div>
           ))}
         </div>
+        {isPallet && (
+          <p className="text-xs text-[#b7c5d5]/60 mt-3">
+            Per-pallet pricing: <span className="text-white font-medium">$12/pallet</span> receiving &amp; intake,{" "}
+            <span className="text-white font-medium">$30/pallet/month</span> storage, plus any services below.
+          </p>
+        )}
       </section>
 
-      {/* ── Rollout Details ── */}
+      {/* ── Rollout Details (project path only) ── */}
+      {!isPallet && (
+        <section>
+          <h2 className="text-sm font-semibold text-[#b7c5d5] uppercase tracking-wider mb-1 flex items-center gap-2">
+            <MapPin className="w-4 h-4" /> Rollout Details <span className="text-[#b7c5d5]/50 font-normal normal-case tracking-normal">(optional)</span>
+          </h2>
+          <p className="text-xs text-[#b7c5d5]/60 mb-4">For multi-site projects — helps us scope staging, kitting, and scheduling.</p>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-5">
+            <div>
+              <label className="block text-xs font-medium text-[#b7c5d5] mb-1.5 flex items-center gap-1">
+                <MapPin className="w-3 h-3" /> Deployment Locations
+              </label>
+              <input
+                type="number"
+                min="0"
+                value={form.locationCount}
+                onChange={set("locationCount")}
+                placeholder="e.g. 25"
+                className={smallInputClass}
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-[#b7c5d5] mb-1.5 flex items-center gap-1">
+                <CalendarDays className="w-3 h-3" /> Est. Start Date
+              </label>
+              <input
+                type="date"
+                value={form.startDate}
+                onChange={set("startDate")}
+                className={`${smallInputClass} [color-scheme:dark]`}
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-[#b7c5d5] mb-1.5 flex items-center gap-1">
+                <Clock className="w-3 h-3" /> Rollout Duration
+              </label>
+              <select
+                value={form.rolloutDuration}
+                onChange={set("rolloutDuration")}
+                className={smallInputClass}
+              >
+                <option value="" className="bg-[#0B1320]">Select…</option>
+                {ROLLOUT_DURATIONS.map(d => (
+                  <option key={d.value} value={d.value} className="bg-[#0B1320]">{d.label}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* ── Equipment Types ── */}
       <section>
-        <h2 className="text-sm font-semibold text-[#b7c5d5] uppercase tracking-wider mb-1 flex items-center gap-2">
-          <MapPin className="w-4 h-4" /> Rollout Details <span className="text-[#b7c5d5]/50 font-normal normal-case tracking-normal">(optional)</span>
-        </h2>
-        <p className="text-xs text-[#b7c5d5]/60 mb-4">For multi-site projects — helps us scope staging, kitting, and scheduling.</p>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-5">
-          <div>
-            <label className="block text-xs font-medium text-[#b7c5d5] mb-1.5 flex items-center gap-1">
-              <MapPin className="w-3 h-3" /> Deployment Locations
-            </label>
-            <input
-              type="number"
-              min="0"
-              value={form.locationCount}
-              onChange={set("locationCount")}
-              placeholder="e.g. 25"
-              className="w-full px-3 py-2.5 rounded-xl bg-white/6 border border-white/12 text-white placeholder-white/30 focus:outline-none focus:border-[#0A84FF]/60 transition-colors text-sm"
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-medium text-[#b7c5d5] mb-1.5 flex items-center gap-1">
-              <CalendarDays className="w-3 h-3" /> Est. Start Date
-            </label>
-            <input
-              type="date"
-              value={form.startDate}
-              onChange={set("startDate")}
-              className="w-full px-3 py-2.5 rounded-xl bg-white/6 border border-white/12 text-white placeholder-white/30 focus:outline-none focus:border-[#0A84FF]/60 transition-colors text-sm [color-scheme:dark]"
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-medium text-[#b7c5d5] mb-1.5 flex items-center gap-1">
-              <Clock className="w-3 h-3" /> Rollout Duration
-            </label>
-            <select
-              value={form.rolloutDuration}
-              onChange={set("rolloutDuration")}
-              className="w-full px-3 py-2.5 rounded-xl bg-white/6 border border-white/12 text-white focus:outline-none focus:border-[#0A84FF]/60 transition-colors text-sm"
-            >
-              <option value="" className="bg-[#0B1320]">Select…</option>
-              {ROLLOUT_DURATIONS.map(d => (
-                <option key={d.value} value={d.value} className="bg-[#0B1320]">{d.label}</option>
-              ))}
-            </select>
-          </div>
-        </div>
-        <label className="block text-xs font-medium text-[#b7c5d5] mb-2 flex items-center gap-1">
-          <Cpu className="w-3 h-3" /> Equipment Types
+        <label className="text-sm font-semibold text-[#b7c5d5] uppercase tracking-wider mb-1 flex items-center gap-2">
+          <Cpu className="w-4 h-4" /> Equipment Types <span className="text-[#b7c5d5]/50 font-normal normal-case tracking-normal">(optional)</span>
         </label>
+        <p className="text-xs text-[#b7c5d5]/60 mb-4">
+          {isPallet ? "What's on the pallets?" : "What are we staging for this rollout?"}
+        </p>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
           {EQUIPMENT_TYPES.map(label => (
             <button
@@ -315,7 +368,7 @@ export default function RequestForm({ onSubmitted }: { onSubmitted?: () => void 
       {/* ── Add-ons ── */}
       <section>
         <h2 className="text-sm font-semibold text-[#b7c5d5] uppercase tracking-wider mb-4 flex items-center gap-2">
-          <Wrench className="w-4 h-4" /> Add-ons <span className="text-[#b7c5d5]/50 font-normal normal-case tracking-normal">(optional)</span>
+          <Wrench className="w-4 h-4" /> Services Needed <span className="text-[#b7c5d5]/50 font-normal normal-case tracking-normal">(optional)</span>
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
           {ADDONS.map(a => (
@@ -358,7 +411,7 @@ export default function RequestForm({ onSubmitted }: { onSubmitted?: () => void 
           value={form.message}
           onChange={set("message")}
           rows={4}
-          placeholder="Describe your deployment timeline, special requirements, or any questions…"
+          placeholder={isPallet ? "Pallet dimensions, stackability, delivery appointment needs…" : "Describe your deployment timeline, special requirements, or any questions…"}
           className={`${inputClass} resize-none`}
         />
       </section>
@@ -375,7 +428,7 @@ export default function RequestForm({ onSubmitted }: { onSubmitted?: () => void 
           </>
         ) : (
           <>
-            Request Your Rollout Quote <ChevronRight className="w-5 h-5" />
+            {isPallet ? "Request Your Per-Pallet Quote" : "Request Your Project Quote"} <ChevronRight className="w-5 h-5" />
           </>
         )}
       </button>

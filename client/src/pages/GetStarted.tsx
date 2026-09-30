@@ -25,10 +25,11 @@ export default function GetStarted() {
           </div>
           <h1 className="text-4xl font-extrabold text-white mb-3 leading-tight">
             Request Your<br />
-            <span className="bg-gradient-to-r from-[#0A84FF] to-[#6ee7b7] bg-clip-text text-transparent">Rollout Quote</span>
+            <span className="bg-gradient-to-r from-[#0A84FF] to-[#6ee7b7] bg-clip-text text-transparent">Project or Per-Pallet Quote</span>
           </h1>
           <p className="text-[#b7c5d5] text-lg">
-            Tell us the number of locations, devices, services required, storage needs, and deployment schedule — we&apos;ll build a staging and logistics quote around your rollout.
+            Planning a multi-site rollout? Tell us the locations, devices, services, and schedule — we&apos;ll scope a custom project quote.
+            Just need pallets received, stored, and staged? Pick the per-pallet path for straightforward per-pallet pricing.
           </p>
         </div>
 

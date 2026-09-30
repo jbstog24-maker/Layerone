@@ -92,6 +92,7 @@ type Inquiry = {
   email: string;
   phone: string | null;
   tier: "basic" | "standard" | "professional" | "enterprise" | "custom";
+  quoteType: string | null;
   deviceVolume: string | null;
   deviceCount: number | null;
   palletCount: number | null;
@@ -383,6 +384,11 @@ function QuoteBuilderDialog({
             <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Customer Requirements</p>
             <div className="flex flex-wrap gap-2">
               <TierBadge tier={inquiry.tier} />
+              {inquiry.quoteType === "pallet" && (
+                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border bg-[#0A84FF]/15 text-[#6ee7b7] border-[#0A84FF]/40">
+                  Per-Pallet Quote
+                </span>
+              )}
               {inquiry.deviceCount != null && (
                 <span className="inline-flex items-center gap-1 text-xs bg-white/5 border border-white/10 px-2 py-0.5 rounded-full text-slate-300">
                   <Server className="w-3 h-3" /> {inquiry.deviceCount} devices

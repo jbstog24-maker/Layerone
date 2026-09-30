@@ -117,6 +117,7 @@ export function registerProspectSyncRoute(app: Express) {
             email: inq.email,
             phone: inq.phone,
             tier: inq.tier,
+            quoteType: inq.quoteType,
             deviceCount: inq.deviceCount,
             boxCount: inq.boxCount,
             palletCount: inq.palletCount,

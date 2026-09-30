@@ -264,6 +264,7 @@ export type InquiryOwnerEmailParams = {
   company: string;
   email: string;
   phone?: string | null;
+  quoteType?: string | null;
   tierLabel: string;
   deviceCount?: number | null;
   palletCount?: number | null;
@@ -291,6 +292,7 @@ export async function sendInquiryOwnerEmail(params: InquiryOwnerEmailParams): Pr
     row("Company", params.company) +
     row("Email", params.email) +
     row("Phone", params.phone) +
+    row("Quote Type", params.quoteType) +
     row("Package", params.tierLabel) +
     row("Devices", params.deviceCount != null ? String(params.deviceCount) : null) +
     row("Pallets", params.palletCount != null ? String(params.palletCount) : null) +

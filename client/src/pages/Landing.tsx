@@ -498,7 +498,7 @@ function Packages() {
                 Every rollout is quoted as a project.
               </h2>
               <p className="text-slate-400 text-lg max-w-2xl leading-relaxed">
-                Tell us the number of locations, devices, services required, storage needs, and deployment schedule — we&apos;ll build a staging and logistics quote around your rollout. Volume discounts apply: per-device and per-site rates come down as quantities scale, itemized in your quote.
+                Tell us the number of locations, devices, services required, storage needs, and deployment schedule — we&apos;ll build a staging and logistics quote around your rollout. Volume discounts apply: per-device and per-site rates come down as quantities scale, itemized in your quote. Prefer it simple? Our per-pallet path is $12/pallet receiving and $30/pallet/month storage, plus the services you pick.
               </p>
             </div>
             <a

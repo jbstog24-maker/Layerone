@@ -53,6 +53,30 @@ describe("inquiry.submit rollout scoping fields", () => {
     expect(result.success).toBe(true);
   });
 
+  it("accepts a per-pallet quote (quoteType=pallet, no tier required)", async () => {
+    const caller = appRouter.createCaller(makeCtx());
+    const result = await caller.inquiry.submit({
+      ...baseInput,
+      quoteType: "pallet",
+      palletCount: 4,
+      storageDays: 45,
+      addons: ["asset_tagging", "onsite_delivery"],
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("defaults to the project quote path when quoteType is omitted", async () => {
+    const caller = appRouter.createCaller(makeCtx());
+    const result = await caller.inquiry.submit({
+      name: "No Tier",
+      company: "Acme",
+      email: "notier@acme.com",
+      phone: "2145550100",
+      // no tier, no quoteType — PackageDetail-era callers keep working
+    });
+    expect(result.success).toBe(true);
+  });
+
   it("rejects a negative locationCount", async () => {
     const caller = appRouter.createCaller(makeCtx());
     await expect(

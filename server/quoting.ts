@@ -60,69 +60,89 @@ const round2 = (n: number) => Math.round(n * 100) / 100;
 
 /**
  * Build a draft quote for an inquiry: base package price + volume overages +
- * selected add-ons. Inserts the quote with status 'draft' and returns the row.
+ * selected add-ons. Per-pallet inquiries skip the tier framework and are
+ * priced purely per pallet (receiving + storage + chosen services).
+ * Inserts the quote with status 'draft' and returns the row.
  */
 export async function buildDraftQuote(
   db: Db,
   inquiry: PackageInquiry
 ): Promise<Quote> {
-  const tierKey = inquiry.tier as PackageTier;
-  const tier = TIER_PRICING[tierKey] ?? TIER_PRICING.custom;
-  const allowances = TIER_ALLOWANCES[tierKey] ?? TIER_ALLOWANCES.custom;
-
   const items: DraftLineItem[] = [];
   const push = (label: string, qty: number, unitPrice: number) => {
     const unit = round2(unitPrice);
     items.push({ label, qty, unitPrice: unit, total: round2(qty * unit) });
   };
 
-  // (a) Base package item
-  push(
-    `${tier.name} — ${tier.mode === "payment" ? "one-time" : "/month"}`,
-    1,
-    tier.amountCents / 100
-  );
-
-  // (b) Volume overages vs. tier allowances
-  const deviceCount = inquiry.deviceCount ?? 0;
-  if (deviceCount > allowances.maxDevices) {
-    const extra = deviceCount - allowances.maxDevices;
-    push(
-      `Extra device storage — ${extra} over included ${allowances.maxDevices}`,
-      extra,
-      ADDON_RATES.extraDevicePerMonth / 100
-    );
-  }
-
-  const boxCount = inquiry.boxCount ?? 0;
-  if (boxCount > allowances.maxBoxes) {
-    const extra = boxCount - allowances.maxBoxes;
-    push(
-      `Extra parcels received — ${extra} over included ${allowances.maxBoxes}`,
-      extra,
-      ADDON_RATES.extraBoxPerMonth / 100
-    );
-  }
-
   const palletCount = inquiry.palletCount ?? 0;
-  if (palletCount > allowances.maxPallets) {
-    const extra = palletCount - allowances.maxPallets;
+  const deviceCount = inquiry.deviceCount ?? 0;
+  const boxCount = inquiry.boxCount ?? 0;
+
+  if (inquiry.quoteType === "pallet") {
+    // ── Per-pallet quote: receiving + storage, no tier base ──
+    const pallets = Math.max(palletCount, 1);
     push(
-      `Extra pallets — ${extra} over included ${allowances.maxPallets}`,
-      extra,
+      `Pallet receiving & intake — ${pallets} pallet(s)`,
+      pallets,
+      ADDON_RATES.inboundReceivingPerPallet / 100
+    );
+    const storageMonths = Math.max(1, Math.ceil((inquiry.storageDays ?? 0) / 30));
+    push(
+      `Pallet storage — ${pallets} pallet(s) × ${storageMonths} month(s)`,
+      pallets * storageMonths,
       ADDON_RATES.extraPalletPerMonth / 100
     );
-  }
+  } else {
+    // ── Project quote: tier base + volume overages ──
+    const tierKey = inquiry.tier as PackageTier;
+    const tier = TIER_PRICING[tierKey] ?? TIER_PRICING.custom;
+    const allowances = TIER_ALLOWANCES[tierKey] ?? TIER_ALLOWANCES.custom;
 
-  const storageDays = inquiry.storageDays ?? 0;
-  if (storageDays > allowances.storageDays) {
-    const extraDays = storageDays - allowances.storageDays;
-    const billableUnits = Math.max(boxCount, 1);
+    // (a) Base package item
     push(
-      `Extended storage — ${extraDays} extra days × ${billableUnits} box(es)`,
-      extraDays * billableUnits,
-      ADDON_RATES.extraStorageDayPerBox / 100
+      `${tier.name} — ${tier.mode === "payment" ? "one-time" : "/month"}`,
+      1,
+      tier.amountCents / 100
     );
+
+    // (b) Volume overages vs. tier allowances
+    if (deviceCount > allowances.maxDevices) {
+      const extra = deviceCount - allowances.maxDevices;
+      push(
+        `Extra device storage — ${extra} over included ${allowances.maxDevices}`,
+        extra,
+        ADDON_RATES.extraDevicePerMonth / 100
+      );
+    }
+
+    if (boxCount > allowances.maxBoxes) {
+      const extra = boxCount - allowances.maxBoxes;
+      push(
+        `Extra parcels received — ${extra} over included ${allowances.maxBoxes}`,
+        extra,
+        ADDON_RATES.extraBoxPerMonth / 100
+      );
+    }
+
+    if (palletCount > allowances.maxPallets) {
+      const extra = palletCount - allowances.maxPallets;
+      push(
+        `Extra pallets — ${extra} over included ${allowances.maxPallets}`,
+        extra,
+        ADDON_RATES.extraPalletPerMonth / 100
+      );
+    }
+
+    const storageDays = inquiry.storageDays ?? 0;
+    if (storageDays > allowances.storageDays) {
+      const extraDays = storageDays - allowances.storageDays;
+      const billableUnits = Math.max(boxCount, 1);
+      push(
+        `Extended storage — ${extraDays} extra days × ${billableUnits} box(es)`,
+        extraDays * billableUnits,
+        ADDON_RATES.extraStorageDayPerBox / 100
+      );
+    }
   }
 
   // (c) Selected add-ons (inquiry.addons is a JSON array of key strings).

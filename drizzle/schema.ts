@@ -553,6 +553,8 @@ export const packageInquiries = mysqlTable("package_inquiries", {
   equipmentTypes: text("equipmentTypes"), // JSON array of equipment-type keys
   startDate: varchar("startDate", { length: 20 }),
   rolloutDuration: varchar("rolloutDuration", { length: 40 }),
+  // Quote path: "project" (rollout scoping) or "pallet" (per-pallet pricing)
+  quoteType: varchar("quoteType", { length: 20 }),
   status: mysqlEnum("status", [
     "new",
     "needs_review",
