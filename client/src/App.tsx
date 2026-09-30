@@ -46,6 +46,30 @@ import Register from "./pages/Register";
 import SetPassword from "./pages/SetPassword";
 import SignMsa from "./pages/SignMsa";
 import Onboarding from "./pages/Onboarding";
+import { useEffect } from "react";
+import { useAuth } from "@/_core/hooks/useAuth";
+import { useLocation } from "wouter";
+
+/**
+ * Route guard: only users with one of the given roles may view the wrapped
+ * page. Anyone else is sent back to their dashboard. (The API already
+ * enforces this; this keeps people from landing on pages they can't use —
+ * e.g. non-admins must never reach the user account list.)
+ */
+function RequireRole({ roles, children }: { roles: string[]; children: React.ReactNode }) {
+  const { user, loading } = useAuth();
+  const [, setLocation] = useLocation();
+
+  useEffect(() => {
+    if (!loading && user && !roles.includes(user.role)) {
+      setLocation("/dashboard");
+    }
+  }, [loading, user, roles, setLocation]);
+
+  if (loading) return null;
+  if (!user || !roles.includes(user.role)) return null;
+  return <>{children}</>;
+}
 
 function Router() {
   return (
@@ -96,7 +120,13 @@ function Router() {
 
       {/* Admin */}
       <Route path="/activity" component={ActivityLog} />
-      <Route path="/users" component={Users} />
+      <Route path="/users">
+        {() => (
+          <RequireRole roles={["admin"]}>
+            <Users />
+          </RequireRole>
+        )}
+      </Route>
       <Route path="/inquiries" component={Inquiries} />
       <Route path="/onboarding" component={Onboarding} />
       <Route path="/messages" component={Messages} />
