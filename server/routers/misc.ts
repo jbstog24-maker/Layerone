@@ -5,7 +5,7 @@ import {
   createPhoto, getDashboardStats, getClientUsage, getClient, getPackage,
   listActivityLogs, listPhotosByClient, listPhotos, listUsers, logActivity,
   updateUserRole, updateUser, deleteUser, getUserById, createUser, getDb,
-  setInviteToken,
+  setInviteToken, countPurgeableUnnamedUsers, deletePurgeableUnnamedUsers,
 } from "../db";
 import { storagePut } from "../storage";
 import { customerProcedure, protectedProcedure, router } from "../_core/trpc";
@@ -231,6 +231,21 @@ export const usersRouter = router({
       await logActivity({ userId: ctx.user.id, action: `Deleted user #${input.userId}`, entityType: "user", entityId: input.userId });
       return { success: true };
     }),
+
+  // ── Unnamed-account cleanup ──────────────────────────────────────────
+  // Unnamed accounts are never legitimate: every creation path requires a
+  // name. These endpoints let an admin preview and bulk-delete them.
+  unnamedCount: protectedProcedure.query(async ({ ctx }) => {
+    if (!isAdmin(ctx.user.role)) throw new TRPCError({ code: "FORBIDDEN" });
+    return { count: await countPurgeableUnnamedUsers(ctx.user.id) };
+  }),
+
+  purgeUnnamed: protectedProcedure.mutation(async ({ ctx }) => {
+    if (!isAdmin(ctx.user.role)) throw new TRPCError({ code: "FORBIDDEN" });
+    const deleted = await deletePurgeableUnnamedUsers(ctx.user.id);
+    await logActivity({ userId: ctx.user.id, action: `Purged ${deleted} unnamed user accounts`, entityType: "user", entityId: 0 });
+    return { deleted };
+  }),
 
   create: protectedProcedure
     .input(z.object({

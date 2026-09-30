@@ -440,6 +440,19 @@ export default function Users() {
     onError: (err) => toast.error(err.message ?? "Failed to send invite"),
   });
 
+  // Unnamed-account cleanup (bot/junk rows): preview count, then purge.
+  const [purgeConfirm, setPurgeConfirm] = useState(false);
+  const { data: unnamedCount } = trpc.users.unnamedCount.useQuery();
+  const purgeMut = trpc.users.purgeUnnamed.useMutation({
+    onSuccess: (res) => {
+      toast.success(`Removed ${res.deleted} unnamed account${res.deleted === 1 ? "" : "s"}.`);
+      utils.users.list.invalidate();
+      utils.users.unnamedCount.invalidate();
+      setPurgeConfirm(false);
+    },
+    onError: (e) => toast.error(e.message),
+  });
+
   const clientMap = useMemo(() => {
     const m: Record<number, string> = {};
     (clients as any[]).forEach((c) => { m[c.id] = c.companyName; });
@@ -537,12 +550,24 @@ export default function Users() {
               Manage staff roles and customer portal access
             </p>
           </div>
-          <Button onClick={() => {
-            setDialogUser({ ...EMPTY_FORM, role: defaultRole });
-          }} className="bg-blue-600 hover:bg-blue-700 gap-2 self-start sm:self-auto">
-            <Plus className="w-4 h-4" />
-            Add New User
-          </Button>
+          <div className="flex gap-2 self-start sm:self-auto">
+            {(unnamedCount?.count ?? 0) > 0 && (
+              <Button
+                variant="outline"
+                onClick={() => setPurgeConfirm(true)}
+                className="gap-2 border-amber-600/50 text-amber-300 hover:bg-amber-600/10"
+              >
+                <Trash2 className="w-4 h-4" />
+                Clean up {unnamedCount!.count} unnamed
+              </Button>
+            )}
+            <Button onClick={() => {
+              setDialogUser({ ...EMPTY_FORM, role: defaultRole });
+            }} className="bg-blue-600 hover:bg-blue-700 gap-2">
+              <Plus className="w-4 h-4" />
+              Add New User
+            </Button>
+          </div>
         </div>
 
         {/* Role stats */}
@@ -634,6 +659,24 @@ export default function Users() {
             <AlertDialogAction onClick={() => deleteId && deleteMut.mutate({ userId: deleteId })}
               disabled={deleteMut.isPending} className="bg-red-600 hover:bg-red-700 text-white">
               {deleteMut.isPending ? "Removing…" : "Remove User"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+      {/* Purge Unnamed Confirm */}
+      <AlertDialog open={purgeConfirm} onOpenChange={(o) => !o && setPurgeConfirm(false)}>
+        <AlertDialogContent className="bg-[#07111f] border-[#1e3a5f] text-white">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-white">Delete Unnamed Accounts</AlertDialogTitle>
+            <AlertDialogDescription className="text-slate-400">
+              This will permanently delete <strong className="text-white">{unnamedCount?.count ?? 0} unnamed account{unnamedCount?.count === 1 ? "" : "s"}</strong> (no name on file, not staff/admin, not linked to a client). Legitimate accounts always have names, so these are junk rows. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="border-[#1e3a5f] text-slate-300 bg-transparent hover:bg-[#0d1f35]">Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={() => purgeMut.mutate()}
+              disabled={purgeMut.isPending} className="bg-red-600 hover:bg-red-700 text-white">
+              {purgeMut.isPending ? "Deleting…" : `Delete ${unnamedCount?.count ?? 0} accounts`}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

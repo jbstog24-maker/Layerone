@@ -1,4 +1,4 @@
-import { and, desc, eq, isNotNull, isNull, like, or, sql } from "drizzle-orm";
+import { and, desc, eq, isNotNull, isNull, like, ne, notInArray, or, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import {
   InsertUser,
@@ -99,6 +99,22 @@ export async function getDb() {
 }
 
 // ─── Users ────────────────────────────────────────────────────────────────────
+
+/**
+ * Best-effort display name for users synced from an identity provider, so a
+ * missing provider name never trips the no-unnamed-users guard below.
+ */
+export function fallbackUserName(
+  name?: string | null,
+  email?: string | null
+): string {
+  const trimmed = (name ?? "").trim();
+  if (trimmed) return trimmed;
+  const localPart = (email ?? "").split("@")[0]?.trim();
+  if (localPart) return localPart;
+  return "Portal User";
+}
+
 export async function upsertUser(user: InsertUser): Promise<void> {
   if (!user.openId) throw new Error("User openId is required for upsert");
   const db = await getDb();
@@ -130,6 +146,23 @@ export async function upsertUser(user: InsertUser): Promise<void> {
 
   if (!values.lastSignedIn) values.lastSignedIn = new Date();
   if (Object.keys(updateSet).length === 0) updateSet.lastSignedIn = new Date();
+
+  // Hardening: never create a user row without a name. Updates to existing
+  // rows (e.g. lastSignedIn touches) are always allowed.
+  const providedName =
+    typeof values.name === "string" ? values.name.trim() : "";
+  if (!providedName) {
+    const existing = await db
+      .select({ id: users.id })
+      .from(users)
+      .where(eq(users.openId, user.openId))
+      .limit(1);
+    if (!existing[0]) {
+      throw new Error(
+        `Refusing to create user with openId "${user.openId}" and no name`
+      );
+    }
+  }
 
   await db
     .insert(users)
@@ -202,6 +235,43 @@ export async function deleteUser(userId: number) {
   const db = await getDb();
   if (!db) return;
   await db.delete(users).where(eq(users.id, userId));
+}
+
+/**
+ * Unnamed accounts are never legitimate (every creation path requires a
+ * name). This matches the rows eligible for admin purge: no name, not an
+ * admin/staff account, not the requesting admin, and not linked to a client.
+ */
+function unnamedPurgeFilter(excludeUserId: number) {
+  return and(
+    or(isNull(users.name), eq(users.name, "")),
+    notInArray(users.role, ["admin", "staff"]),
+    ne(users.id, excludeUserId),
+    isNull(users.clientId)
+  );
+}
+
+export async function countPurgeableUnnamedUsers(
+  excludeUserId: number
+): Promise<number> {
+  const db = await getDb();
+  if (!db) return 0;
+  const rows = await db
+    .select({ id: users.id })
+    .from(users)
+    .where(unnamedPurgeFilter(excludeUserId));
+  return rows.length;
+}
+
+export async function deletePurgeableUnnamedUsers(
+  excludeUserId: number
+): Promise<number> {
+  const db = await getDb();
+  if (!db) return 0;
+  const result = await db
+    .delete(users)
+    .where(unnamedPurgeFilter(excludeUserId));
+  return Number((result as unknown as { affectedRows?: number }).affectedRows ?? 0);
 }
 
 export async function getUserById(userId: number) {

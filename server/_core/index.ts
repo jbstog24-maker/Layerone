@@ -62,6 +62,9 @@ async function findAvailablePort(startPort: number = 3000): Promise<number> {
 
 async function startServer() {
   const app = express();
+  // Behind Render's reverse proxy: trust the first proxy hop so req.ip and
+  // express-rate-limit see the real client IP from X-Forwarded-For.
+  app.set("trust proxy", 1);
   const server = createServer(app);
   // One-time additive DB migration (only runs when RUN_ONCE_MIGRATION=1). Never throws.
   await runOnceMigration();
