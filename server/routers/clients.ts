@@ -2,11 +2,17 @@ import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { createClient, getClient, listClients, updateClient, listClientNotes, createClientNote, updateClientNote, deleteClientNote } from "../db";
 import { logActivity } from "../db";
-import { protectedProcedure, router } from "../_core/trpc";
+import { protectedProcedure, customerProcedure, router } from "../_core/trpc";
 
 const isAdminOrStaff = (role: string) => role === "admin" || role === "staff";
 
 export const clientsRouter = router({
+  // The signed-in user's own client company (customers see only this).
+  myClient: customerProcedure.query(async ({ ctx }) => {
+    if (!ctx.user.clientId) return null;
+    return getClient(ctx.user.clientId);
+  }),
+
   list: protectedProcedure
     .input(z.object({ search: z.string().optional(), showArchived: z.boolean().optional() }).optional())
     .query(async ({ ctx, input }) => {

@@ -212,6 +212,25 @@ export const usersRouter = router({
       return { success: true };
     }),
 
+  // Self-service profile update: a signed-in user may edit their own
+  // contact details, but never their role, email, or client assignment.
+  updateMe: protectedProcedure
+    .input(z.object({
+      name: z.string().trim().min(1, "Name is required").max(200),
+      phone: z.string().trim().max(30).nullish(),
+      jobTitle: z.string().trim().max(128).nullish(),
+      department: z.string().trim().max(128).nullish(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      await updateUser(ctx.user.id, {
+        name: input.name,
+        phone: input.phone?.trim() ? input.phone.trim() : null,
+        jobTitle: input.jobTitle?.trim() ? input.jobTitle.trim() : null,
+        department: input.department?.trim() ? input.department.trim() : null,
+      });
+      return { success: true };
+    }),
+
   setActive: protectedProcedure
     .input(z.object({ userId: z.number(), isActive: z.boolean() }))
     .mutation(async ({ ctx, input }) => {

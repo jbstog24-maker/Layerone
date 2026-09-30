@@ -46,6 +46,7 @@ import Register from "./pages/Register";
 import SetPassword from "./pages/SetPassword";
 import SignMsa from "./pages/SignMsa";
 import Onboarding from "./pages/Onboarding";
+import MyAccount from "./pages/MyAccount";
 import { useEffect } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { useLocation } from "wouter";
@@ -120,6 +121,7 @@ function Router() {
 
       {/* Admin */}
       <Route path="/activity" component={ActivityLog} />
+      <Route path="/account" component={MyAccount} />
       <Route path="/users">
         {() => (
           <RequireRole roles={["admin"]}>

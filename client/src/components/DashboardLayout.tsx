@@ -42,6 +42,7 @@ import {
   MapPin,
   MessageSquare,
   Package,
+  User,
   PanelLeft,
   Pin,
   PinOff,
@@ -457,6 +458,14 @@ function DashboardLayoutContent({
               <DropdownMenuContent align="end" className="w-48">
                 <DropdownMenuItem className="text-xs text-muted-foreground" disabled>
                   {user?.email}
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onClick={() => setLocation("/account")}
+                  className="cursor-pointer"
+                >
+                  <User className="mr-2 h-4 w-4" />
+                  My Account
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
