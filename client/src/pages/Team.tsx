@@ -116,7 +116,7 @@ function AiCard({
 export default function Team() {
   usePageMeta(
     "Meet the Team | Layer One Staging",
-    "One human, three AI teammates. Helpful technology, with James accountable for the work. Meet James Stogner, Alex, Morgan, and Casey at Layer One Staging.",
+    "One human, three AI teammates. Meet James Stogner, Alex, Morgan, and Casey — the crew behind Layer One Staging.",
     "/team"
   );
 
@@ -136,8 +136,7 @@ export default function Team() {
             Meet the team.
           </h1>
           <p className="text-slate-400 text-lg leading-relaxed max-w-2xl">
-            One human. Three robots with headsets. A shared understanding of
-            who&rsquo;s in charge.
+            One human. Three robots with headsets. Zero phone trees.
           </p>
         </div>
       </section>
@@ -163,14 +162,14 @@ export default function Team() {
               <div className="space-y-4 text-slate-400 leading-relaxed max-w-3xl">
                 <p>
                   U.S. Air Force veteran. 20+ years in IT infrastructure, telecom,
-                  and multi-site technology deployments. James founded Layer One
-                  Staging, runs the operation, and signs off on every rollout.
+                  and multi-site technology deployments. I founded Layer One
+                  Staging, I run the operation, and I sign off on every rollout.
                 </p>
                 <p>
-                  The AI crew assists. <span className="text-white font-semibold">James answers
+                  The AI crew assists. <span className="text-white font-semibold">I answer
                   for the outcome</span> — every pallet, every device, every deadline.
                   That&rsquo;s the deal, and it&rsquo;s non-negotiable, mostly because
-                  James wrote this page.
+                  I wrote this page.
                 </p>
               </div>
             </div>
@@ -199,7 +198,7 @@ export default function Team() {
               role="AI Client Representative"
               icon={Phone}
               accent="text-amber-300/90"
-              blurb="The voice you'll hear when you call (469) 537-4378. In his 60s, deep raspy voice, warm Texas drawl — friendly, patient, quietly confident, with a gentle sarcasm that keeps calls interesting. Alex asks the right questions, takes a great message, and knows exactly when to handle something himself and when to loop in James."
+              blurb="The voice you'll hear when you call (469) 537-4378. In his 60s, deep raspy voice, warm Texas drawl — friendly, patient, quietly confident, with a gentle sarcasm that keeps calls interesting. Alex asks the right questions, takes a great message, and knows exactly what he can handle and what needs a human being."
               quote="Yes sir, I'm AI. They gave me the manners; James kept the good looks."
             />
             <AiCard
@@ -279,7 +278,7 @@ export default function Team() {
               <Truck className="w-6 h-6 text-[#0A84FF] mb-3" />
               <h3 className="text-white font-bold mb-2">Vetted crew on-site.</h3>
               <p className="text-slate-400 text-sm leading-relaxed">
-                Deliveries and installs are handled by James and his field crew —
+                Deliveries and installs are handled by our field crew —
                 background-checked, vetted contract techs. One accountable
                 operation, start to finish — no wondering who showed up.
               </p>
@@ -301,7 +300,7 @@ export default function Team() {
         <div className="max-w-4xl mx-auto px-6 text-center">
           <Bot className="w-8 h-8 text-[#0A84FF] mx-auto mb-5" />
           <h2 className="text-3xl md:text-4xl font-black tracking-[-1px] text-white mb-4">
-            Helpful technology, with James accountable for the work.
+            Helpful technology. Real accountability.
           </h2>
           <p className="text-slate-400 leading-relaxed max-w-2xl mx-auto mb-8">
             AI makes the operation faster and sharper. A veteran-owned business
