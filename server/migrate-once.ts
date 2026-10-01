@@ -15,6 +15,7 @@
  *  - package_inquiries gains quoteType (project vs per-pallet quote path)
  *  - package_inquiries gains deletedAt (soft-delete / trash for inquiries)
  *  - CREATE TABLE scheduled_calls (website "Schedule a Call" bookings w/ email verification)
+ *  - CREATE TABLE call_logs (Bland post-call webhook transcript archive)
  */
 import { sql } from "drizzle-orm";
 import { getDb } from "./db";
@@ -129,6 +130,32 @@ CREATE TABLE IF NOT EXISTS \`scheduled_calls\` (
   INDEX \`scheduled_calls_scheduledFor_idx\` (\`scheduledFor\`)
 )`;
 
+// 2026-10-01: Bland post-call webhook transcript archive. rawPayload is the
+// full webhook JSON (mediumtext — structured transcript arrays can exceed
+// TEXT's 64KB on long calls). blandCallId is unique so retried webhook
+// deliveries are idempotent.
+const CREATE_CALL_LOGS = `
+CREATE TABLE IF NOT EXISTS \`call_logs\` (
+  \`id\` int AUTO_INCREMENT NOT NULL,
+  \`blandCallId\` varchar(64),
+  \`direction\` enum('inbound','outbound','unknown') NOT NULL DEFAULT 'unknown',
+  \`fromNumber\` varchar(30),
+  \`toNumber\` varchar(30),
+  \`callerName\` varchar(120),
+  \`company\` varchar(200),
+  \`startedAt\` timestamp NULL,
+  \`durationSeconds\` int,
+  \`summary\` text,
+  \`recordingUrl\` text,
+  \`transcript\` mediumtext,
+  \`rawPayload\` mediumtext NOT NULL,
+  \`syncedToSheet\` tinyint(1) NOT NULL DEFAULT 0,
+  \`createdAt\` timestamp NOT NULL DEFAULT (now()),
+  CONSTRAINT \`call_logs_id\` PRIMARY KEY(\`id\`),
+  CONSTRAINT \`call_logs_blandCallId_unique\` UNIQUE(\`blandCallId\`),
+  INDEX \`call_logs_syncedToSheet_idx\` (\`syncedToSheet\`)
+)`;
+
 /**
  * Run one additive step without letting it abort the remaining steps.
  * A failure here is never fatal to boot; it is logged and we continue so a
@@ -157,6 +184,7 @@ export async function runOnceMigration(): Promise<void> {
       ["onboarding_checklists", CREATE_ONBOARDING_CHECKLISTS],
       ["onboarding_tasks", CREATE_ONBOARDING_TASKS],
       ["scheduled_calls", CREATE_SCHEDULED_CALLS],
+      ["call_logs", CREATE_CALL_LOGS],
     ] as const) {
       await applyStep(`create table ${name}`, async () => {
         if (await tableExists(db, name)) {

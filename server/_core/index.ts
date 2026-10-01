@@ -13,6 +13,7 @@ import { registerProspectSyncRoute } from "../prospectSync";
 import { registerBackupExportRoute } from "../backupExport";
 import { registerMessageSyncRoutes } from "../messageSync";
 import { registerScheduledCallRoutes } from "../scheduledCalls";
+import { registerCallLogRoutes } from "../callLog";
 import {
   handleMonthlyInvoices,
   handleDripAutoSend,
@@ -94,6 +95,8 @@ async function startServer() {
   registerMessageSyncRoutes(app);
   // Scheduled website callbacks: Alex calls verified bookings at their time (token-authenticated)
   registerScheduledCallRoutes(app);
+  // Bland post-call webhook → durable call transcript archive (token-authenticated)
+  registerCallLogRoutes(app);
   // tRPC API
   app.use(
     "/api/trpc",

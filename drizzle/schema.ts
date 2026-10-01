@@ -1100,3 +1100,34 @@ export const scheduledCalls = mysqlTable("scheduled_calls", {
 
 export type ScheduledCall = typeof scheduledCalls.$inferSelect;
 export type InsertScheduledCall = typeof scheduledCalls.$inferInsert;
+
+// ─── Call Logs (Bland post-call webhook → durable transcript archive) ─────────
+// Bland POSTs to /api/call-log after every inbound/outbound call. Every payload
+// is stored raw (never parsed-or-dropped), extracted fields are best-effort,
+// and a cron mirrors unsynced rows to the Google Sheet via
+// GET /api/call-log/unsynced + POST /api/call-log/mark-synced.
+export const callLogs = mysqlTable("call_logs", {
+  id: int("id").autoincrement().primaryKey(),
+  // Bland's call id; unique so retried webhook deliveries are idempotent
+  // (duplicate deliveries are swallowed, not stored twice). Nullable because
+  // some payload shapes carry no id — those rows are always stored.
+  blandCallId: varchar("blandCallId", { length: 64 }).unique(),
+  direction: mysqlEnum("direction", ["inbound", "outbound", "unknown"])
+    .default("unknown")
+    .notNull(),
+  fromNumber: varchar("fromNumber", { length: 30 }),
+  toNumber: varchar("toNumber", { length: 30 }),
+  callerName: varchar("callerName", { length: 120 }),
+  company: varchar("company", { length: 200 }),
+  startedAt: timestamp("startedAt"),
+  durationSeconds: int("durationSeconds"),
+  summary: text("summary"),
+  recordingUrl: text("recordingUrl"),
+  transcript: mediumtext("transcript"),
+  rawPayload: mediumtext("rawPayload").notNull(),
+  syncedToSheet: boolean("syncedToSheet").default(false).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type CallLog = typeof callLogs.$inferSelect;
+export type InsertCallLog = typeof callLogs.$inferInsert;
