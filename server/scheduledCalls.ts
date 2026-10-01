@@ -74,6 +74,8 @@ async function blandPlaceCall(row: { name: string; phone: string; company: strin
       language: "ENG",
       record: true,
       max_duration: 15,
+      // Post-call webhook → call-log archive (same as the 469 inbound number).
+      webhook: `${ENV.portalUrl}/api/call-log?token=${process.env.PROSPECT_SYNC_TOKEN ?? ""}`,
       // Let the person pick up and say hello first — don't talk over the ring.
       wait_for_greeting: true,
     }),
