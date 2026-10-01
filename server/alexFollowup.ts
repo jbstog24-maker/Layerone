@@ -17,6 +17,7 @@
  * PII discipline: email addresses and phone numbers are never logged.
  */
 import { Resend } from "resend";
+import { INFO_CC } from "./infoCc";
 import { desc, eq, gte } from "drizzle-orm";
 import { ENV } from "./_core/env";
 import { getDb } from "./db";
@@ -140,6 +141,7 @@ export async function sendQuoteFollowupEmail(params: { to: string; name: string 
     const resend = getFollowupResend();
     const { error } = await resend.emails.send({
       from: ENV.resendFromEmail,
+      cc: INFO_CC,
       to: params.to,
       subject: "Next steps with Layer One Staging",
       html: buildQuoteFollowupHtml(firstName),

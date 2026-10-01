@@ -6,6 +6,7 @@
  * (unit assignment, tasks) in the admin onboarding section until complete → "won".
  */
 import { Resend } from "resend";
+import { INFO_CC } from "./infoCc";
 import { desc, eq } from "drizzle-orm";
 import {
   onboardingChecklists,
@@ -111,6 +112,7 @@ export async function sendOwnerEmail(params: {
     const resend = getResend();
     const { error } = await resend.emails.send({
       from: ENV.resendFromEmail,
+      cc: INFO_CC,
       to: ENV.ownerNotifyEmail,
       subject: params.subject,
       html,

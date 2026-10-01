@@ -1,4 +1,5 @@
 import { Resend } from "resend";
+import { INFO_CC } from "./infoCc";
 import { ENV } from "./_core/env";
 
 // ─── Proposal Email (MSA + payment) ──────────────────────────────────────────
@@ -134,6 +135,7 @@ export async function sendProposalEmail(
     const resend = getResend();
     const { error } = await resend.emails.send({
       from: ENV.resendFromEmail,
+      cc: INFO_CC,
       to: params.to,
       subject: `Your Layer One proposal - ${params.company}`,
       html: buildProposalHtml(params),
