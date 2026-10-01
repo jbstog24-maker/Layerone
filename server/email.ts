@@ -555,6 +555,76 @@ export async function sendPasswordResetEmail(params: PasswordResetEmailParams): 
   }
 }
 
+// ─── Scheduled Call Verification Email ──────────────────────────────────────
+// Sent when a visitor books a callback on the website. They must click the
+// verification link before Alex is allowed to call them (abuse prevention).
+
+export type CallVerificationEmailParams = {
+  to: string;
+  name: string;
+  verifyUrl: string;
+  scheduledFor: Date;
+};
+
+export async function sendCallVerificationEmail(params: CallVerificationEmailParams): Promise<boolean> {
+  if (!ENV.resendApiKey || !ENV.resendFromEmail) {
+    console.warn("[Email] RESEND_API_KEY or RESEND_FROM_EMAIL not configured — skipping call verification email");
+    return false;
+  }
+  const firstName = params.name.split(" ")[0] ?? params.name;
+  const whenCentral = new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/Chicago",
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  }).format(params.scheduledFor);
+  try {
+    const resend = getResend();
+    const { error } = await resend.emails.send({
+      from: ENV.resendFromEmail,
+      to: params.to,
+      subject: "Confirm your Layer One callback",
+      html: `<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Confirm your callback</title></head>
+<body style="margin:0;padding:0;background:#07111f;font-family:'Segoe UI',Arial,sans-serif;color:#e2e8f0;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#07111f;padding:32px 16px;">
+    <tr><td align="center">
+      <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;background:#0d1f35;border-radius:12px;border:1px solid #1e3a5f;overflow:hidden;">
+        <tr><td style="padding:36px 40px;">
+          <h1 style="margin:0 0 8px;font-size:24px;font-weight:700;color:#f1f5f9;">One quick step, ${firstName}</h1>
+          <p style="margin:0 0 16px;color:#94a3b8;font-size:15px;line-height:1.6;">
+            You asked Alex from Layer One Staging to call you on <strong style="color:#e2e8f0;">${whenCentral} (Central)</strong>.
+            Click below to confirm — we'll only call once you've verified this email.
+          </p>
+          <table cellpadding="0" cellspacing="0" style="margin:0 0 24px;">
+            <tr><td style="background:linear-gradient(135deg,#0284c7,#0ea5e9);border-radius:8px;padding:14px 28px;">
+              <a href="${params.verifyUrl}" style="color:#fff;font-size:15px;font-weight:600;text-decoration:none;display:block;text-align:center;">Confirm My Callback →</a>
+            </td></tr>
+          </table>
+          <p style="margin:0;font-size:13px;color:#64748b;">This link expires in 1 hour. If you didn't request a call, just ignore this email — nothing will be scheduled.</p>
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`,
+    });
+    if (error) {
+      console.warn("[Email] Resend error (call verification):", error);
+      return false;
+    }
+    console.log(`[Email] Call verification email sent to ${params.to}`);
+    return true;
+  } catch (err) {
+    console.warn("[Email] Failed to send call verification email:", err);
+    return false;
+  }
+}
+
 // ─── Staging Complete / Ready to Ship Email ───────────────────────────────────
 
 export type StagingCompleteEmailParams = {

@@ -1061,3 +1061,42 @@ export const onboardingTasks = mysqlTable("onboarding_tasks", {
 
 export type OnboardingTask = typeof onboardingTasks.$inferSelect;
 export type InsertOnboardingTask = typeof onboardingTasks.$inferInsert;
+
+// ─── Scheduled Calls (website "Schedule a Call" → Alex outbound callback) ────
+// Visitor books a callback time; they must verify their email before the call
+// is placed. A 5-minute worker (POST /api/scheduled-calls/process) queues due
+// verified bookings through Bland and finalizes their outcome.
+export const scheduledCalls = mysqlTable("scheduled_calls", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 120 }).notNull(),
+  phone: varchar("phone", { length: 30 }).notNull(),
+  email: varchar("email", { length: 320 }).notNull(),
+  company: varchar("company", { length: 200 }),
+  topic: text("topic"),
+  // Requested callback time, stored in UTC. Displayed/entered as America/Chicago.
+  scheduledFor: timestamp("scheduledFor").notNull(),
+  timezone: varchar("timezone", { length: 60 }).default("America/Chicago").notNull(),
+  status: mysqlEnum("status", [
+    "unverified", // booked, verification email sent, not yet confirmed
+    "pending",    // email verified, waiting for its time
+    "calling",   // handed to Bland, outcome not yet finalized
+    "completed", // Bland reports the call completed
+    "failed",    // Bland failed / no-answer after retries, or misconfigured
+    "cancelled", // cancelled by staff
+    "expired",   // never verified in time
+  ])
+    .default("unverified")
+    .notNull(),
+  verificationToken: varchar("verificationToken", { length: 64 }),
+  verificationExpiresAt: timestamp("verificationExpiresAt"),
+  verifiedAt: timestamp("verifiedAt"),
+  blandCallId: varchar("blandCallId", { length: 64 }),
+  attempts: int("attempts").default(0).notNull(),
+  lastError: text("lastError"),
+  ipHash: varchar("ipHash", { length: 64 }), // sha256 of request IP, for rate limiting
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type ScheduledCall = typeof scheduledCalls.$inferSelect;
+export type InsertScheduledCall = typeof scheduledCalls.$inferInsert;

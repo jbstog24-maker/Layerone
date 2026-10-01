@@ -33,6 +33,7 @@ import {
   usersRouter,
 } from "./routers/misc";
 import { inquiryRouter } from "./routers/inquiry";
+import { scheduledCallRouter } from "./routers/scheduledCalls";
 import { msaRouter } from "./routers/msa";
 import { quotesRouter } from "./routers/quotes";
 import { onboardingRouter } from "./routers/onboarding";
@@ -243,6 +244,7 @@ export const appRouter = router({
   dashboard: dashboardRouter,
   users: usersRouter,
   inquiry: inquiryRouter,
+  scheduledCall: scheduledCallRouter,
   msa: msaRouter,
   quotes: quotesRouter,
   onboarding: onboardingRouter,

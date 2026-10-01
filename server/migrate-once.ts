@@ -14,6 +14,7 @@
  *  - package_inquiries gains locationCount, equipmentTypes, startDate, rolloutDuration (rollout scoping)
  *  - package_inquiries gains quoteType (project vs per-pallet quote path)
  *  - package_inquiries gains deletedAt (soft-delete / trash for inquiries)
+ *  - CREATE TABLE scheduled_calls (website "Schedule a Call" bookings w/ email verification)
  */
 import { sql } from "drizzle-orm";
 import { getDb } from "./db";
@@ -103,6 +104,31 @@ export async function inquiryStatusHas(db: any, value: string): Promise<boolean>
   return !!type && type.includes(`'${value}'`);
 }
 
+const CREATE_SCHEDULED_CALLS = `
+CREATE TABLE IF NOT EXISTS \`scheduled_calls\` (
+  \`id\` int AUTO_INCREMENT NOT NULL,
+  \`name\` varchar(120) NOT NULL,
+  \`phone\` varchar(30) NOT NULL,
+  \`email\` varchar(320) NOT NULL,
+  \`company\` varchar(200),
+  \`topic\` text,
+  \`scheduledFor\` timestamp NOT NULL,
+  \`timezone\` varchar(60) NOT NULL DEFAULT 'America/Chicago',
+  \`status\` enum('unverified','pending','calling','completed','failed','cancelled','expired') NOT NULL DEFAULT 'unverified',
+  \`verificationToken\` varchar(64),
+  \`verificationExpiresAt\` timestamp,
+  \`verifiedAt\` timestamp,
+  \`blandCallId\` varchar(64),
+  \`attempts\` int NOT NULL DEFAULT 0,
+  \`lastError\` text,
+  \`ipHash\` varchar(64),
+  \`createdAt\` timestamp NOT NULL DEFAULT (now()),
+  \`updatedAt\` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
+  CONSTRAINT \`scheduled_calls_id\` PRIMARY KEY(\`id\`),
+  INDEX \`scheduled_calls_status_idx\` (\`status\`),
+  INDEX \`scheduled_calls_scheduledFor_idx\` (\`scheduledFor\`)
+)`;
+
 /**
  * Run one additive step without letting it abort the remaining steps.
  * A failure here is never fatal to boot; it is logged and we continue so a
@@ -130,6 +156,7 @@ export async function runOnceMigration(): Promise<void> {
       ["msa_documents", CREATE_MSA_DOCUMENTS],
       ["onboarding_checklists", CREATE_ONBOARDING_CHECKLISTS],
       ["onboarding_tasks", CREATE_ONBOARDING_TASKS],
+      ["scheduled_calls", CREATE_SCHEDULED_CALLS],
     ] as const) {
       await applyStep(`create table ${name}`, async () => {
         if (await tableExists(db, name)) {

@@ -12,6 +12,7 @@ import { runOnceMigration } from "../migrate-once";
 import { registerProspectSyncRoute } from "../prospectSync";
 import { registerBackupExportRoute } from "../backupExport";
 import { registerMessageSyncRoutes } from "../messageSync";
+import { registerScheduledCallRoutes } from "../scheduledCalls";
 import {
   handleMonthlyInvoices,
   handleDripAutoSend,
@@ -80,6 +81,7 @@ async function startServer() {
   // Strict rate limit on public form submissions
   app.use("/api/trpc/inquiry.submit", inquiryLimiter);
   app.use("/api/trpc/packages.request", inquiryLimiter);
+  app.use("/api/trpc/scheduledCall.book", inquiryLimiter);
   // Scheduled heartbeat handlers (cron callbacks)
   app.post("/api/scheduled/monthly-invoices", handleMonthlyInvoices);
   app.post("/api/scheduled/drip-auto-send", handleDripAutoSend);
@@ -90,6 +92,8 @@ async function startServer() {
   registerBackupExportRoute(app);
   // Client message monitoring + owner-approved replies (token-authenticated)
   registerMessageSyncRoutes(app);
+  // Scheduled website callbacks: Alex calls verified bookings at their time (token-authenticated)
+  registerScheduledCallRoutes(app);
   // tRPC API
   app.use(
     "/api/trpc",

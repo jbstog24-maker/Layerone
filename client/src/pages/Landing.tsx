@@ -9,8 +9,9 @@ import {
   BarChart3, FileText, Camera, Activity,
   Thermometer, Video, MapPin, ChevronDown, Layers,
   Tags, ClipboardCheck, Send, Network, Users, Store,
-  Server, Repeat, Info,
+  Server, Repeat, Info, Phone,
 } from "lucide-react";
+import { ScheduleCallDialog } from "@/components/ScheduleCallDialog";
 
 const LOGO_URL = "/images/layerone-logo-on-dark.png";
 
@@ -74,6 +75,7 @@ function NavBar() {
 
 function Hero() {
   const { isAuthenticated } = useAuth();
+  const [scheduleOpen, setScheduleOpen] = useState(false);
   return (
     <section id="top" className="relative pt-32 pb-24 overflow-hidden">
       {/* Background glows */}
@@ -100,12 +102,21 @@ function Hero() {
             </p>
             <div className="flex flex-wrap gap-3 mb-8">
               {isAuthenticated ? (
-                <a
-                  href="/dashboard"
-                  className="flex items-center gap-2 px-5 py-3 rounded-xl font-bold bg-[#0A84FF] text-white hover:bg-[#3d9dff] transition-colors shadow-[0_14px_34px_rgba(10,132,255,0.3)]"
-                >
-                  Go to Dashboard <ArrowRight className="w-4 h-4" />
-                </a>
+                <>
+                  <a
+                    href="/dashboard"
+                    className="flex items-center gap-2 px-5 py-3 rounded-xl font-bold bg-[#0A84FF] text-white hover:bg-[#3d9dff] transition-colors shadow-[0_14px_34px_rgba(10,132,255,0.3)]"
+                  >
+                    Go to Dashboard <ArrowRight className="w-4 h-4" />
+                  </a>
+                  <button
+                    type="button"
+                    onClick={() => setScheduleOpen(true)}
+                    className="flex items-center gap-2 px-5 py-3 rounded-xl font-bold border border-white/15 bg-white/5 text-white hover:border-white/30 transition-colors"
+                  >
+                    <Phone className="w-4 h-4" /> Schedule a Call
+                  </button>
+                </>
               ) : (
                 <>
                   <a
@@ -114,6 +125,13 @@ function Hero() {
                   >
                     Request a Project Quote <ArrowRight className="w-4 h-4" />
                   </a>
+                  <button
+                    type="button"
+                    onClick={() => setScheduleOpen(true)}
+                    className="flex items-center gap-2 px-5 py-3 rounded-xl font-bold border border-white/15 bg-white/5 text-white hover:border-white/30 transition-colors"
+                  >
+                    <Phone className="w-4 h-4" /> Schedule a Call
+                  </button>
                   <a
                     href="#services"
                     className="flex items-center gap-2 px-5 py-3 rounded-xl font-bold border border-white/15 bg-white/5 text-white hover:border-white/30 transition-colors"
@@ -123,6 +141,7 @@ function Hero() {
                 </>
               )}
             </div>
+            <ScheduleCallDialog open={scheduleOpen} onOpenChange={setScheduleOpen} />
             <div className="flex flex-wrap gap-2">
               {["Received & inventoried", "Configured & labeled", "Kitted by site, shipped nationwide"].map(b => (
                 <span key={b} className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-white/10 bg-white/5 text-slate-400 text-xs">
@@ -1198,6 +1217,7 @@ function FAQ() {
 
 function CTA() {
   const { isAuthenticated } = useAuth();
+  const [scheduleOpen, setScheduleOpen] = useState(false);
   return (
     <section id="contact" className="py-20 border-t border-white/10">
       <div className="max-w-6xl mx-auto px-6">
@@ -1234,7 +1254,15 @@ function CTA() {
                   Contact Us
                 </a>
               )}
+              <button
+                type="button"
+                onClick={() => setScheduleOpen(true)}
+                className="flex items-center gap-2 px-6 py-3.5 rounded-xl font-bold border border-white/15 bg-white/5 text-white hover:border-white/30 transition-colors"
+              >
+                <Phone className="w-4 h-4" /> Schedule a Call
+              </button>
             </div>
+            <ScheduleCallDialog open={scheduleOpen} onOpenChange={setScheduleOpen} />
           </div>
         </div>
       </div>

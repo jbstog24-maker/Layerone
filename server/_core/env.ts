@@ -13,4 +13,6 @@ export const ENV = {
   supportEmail: process.env.SUPPORT_EMAIL ?? "info@layeronestaging.com",
   supportPhone: process.env.SUPPORT_PHONE ?? "+1 (469) 537-4378",
   ownerNotifyEmail: process.env.OWNER_NOTIFY_EMAIL ?? "info@layeronestaging.com",
+  blandApiKey: process.env.BLAND_API_KEY ?? "",
+  blandFromNumber: process.env.BLAND_FROM_NUMBER ?? "+14695374378",
 };
