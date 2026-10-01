@@ -277,11 +277,11 @@ export default function Team() {
             </div>
             <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
               <Truck className="w-6 h-6 text-[#0A84FF] mb-3" />
-              <h3 className="text-white font-bold mb-2">James on-site, every time.</h3>
+              <h3 className="text-white font-bold mb-2">Vetted crew on-site.</h3>
               <p className="text-slate-400 text-sm leading-relaxed">
-                Every delivery and install is run by James personally. One
-                accountable pair of hands, start to finish — no wondering who
-                showed up.
+                Deliveries and installs are handled by James and his field crew —
+                background-checked, vetted contract techs. One accountable
+                operation, start to finish — no wondering who showed up.
               </p>
             </div>
             <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
