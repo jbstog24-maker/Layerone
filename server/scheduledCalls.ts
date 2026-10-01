@@ -92,13 +92,14 @@ async function blandCallStatus(callId: string): Promise<string | null> {
 
 const TERMINAL_FAILURE = new Set([
   "failed",
-  "busy",
-  "no-answer",
-  "no_answer",
   "canceled",
   "cancelled",
   "voicemail", // Bland sometimes reports voicemail-only outcomes; message was left
 ]);
+
+// Busy / no-answer get one retry before we give up — the person asked to be
+// called, and a single callback 30 minutes later is worth one more attempt.
+const RETRYABLE_NO_ANSWER = new Set(["busy", "no-answer", "no_answer"]);
 
 export function registerScheduledCallRoutes(app: Express) {
   app.post("/api/scheduled-calls/process", async (req: Request, res: Response) => {
@@ -203,9 +204,36 @@ export function registerScheduledCallRoutes(app: Express) {
               // Voicemail counts as an attempt made; Alex leaves a message per the task.
               await db
                 .update(scheduledCalls)
-                .set({ status: "completed", lastError: null })
+                .set({
+                  status: "completed",
+                  lastError: status === "voicemail" ? "Left voicemail message" : null,
+                })
                 .where(eq(scheduledCalls.id, row.id));
               result.completed++;
+            } else if (status && RETRYABLE_NO_ANSWER.has(status)) {
+              const attempts = row.attempts + 1;
+              if (attempts >= MAX_CALL_ATTEMPTS) {
+                await db
+                  .update(scheduledCalls)
+                  .set({
+                    status: "failed",
+                    attempts,
+                    lastError: "No answer after 2 attempts — follow up manually",
+                  })
+                  .where(eq(scheduledCalls.id, row.id));
+                result.failed++;
+              } else {
+                await db
+                  .update(scheduledCalls)
+                  .set({
+                    status: "pending",
+                    attempts,
+                    lastError: "No answer; retrying in 30 minutes",
+                    scheduledFor: new Date(now.getTime() + RETRY_DELAY_MS),
+                  })
+                  .where(eq(scheduledCalls.id, row.id));
+                result.retried++;
+              }
             } else if (!status || ageMs > STALE_CALL_MS) {
               await db
                 .update(scheduledCalls)
