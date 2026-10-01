@@ -187,9 +187,8 @@ export default function Team() {
           </h2>
           <p className="text-slate-400 leading-relaxed max-w-3xl mb-10">
             Alex, Morgan, and Casey are AI — they&rsquo;ll tell you so themselves,
-            usually in the first minute. They joke lightly, confirm details carefully,
-            and loop James in the moment anything needs a real decision. Which, around
-            here, is most things.
+            usually in the first minute. They joke lightly, confirm details
+            carefully, and handle the routine stuff start to finish.
           </p>
           <div className="grid md:grid-cols-3 gap-6">
             <AiCard
@@ -198,7 +197,7 @@ export default function Team() {
               role="AI Client Representative"
               icon={Phone}
               accent="text-amber-300/90"
-              blurb="The voice you'll hear when you call (469) 537-4378. In his 60s, deep raspy voice, warm Texas drawl — friendly, patient, quietly confident, with a gentle sarcasm that keeps calls interesting. Alex asks the right questions, takes a great message, and does not freelance: anything needing a decision goes straight to James."
+              blurb="The voice you'll hear when you call (469) 537-4378. In his 60s, deep raspy voice, warm Texas drawl — friendly, patient, quietly confident, with a gentle sarcasm that keeps calls interesting. Alex asks the right questions, takes a great message, and knows exactly when to handle something himself and when to loop in James."
               quote="Yes sir, I'm AI. They gave me the manners; James kept the good looks."
             />
             <AiCard
@@ -232,7 +231,7 @@ export default function Team() {
           <h2 className="text-3xl font-black tracking-[-1px] text-white mb-8">
             House rules for the robots
           </h2>
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-2 gap-6">
             <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
               <MessageCircle className="w-6 h-6 text-[#0A84FF] mb-3" />
               <h3 className="text-white font-bold mb-2">Joke lightly.</h3>
@@ -245,14 +244,6 @@ export default function Team() {
               <h3 className="text-white font-bold mb-2">Confirm details carefully.</h3>
               <p className="text-slate-400 text-sm leading-relaxed">
                 Dates, counts, addresses — read back before anything moves.
-              </p>
-            </div>
-            <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
-              <Star className="w-6 h-6 text-[#0A84FF] mb-3" />
-              <h3 className="text-white font-bold mb-2">James decides.</h3>
-              <p className="text-slate-400 text-sm leading-relaxed">
-                Anything needing a real decision goes to the human in charge.
-                The robots know their place. James made sure of it.
               </p>
             </div>
           </div>
