@@ -81,11 +81,11 @@ export default function PendingApproval() {
                   info@layeronestaging.com
                 </a>
                 <a
-                  href="tel:+14695551234"
+                  href="tel:+14695374378"
                   className="flex items-center gap-2 text-sm text-primary hover:underline"
                 >
                   <Phone className="w-4 h-4" />
-                  (469) 555-1234
+                  +1 (469) 537-4378
                 </a>
               </div>
             </div>

@@ -11,6 +11,6 @@ export const ENV = {
   resendFromEmail: process.env.RESEND_FROM_EMAIL ?? "",
   portalUrl: process.env.PORTAL_URL ?? "https://www.layeronestaging.com",
   supportEmail: process.env.SUPPORT_EMAIL ?? "info@layeronestaging.com",
-  supportPhone: process.env.SUPPORT_PHONE ?? "(800) 000-0000",
+  supportPhone: process.env.SUPPORT_PHONE ?? "+1 (469) 537-4378",
   ownerNotifyEmail: process.env.OWNER_NOTIFY_EMAIL ?? "info@layeronestaging.com",
 };

@@ -372,7 +372,7 @@ export function buildPortalInviteHtml(params: PortalInviteEmailParams): string {
   const portalUrl = params.portalUrl ?? ENV.portalUrl ?? "https://www.layeronestaging.com";
   const roleLabel = ROLE_LABELS[params.role] ?? params.role;
   const supportEmail = ENV.supportEmail ?? "info@layeronestaging.com";
-  const supportPhone = ENV.supportPhone ?? "(800) 000-0000";
+  const supportPhone = ENV.supportPhone ?? "+1 (469) 537-4378";
   const ctaUrl = params.setPasswordUrl ?? portalUrl;
   const ctaLabel = params.setPasswordUrl ? "Set Your Password →" : "Access Your Portal →";
 
