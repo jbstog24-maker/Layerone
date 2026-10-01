@@ -571,6 +571,9 @@ export const packageInquiries = mysqlTable("package_inquiries", {
     .default("new")
     .notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
+  // Soft-delete: set when an admin moves the inquiry to trash. Rows are never
+  // hard-deleted by the app except via explicit "permanent delete" from trash.
+  deletedAt: timestamp("deletedAt"),
 });
 
 export type PackageInquiry = typeof packageInquiries.$inferSelect;

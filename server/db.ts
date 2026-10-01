@@ -1130,6 +1130,8 @@ export async function listInquiries(opts?: {
   if (!db) return [];
 
   const conditions: ReturnType<typeof eq>[] = [];
+  // Soft-deleted (trashed) inquiries are hidden from the normal inbox.
+  conditions.push(isNull(packageInquiries.deletedAt));
   if (opts?.status) conditions.push(eq(packageInquiries.status, opts.status));
   if (opts?.tier)
     conditions.push(
@@ -1160,7 +1162,9 @@ export async function getInquiry(id: number) {
   const [row] = await db
     .select()
     .from(packageInquiries)
-    .where(eq(packageInquiries.id, id));
+    .where(
+      and(eq(packageInquiries.id, id), isNull(packageInquiries.deletedAt))
+    );
   return row;
 }
 
@@ -1179,7 +1183,38 @@ export async function updateInquiryStatus(
 export async function deleteInquiry(id: number) {
   const db = await getDb();
   if (!db) throw new Error("DB unavailable");
+  // Soft-delete: move to trash instead of destroying the row. Restorable via
+  // restoreInquiry(); permanent removal only through purgeInquiry().
+  await db
+    .update(packageInquiries)
+    .set({ deletedAt: new Date() })
+    .where(eq(packageInquiries.id, id));
+}
+
+export async function restoreInquiry(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("DB unavailable");
+  await db
+    .update(packageInquiries)
+    .set({ deletedAt: null })
+    .where(eq(packageInquiries.id, id));
+}
+
+export async function purgeInquiry(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("DB unavailable");
+  // Hard delete — only called from the trash view after explicit confirmation.
   await db.delete(packageInquiries).where(eq(packageInquiries.id, id));
+}
+
+export async function listDeletedInquiries() {
+  const db = await getDb();
+  if (!db) return [];
+  return db
+    .select()
+    .from(packageInquiries)
+    .where(isNotNull(packageInquiries.deletedAt))
+    .orderBy(desc(packageInquiries.deletedAt));
 }
 
 export async function countNewInquiries() {
@@ -1188,7 +1223,12 @@ export async function countNewInquiries() {
   const [row] = await db
     .select({ count: sql<number>`count(*)` })
     .from(packageInquiries)
-    .where(eq(packageInquiries.status, "new"));
+    .where(
+      and(
+        eq(packageInquiries.status, "new"),
+        isNull(packageInquiries.deletedAt)
+      )
+    );
   return Number(row?.count ?? 0);
 }
 
@@ -2185,7 +2225,9 @@ export async function getInquiryById(
   const [row] = await db
     .select()
     .from(packageInquiries)
-    .where(eq(packageInquiries.id, id));
+    .where(
+      and(eq(packageInquiries.id, id), isNull(packageInquiries.deletedAt))
+    );
   return row;
 }
 

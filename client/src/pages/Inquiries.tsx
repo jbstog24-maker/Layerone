@@ -63,6 +63,7 @@ import {
   ThumbsDown,
   MapPin,
   CalendarDays,
+  RotateCcw,
 } from "lucide-react";
 
 const DURATION_LABELS: Record<string, string> = {
@@ -106,6 +107,7 @@ type Inquiry = {
   rolloutDuration: string | null;
   status: InquiryStatus;
   createdAt: Date;
+  deletedAt: Date | null;
 };
 
 type LineItem = { label: string; qty: number; unitPrice: number; total: number };
@@ -850,18 +852,141 @@ function InquiryDetailDialog({
       <AlertDialog open={confirmDelete} onOpenChange={setConfirmDelete}>
         <AlertDialogContent className="bg-[#0d1f35] border-white/12 text-slate-100">
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete this inquiry?</AlertDialogTitle>
+            <AlertDialogTitle>Move this inquiry to trash?</AlertDialogTitle>
             <AlertDialogDescription className="text-slate-400">
-              This will permanently remove the inquiry from {inquiry.company}. This action cannot be undone.
+              The inquiry from {inquiry.company} will be moved to trash. It stays recoverable — you can restore it anytime from the Trash view.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="border-white/15 text-slate-300">Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-amber-600 hover:bg-amber-700 text-white"
+              onClick={() => { setConfirmDelete(false); onDelete(inquiry.id); onClose(); }}
+            >
+              Move to Trash
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
+  );
+}
+
+// ─── Trash View ───────────────────────────────────────────────────────────────
+function TrashView({
+  trashed,
+  isLoading,
+  onRestore,
+  onPurge,
+  purgeTarget,
+  setPurgeTarget,
+  restoring,
+  purging,
+}: {
+  trashed: Inquiry[];
+  isLoading: boolean;
+  onRestore: (id: number) => void;
+  onPurge: (id: number) => void;
+  purgeTarget: Inquiry | null;
+  setPurgeTarget: (inq: Inquiry | null) => void;
+  restoring: boolean;
+  purging: boolean;
+}) {
+  return (
+    <>
+      <div className="rounded-2xl border border-amber-400/20 bg-amber-500/5 p-4 flex items-start gap-3">
+        <Trash2 className="w-5 h-5 text-amber-300 shrink-0 mt-0.5" />
+        <div>
+          <p className="text-sm font-medium text-amber-200">Trash</p>
+          <p className="text-xs text-slate-400 mt-0.5">
+            Deleted inquiries stay here until you restore them or delete them permanently.
+            Nothing in trash is lost by accident.
+          </p>
+        </div>
+      </div>
+
+      <div className="rounded-2xl border border-white/8 bg-white/2 overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr className="border-b border-white/8 bg-white/3">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider">Contact</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider">Status</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider">Deleted</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {isLoading ? (
+                <LoadingRows />
+              ) : trashed.length === 0 ? (
+                <tr>
+                  <td colSpan={4} className="px-4 py-12 text-center">
+                    <Trash2 className="w-8 h-8 text-slate-600 mx-auto mb-2" />
+                    <p className="text-sm text-slate-400">Trash is empty</p>
+                  </td>
+                </tr>
+              ) : (
+                trashed.map(inq => (
+                  <tr key={inq.id} className="border-b border-white/5 hover:bg-white/3 transition-colors">
+                    <td className="px-4 py-3">
+                      <p className="text-sm font-medium text-slate-100">{inq.name}</p>
+                      <p className="text-xs text-slate-400">{inq.company}</p>
+                      <p className="text-xs text-slate-500">{inq.email}</p>
+                    </td>
+                    <td className="px-4 py-3">
+                      <StatusBadge status={inq.status} />
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-1 text-xs text-slate-400">
+                        <Calendar className="w-3 h-3" />
+                        {inq.deletedAt ? new Date(inq.deletedAt).toLocaleDateString() : "—"}
+                      </div>
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-1">
+                        <button
+                          title="Restore to inbox"
+                          disabled={restoring}
+                          className="p-1.5 rounded-lg text-slate-500 hover:text-[#6ee7b7] hover:bg-[#6ee7b7]/10 transition-colors disabled:opacity-40"
+                          onClick={() => onRestore(inq.id)}
+                        >
+                          <RotateCcw className="w-4 h-4" />
+                        </button>
+                        <button
+                          title="Delete permanently"
+                          className="p-1.5 rounded-lg text-slate-500 hover:text-red-400 hover:bg-red-500/10 transition-colors"
+                          onClick={() => setPurgeTarget(inq)}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <AlertDialog open={purgeTarget !== null} onOpenChange={open => { if (!open) setPurgeTarget(null); }}>
+        <AlertDialogContent className="bg-[#0d1f35] border-white/12 text-slate-100">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Permanently delete this inquiry?</AlertDialogTitle>
+            <AlertDialogDescription className="text-slate-400">
+              The inquiry from {purgeTarget?.company} will be permanently removed from the database.
+              This cannot be undone — the nightly backups and the prospect sheet remain as your safety net.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel className="border-white/15 text-slate-300">Cancel</AlertDialogCancel>
             <AlertDialogAction
               className="bg-red-600 hover:bg-red-700 text-white"
-              onClick={() => { setConfirmDelete(false); onDelete(inquiry.id); onClose(); }}
+              disabled={purging}
+              onClick={() => purgeTarget && onPurge(purgeTarget.id)}
             >
-              Delete
+              Delete Forever
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -880,6 +1005,8 @@ export default function Inquiries() {
   const [tierFilter, setTierFilter] = useState<"all" | "basic" | "standard" | "professional" | "enterprise" | "custom">("all");
   const [selected, setSelected] = useState<Inquiry | null>(null);
   const [quoteTarget, setQuoteTarget] = useState<Inquiry | null>(null);
+  const [showTrash, setShowTrash] = useState(false);
+  const [purgeTarget, setPurgeTarget] = useState<Inquiry | null>(null);
 
   const utils = trpc.useUtils();
 
@@ -910,9 +1037,33 @@ export default function Inquiries() {
     onSuccess: () => {
       utils.inquiry.list.invalidate();
       utils.inquiry.countNew.invalidate();
-      toast.success("Inquiry deleted");
+      toast.success("Inquiry moved to trash");
     },
-    onError: () => toast.error("Failed to delete inquiry"),
+    onError: () => toast.error("Failed to move inquiry to trash"),
+  });
+
+  const { data: trashed = [], isLoading: trashLoading } = trpc.inquiry.trash.useQuery(
+    undefined,
+    { enabled: showTrash, refetchInterval: 30_000 },
+  );
+
+  const restoreInquiry = trpc.inquiry.restore.useMutation({
+    onSuccess: () => {
+      utils.inquiry.trash.invalidate();
+      utils.inquiry.list.invalidate();
+      utils.inquiry.countNew.invalidate();
+      toast.success("Inquiry restored to inbox");
+    },
+    onError: () => toast.error("Failed to restore inquiry"),
+  });
+
+  const purgeInquiry = trpc.inquiry.purge.useMutation({
+    onSuccess: () => {
+      utils.inquiry.trash.invalidate();
+      toast.success("Inquiry permanently deleted");
+      setPurgeTarget(null);
+    },
+    onError: () => toast.error("Failed to permanently delete inquiry"),
   });
 
   const isFiltered = statusFilter !== "all" || tierFilter !== "all" || search.trim() !== "";
@@ -940,6 +1091,18 @@ export default function Inquiries() {
             </div>
             <p className="text-slate-400 text-sm">Package inquiry submissions from the public landing page.</p>
           </div>
+          <div className="flex items-center gap-2 shrink-0">
+          {isAdmin && (
+            <Button
+              variant="outline"
+              size="sm"
+              className={`border-white/15 hover:bg-white/8 ${showTrash ? "text-amber-300 border-amber-400/30" : "text-slate-300"}`}
+              onClick={() => setShowTrash(v => !v)}
+            >
+              <Trash2 className="w-3.5 h-3.5 mr-1.5" />
+              {showTrash ? "Back to Inbox" : "Trash"}
+            </Button>
+          )}
           <Button
             variant="outline"
             size="sm"
@@ -949,8 +1112,22 @@ export default function Inquiries() {
             <RefreshCw className="w-3.5 h-3.5 mr-1.5" />
             Refresh
           </Button>
+          </div>
         </div>
 
+        {showTrash ? (
+          <TrashView
+            trashed={trashed as Inquiry[]}
+            isLoading={trashLoading}
+            onRestore={id => restoreInquiry.mutate({ id })}
+            onPurge={id => purgeInquiry.mutate({ id })}
+            purgeTarget={purgeTarget}
+            setPurgeTarget={setPurgeTarget}
+            restoring={restoreInquiry.isPending}
+            purging={purgeInquiry.isPending}
+          />
+        ) : (
+        <>
         {/* Summary cards */}
         <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
           {(["new", "needs_review", "proposal_sent", "msa_signed", "paid", "won"] as const).map(s => {
@@ -1113,6 +1290,10 @@ export default function Inquiries() {
             </div>
           )}
         </div>
+
+        </>
+        )}
+
       </div>
 
       {/* Detail dialog */}

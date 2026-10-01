@@ -129,6 +129,10 @@ export function registerProspectSyncRoute(app: Express) {
             startDate: inq.startDate,
             rolloutDuration: inq.rolloutDuration,
             status: inq.status,
+            // Soft-delete flag: lets the sheet mark trashed rows "🗑️ Deleted"
+            // instead of "⚠️ Removed from site DB" (which is reserved for rows
+            // genuinely gone from the database, e.g. hard-purged from trash).
+            deletedAt: inq.deletedAt ?? null,
             quote: quote
               ? {
                   total: quote.totalAmount != null ? String(quote.totalAmount) : null,

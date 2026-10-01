@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
 import { execRows, tableExists, columnExists, inquiryStatusHas } from "./migrate-once";
 
 // Regression test (2026-09-27): db.execute() on the mysql2 driver resolves to
@@ -60,5 +60,65 @@ describe("migrate-once existence checks", () => {
   it("inquiryStatusHas returns false when the column row is absent", async () => {
     const db = mockDb([[], []]);
     expect(await inquiryStatusHas(db, "needs_review")).toBe(false);
+  });
+});
+
+vi.mock("./db", () => ({
+  getDb: vi.fn(),
+}));
+
+// Regression test (2026-09-30): the soft-delete feature needs a `deletedAt`
+// timestamp column on package_inquiries. These tests pin the one-time
+// migration step: it must issue the ALTER when the column is missing and skip
+// it when the column already exists (idempotent, safe to re-run).
+describe("deletedAt soft-delete migration step", () => {
+  const OLD_ENV = process.env.RUN_ONCE_MIGRATION;
+
+  beforeEach(() => {
+    process.env.RUN_ONCE_MIGRATION = "1";
+    vi.clearAllMocks();
+  });
+
+  afterEach(() => {
+    process.env.RUN_ONCE_MIGRATION = OLD_ENV;
+  });
+
+  async function runWith(executeImpl: (q: any) => Promise<any>) {
+    const { getDb } = await import("./db");
+    const { runOnceMigration } = await import("./migrate-once");
+    const calls: any[] = [];
+    const execute = vi.fn(async (q: any) => {
+      calls.push(q);
+      return executeImpl(q);
+    });
+    (getDb as any).mockResolvedValue({ execute });
+    await runOnceMigration();
+    return calls;
+  }
+
+  const MISSING: (q: any) => Promise<any> = async () => [[], []];
+
+  it("issues ALTER TABLE ADD deletedAt when the column is missing", async () => {
+    const calls = await runWith(MISSING);
+    const alters = calls.filter(q => {
+      const s = JSON.stringify(q);
+      return s.includes("deletedAt") && s.includes("ADD");
+    });
+    expect(alters.length).toBeGreaterThan(0);
+  });
+
+  it("skips the ALTER when deletedAt already exists", async () => {
+    const calls = await runWith(async (q: any) => {
+      const s = JSON.stringify(q);
+      if (s.includes("INFORMATION_SCHEMA.COLUMNS") && s.includes("deletedAt")) {
+        return [[{ "1": 1 }], []];
+      }
+      return [[], []];
+    });
+    const alters = calls.filter(q => {
+      const s = JSON.stringify(q);
+      return s.includes("deletedAt") && s.includes("ADD");
+    });
+    expect(alters).toHaveLength(0);
   });
 });

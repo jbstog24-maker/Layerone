@@ -13,6 +13,7 @@
  *  - users gains inviteToken, inviteTokenExpiresAt (set-password / reset flow)
  *  - package_inquiries gains locationCount, equipmentTypes, startDate, rolloutDuration (rollout scoping)
  *  - package_inquiries gains quoteType (project vs per-pallet quote path)
+ *  - package_inquiries gains deletedAt (soft-delete / trash for inquiries)
  */
 import { sql } from "drizzle-orm";
 import { getDb } from "./db";
@@ -227,6 +228,16 @@ export async function runOnceMigration(): Promise<void> {
       } else {
         await db.execute(sql.raw("ALTER TABLE `package_inquiries` ADD `quoteType` varchar(20) NULL"));
         console.log("[Migration] package_inquiries.quoteType added");
+      }
+    });
+
+    // 2026-09-30: deletedAt column on package_inquiries (soft-delete / trash)
+    await applyStep("add package_inquiries.deletedAt", async () => {
+      if (await columnExists(db, "package_inquiries", "deletedAt")) {
+        console.log("[Migration] package_inquiries.deletedAt already exists — skipping");
+      } else {
+        await db.execute(sql.raw("ALTER TABLE `package_inquiries` ADD `deletedAt` timestamp NULL"));
+        console.log("[Migration] package_inquiries.deletedAt added");
       }
     });
 

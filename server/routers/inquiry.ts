@@ -11,6 +11,9 @@ import {
   updateInquiryStatus,
   updateInquiryStatusById,
   deleteInquiry,
+  restoreInquiry,
+  purgeInquiry,
+  listDeletedInquiries,
   countNewInquiries,
   listInquiryQuotes,
   createInquiryQuote,
@@ -205,7 +208,7 @@ export const inquiryRouter = router({
       return { success: true };
     }),
 
-  // ── Admin only: delete inquiry ────────────────────────────────────────────
+  // ── Admin only: soft-delete inquiry (moves to trash, restorable) ──────────
   delete: protectedProcedure
     .input(z.object({ id: z.number() }))
     .mutation(async ({ ctx, input }) => {
@@ -213,6 +216,37 @@ export const inquiryRouter = router({
         throw new TRPCError({ code: "FORBIDDEN", message: "Admin access required" });
       }
       await deleteInquiry(input.id);
+      return { success: true };
+    }),
+
+  // ── Admin only: list trashed (soft-deleted) inquiries ────────────────────
+  trash: protectedProcedure
+    .query(async ({ ctx }) => {
+      if (ctx.user?.role !== "admin") {
+        throw new TRPCError({ code: "FORBIDDEN", message: "Admin access required" });
+      }
+      return listDeletedInquiries();
+    }),
+
+  // ── Admin only: restore a trashed inquiry back to the inbox ──────────────
+  restore: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ ctx, input }) => {
+      if (ctx.user?.role !== "admin") {
+        throw new TRPCError({ code: "FORBIDDEN", message: "Admin access required" });
+      }
+      await restoreInquiry(input.id);
+      return { success: true };
+    }),
+
+  // ── Admin only: permanently delete a trashed inquiry (irreversible) ──────
+  purge: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ ctx, input }) => {
+      if (ctx.user?.role !== "admin") {
+        throw new TRPCError({ code: "FORBIDDEN", message: "Admin access required" });
+      }
+      await purgeInquiry(input.id);
       return { success: true };
     }),
 
