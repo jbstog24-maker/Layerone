@@ -1142,3 +1142,31 @@ export const callLogs = mysqlTable("call_logs", {
 
 export type CallLog = typeof callLogs.$inferSelect;
 export type InsertCallLog = typeof callLogs.$inferInsert;
+
+// ─── Quote Terminations (early back-out calculator + refund record) ──────────
+// One row per terminated quote. Stores the inputs Branden entered (space cost,
+// re-lease recovery) and the calculated forfeit/refund breakdown so every
+// termination is auditable. Created by the admin "Terminate & Refund" flow.
+export const quoteTerminations = mysqlTable("quote_terminations", {
+  id: int("id").autoincrement().primaryKey(),
+  quoteId: int("quoteId").notNull().unique(),
+  inquiryId: int("inquiryId").notNull(),
+  // Snapshot of what the customer paid (decimal dollars, 2dp)
+  totalPaid: decimal("totalPaid", { precision: 10, scale: 2 }).notNull(),
+  // Inputs from the admin calculator
+  spaceCost: decimal("spaceCost", { precision: 10, scale: 2 }).notNull().default("0.00"),
+  recovery: decimal("recovery", { precision: 10, scale: 2 }).notNull().default("0.00"),
+  // Calculated breakdown (decimal dollars, 2dp)
+  netSpaceCost: decimal("netSpaceCost", { precision: 10, scale: 2 }).notNull(),
+  adminFee: decimal("adminFee", { precision: 10, scale: 2 }).notNull(),
+  forfeitAmount: decimal("forfeitAmount", { precision: 10, scale: 2 }).notNull(),
+  refundAmount: decimal("refundAmount", { precision: 10, scale: 2 }).notNull(),
+  // Stripe refund id when a refund was issued (null when refund was $0)
+  stripeRefundId: varchar("stripeRefundId", { length: 255 }),
+  reason: text("reason"),
+  processedByUserId: int("processedByUserId"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type QuoteTermination = typeof quoteTerminations.$inferSelect;
+export type InsertQuoteTermination = typeof quoteTerminations.$inferInsert;

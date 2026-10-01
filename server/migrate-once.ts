@@ -20,6 +20,7 @@
  *    backfilled for in-flight bookings)
  *  - CREATE TABLE scheduled_calls (website "Schedule a Call" bookings w/ email verification)
  *  - CREATE TABLE call_logs (Bland post-call webhook transcript archive)
+ *  - CREATE TABLE quote_terminations (early back-out calculator + refund record)
  */
 import { sql } from "drizzle-orm";
 import { getDb } from "./db";
@@ -160,6 +161,30 @@ CREATE TABLE IF NOT EXISTS \`call_logs\` (
   INDEX \`call_logs_syncedToSheet_idx\` (\`syncedToSheet\`)
 )`;
 
+// 2026-10-01: quote_terminations — one auditable row per early back-out.
+// Stores Branden's calculator inputs (space cost, re-lease recovery) and the
+// calculated forfeit/refund breakdown under MSA Section 7.4.
+const CREATE_QUOTE_TERMINATIONS = `
+CREATE TABLE IF NOT EXISTS \`quote_terminations\` (
+  \`id\` int AUTO_INCREMENT NOT NULL,
+  \`quoteId\` int NOT NULL,
+  \`inquiryId\` int NOT NULL,
+  \`totalPaid\` decimal(10,2) NOT NULL,
+  \`spaceCost\` decimal(10,2) NOT NULL DEFAULT 0.00,
+  \`recovery\` decimal(10,2) NOT NULL DEFAULT 0.00,
+  \`netSpaceCost\` decimal(10,2) NOT NULL,
+  \`adminFee\` decimal(10,2) NOT NULL,
+  \`forfeitAmount\` decimal(10,2) NOT NULL,
+  \`refundAmount\` decimal(10,2) NOT NULL,
+  \`stripeRefundId\` varchar(255),
+  \`reason\` text,
+  \`processedByUserId\` int,
+  \`createdAt\` timestamp NOT NULL DEFAULT (now()),
+  CONSTRAINT \`quote_terminations_id\` PRIMARY KEY(\`id\`),
+  CONSTRAINT \`quote_terminations_quoteId_unique\` UNIQUE(\`quoteId\`),
+  INDEX \`quote_terminations_inquiryId_idx\` (\`inquiryId\`)
+)`;
+
 /**
  * Run one additive step without letting it abort the remaining steps.
  * A failure here is never fatal to boot; it is logged and we continue so a
@@ -189,6 +214,7 @@ export async function runOnceMigration(): Promise<void> {
       ["onboarding_tasks", CREATE_ONBOARDING_TASKS],
       ["scheduled_calls", CREATE_SCHEDULED_CALLS],
       ["call_logs", CREATE_CALL_LOGS],
+      ["quote_terminations", CREATE_QUOTE_TERMINATIONS],
     ] as const) {
       await applyStep(`create table ${name}`, async () => {
         if (await tableExists(db, name)) {

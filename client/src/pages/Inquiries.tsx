@@ -76,6 +76,7 @@ const DURATION_LABELS: Record<string, string> = {
 };
 import { useState, useMemo, useEffect } from "react";
 import { toast } from "sonner";
+import TerminateQuoteDialog from "@/components/TerminateQuoteDialog";
 import { ADDON_RATES, TIER_PRICING } from "@/lib/pricingConstants";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -662,6 +663,7 @@ function InquiryDetailDialog({
 }) {
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [approvedLinks, setApprovedLinks] = useState<{ msaUrl: string; payUrl: string } | null>(null);
+  const [terminateTarget, setTerminateTarget] = useState<Quote | null>(null);
   const utils = trpc.useUtils();
 
   const { data: quotes = [] } = trpc.inquiry.listQuotes.useQuery(
@@ -834,12 +836,24 @@ function InquiryDetailDialog({
                             {approveAndSend.isPending ? "Sending…" : "Approve & Send"}
                           </Button>
                         ) : (
-                          q.stripePaymentLinkUrl && (
-                            <a href={q.stripePaymentLinkUrl} target="_blank" rel="noopener noreferrer"
-                              className="text-xs text-[#0A84FF] hover:underline flex items-center gap-1">
-                              <ExternalLink className="w-3 h-3" /> Payment Link
-                            </a>
-                          )
+                          <div className="flex items-center gap-2">
+                            {q.stripePaymentLinkUrl && (
+                              <a href={q.stripePaymentLinkUrl} target="_blank" rel="noopener noreferrer"
+                                className="text-xs text-[#0A84FF] hover:underline flex items-center gap-1">
+                                <ExternalLink className="w-3 h-3" /> Payment Link
+                              </a>
+                            )}
+                            {q.status === "paid" && isAdmin && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="h-7 text-xs text-red-400 border-red-500/30 hover:bg-red-500/10 hover:text-red-300"
+                                onClick={() => setTerminateTarget(q)}
+                              >
+                                Terminate
+                              </Button>
+                            )}
+                          </div>
                         )}
                       </div>
                       {q.status === "draft" && (
@@ -883,6 +897,12 @@ function InquiryDetailDialog({
               </div>
             )}
           </div>
+
+          <TerminateQuoteDialog
+            quote={terminateTarget}
+            onClose={() => setTerminateTarget(null)}
+            onDone={() => utils.inquiry.listQuotes.invalidate({ inquiryId: inquiry!.id })}
+          />
 
           <DialogFooter className="flex-col sm:flex-row gap-2 pt-2">
             {isAdmin && (

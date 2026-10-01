@@ -36,6 +36,7 @@ import { inquiryRouter } from "./routers/inquiry";
 import { scheduledCallRouter } from "./routers/scheduledCalls";
 import { msaRouter } from "./routers/msa";
 import { quotesRouter } from "./routers/quotes";
+import { terminationRouter } from "./routers/termination";
 import { onboardingRouter } from "./routers/onboarding";
 import { documentsRouter } from "./routers/documents";
 import { messagesRouter } from "./routers/messages";
@@ -247,6 +248,7 @@ export const appRouter = router({
   scheduledCall: scheduledCallRouter,
   msa: msaRouter,
   quotes: quotesRouter,
+  termination: terminationRouter,
   onboarding: onboardingRouter,
   documents: documentsRouter,
   messages: messagesRouter,
