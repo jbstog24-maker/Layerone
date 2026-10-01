@@ -6,10 +6,12 @@ import {
   CalendarCheck,
   ClipboardCheck,
   MessageCircle,
+  Package,
   Phone,
   ShieldCheck,
   Sparkles,
   Star,
+  Truck,
 } from "lucide-react";
 
 const SITE_URL = "https://www.layeronestaging.com";
@@ -244,6 +246,50 @@ export default function Team() {
               <h3 className="text-white font-bold mb-2">Confirm details carefully.</h3>
               <p className="text-slate-400 text-sm leading-relaxed">
                 Dates, counts, addresses — read back before anything moves.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* How the work gets done */}
+      <section className="py-14 border-b border-white/10">
+        <div className="max-w-6xl mx-auto px-6">
+          <span className="inline-block text-xs font-semibold tracking-widest uppercase text-[#0A84FF] mb-3">
+            The operation
+          </span>
+          <h2 className="text-3xl font-black tracking-[-1px] text-white mb-4">
+            Small crew. Serious process.
+          </h2>
+          <p className="text-slate-400 leading-relaxed max-w-3xl mb-10">
+            No bloated org chart, no account managers playing telephone. Just a
+            tight operation where the person who sold you the job is the person
+            who shows up for it.
+          </p>
+          <div className="grid md:grid-cols-3 gap-6">
+            <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
+              <Package className="w-6 h-6 text-[#0A84FF] mb-3" />
+              <h3 className="text-white font-bold mb-2">Staged before it ships.</h3>
+              <p className="text-slate-400 text-sm leading-relaxed">
+                Every device is received, inventoried, configured, and kitted at
+                the warehouse before it heads to a site. Nothing arrives half-ready.
+              </p>
+            </div>
+            <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
+              <Truck className="w-6 h-6 text-[#0A84FF] mb-3" />
+              <h3 className="text-white font-bold mb-2">James on-site, every time.</h3>
+              <p className="text-slate-400 text-sm leading-relaxed">
+                Every delivery and install is run by James personally. One
+                accountable pair of hands, start to finish — no wondering who
+                showed up.
+              </p>
+            </div>
+            <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
+              <ClipboardCheck className="w-6 h-6 text-[#0A84FF] mb-3" />
+              <h3 className="text-white font-bold mb-2">Coordinated behind the scenes.</h3>
+              <p className="text-slate-400 text-sm leading-relaxed">
+                Alex, Morgan, and Casey keep the schedule, the counts, and the
+                communication tight — so the field work stays the easy part.
               </p>
             </div>
           </div>
