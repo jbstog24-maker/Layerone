@@ -84,31 +84,31 @@ function buildQuoteFollowupHtml(firstName: string | null): string {
   const greeting = firstName ? `Hi ${firstName},` : "Hi there,";
   const supportEmail = ENV.supportEmail || "info@layeronestaging.com";
   const supportPhone = ENV.supportPhone || "+1 (469) 537-4378";
+  const logoUrl = "https://www.layeronestaging.com/images/layerone-logo-on-dark.png";
   return `<!DOCTYPE html>
 <html lang="en">
 <head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Next steps with Layer One Staging</title></head>
-<body style="margin:0;padding:0;background:#07111f;font-family:'Segoe UI',Arial,sans-serif;color:#e2e8f0;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background:#07111f;padding:32px 16px;">
+<body style="margin:0;padding:0;background:#0B1320;font-family:Inter,ui-sans-serif,system-ui,-apple-system,'Segoe UI',Arial,sans-serif;color:#e2e8f0;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#0B1320;padding:32px 16px;">
     <tr><td align="center">
-      <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;background:#0d1f35;border-radius:12px;border:1px solid #1e3a5f;overflow:hidden;">
-        <tr><td style="background:linear-gradient(135deg,#0d1f35 0%,#0a2540 100%);padding:28px 40px;border-bottom:1px solid #1e3a5f;text-align:center;">
-          <span style="font-size:28px;font-weight:800;background:linear-gradient(90deg,#39a7ff,#6ee7b7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:3px;">Layer One</span>
-          <p style="margin:4px 0 0;font-size:10px;color:#64748b;letter-spacing:2px;text-transform:uppercase;">DEPLOYMENT STAGING &amp; WAREHOUSE SOLUTIONS</p>
+      <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;background:rgba(255,255,255,0.05);border-radius:12px;border:1px solid rgba(255,255,255,0.1);overflow:hidden;">
+        <tr><td style="padding:32px 40px 8px;text-align:center;">
+          <img src="${logoUrl}" alt="Layer One Staging" width="180" style="width:180px;max-width:60%;height:auto;display:inline-block;" />
         </td></tr>
-        <tr><td style="padding:32px 40px;">
-          <p style="margin:0 0 16px;font-size:15px;color:#e2e8f0;">${greeting}</p>
+        <tr><td style="padding:24px 40px 32px;">
+          <p style="margin:0 0 16px;font-size:16px;font-weight:600;color:#ffffff;">${greeting}</p>
           <p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:#94a3b8;">
             Thanks for calling Layer One Staging. To get your project quote started, please send us the details
             of your request — number of locations, equipment types and quantities, and your timeline — using our
             quote form:
           </p>
           <table cellpadding="0" cellspacing="0" style="margin:0 0 24px;">
-            <tr><td style="background:linear-gradient(135deg,#0284c7,#0ea5e9);border-radius:8px;padding:14px 28px;">
-              <a href="${GET_STARTED_URL}" style="color:#fff;font-size:15px;font-weight:600;text-decoration:none;display:block;text-align:center;">Submit Your Project Details →</a>
+            <tr><td style="background:#0A84FF;border-radius:12px;padding:14px 28px;">
+              <a href="${GET_STARTED_URL}" style="color:#fff;font-size:15px;font-weight:700;text-decoration:none;display:block;text-align:center;">Submit Your Project Details →</a>
             </td></tr>
           </table>
-          <p style="margin:0 0 8px;font-size:14px;font-weight:600;color:#cbd5e1;text-transform:uppercase;letter-spacing:0.5px;">What happens next</p>
+          <p style="margin:0 0 8px;font-size:14px;font-weight:700;color:#ffffff;">What happens next</p>
           <p style="margin:0 0 16px;font-size:14px;line-height:1.7;color:#94a3b8;">
             1. We review your project details.<br />
             2. Our team approves the quote.<br />
@@ -116,12 +116,12 @@ function buildQuoteFollowupHtml(firstName: string | null): string {
           </p>
           <p style="margin:0;font-size:14px;line-height:1.6;color:#94a3b8;">
             Questions in the meantime? Reply to this email or call us at
-            <a href="tel:${supportPhone}" style="color:#39a7ff;">${supportPhone}</a>.
+            <a href="tel:${supportPhone}" style="color:#0A84FF;">${supportPhone}</a>.
           </p>
         </td></tr>
-        <tr><td style="padding:20px 40px;border-top:1px solid #1e3a5f;text-align:center;">
-          <p style="margin:0;font-size:12px;color:#475569;">© ${new Date().getFullYear()} Layer One Staging · Dallas-Fort Worth, TX</p>
-          <p style="margin:4px 0 0;font-size:12px;color:#475569;">You're receiving this because you spoke with us about a project quote. Reply "unsubscribe" to opt out.</p>
+        <tr><td style="padding:20px 40px;border-top:1px solid rgba(255,255,255,0.1);text-align:center;">
+          <p style="margin:0;font-size:12px;color:#64748b;">© ${new Date().getFullYear()} Layer One Staging · Dallas-Fort Worth, TX</p>
+          <p style="margin:4px 0 0;font-size:12px;color:#64748b;">You're receiving this because you spoke with us about a project quote. Reply "unsubscribe" to opt out.</p>
         </td></tr>
       </table>
     </td></tr>

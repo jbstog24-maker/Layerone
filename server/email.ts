@@ -591,19 +591,22 @@ export async function sendCallVerificationEmail(params: CallVerificationEmailPar
 <html lang="en">
 <head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Confirm your callback</title></head>
-<body style="margin:0;padding:0;background:#07111f;font-family:'Segoe UI',Arial,sans-serif;color:#e2e8f0;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background:#07111f;padding:32px 16px;">
+<body style="margin:0;padding:0;background:#0B1320;font-family:Inter,ui-sans-serif,system-ui,-apple-system,'Segoe UI',Arial,sans-serif;color:#e2e8f0;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#0B1320;padding:32px 16px;">
     <tr><td align="center">
-      <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;background:#0d1f35;border-radius:12px;border:1px solid #1e3a5f;overflow:hidden;">
-        <tr><td style="padding:36px 40px;">
-          <h1 style="margin:0 0 8px;font-size:24px;font-weight:700;color:#f1f5f9;">One quick step, ${firstName}</h1>
+      <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;background:rgba(255,255,255,0.05);border-radius:12px;border:1px solid rgba(255,255,255,0.1);overflow:hidden;">
+        <tr><td style="padding:32px 40px 8px;text-align:center;">
+          <img src="https://www.layeronestaging.com/images/layerone-logo-on-dark.png" alt="Layer One Staging" width="180" style="width:180px;max-width:60%;height:auto;display:inline-block;" />
+        </td></tr>
+        <tr><td style="padding:24px 40px 32px;">
+          <h1 style="margin:0 0 8px;font-size:24px;font-weight:700;color:#ffffff;">One quick step, ${firstName}</h1>
           <p style="margin:0 0 16px;color:#94a3b8;font-size:15px;line-height:1.6;">
             You asked Alex from Layer One Staging to call you on <strong style="color:#e2e8f0;">${whenCentral} (Central)</strong>.
             Click below to confirm — we'll only call once you've verified this email.
           </p>
           <table cellpadding="0" cellspacing="0" style="margin:0 0 24px;">
-            <tr><td style="background:linear-gradient(135deg,#0284c7,#0ea5e9);border-radius:8px;padding:14px 28px;">
-              <a href="${params.verifyUrl}" style="color:#fff;font-size:15px;font-weight:600;text-decoration:none;display:block;text-align:center;">Confirm My Callback →</a>
+            <tr><td style="background:#0A84FF;border-radius:12px;padding:14px 28px;">
+              <a href="${params.verifyUrl}" style="color:#fff;font-size:15px;font-weight:700;text-decoration:none;display:block;text-align:center;">Confirm My Callback →</a>
             </td></tr>
           </table>
           <p style="margin:0;font-size:13px;color:#64748b;">This link expires in 1 hour. If you didn't request a call, just ignore this email — nothing will be scheduled.</p>
