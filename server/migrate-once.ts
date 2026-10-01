@@ -14,6 +14,10 @@
  *  - package_inquiries gains locationCount, equipmentTypes, startDate, rolloutDuration (rollout scoping)
  *  - package_inquiries gains quoteType (project vs per-pallet quote path)
  *  - package_inquiries gains deletedAt (soft-delete / trash for inquiries)
+ *  - call_logs gains followupEmailSent (post-call quote follow-up idempotency)
+ *  - package_inquiries gains callLogId (link quote requests to the Alex call)
+ *  - scheduled_calls gains cancelToken (one-click customer cancellation link,
+ *    backfilled for in-flight bookings)
  *  - CREATE TABLE scheduled_calls (website "Schedule a Call" bookings w/ email verification)
  *  - CREATE TABLE call_logs (Bland post-call webhook transcript archive)
  */
@@ -294,6 +298,46 @@ export async function runOnceMigration(): Promise<void> {
         await db.execute(sql.raw("ALTER TABLE `package_inquiries` ADD `deletedAt` timestamp NULL"));
         console.log("[Migration] package_inquiries.deletedAt added");
       }
+    });
+
+    // 2026-10-01: followupEmailSent on call_logs (post-call quote follow-up
+    // idempotency) and callLogId on package_inquiries (link quote requests to
+    // the Alex call they came from).
+    await applyStep("add call_logs.followupEmailSent", async () => {
+      if (await columnExists(db, "call_logs", "followupEmailSent")) {
+        console.log("[Migration] call_logs.followupEmailSent already exists — skipping");
+      } else {
+        await db.execute(sql.raw("ALTER TABLE `call_logs` ADD `followupEmailSent` tinyint(1) NOT NULL DEFAULT 0"));
+        console.log("[Migration] call_logs.followupEmailSent added");
+      }
+    });
+
+    await applyStep("add package_inquiries.callLogId", async () => {
+      if (await columnExists(db, "package_inquiries", "callLogId")) {
+        console.log("[Migration] package_inquiries.callLogId already exists — skipping");
+      } else {
+        await db.execute(sql.raw("ALTER TABLE `package_inquiries` ADD `callLogId` int NULL"));
+        console.log("[Migration] package_inquiries.callLogId added");
+      }
+    });
+
+    // 2026-10-01: cancelToken on scheduled_calls (one-click customer
+    // cancellation link). Backfills in-flight bookings so their emailed
+    // cancel links work too.
+    await applyStep("add scheduled_calls.cancelToken", async () => {
+      if (await columnExists(db, "scheduled_calls", "cancelToken")) {
+        console.log("[Migration] scheduled_calls.cancelToken already exists — skipping");
+      } else {
+        await db.execute(sql.raw("ALTER TABLE `scheduled_calls` ADD `cancelToken` varchar(64) NULL"));
+        console.log("[Migration] scheduled_calls.cancelToken added");
+      }
+      const [res]: any = await db.execute(
+        sql.raw(
+          "UPDATE `scheduled_calls` SET `cancelToken` = CONCAT(HEX(RANDOM_BYTES(16)), HEX(RANDOM_BYTES(16))) WHERE `cancelToken` IS NULL AND `status` IN ('unverified','pending')"
+        )
+      );
+      const affected = res?.affectedRows ?? 0;
+      if (affected > 0) console.log(`[Migration] scheduled_calls.cancelToken backfilled for ${affected} in-flight booking(s)`);
     });
 
     console.log("[Migration] one-time migration complete");

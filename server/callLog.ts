@@ -24,6 +24,7 @@ import type { Express, Request, Response } from "express";
 import { timingSafeEqual } from "crypto";
 import { getDb } from "./db";
 import { callLogs, type CallLog, type InsertCallLog } from "../drizzle/schema";
+import { maybeSendQuoteFollowup, drizzleFollowupStore } from "./alexFollowup";
 
 const UNSYNCED_LIMIT = 100;
 
@@ -275,6 +276,18 @@ export function registerCallLogRoutes(
         transcript: fields.transcript,
         rawPayload: raw,
       });
+
+      // Post-call quote follow-up email (Alex). Never throws and never fails
+      // the webhook — maybeSendQuoteFollowup returns false on any problem.
+      try {
+        const db = await getDb();
+        if (db && fields.blandCallId) {
+          await maybeSendQuoteFollowup(fields, drizzleFollowupStore(db));
+        }
+      } catch (followupErr: any) {
+        console.error("[CallLog] follow-up hook failed (non-fatal):", followupErr?.message ?? followupErr);
+      }
+
       res.json({ ok: true });
     } catch (err: any) {
       // Never log the payload: it can contain caller PII. Message only.

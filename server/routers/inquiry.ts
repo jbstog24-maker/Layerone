@@ -21,7 +21,9 @@ import {
   deleteInquiryQuote,
 } from "../db";
 import { buildDraftQuote } from "../quoting";
-import { packageInquiries } from "../../drizzle/schema";
+import { packageInquiries, callLogs } from "../../drizzle/schema";
+import { findRecentCallLogId } from "../alexFollowup";
+import { eq } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 import Stripe from "stripe";
 
@@ -111,6 +113,26 @@ export const inquiryRouter = router({
         }
       }
 
+      // Link this inquiry to the Alex call it likely came from (matched by
+      // phone or email, most recent within 7 days) so Branden can review the
+      // call transcript alongside the quote. Never fails the submit.
+      if (db && inquiryId) {
+        try {
+          const callLogId = await findRecentCallLogId(db, {
+            phone: input.phone,
+            email: input.email,
+          });
+          if (callLogId) {
+            await db
+              .update(packageInquiries)
+              .set({ callLogId })
+              .where(eq(packageInquiries.id, inquiryId));
+          }
+        } catch (err) {
+          console.error("[Inquiry] call-log match failed (non-fatal):", err);
+        }
+      }
+
       const tierLabel = quoteType === "pallet" ? "Per-Pallet" : tier.charAt(0).toUpperCase() + tier.slice(1);
       const quoteTypeLabel = quoteType === "pallet" ? "Per-Pallet Quote" : "Project Quote";
       const content = [
@@ -194,6 +216,40 @@ export const inquiryRouter = router({
       const row = await getInquiry(input.id);
       if (!row) throw new TRPCError({ code: "NOT_FOUND" });
       return row;
+    }),
+
+  // ── Admin/Staff: get the Alex call log linked to an inquiry ─────────────────
+  // Returns the call details (date, duration, summary, transcript) so Branden
+  // can review what the caller told Alex alongside the quote request.
+  getCallLog: protectedProcedure
+    .input(z.object({ inquiryId: z.number() }))
+    .query(async ({ ctx, input }) => {
+      requireStaffOrAdmin(ctx.user?.role);
+      const db = await getDb();
+      if (!db) return null;
+      const [inq] = await db
+        .select({ callLogId: packageInquiries.callLogId })
+        .from(packageInquiries)
+        .where(eq(packageInquiries.id, input.inquiryId));
+      if (!inq?.callLogId) return null;
+      const [log] = await db
+        .select({
+          id: callLogs.id,
+          blandCallId: callLogs.blandCallId,
+          direction: callLogs.direction,
+          fromNumber: callLogs.fromNumber,
+          toNumber: callLogs.toNumber,
+          callerName: callLogs.callerName,
+          startedAt: callLogs.startedAt,
+          durationSeconds: callLogs.durationSeconds,
+          summary: callLogs.summary,
+          transcript: callLogs.transcript,
+          recordingUrl: callLogs.recordingUrl,
+          createdAt: callLogs.createdAt,
+        })
+        .from(callLogs)
+        .where(eq(callLogs.id, inq.callLogId));
+      return log ?? null;
     }),
 
   // ── Admin/Staff: update status ────────────────────────────────────────────

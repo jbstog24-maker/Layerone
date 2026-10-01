@@ -111,6 +111,7 @@ export const scheduledCallRouter = router({
     }
 
     const token = randomBytes(32).toString("hex");
+    const cancelToken = randomBytes(32).toString("hex");
     const now = new Date();
     const inserted = await db.insert(scheduledCalls).values({
       name: input.name.trim(),
@@ -123,11 +124,14 @@ export const scheduledCallRouter = router({
       status: "unverified",
       verificationToken: token,
       verificationExpiresAt: new Date(now.getTime() + 60 * 60 * 1000),
+      cancelToken,
       ipHash,
     });
 
     const id = (inserted as any)?.[0]?.insertId as number | undefined;
-    const verifyUrl = `${ENV.portalUrl.replace(/\/$/, "")}/verify-call?token=${token}`;
+    const portalBase = ENV.portalUrl.replace(/\/$/, "");
+    const verifyUrl = `${portalBase}/verify-call?token=${token}`;
+    const cancelUrl = `${portalBase}/cancel-call?token=${cancelToken}`;
 
     let emailSent = false;
     try {
@@ -135,6 +139,7 @@ export const scheduledCallRouter = router({
         to: email,
         name: input.name.trim(),
         verifyUrl,
+        cancelUrl,
         scheduledFor: new Date(input.scheduledFor),
       });
     } catch (err) {
@@ -171,6 +176,39 @@ export const scheduledCallRouter = router({
           verificationToken: null,
           verificationExpiresAt: null,
         })
+        .where(eq(scheduledCalls.id, row.id));
+      return { ok: true as const, scheduledFor: row.scheduledFor.toISOString(), name: row.name };
+    }),
+
+  // ── Public: cancel via one-click link ────────────────────────────────────
+  // The cancel token is emailed at booking time and survives verification.
+  // Strict 64-hex-char format check makes blind enumeration infeasible.
+  cancelByToken: publicProcedure
+    .input(z.object({ token: z.string().regex(/^[0-9a-fA-F]{64}$/, "Invalid cancellation link.") }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "SERVICE_UNAVAILABLE", message: "Database unavailable" });
+      const rows = await db
+        .select()
+        .from(scheduledCalls)
+        .where(eq(scheduledCalls.cancelToken, input.token))
+        .limit(1);
+      const row = rows[0];
+      if (!row) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "This cancellation link is invalid or has expired." });
+      }
+      if (row.status !== "unverified" && row.status !== "pending") {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message:
+            row.status === "cancelled"
+              ? "This callback has already been cancelled."
+              : "This callback can no longer be cancelled. Please call us at " + BUSINESS_NUMBER_DISPLAY + ".",
+        });
+      }
+      await db
+        .update(scheduledCalls)
+        .set({ status: "cancelled" })
         .where(eq(scheduledCalls.id, row.id));
       return { ok: true as const, scheduledFor: row.scheduledFor.toISOString(), name: row.name };
     }),

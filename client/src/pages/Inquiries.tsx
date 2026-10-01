@@ -64,6 +64,7 @@ import {
   MapPin,
   CalendarDays,
   RotateCcw,
+  PhoneCall,
 } from "lucide-react";
 
 const DURATION_LABELS: Record<string, string> = {
@@ -108,6 +109,7 @@ type Inquiry = {
   status: InquiryStatus;
   createdAt: Date;
   deletedAt: Date | null;
+  callLogId: number | null;
 };
 
 type LineItem = { label: string; qty: number; unitPrice: number; total: number };
@@ -580,6 +582,69 @@ function QuoteBuilderDialog({
 }
 
 // ─── Detail Dialog ────────────────────────────────────────────────────────────
+// ─── Linked Alex call transcript ────────────────────────────────────────────
+// Shows the call (date, duration, summary, expandable transcript) that was
+// matched to this inquiry at submit time, so Branden can review what the
+// caller told Alex alongside the quote request.
+function CallTranscriptSection({ inquiryId }: { inquiryId: number }) {
+  const [showTranscript, setShowTranscript] = useState(false);
+  const { data: call, isLoading } = trpc.inquiry.getCallLog.useQuery({ inquiryId });
+
+  if (isLoading) {
+    return (
+      <div>
+        <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Call Transcript</p>
+        <p className="text-xs text-slate-500">Loading call details…</p>
+      </div>
+    );
+  }
+  if (!call) return null;
+
+  const when = call.startedAt ?? call.createdAt;
+  const dur = call.durationSeconds != null
+    ? `${Math.floor(call.durationSeconds / 60)}:${String(call.durationSeconds % 60).padStart(2, "0")}`
+    : null;
+
+  return (
+    <div>
+      <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+        <PhoneCall className="w-3.5 h-3.5 text-[#6ee7b7]" /> Call Transcript
+      </p>
+      <div className="rounded-xl border border-white/8 bg-white/3 px-4 py-3 space-y-2">
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500">
+          <span>{new Date(when).toLocaleString()}</span>
+          {dur && <span>{dur} min</span>}
+          <span className="capitalize">{call.direction}</span>
+          {call.callerName && <span>{call.callerName}</span>}
+        </div>
+        {call.summary && (
+          <p className="text-sm text-slate-300 leading-relaxed">{call.summary}</p>
+        )}
+        {call.transcript && (
+          <div>
+            <button
+              onClick={() => setShowTranscript(v => !v)}
+              className="text-xs text-[#0A84FF] hover:underline mt-1"
+            >
+              {showTranscript ? "Hide full transcript" : "Show full transcript"}
+            </button>
+            {showTranscript && (
+              <pre className="mt-2 max-h-64 overflow-y-auto whitespace-pre-wrap text-xs text-slate-400 bg-black/20 rounded-lg p-3 border border-white/6">
+                {call.transcript}
+              </pre>
+            )}
+          </div>
+        )}
+        {call.recordingUrl && (
+          <a href={call.recordingUrl} target="_blank" rel="noreferrer" className="text-xs text-[#0A84FF] hover:underline inline-block">
+            Listen to recording
+          </a>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function InquiryDetailDialog({
   inquiry,
   onClose,
@@ -735,6 +800,9 @@ function InquiryDetailDialog({
                 </div>
               </div>
             )}
+
+            {/* Linked Alex call */}
+            {inquiry.callLogId != null && <CallTranscriptSection inquiryId={inquiry.id} />}
 
             {/* Existing quotes */}
             {quotes.length > 0 && (

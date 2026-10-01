@@ -574,6 +574,10 @@ export const packageInquiries = mysqlTable("package_inquiries", {
   // Soft-delete: set when an admin moves the inquiry to trash. Rows are never
   // hard-deleted by the app except via explicit "permanent delete" from trash.
   deletedAt: timestamp("deletedAt"),
+  // Link to the Alex call log this inquiry likely came from (matched by phone
+  // or email at submit time). Lets Branden review the call transcript
+  // alongside the quote request in the admin panel.
+  callLogId: int("callLogId"),
 });
 
 export type PackageInquiry = typeof packageInquiries.$inferSelect;
@@ -1082,7 +1086,7 @@ export const scheduledCalls = mysqlTable("scheduled_calls", {
     "calling",   // handed to Bland, outcome not yet finalized
     "completed", // Bland reports the call completed
     "failed",    // Bland failed / no-answer after retries, or misconfigured
-    "cancelled", // cancelled by staff
+    "cancelled", // cancelled by staff or by the customer (cancel link)
     "expired",   // never verified in time
   ])
     .default("unverified")
@@ -1090,6 +1094,10 @@ export const scheduledCalls = mysqlTable("scheduled_calls", {
   verificationToken: varchar("verificationToken", { length: 64 }),
   verificationExpiresAt: timestamp("verificationExpiresAt"),
   verifiedAt: timestamp("verifiedAt"),
+  // One-click customer cancellation link token. Unlike verificationToken it is
+  // NOT cleared on verification — it stays valid until the call reaches a
+  // terminal state (completed / cancelled / expired / failed).
+  cancelToken: varchar("cancelToken", { length: 64 }),
   blandCallId: varchar("blandCallId", { length: 64 }),
   attempts: int("attempts").default(0).notNull(),
   lastError: text("lastError"),
@@ -1126,6 +1134,9 @@ export const callLogs = mysqlTable("call_logs", {
   transcript: mediumtext("transcript"),
   rawPayload: mediumtext("rawPayload").notNull(),
   syncedToSheet: boolean("syncedToSheet").default(false).notNull(),
+  // Post-call quote follow-up email (Alex) — set true once sent so retried
+  // webhook deliveries never double-send.
+  followupEmailSent: boolean("followupEmailSent").default(false).notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
 

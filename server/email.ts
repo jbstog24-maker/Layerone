@@ -563,6 +563,7 @@ export type CallVerificationEmailParams = {
   to: string;
   name: string;
   verifyUrl: string;
+  cancelUrl: string;
   scheduledFor: Date;
 };
 
@@ -606,6 +607,7 @@ export async function sendCallVerificationEmail(params: CallVerificationEmailPar
             </td></tr>
           </table>
           <p style="margin:0;font-size:13px;color:#64748b;">This link expires in 1 hour. If you didn't request a call, just ignore this email — nothing will be scheduled.</p>
+          <p style="margin:16px 0 0;font-size:13px;color:#64748b;">Changed your mind? <a href="${params.cancelUrl}" style="color:#94a3b8;text-decoration:underline;">Cancel this callback</a>.</p>
         </td></tr>
       </table>
     </td></tr>
