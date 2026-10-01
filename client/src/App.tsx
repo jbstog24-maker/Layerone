@@ -50,6 +50,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import SetPassword from "./pages/SetPassword";
 import SignMsa from "./pages/SignMsa";
+import PayDemo from "./pages/PayDemo";
 import Onboarding from "./pages/Onboarding";
 import MyAccount from "./pages/MyAccount";
 import { useEffect } from "react";
@@ -91,6 +92,7 @@ function Router() {
       <Route path="/register" component={Register} />
       <Route path="/set-password" component={SetPassword} />
       <Route path="/sign/:token" component={SignMsa} />
+      <Route path="/pay/demo" component={PayDemo} />
       <Route path="/dashboard" component={Home} />
 
       {/* Clients */}

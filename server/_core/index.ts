@@ -9,6 +9,7 @@ import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
 import { registerStripeRoutes } from "../stripe";
 import { runOnceMigration } from "../migrate-once";
+import { mintDemoDocOnce } from "../demo-seed-once";
 import { registerProspectSyncRoute } from "../prospectSync";
 import { registerBackupExportRoute } from "../backupExport";
 import { registerMessageSyncRoutes } from "../messageSync";
@@ -71,6 +72,8 @@ async function startServer() {
   const server = createServer(app);
   // One-time additive DB migration (only runs when RUN_ONCE_MIGRATION=1). Never throws.
   await runOnceMigration();
+  // One-time demo MSA seeder (only runs when MINT_DEMO_DOC=1). Never throws.
+  await mintDemoDocOnce();
   // Register Stripe webhook BEFORE express.json() so raw body is available for signature verification
   registerStripeRoutes(app);
   // Configure body parser with larger size limit for file uploads
