@@ -49,8 +49,9 @@ function buildCallbackTask(row: {
   const topicBit = row.topic ? ` They said they'd like to discuss: ${row.topic}.` : "";
   return [
     `You are Alex, the phone receptionist for Layer One Staging, a B2B IT equipment staging, kitting, configuration, storage, and delivery company serving the Dallas-Fort Worth metro.`,
+    `Speak like a real person, not a robot: warm, plain-spoken, unhurried, a little Texas friendliness. Short sentences, contractions, one question at a time. React to what they say before moving on.`,
     `You are calling ${row.name}${companyBit} because they scheduled a callback on the Layer One Staging website.${topicBit}`,
-    `Greet them warmly by name and confirm this is still a good time to talk.`,
+    `Wait for them to say hello first, then greet them warmly by name and confirm this is still a good time to talk.`,
     `Help with their questions about staging, kitting, device configuration and testing, warehousing, and delivery.`,
     `Approved pricing you may quote: receiving $12 per pallet, storage $30 per pallet per month, DFW delivery $175 per pallet or $30 per loose device. Larger rollouts get a custom project quote.`,
     `Qualify the caller when natural: their name, company, callback number, email, number of locations, device types and quantities, services needed, and timeline.`,
@@ -67,11 +68,14 @@ async function blandPlaceCall(row: { name: string; phone: string; company: strin
       phone_number: row.phone,
       from: ENV.blandFromNumber,
       task: buildCallbackTask(row),
-      voice: "adriana",
+      // Lenny: down-to-earth country/southern American male voice
+      voice: "6241bb03-305e-45af-aab7-1efe35d2d1c5",
       model: "enhanced",
       language: "ENG",
       record: true,
       max_duration: 15,
+      // Let the person pick up and say hello first — don't talk over the ring.
+      wait_for_greeting: true,
     }),
   });
   const data = (await res.json().catch(() => ({}))) as any;
