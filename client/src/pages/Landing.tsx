@@ -40,7 +40,7 @@ function NavBar() {
           <a href="#top" className="hover:text-white transition-colors">Home</a>
           <a href="#services" className="hover:text-white transition-colors">Services</a>
           <a href="#industries" className="hover:text-white transition-colors">Industries</a>
-          <a href="#about" className="hover:text-white transition-colors">About</a>
+          <a href="/about" className="hover:text-white transition-colors">About</a>
           <a href="#contact" className="hover:text-white transition-colors">Contact</a>
         </nav>
         <div className="flex items-center gap-3">
@@ -934,8 +934,11 @@ function About() {
             <h2 className="text-4xl font-black tracking-[-1.5px] text-white mb-4">
               A warehouse built for<br />technology deployments.
             </h2>
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-[#0A84FF]/40 bg-[#0A84FF]/10 text-[#6ea8ff] text-xs font-semibold mb-5">
+              Disabled Veteran-Owned · 20+ Years in IT
+            </div>
             <p className="text-slate-400 text-lg leading-relaxed mb-6">
-              Layer One Staging is a deployment staging, warehousing, and IT equipment logistics company based in Carrollton, Texas. We exist for one reason: to make sure the right equipment arrives at the right site, configured, labeled, and ready — every time.
+              Layer One Staging is a disabled veteran-owned deployment staging, warehousing, and IT equipment logistics company based in Carrollton, Texas — founded by a U.S. Air Force veteran with more than 20 years in the IT field. We exist for one reason: to make sure the right equipment arrives at the right site, configured, labeled, and ready — every time.
             </p>
             <p className="text-slate-400 leading-relaxed mb-6">
               We are not an IT support company and we don&apos;t dispatch field technicians to your locations. We run the warehouse behind your rollout: receiving, secure storage, staging, kitting, QA verification, and outbound shipping — with photo documentation and live portal visibility on every step.
@@ -952,6 +955,9 @@ function About() {
                 </li>
               ))}
             </ul>
+            <a href="/about" className="inline-flex items-center gap-2 mt-6 text-sm font-semibold text-[#0A84FF] hover:text-[#3d9dff] transition-colors">
+              More about us <ArrowRight className="w-4 h-4" />
+            </a>
           </div>
           <div className="relative rounded-2xl overflow-hidden border border-white/10 shadow-[0_12px_40px_rgba(0,0,0,0.4)]">
             <img
@@ -1309,6 +1315,7 @@ function Footer() {
           <div>
             <p className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-4">Company</p>
             <ul className="space-y-2.5">
+              <li><a href="/about" className="text-sm text-slate-400 hover:text-white transition-colors">About Us</a></li>
               <li><a href="#how-it-works" className="text-sm text-slate-400 hover:text-white transition-colors">How It Works</a></li>
               <li><a href="#why-layer-one" className="text-sm text-slate-400 hover:text-white transition-colors">Why Layer One</a></li>
               <li><a href="#rollouts" className="text-sm text-slate-400 hover:text-white transition-colors">Multi-Site Rollouts</a></li>
