@@ -1328,7 +1328,7 @@ function Footer() {
         </div>
         <div className="pt-8 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-slate-500 text-xs text-center">
-            © {new Date().getFullYear()} Layer One Staging · Dallas–Fort Worth, TX
+            © {new Date().getFullYear()} Layer One Staging · Dallas–Fort Worth, TX · <a href="tel:+14695374378" className="hover:text-white transition-colors">(469) 537-4378</a>
           </p>
           <div className="flex items-center gap-5">
             <a href="/privacy" className="text-slate-500 text-xs hover:text-white transition-colors">Privacy Policy</a>
@@ -1350,6 +1350,7 @@ const LOCAL_BUSINESS_SCHEMA = {
     "IT equipment staging, kitting, and deployment logistics. We receive, inventory, configure, label, QA, kit by location, and ship technology equipment deployment-ready — serving Dallas–Fort Worth and shipping nationwide.",
   url: "https://www.layeronestaging.com",
   email: "info@layeronestaging.com",
+  telephone: "+1-469-537-4378",
   priceRange: "$$",
   areaServed: [
     { "@type": "City", name: "Dallas–Fort Worth" },

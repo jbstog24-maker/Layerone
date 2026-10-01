@@ -136,7 +136,7 @@ export function buildMsaHtml(inquiry: MsaInquiryData, quote: MsaQuoteData): stri
     </div>
   </div>
 
-  <p class="footer">Layer One Staging &middot; IT Deployment Staging &amp; Warehouse Solutions &middot; info@layeronestaging.com</p>
+  <p class="footer">Layer One Staging &middot; IT Deployment Staging &amp; Warehouse Solutions &middot; info@layeronestaging.com &middot; (469) 537-4378</p>
 </div>
 </body>
 </html>`;
