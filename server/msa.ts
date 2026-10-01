@@ -86,7 +86,9 @@ export function buildMsaHtml(inquiry: MsaInquiryData, quote: MsaQuoteData): stri
   <h2>3. Fees &amp; Payment</h2>
   <ul>
     <li>Customer agrees to pay the fees in the accepted proposal (Agreement Value above), plus any approved overages, add-ons, or extended storage at Provider's then-current rates.</li>
-    <li>Invoices are due <strong>Net 15</strong> unless the proposal states otherwise. A late charge of 1.5% per month (or the maximum allowed by law) may apply to overdue balances.</li>
+    <li><strong>Storage</strong> is billed monthly in advance. <strong>Project, kitting, and staging labor</strong> are due as stated in the proposal &mdash; typically a 50% deposit at signing to reserve capacity, with the balance due before equipment ships or is released. First-time engagements may require full payment before work begins.</li>
+    <li>No equipment will be shipped or released until the applicable payment has cleared.</li>
+    <li>Invoices for overages, add-ons, or extended storage are due <strong>Net 15</strong>. A late charge of 1.5% per month (or the maximum allowed by law) may apply to overdue balances.</li>
     <li>Carrier freight/shipping charges are the Customer's responsibility unless explicitly included in the proposal.</li>
   </ul>
 

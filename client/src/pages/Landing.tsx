@@ -1295,6 +1295,10 @@ function Footer() {
           <p className="text-slate-500 text-xs text-center">
             © {new Date().getFullYear()} Layer One Staging · Dallas–Fort Worth, TX
           </p>
+          <div className="flex items-center gap-5">
+            <a href="/privacy" className="text-slate-500 text-xs hover:text-white transition-colors">Privacy Policy</a>
+            <a href="/terms" className="text-slate-500 text-xs hover:text-white transition-colors">Terms &amp; Conditions</a>
+          </div>
           <p className="text-slate-500 text-xs">Deployment staging &amp; rollout logistics · DFW &amp; nationwide</p>
         </div>
       </div>
