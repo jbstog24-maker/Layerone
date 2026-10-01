@@ -10,6 +10,7 @@ import VerifyCall from "./pages/VerifyCall";
 import CancelCall from "./pages/CancelCall";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import About from "./pages/About";
+import Team from "./pages/Team";
 import Terms from "./pages/Terms";
 import { ClientsList, ClientDetail } from "./pages/Clients";
 import Packages from "./pages/Packages";
@@ -87,6 +88,7 @@ function Router() {
       <Route path="/privacy" component={PrivacyPolicy} />
       <Route path="/terms" component={Terms} />
       <Route path="/about" component={About} />
+      <Route path="/team" component={Team} />
       <Route path="/get-started" component={GetStarted} />
       <Route path="/login" component={Login} />
       <Route path="/register" component={Register} />

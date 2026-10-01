@@ -41,6 +41,7 @@ function NavBar() {
           <a href="#services" className="hover:text-white transition-colors">Services</a>
           <a href="#industries" className="hover:text-white transition-colors">Industries</a>
           <a href="/about" className="hover:text-white transition-colors">About</a>
+          <a href="/team" className="hover:text-white transition-colors">Team</a>
           <a href="#contact" className="hover:text-white transition-colors">Contact</a>
         </nav>
         <div className="flex items-center gap-3">
@@ -1316,6 +1317,7 @@ function Footer() {
             <p className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-4">Company</p>
             <ul className="space-y-2.5">
               <li><a href="/about" className="text-sm text-slate-400 hover:text-white transition-colors">About Us</a></li>
+              <li><a href="/team" className="text-sm text-slate-400 hover:text-white transition-colors">Meet the Team</a></li>
               <li><a href="#how-it-works" className="text-sm text-slate-400 hover:text-white transition-colors">How It Works</a></li>
               <li><a href="#why-layer-one" className="text-sm text-slate-400 hover:text-white transition-colors">Why Layer One</a></li>
               <li><a href="#rollouts" className="text-sm text-slate-400 hover:text-white transition-colors">Multi-Site Rollouts</a></li>
