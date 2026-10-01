@@ -86,7 +86,7 @@ function AiCard({
       <div className="flex items-center gap-5 mb-5">
         <img
           src={avatar}
-          alt={`${name} illustrated avatar`}
+          alt={`${name} — ${role} at Layer One Staging`}
           className="w-20 h-20 rounded-2xl object-cover border border-white/10"
         />
         <div>
@@ -193,7 +193,7 @@ export default function Team() {
           </p>
           <div className="grid md:grid-cols-3 gap-6">
             <AiCard
-              avatar="/images/alex-avatar.png"
+              avatar="/images/alex-photo.png"
               name="Alex"
               role="AI Client Representative"
               icon={Phone}
@@ -202,7 +202,7 @@ export default function Team() {
               quote="Yes sir, I'm AI. They gave me the manners; James kept the good looks."
             />
             <AiCard
-              avatar="/images/morgan-avatar.png"
+              avatar="/images/morgan-photo.png"
               name="Morgan"
               role="AI Scheduling Coordinator"
               icon={CalendarCheck}
@@ -211,7 +211,7 @@ export default function Team() {
               quote="'Sometime next week' is a feeling, honey. Let's get you an actual date."
             />
             <AiCard
-              avatar="/images/casey-avatar.png"
+              avatar="/images/casey-photo.png"
               name="Casey"
               role="AI Project Coordinator"
               icon={ClipboardCheck}
