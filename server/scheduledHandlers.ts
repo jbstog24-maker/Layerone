@@ -1,5 +1,5 @@
 /**
- * Scheduled heartbeat handlers — all mounted at /api/scheduled/*
+ * Scheduled heartbeat handlers - all mounted at /api/scheduled/*
  * Auth: sdk.authenticateRequest → user.isCron === true
  * These handlers are idempotent and safe to retry.
  */
@@ -76,7 +76,7 @@ export async function handleMonthlyInvoices(req: Request, res: Response) {
         if (pkg) {
           lineItems.push({
             invoiceId: newInvoice.id,
-            description: `${pkg.name} — Base Package`,
+            description: `${pkg.name} - Base Package`,
             category: "base_package",
             quantity: "1.00",
             unitPrice: String(pkg.basePrice),
@@ -145,7 +145,7 @@ export async function handleDripAutoSend(req: Request, res: Response) {
       try {
         const lead = await getLead(enrollment.leadId);
         if (!lead || !lead.email) {
-          // Mark as completed if no email — can't send
+          // Mark as completed if no email - can't send
           await updateDripEnrollment(enrollment.id, { status: "completed" } as any);
           continue;
         }
@@ -155,7 +155,7 @@ export async function handleDripAutoSend(req: Request, res: Response) {
         const step = steps[currentStepIndex];
 
         if (!step) {
-          // No more steps — mark completed
+          // No more steps - mark completed
           await updateDripEnrollment(enrollment.id, { status: "completed", completedAt: new Date() } as any);
           continue;
         }
@@ -164,7 +164,7 @@ export async function handleDripAutoSend(req: Request, res: Response) {
         const emailSent = await sendDripEmail({
           to: lead.email,
           toName: lead.contactName ?? lead.companyName,
-          subject: step.subject ?? `Following up — ${lead.companyName}`,
+          subject: step.subject ?? `Following up - ${lead.companyName}`,
           htmlBody: step.body ?? "",
           companyName: lead.companyName,
         });
@@ -189,7 +189,7 @@ export async function handleDripAutoSend(req: Request, res: Response) {
             lastSentAt: new Date(),
           } as any);
         } else {
-          // All steps sent — mark completed
+          // All steps sent - mark completed
           await updateDripEnrollment(enrollment.id, {
             status: "completed",
             completedAt: new Date(),

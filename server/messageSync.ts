@@ -12,7 +12,7 @@
  *   Used only after the owner approves a drafted reply in chat.
  *
  * Auth: shared token from PROSPECT_SYNC_TOKEN (constant-time compare).
- * Both endpoints expose customer PII — keep the token secret.
+ * Both endpoints expose customer PII - keep the token secret.
  */
 import { desc, eq } from "drizzle-orm";
 import type { Express, Request, Response } from "express";

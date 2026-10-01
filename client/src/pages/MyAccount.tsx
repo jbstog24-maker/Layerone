@@ -21,16 +21,16 @@ const ROLE_LABELS: Record<string, string> = {
 };
 
 function formatDate(value: string | Date | null | undefined): string {
-  if (!value) return "—";
+  if (!value) return "-";
   const d = value instanceof Date ? value : new Date(value);
-  if (Number.isNaN(d.getTime())) return "—";
+  if (Number.isNaN(d.getTime())) return "-";
   return d.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
 }
 
 function formatDateTime(value: string | Date | null | undefined): string {
-  if (!value) return "—";
+  if (!value) return "-";
   const d = value instanceof Date ? value : new Date(value);
-  if (Number.isNaN(d.getTime())) return "—";
+  if (Number.isNaN(d.getTime())) return "-";
   return d.toLocaleString(undefined, { year: "numeric", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
 }
 
@@ -201,14 +201,14 @@ export default function MyAccount() {
             <CardTitle className="flex items-center gap-2">
               <Shield className="h-5 w-5" /> Account details
             </CardTitle>
-            <CardDescription>Managed by Layer One — contact us if any of this needs to change.</CardDescription>
+            <CardDescription>Managed by Layer One - contact us if any of this needs to change.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center gap-3">
               <Mail className="h-4 w-4 text-muted-foreground shrink-0" />
               <div>
                 <p className="text-xs text-muted-foreground">Email (sign-in)</p>
-                <p className="text-sm font-medium">{user.email ?? "—"}</p>
+                <p className="text-sm font-medium">{user.email ?? "-"}</p>
               </div>
             </div>
             <Separator />
@@ -219,7 +219,7 @@ export default function MyAccount() {
                   <div>
                     <p className="text-xs text-muted-foreground">Company</p>
                     <p className="text-sm font-medium">
-                      {myClientQuery.isLoading ? "Loading…" : (myClientQuery.data?.companyName ?? "—")}
+                      {myClientQuery.isLoading ? "Loading…" : (myClientQuery.data?.companyName ?? "-")}
                     </p>
                   </div>
                 </div>
@@ -238,7 +238,7 @@ export default function MyAccount() {
               <KeyRound className="h-4 w-4 text-muted-foreground shrink-0" />
               <div>
                 <p className="text-xs text-muted-foreground">Sign-in method</p>
-                <p className="text-sm font-medium capitalize">{user.loginMethod ?? "—"}</p>
+                <p className="text-sm font-medium capitalize">{user.loginMethod ?? "-"}</p>
               </div>
             </div>
             <Separator />

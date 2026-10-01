@@ -40,7 +40,7 @@ function usePageMeta(title: string, description: string, canonicalPath: string) 
 
 export default function About() {
   usePageMeta(
-    "About Us | Disabled Veteran-Owned IT Staging — Layer One Staging",
+    "About Us | Disabled Veteran-Owned IT Staging - Layer One Staging",
     "Layer One Staging is a disabled veteran-owned company. Our founder, a U.S. Air Force veteran, brings 20+ years in IT infrastructure, telecom, and multi-site technology deployments to every rollout.",
     "/about"
   );
@@ -61,7 +61,7 @@ export default function About() {
             About Layer One Staging
           </h1>
           <p className="text-slate-400 text-lg leading-relaxed max-w-2xl">
-            The operational layer between equipment procurement and field deployment —
+            The operational layer between equipment procurement and field deployment -
             run by people who have spent their careers on both sides of a rollout.
           </p>
         </div>
@@ -79,18 +79,18 @@ export default function About() {
           <div className="space-y-5 text-slate-400 leading-relaxed max-w-3xl">
             <p>
               Layer One Staging was founded by a <strong className="text-slate-200">disabled U.S. Air Force veteran</strong> with{" "}
-              <strong className="text-slate-200">more than 20 years in the IT field</strong> — spanning IT infrastructure,
+              <strong className="text-slate-200">more than 20 years in the IT field</strong> - spanning IT infrastructure,
               telecom, structured cabling, retail technology rollouts, and multi-site enterprise deployments.
             </p>
             <p>
               Across two decades of network and server hardware installs, staging and testing, POS deployments,
               fiber runs, and MDF/IDF builds, he kept running into the same failure point: the gap between
-              equipment procurement and field deployment. Hardware arriving unsorted, unlabeled, and untested —
+              equipment procurement and field deployment. Hardware arriving unsorted, unlabeled, and untested -
               and field teams paying for it in delays, rework, and blown timelines.
             </p>
             <p>
-              Layer One Staging exists to close that gap. We run the warehouse behind your rollout — receiving,
-              secure storage, staging, kitting, QA verification, and outbound shipping — so the right equipment
+              Layer One Staging exists to close that gap. We run the warehouse behind your rollout - receiving,
+              secure storage, staging, kitting, QA verification, and outbound shipping - so the right equipment
               arrives at the right site, configured, labeled, and ready. Every time.
             </p>
           </div>
@@ -159,7 +159,7 @@ export default function About() {
               <h3 className="text-slate-200 font-bold mb-3">What we're not</h3>
               <p className="text-sm text-slate-400 leading-relaxed">
                 We are not an IT support company, and we don't dispatch field technicians to your
-                locations. We stay in our lane — the warehouse — so your field teams get
+                locations. We stay in our lane - the warehouse - so your field teams get
                 deployment-ready hardware without surprises.
               </p>
               <p className="text-sm text-slate-400 leading-relaxed mt-3">
@@ -177,7 +177,7 @@ export default function About() {
             Have a rollout coming up?
           </h2>
           <p className="text-slate-400 mb-8 max-w-xl mx-auto">
-            Tell us about your locations, equipment, and timeline — we'll build a project quote around it.
+            Tell us about your locations, equipment, and timeline - we'll build a project quote around it.
           </p>
           <Link
             href="/get-started"

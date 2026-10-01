@@ -5,7 +5,7 @@ import { execRows, tableExists, columnExists, inquiryStatusHas } from "./migrate
 // the raw mysql2 [rows, fields] tuple, NOT the rows array. An earlier version
 // of the existence checks read `.length` directly on the tuple (always 2),
 // so every check reported "already exists" and the migration silently skipped
-// all of its DDL — including the users.inviteToken columns the set-password
+// all of its DDL - including the users.inviteToken columns the set-password
 // flow needs. These tests pin the unwrapping behavior with a mocked db.
 
 function mockDb(tuple: unknown) {

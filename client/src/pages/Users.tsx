@@ -28,28 +28,28 @@ const ROLE_CONFIG: Record<string, { label: string; color: string; dot: string; d
     label: "Admin",
     color: "bg-red-500/20 text-red-300 border-red-500/30",
     dot: "bg-red-400",
-    description: "Full system access — can manage all users, clients, billing, and settings.",
+    description: "Full system access - can manage all users, clients, billing, and settings.",
     permissions: ["All operations access", "User management", "Client management", "Billing & invoices", "System settings", "All reports"],
   },
   staff: {
     label: "Staff",
     color: "bg-blue-500/20 text-blue-300 border-blue-500/30",
     dot: "bg-blue-400",
-    description: "Operations access — can manage devices, staging, shipments, and leads.",
+    description: "Operations access - can manage devices, staging, shipments, and leads.",
     permissions: ["Device & inventory management", "Staging tasks", "Shipment processing", "Lead management", "Drip sequences", "Content studio"],
   },
   customer_admin: {
     label: "Customer Admin",
     color: "bg-green-500/20 text-green-300 border-green-500/30",
     dot: "bg-green-400",
-    description: "Customer portal — can view and manage their account, submit requests, and invite viewers.",
+    description: "Customer portal - can view and manage their account, submit requests, and invite viewers.",
     permissions: ["View own device inventory", "Submit shipment requests", "View staging progress", "Manage support tickets", "View invoices & billing"],
   },
   customer_viewer: {
     label: "Customer Viewer",
     color: "bg-slate-500/20 text-slate-300 border-slate-500/30",
     dot: "bg-slate-400",
-    description: "Read-only customer portal — can view their account data but cannot submit requests.",
+    description: "Read-only customer portal - can view their account data but cannot submit requests.",
     permissions: ["View own device inventory", "View staging progress", "View support tickets (read-only)", "View invoices (read-only)"],
   },
 };
@@ -184,10 +184,10 @@ function UserDialog({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent className="bg-[#0d1f35] border-[#1e3a5f]">
-                <SelectItem value="admin">Admin — Full access</SelectItem>
-                <SelectItem value="staff">Staff — Operations access</SelectItem>
-                <SelectItem value="customer_admin">Customer Admin — Portal (manage)</SelectItem>
-                <SelectItem value="customer_viewer">Customer Viewer — Portal (read-only)</SelectItem>
+                <SelectItem value="admin">Admin - Full access</SelectItem>
+                <SelectItem value="staff">Staff - Operations access</SelectItem>
+                <SelectItem value="customer_admin">Customer Admin - Portal (manage)</SelectItem>
+                <SelectItem value="customer_viewer">Customer Viewer - Portal (read-only)</SelectItem>
               </SelectContent>
             </Select>
             {roleInfo && (
@@ -210,7 +210,7 @@ function UserDialog({
                     <SelectValue placeholder="Select department…" />
                   </SelectTrigger>
                   <SelectContent className="bg-[#0d1f35] border-[#1e3a5f]">
-                    <SelectItem value="none">— None —</SelectItem>
+                    <SelectItem value="none">- None -</SelectItem>
                     {DEPARTMENTS.map((d) => <SelectItem key={d} value={d}>{d}</SelectItem>)}
                   </SelectContent>
                 </Select>
@@ -250,7 +250,7 @@ function UserDialog({
                   <SelectValue placeholder="Select a client…" />
                 </SelectTrigger>
                 <SelectContent className="bg-[#0d1f35] border-[#1e3a5f]">
-                  <SelectItem value="none">— No client linked —</SelectItem>
+                  <SelectItem value="none">- No client linked -</SelectItem>
                   {clients.map((c) => <SelectItem key={c.id} value={c.id.toString()}>{c.companyName}</SelectItem>)}
                 </SelectContent>
               </Select>
@@ -266,7 +266,7 @@ function UserDialog({
               placeholder="e.g. Primary contact for Acme Networks, prefers email…"
               rows={2}
               className="mt-1 w-full rounded-md bg-[#0d1f35] border border-[#1e3a5f] text-white placeholder:text-slate-500 text-sm px-3 py-2 resize-none focus:outline-none focus:ring-1 focus:ring-blue-500" />
-            <p className="text-xs text-slate-500 mt-1">Not visible to the user — for staff reference only.</p>
+            <p className="text-xs text-slate-500 mt-1">Not visible to the user - for staff reference only.</p>
           </div>
         </div>
 

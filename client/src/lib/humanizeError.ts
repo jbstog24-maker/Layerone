@@ -30,7 +30,7 @@ export function humanizeError(err: unknown): string {
         if (nested !== raw) return nested;
       }
     } catch {
-      // Not actually JSON — fall through to the raw message.
+      // Not actually JSON - fall through to the raw message.
     }
   }
   return raw;

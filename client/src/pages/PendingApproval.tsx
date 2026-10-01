@@ -50,22 +50,22 @@ export default function PendingApproval() {
                 </p>
                 <InfoTip title="Why am I seeing this?">
                   Customer accounts must be linked to a client record before the
-                  portal opens up. Nothing is wrong with your sign-in — this is
+                  portal opens up. Nothing is wrong with your sign-in - this is
                   just the approval step.
                 </InfoTip>
               </div>
               <ol className="space-y-2 text-sm text-muted-foreground list-none">
                 <li className="flex gap-2.5">
                   <span className="w-5 h-5 rounded-full bg-primary/15 text-primary text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">1</span>
-                  <span><span className="text-foreground font-medium">Wait for approval</span> — a Layer One team member links your account to your company's client record.</span>
+                  <span><span className="text-foreground font-medium">Wait for approval</span> - a Layer One team member links your account to your company's client record.</span>
                 </li>
                 <li className="flex gap-2.5">
                   <span className="w-5 h-5 rounded-full bg-primary/15 text-primary text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">2</span>
-                  <span><span className="text-foreground font-medium">Watch your email</span> — you'll get a message at {user?.email ?? "your email address"} once access is granted.</span>
+                  <span><span className="text-foreground font-medium">Watch your email</span> - you'll get a message at {user?.email ?? "your email address"} once access is granted.</span>
                 </li>
                 <li className="flex gap-2.5">
                   <span className="w-5 h-5 rounded-full bg-primary/15 text-primary text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">3</span>
-                  <span><span className="text-foreground font-medium">Sign in again</span> — you'll land on your dashboard with messages, documents, and onboarding.</span>
+                  <span><span className="text-foreground font-medium">Sign in again</span> - you'll land on your dashboard with messages, documents, and onboarding.</span>
                 </li>
               </ol>
             </div>

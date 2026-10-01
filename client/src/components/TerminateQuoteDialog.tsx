@@ -87,8 +87,8 @@ export default function TerminateQuoteDialog({
     onSuccess: (data) => {
       toast.success(
         data.refundCents > 0
-          ? `Terminated — ${fmt(data.refundCents)} refunded${data.stripeRefundId ? ` (${data.stripeRefundId})` : ""}`
-          : "Terminated — no refund due ($0)",
+          ? `Terminated - ${fmt(data.refundCents)} refunded${data.stripeRefundId ? ` (${data.stripeRefundId})` : ""}`
+          : "Terminated - no refund due ($0)",
       );
       utils.termination.get.invalidate({ quoteId: quote!.id });
       utils.inquiry.listQuotes.invalidate({ inquiryId: quote!.inquiryId });
@@ -107,7 +107,7 @@ export default function TerminateQuoteDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-slate-100">
             <Calculator className="w-4 h-4 text-[#0A84FF]" />
-            Terminate &amp; Refund — Quote #{quote?.id}
+            Terminate &amp; Refund - Quote #{quote?.id}
           </DialogTitle>
           <DialogDescription className="text-slate-400">
             MSA §7.4 back-out: forfeit = committed space cost + 15% admin fee on the remainder.
@@ -214,7 +214,7 @@ export default function TerminateQuoteDialog({
         </DialogFooter>
       </DialogContent>
 
-      {/* Final confirmation — shows the exact refund before any money moves */}
+      {/* Final confirmation - shows the exact refund before any money moves */}
       <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
         <AlertDialogContent className="bg-[#0d1626] border-white/10">
           <AlertDialogHeader>

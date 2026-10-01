@@ -10,7 +10,7 @@
  * are never mutated after being written.
  *
  * Auth: same shared token as /api/prospect-sync (constant-time compare).
- * Read-only. The users table excludes passwordHash and invite/reset tokens —
+ * Read-only. The users table excludes passwordHash and invite/reset tokens -
  * a backup must never become a credential store. Everything else (including
  * MSA signing tokens and warehouse access codes) is included so a restore is
  * actually complete; treat downloaded snapshots as sensitive business data.

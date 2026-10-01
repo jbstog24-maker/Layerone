@@ -111,7 +111,7 @@ describe("createOnboardingChecklist", () => {
     expect(tasks.map((t: any) => t.sortOrder)).toEqual([1, 2, 3, 4, 5, 6, 7, 8]);
   });
 
-  it("is idempotent — returns the existing checklist without duplicating", async () => {
+  it("is idempotent - returns the existing checklist without duplicating", async () => {
     const db = makeFakeDb({
       onboarding_checklists: [{ id: 7, inquiryId: 42, status: "in_progress" }],
       onboarding_tasks: [],

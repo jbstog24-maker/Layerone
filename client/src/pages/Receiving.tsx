@@ -164,10 +164,10 @@ export function ReceivingList() {
                     <p className="font-medium text-sm">{log.projectName ?? `Log #${log.id}`}</p>
                     <p className="text-xs text-muted-foreground font-mono">{log.trackingNumber ?? ""}</p>
                   </td>
-                  <td className="px-4 py-3 text-sm text-muted-foreground">{log.carrier ?? "—"}</td>
+                  <td className="px-4 py-3 text-sm text-muted-foreground">{log.carrier ?? "-"}</td>
                   <td className="px-4 py-3 text-sm">{log.boxCount ?? 0} / {log.palletCount ?? 0}</td>
                   <td className="px-4 py-3"><StatusBadge status={log.condition ?? "good"} /></td>
-                  <td className="px-4 py-3 text-sm text-muted-foreground">{log.storageLocation ?? "—"}</td>
+                  <td className="px-4 py-3 text-sm text-muted-foreground">{log.storageLocation ?? "-"}</td>
                   <td className="px-4 py-3 text-sm text-muted-foreground">{new Date(log.receivedAt).toLocaleDateString()}</td>
                   <td className="px-4 py-3"><ChevronRight className="w-4 h-4 text-muted-foreground" /></td>
                 </tr>
@@ -209,11 +209,11 @@ export function ReceivingDetail() {
             <CardContent className="grid grid-cols-2 gap-4 text-sm">
               <div><p className="text-muted-foreground text-xs mb-1">Condition</p><StatusBadge status={log.condition ?? "good"} /></div>
               <div><p className="text-muted-foreground text-xs mb-1">Status</p><StatusBadge status={log.status} /></div>
-              <div><p className="text-muted-foreground text-xs mb-1">Carrier</p><p>{log.carrier ?? "—"}</p></div>
-              <div><p className="text-muted-foreground text-xs mb-1">Tracking</p><p className="font-mono text-xs">{log.trackingNumber ?? "—"}</p></div>
+              <div><p className="text-muted-foreground text-xs mb-1">Carrier</p><p>{log.carrier ?? "-"}</p></div>
+              <div><p className="text-muted-foreground text-xs mb-1">Tracking</p><p className="font-mono text-xs">{log.trackingNumber ?? "-"}</p></div>
               <div><p className="text-muted-foreground text-xs mb-1">Boxes</p><p>{log.boxCount ?? 0}</p></div>
               <div><p className="text-muted-foreground text-xs mb-1">Pallets</p><p>{log.palletCount ?? 0}</p></div>
-              <div><p className="text-muted-foreground text-xs mb-1">Storage Location</p><p>{log.storageLocation ?? "—"}</p></div>
+              <div><p className="text-muted-foreground text-xs mb-1">Storage Location</p><p>{log.storageLocation ?? "-"}</p></div>
               <div><p className="text-muted-foreground text-xs mb-1">Received At</p><p>{new Date(log.receivedAt).toLocaleString()}</p></div>
               {log.notes && <div className="col-span-2"><p className="text-muted-foreground text-xs mb-1">Notes</p><p className="text-muted-foreground">{log.notes}</p></div>}
             </CardContent>

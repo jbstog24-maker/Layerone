@@ -270,12 +270,12 @@ export function DevicesList() {
                     </div>
                   </td>
                   <td className="px-4 py-3">
-                    <p className="text-xs font-mono text-muted-foreground">{d.serialNumber ?? "—"}</p>
-                    <p className="text-xs font-mono text-muted-foreground">{d.macAddress ?? "—"}</p>
+                    <p className="text-xs font-mono text-muted-foreground">{d.serialNumber ?? "-"}</p>
+                    <p className="text-xs font-mono text-muted-foreground">{d.macAddress ?? "-"}</p>
                   </td>
                   <td className="px-4 py-3">
-                    <p className="text-sm">{d.projectName ?? "—"}</p>
-                    <p className="text-xs text-muted-foreground">{d.siteName ?? "—"}</p>
+                    <p className="text-sm">{d.projectName ?? "-"}</p>
+                    <p className="text-xs text-muted-foreground">{d.siteName ?? "-"}</p>
                   </td>
                   <td className="px-4 py-3"><StatusBadge status={d.stagingStatus} /></td>
                   <td className="px-4 py-3"><StatusBadge status={d.configStatus} /></td>
@@ -359,11 +359,11 @@ export function DevicesList() {
                     <tbody>
                       {csvPreview.slice(0, 20).map((row, i) => (
                         <tr key={i} className="border-t border-border/50">
-                          <td className="px-3 py-1.5">{row.brand ?? "—"}</td>
-                          <td className="px-3 py-1.5">{row.model ?? "—"}</td>
-                          <td className="px-3 py-1.5 font-mono">{row.serialNumber ?? row.sn ?? row.serial ?? "—"}</td>
-                          <td className="px-3 py-1.5 font-mono">{row.macAddress ?? row.mac ?? "—"}</td>
-                          <td className="px-3 py-1.5">{row.siteName ?? row.site ?? "—"}</td>
+                          <td className="px-3 py-1.5">{row.brand ?? "-"}</td>
+                          <td className="px-3 py-1.5">{row.model ?? "-"}</td>
+                          <td className="px-3 py-1.5 font-mono">{row.serialNumber ?? row.sn ?? row.serial ?? "-"}</td>
+                          <td className="px-3 py-1.5 font-mono">{row.macAddress ?? row.mac ?? "-"}</td>
+                          <td className="px-3 py-1.5">{row.siteName ?? row.site ?? "-"}</td>
                         </tr>
                       ))}
                       {csvPreview.length > 20 && (
@@ -432,7 +432,7 @@ export function DeviceDetail() {
   });
   const notifyMutation = trpc.stagingNotify.notifyDevice.useMutation({
     onSuccess: () => {
-      toast.success("Customer notified — device marked Ready to Ship");
+      toast.success("Customer notified - device marked Ready to Ship");
       utils.devices.get.invalidate({ id });
       setShowNotify(false);
       setNotifyMessage("");
@@ -484,15 +484,15 @@ export function DeviceDetail() {
             <CardContent className="grid grid-cols-2 gap-4 text-sm">
               <div><p className="text-muted-foreground text-xs mb-1">Staging Status</p><StatusBadge status={device.stagingStatus} /></div>
               <div><p className="text-muted-foreground text-xs mb-1">Config Status</p><StatusBadge status={device.configStatus} /></div>
-              <div><p className="text-muted-foreground text-xs mb-1">Type</p><p>{device.deviceType ?? "—"}</p></div>
+              <div><p className="text-muted-foreground text-xs mb-1">Type</p><p>{device.deviceType ?? "-"}</p></div>
               <div><p className="text-muted-foreground text-xs mb-1">Brand / Model</p><p>{device.brand} {device.model}</p></div>
-              <div><p className="text-muted-foreground text-xs mb-1">Serial Number</p><p className="font-mono text-xs">{device.serialNumber ?? "—"}</p></div>
-              <div><p className="text-muted-foreground text-xs mb-1">MAC Address</p><p className="font-mono text-xs">{device.macAddress ?? "—"}</p></div>
-              <div><p className="text-muted-foreground text-xs mb-1">Asset Tag</p><p>{device.assetTag ?? "—"}</p></div>
-              <div><p className="text-muted-foreground text-xs mb-1">Firmware</p><p>{device.firmwareVersion ?? "—"}</p></div>
-              <div><p className="text-muted-foreground text-xs mb-1">Project</p><p>{device.projectName ?? "—"}</p></div>
-              <div><p className="text-muted-foreground text-xs mb-1">Site</p><p>{device.siteName ?? "—"}</p></div>
-              <div><p className="text-muted-foreground text-xs mb-1">Storage Location</p><p>{device.storageLocation ?? "—"}</p></div>
+              <div><p className="text-muted-foreground text-xs mb-1">Serial Number</p><p className="font-mono text-xs">{device.serialNumber ?? "-"}</p></div>
+              <div><p className="text-muted-foreground text-xs mb-1">MAC Address</p><p className="font-mono text-xs">{device.macAddress ?? "-"}</p></div>
+              <div><p className="text-muted-foreground text-xs mb-1">Asset Tag</p><p>{device.assetTag ?? "-"}</p></div>
+              <div><p className="text-muted-foreground text-xs mb-1">Firmware</p><p>{device.firmwareVersion ?? "-"}</p></div>
+              <div><p className="text-muted-foreground text-xs mb-1">Project</p><p>{device.projectName ?? "-"}</p></div>
+              <div><p className="text-muted-foreground text-xs mb-1">Site</p><p>{device.siteName ?? "-"}</p></div>
+              <div><p className="text-muted-foreground text-xs mb-1">Storage Location</p><p>{device.storageLocation ?? "-"}</p></div>
               {device.notes && <div className="col-span-2"><p className="text-muted-foreground text-xs mb-1">Notes</p><p className="text-muted-foreground">{device.notes}</p></div>}
             </CardContent>
           </Card>
@@ -586,7 +586,7 @@ export function DeviceDetail() {
             </div>
             <div>
               <Label className="text-xs">Contact at Destination</Label>
-              <Input value={fwdContact} onChange={(e) => setFwdContact(e.target.value)} className="mt-1" placeholder="John Smith — (512) 555-0100" />
+              <Input value={fwdContact} onChange={(e) => setFwdContact(e.target.value)} className="mt-1" placeholder="John Smith - (512) 555-0100" />
             </div>
             <div>
               <Label className="text-xs">Notes</Label>
@@ -621,7 +621,7 @@ export function DeviceDetail() {
           <div className="space-y-3">
             <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-lg p-3">
               <p className="text-sm text-emerald-300 font-medium">{device.deviceCode}</p>
-              <p className="text-xs text-muted-foreground mt-0.5">{device.brand} {device.model} {device.serialNumber ? `— S/N: ${device.serialNumber}` : ""}</p>
+              <p className="text-xs text-muted-foreground mt-0.5">{device.brand} {device.model} {device.serialNumber ? `- S/N: ${device.serialNumber}` : ""}</p>
             </div>
             <p className="text-sm text-muted-foreground">This will update the device status to <strong className="text-foreground">Ready to Ship</strong> and send an email notification to all users in this client account.</p>
             <div>

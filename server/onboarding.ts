@@ -84,7 +84,7 @@ export async function sendOwnerEmail(params: {
 }): Promise<boolean> {
   if (!ENV.resendApiKey || !ENV.resendFromEmail) {
     console.warn(
-      "[Onboarding] RESEND_API_KEY or RESEND_FROM_EMAIL not configured — skipping owner email"
+      "[Onboarding] RESEND_API_KEY or RESEND_FROM_EMAIL not configured - skipping owner email"
     );
     return false;
   }
@@ -201,7 +201,7 @@ export async function checkAndTriggerHandoff(inquiryId: number): Promise<boolean
       .where(eq(packageInquiries.id, inquiryId));
     if (!inquiry) return false;
 
-    // Already handed off (e.g. webhook retry) — don't duplicate emails.
+    // Already handed off (e.g. webhook retry) - don't duplicate emails.
     if (inquiry.status === "onboarding" || inquiry.status === "won") {
       return false;
     }
@@ -219,7 +219,7 @@ export async function checkAndTriggerHandoff(inquiryId: number): Promise<boolean
     const inquiriesUrl = `${portalBase()}/inquiries`;
 
     await sendOwnerEmail({
-      subject: `✅ Ready for onboarding — ${inquiry.company} paid & signed`,
+      subject: `✅ Ready for onboarding - ${inquiry.company} paid & signed`,
       title: "Ready for Onboarding",
       contentHtml: `
         <p style="font-size:15px;color:#e2e8f0;margin:0 0 16px;"><strong>${escapeHtml(inquiry.company)}</strong> has paid and signed the MSA. The onboarding checklist is open and assigned for review.</p>

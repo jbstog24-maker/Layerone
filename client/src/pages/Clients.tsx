@@ -247,7 +247,7 @@ function WarehouseAssignmentForm({ clientId, client, onSuccess }: { clientId: nu
   });
   const assignMut = trpc.clients.update.useMutation({
     onSuccess: () => {
-      toast.success("Warehouse space assigned — client notification sent");
+      toast.success("Warehouse space assigned - client notification sent");
       utils.clients.get.invalidate({ id: clientId });
       onSuccess();
     },
@@ -537,7 +537,7 @@ export function ClientDetail() {
       const data = await res.json();
       if (data.url) {
         window.open(data.url, "_blank");
-        toast.success("Checkout page opened — copy the URL to share with the client");
+        toast.success("Checkout page opened - copy the URL to share with the client");
       } else {
         toast.error(data.error ?? "Failed to create checkout session");
       }
@@ -586,11 +586,11 @@ export function ClientDetail() {
           <CardContent className="grid grid-cols-2 gap-4 text-sm">
             <div><p className="text-muted-foreground text-xs mb-1">Status</p><StatusBadge status={client.status} /></div>
             <div><p className="text-muted-foreground text-xs mb-1">Package</p><p className="font-medium">{pkg?.name ?? "None"}</p></div>
-            <div><p className="text-muted-foreground text-xs mb-1">Contact</p><p>{client.contactName ?? "—"}</p></div>
-            <div><p className="text-muted-foreground text-xs mb-1">Email</p><p>{client.contactEmail ?? "—"}</p></div>
-            <div><p className="text-muted-foreground text-xs mb-1">Phone</p><p>{client.contactPhone ?? "—"}</p></div>
-            <div><p className="text-muted-foreground text-xs mb-1">Billing Email</p><p>{client.billingEmail ?? "—"}</p></div>
-            <div className="col-span-2"><p className="text-muted-foreground text-xs mb-1">Address</p><p>{client.address ?? "—"}</p></div>
+            <div><p className="text-muted-foreground text-xs mb-1">Contact</p><p>{client.contactName ?? "-"}</p></div>
+            <div><p className="text-muted-foreground text-xs mb-1">Email</p><p>{client.contactEmail ?? "-"}</p></div>
+            <div><p className="text-muted-foreground text-xs mb-1">Phone</p><p>{client.contactPhone ?? "-"}</p></div>
+            <div><p className="text-muted-foreground text-xs mb-1">Billing Email</p><p>{client.billingEmail ?? "-"}</p></div>
+            <div className="col-span-2"><p className="text-muted-foreground text-xs mb-1">Address</p><p>{client.address ?? "-"}</p></div>
             {client.projectNotes && (
               <div className="col-span-2"><p className="text-muted-foreground text-xs mb-1">Notes</p><p className="text-muted-foreground">{client.projectNotes}</p></div>
             )}
@@ -627,9 +627,9 @@ export function ClientDetail() {
           </CardHeader>
           <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
             <div><p className="text-muted-foreground text-xs mb-1">Unit / Bay</p><p className="font-mono font-bold text-blue-300">{(client as any).warehouseUnitNumber}</p></div>
-            <div><p className="text-muted-foreground text-xs mb-1">Access Code</p><p className="font-mono">{(client as any).warehouseAccessCode ?? "—"}</p></div>
-            <div><p className="text-muted-foreground text-xs mb-1">Dimensions</p><p>{(client as any).warehouseDimensions ?? "—"}</p></div>
-            <div><p className="text-muted-foreground text-xs mb-1">Assigned</p><p>{(client as any).warehouseAssignedAt ? new Date((client as any).warehouseAssignedAt).toLocaleDateString() : "—"}</p></div>
+            <div><p className="text-muted-foreground text-xs mb-1">Access Code</p><p className="font-mono">{(client as any).warehouseAccessCode ?? "-"}</p></div>
+            <div><p className="text-muted-foreground text-xs mb-1">Dimensions</p><p>{(client as any).warehouseDimensions ?? "-"}</p></div>
+            <div><p className="text-muted-foreground text-xs mb-1">Assigned</p><p>{(client as any).warehouseAssignedAt ? new Date((client as any).warehouseAssignedAt).toLocaleDateString() : "-"}</p></div>
             {(client as any).warehouseAddress && <div className="col-span-2 md:col-span-4"><p className="text-muted-foreground text-xs mb-1">Address</p><p>{(client as any).warehouseAddress}</p></div>}
             {(client as any).warehouseNotes && <div className="col-span-2 md:col-span-4"><p className="text-muted-foreground text-xs mb-1">Notes</p><p className="text-muted-foreground">{(client as any).warehouseNotes}</p></div>}
           </CardContent>
@@ -662,7 +662,7 @@ export function ClientDetail() {
                       <div>
                         <p className="text-sm font-medium">{doc.documentName ?? "Document"}</p>
                         <p className="text-xs text-muted-foreground">
-                          Sent {doc.sentAt ? new Date(doc.sentAt).toLocaleDateString() : "—"}
+                          Sent {doc.sentAt ? new Date(doc.sentAt).toLocaleDateString() : "-"}
                           {doc.signedAt && ` · Signed ${new Date(doc.signedAt).toLocaleDateString()}`}
                         </p>
                       </div>
@@ -828,7 +828,7 @@ function ClientInternalNotes({ clientId }: { clientId: number }) {
       <CardHeader>
         <CardTitle className="text-sm flex items-center gap-2">
           <FileText className="w-4 h-4 text-amber-400" /> Internal Notes
-          <span className="text-xs font-normal text-muted-foreground ml-1">(staff only — not visible to client)</span>
+          <span className="text-xs font-normal text-muted-foreground ml-1">(staff only - not visible to client)</span>
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">

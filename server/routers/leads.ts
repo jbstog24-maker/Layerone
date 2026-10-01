@@ -391,11 +391,11 @@ Prospect details:
 Email requirements:
 - Subject line: short, specific, not clickbait
 - Opening: address them by first name ("${greeting}"), mention their company and city
-- Body: briefly explain what Layer One does in plain language — no jargon, no buzzwords
+- Body: briefly explain what Layer One does in plain language - no jargon, no buzzwords
 - ${industryLine} in the DFW area and understand their challenges around device deployment timelines and multi-site logistics
 - Mention 2-3 concrete things Layer One can do for them (e.g. receive and stage devices before the truck rolls, handle imaging and configuration, provide a customer portal for real-time tracking)
-- Closing: invite them to a short 15-minute call to see if it's a fit — no pressure, no hard sell
-- Tone: warm, informative, peer-to-peer — NOT salesy, NOT pushy, NOT full of exclamation points
+- Closing: invite them to a short 15-minute call to see if it's a fit - no pressure, no hard sell
+- Tone: warm, informative, peer-to-peer - NOT salesy, NOT pushy, NOT full of exclamation points
 - Length: 150-200 words max
 - Sign off as: Layer One Team | Layer One Staging Solutions | Dallas-Fort Worth, TX
 
@@ -434,7 +434,7 @@ Respond with JSON: {"subject":"<subject line>","body":"<email body with \\n for 
         companyName: lead.companyName,
       });
 
-      if (!sent) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Failed to send email — check Resend configuration" });
+      if (!sent) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Failed to send email - check Resend configuration" });
 
       // Save the sent message to campaign history and mark lead as contacted
       await createLeadMessage({

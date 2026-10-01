@@ -56,7 +56,7 @@ export default function CancelCall() {
                   {" "}on <span className="text-white font-medium">{formatCentral(done.scheduledFor)}</span> (Central)
                 </>
               ) : null}{" "}
-              has been cancelled — Alex won't call. Changed your mind? You're welcome to book again anytime.
+              has been cancelled - Alex won't call. Changed your mind? You're welcome to book again anytime.
             </p>
             <Link href="/" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold bg-[#0A84FF] text-white hover:bg-[#3d9dff] transition-colors text-sm">
               Back to Homepage

@@ -145,7 +145,7 @@ export function InvoicesList() {
                   </td>
                   <td className="px-4 py-3 text-sm font-semibold">${Number(inv.total).toLocaleString("en-US", { minimumFractionDigits: 2 })}</td>
                   <td className="px-4 py-3"><StatusBadge status={inv.status} /></td>
-                  <td className="px-4 py-3 text-sm text-muted-foreground">{inv.dueDate ? new Date(inv.dueDate).toLocaleDateString() : "—"}</td>
+                  <td className="px-4 py-3 text-sm text-muted-foreground">{inv.dueDate ? new Date(inv.dueDate).toLocaleDateString() : "-"}</td>
                   <td className="px-4 py-3"><ChevronRight className="w-4 h-4 text-muted-foreground" /></td>
                 </tr>
               ))}
@@ -220,7 +220,7 @@ export function InvoiceDetail() {
     const a = document.createElement("a");
     a.href = url; a.download = `${invoice.invoiceNumber}.html`; a.click();
     URL.revokeObjectURL(url);
-    toast.success("Invoice exported — open in browser and print to PDF");
+    toast.success("Invoice exported - open in browser and print to PDF");
   };
 
   const { register: regLine, handleSubmit: handleLine, setValue: setLineVal, reset: resetLine } = useForm({
@@ -345,7 +345,7 @@ export function InvoiceDetail() {
           <CardHeader><CardTitle className="text-sm">Summary</CardTitle></CardHeader>
           <CardContent className="space-y-3 text-sm">
             <div><p className="text-muted-foreground text-xs mb-1">Status</p><StatusBadge status={invoice.status} /></div>
-            <div><p className="text-muted-foreground text-xs mb-1">Due Date</p><p>{invoice.dueDate ? new Date(invoice.dueDate).toLocaleDateString() : "—"}</p></div>
+            <div><p className="text-muted-foreground text-xs mb-1">Due Date</p><p>{invoice.dueDate ? new Date(invoice.dueDate).toLocaleDateString() : "-"}</p></div>
             <Separator />
             <div className="flex justify-between"><span className="text-muted-foreground">Subtotal</span><span>${Number(invoice.subtotal).toFixed(2)}</span></div>
             <div className="flex justify-between"><span className="text-muted-foreground">Tax</span><span>${Number(invoice.tax).toFixed(2)}</span></div>

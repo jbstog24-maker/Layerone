@@ -13,13 +13,13 @@ const QUOTE_TYPES: { value: QuoteType; label: string; desc: string; price: strin
   {
     value: "project",
     label: "Project Quote",
-    desc: "Multi-site rollout — locations, devices, services & schedule scoped into one custom project price.",
+    desc: "Multi-site rollout - locations, devices, services & schedule scoped into one custom project price.",
     price: "Custom",
   },
   {
     value: "pallet",
     label: "Per-Pallet Quote",
-    desc: "Straightforward pallet pricing — $12/pallet receiving, $30/pallet/month storage, plus the services you pick.",
+    desc: "Straightforward pallet pricing - $12/pallet receiving, $30/pallet/month storage, plus the services you pick.",
     price: "Per pallet",
   },
 ];
@@ -30,7 +30,7 @@ const ADDONS = [
   { key: "firmware", label: "Firmware & Config Staging", desc: "Pre-configure before deployment" },
   { key: "custom_kitting", label: "Custom Kitting", desc: "Per-site box assembly" },
   { key: "expedited", label: "Expedited Turnaround", desc: "Priority processing" },
-  { key: "onsite_delivery", label: "On-site Delivery", desc: "DFW metro — $175/pallet, $30/device" },
+  { key: "onsite_delivery", label: "On-site Delivery", desc: "DFW metro - $175/pallet, $30/device" },
 ];
 
 const EQUIPMENT_TYPES = [
@@ -235,7 +235,7 @@ export default function RequestForm({ onSubmitted }: { onSubmitted?: () => void 
         <p className="text-xs text-[#b7c5d5]/60 mb-4">
           {isPallet
             ? "How many pallets are we receiving, and how long should we hold them?"
-            : "Estimates are fine — this helps us build an accurate quote."}
+            : "Estimates are fine - this helps us build an accurate quote."}
         </p>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           {(
@@ -283,7 +283,7 @@ export default function RequestForm({ onSubmitted }: { onSubmitted?: () => void 
           <h2 className="text-sm font-semibold text-[#b7c5d5] uppercase tracking-wider mb-1 flex items-center gap-2">
             <MapPin className="w-4 h-4" /> Rollout Details <span className="text-[#b7c5d5]/50 font-normal normal-case tracking-normal">(optional)</span>
           </h2>
-          <p className="text-xs text-[#b7c5d5]/60 mb-4">For multi-site projects — helps us scope staging, kitting, and scheduling.</p>
+          <p className="text-xs text-[#b7c5d5]/60 mb-4">For multi-site projects - helps us scope staging, kitting, and scheduling.</p>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-5">
             <div>
               <label className="block text-xs font-medium text-[#b7c5d5] mb-1.5 flex items-center gap-1">

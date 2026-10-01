@@ -1,5 +1,5 @@
 /**
- * OnboardingTour — role-aware first-login guided tour.
+ * OnboardingTour - role-aware first-login guided tour.
  *
  * Shows a spotlight overlay with a tooltip card that walks the user through
  * the key sections of the portal. Steps are filtered by role so admins,
@@ -51,7 +51,7 @@ const TOUR_STEPS: TourStep[] = [
     id: "dashboard",
     title: "Dashboard",
     description:
-      "Your command centre. See live KPIs — active clients, devices in staging, pending shipments, open support tickets, and revenue at a glance. Alerts highlight anything that needs immediate attention.",
+      "Your command centre. See live KPIs - active clients, devices in staging, pending shipments, open support tickets, and revenue at a glance. Alerts highlight anything that needs immediate attention.",
     icon: LayoutDashboard,
     targetSelector: "[data-tour='nav-dashboard']",
     roles: ["admin", "staff"],
@@ -71,7 +71,7 @@ const TOUR_STEPS: TourStep[] = [
     id: "devices",
     title: "Devices",
     description:
-      "Track every piece of network equipment by serial number, MAC address, and staging status — from Expected all the way through Shipped. Bulk-import devices from a CSV file and export the full inventory at any time.",
+      "Track every piece of network equipment by serial number, MAC address, and staging status - from Expected all the way through Shipped. Bulk-import devices from a CSV file and export the full inventory at any time.",
     icon: Server,
     targetSelector: "[data-tour='nav-devices']",
     roles: ["admin", "staff"],
@@ -79,7 +79,7 @@ const TOUR_STEPS: TourStep[] = [
   },
   {
     id: "inventory",
-    title: "Inventory — Boxes & Pallets",
+    title: "Inventory - Boxes & Pallets",
     description:
       "Log inbound deliveries, assign boxes and pallets to storage locations, and track forwarding status. Each item gets a unique code and a full chain-of-custody record.",
     icon: Package,
@@ -162,7 +162,7 @@ const TOUR_STEPS: TourStep[] = [
     id: "customer-dashboard",
     title: "Your Dashboard",
     description:
-      "See a summary of your account — active devices, pending shipments, open support tickets, and recent activity. Everything about your project in one place.",
+      "See a summary of your account - active devices, pending shipments, open support tickets, and recent activity. Everything about your project in one place.",
     icon: LayoutDashboard,
     targetSelector: "[data-tour='nav-dashboard']",
     roles: ["customer"],
@@ -344,7 +344,7 @@ function TourTooltip({ step, stepIndex, totalSteps, onNext, onPrev, onSkip, spot
 
       {/* Footer: navigation buttons */}
       <div className="flex items-center justify-between gap-2">
-        {/* Skip Tour — always visible on every step */}
+        {/* Skip Tour - always visible on every step */}
         <button
           onClick={onSkip}
           className="text-xs text-muted-foreground hover:text-foreground transition-colors underline-offset-2 hover:underline"

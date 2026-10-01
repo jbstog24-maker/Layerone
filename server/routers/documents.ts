@@ -75,13 +75,13 @@ export function buildMsaContent(params: {
       lines.push(`  • Quoted services:`);
       for (const li of scope.quoteLineItems) {
         const qty = li.qty != null ? ` (x${li.qty})` : "";
-        const total = li.total != null ? ` — $${li.total}` : "";
+        const total = li.total != null ? ` - $${li.total}` : "";
         lines.push(`      – ${li.label}${qty}${total}`);
       }
     }
     if (scope.quoteTotal) lines.push(`  • Quoted total: $${scope.quoteTotal}`);
     if (lines.length > 0) {
-      scopeSection = `\n\nSCHEDULE A — SCOPE OF WORK\nThe following volumes and services from the client's request and approved quote are incorporated into this agreement:\n${lines.join("\n")}`;
+      scopeSection = `\n\nSCHEDULE A - SCOPE OF WORK\nThe following volumes and services from the client's request and approved quote are incorporated into this agreement:\n${lines.join("\n")}`;
     }
   }
 
@@ -469,7 +469,7 @@ export const documentsRouter = router({
         const doc = await createClientDocument({
           clientId: input.clientId,
           templateId: null,
-          name: `Master Service Agreement — ${packageName}`,
+          name: `Master Service Agreement - ${packageName}`,
           status: "draft",
           sentByUserId: ctx.user.id,
           signedFileKey: key,

@@ -183,9 +183,9 @@ export function ShipmentsList() {
                     <p className="font-mono text-sm font-medium text-violet-400">{s.shipmentCode}</p>
                     <p className="text-xs text-muted-foreground">{s.projectName ?? ""}</p>
                   </td>
-                  <td className="px-4 py-3 text-sm text-muted-foreground">{s.destination ?? "—"}</td>
-                  <td className="px-4 py-3 text-sm text-muted-foreground">{s.carrier ?? "—"}</td>
-                  <td className="px-4 py-3 text-xs font-mono text-muted-foreground">{s.trackingNumber ?? "—"}</td>
+                  <td className="px-4 py-3 text-sm text-muted-foreground">{s.destination ?? "-"}</td>
+                  <td className="px-4 py-3 text-sm text-muted-foreground">{s.carrier ?? "-"}</td>
+                  <td className="px-4 py-3 text-xs font-mono text-muted-foreground">{s.trackingNumber ?? "-"}</td>
                   <td className="px-4 py-3"><StatusBadge status={s.status} /></td>
                   <td className="px-4 py-3 text-sm text-muted-foreground">{new Date(s.createdAt).toLocaleDateString()}</td>
                   <td className="px-4 py-3"><ChevronRight className="w-4 h-4 text-muted-foreground" /></td>
@@ -241,12 +241,12 @@ export function ShipmentDetail() {
             <CardHeader><CardTitle className="text-sm">Shipment Details</CardTitle></CardHeader>
             <CardContent className="grid grid-cols-2 gap-4 text-sm">
               <div><p className="text-muted-foreground text-xs mb-1">Status</p><StatusBadge status={shipment.status} /></div>
-              <div><p className="text-muted-foreground text-xs mb-1">Destination</p><p>{shipment.destination ?? "—"}</p></div>
-              <div><p className="text-muted-foreground text-xs mb-1">Carrier</p><p>{shipment.carrier ?? "—"}</p></div>
-              <div><p className="text-muted-foreground text-xs mb-1">Tracking</p><p className="font-mono text-xs">{shipment.trackingNumber ?? "—"}</p></div>
-              <div><p className="text-muted-foreground text-xs mb-1">Date Packed</p><p>{shipment.datePacked ? new Date(shipment.datePacked).toLocaleDateString() : "—"}</p></div>
-              <div><p className="text-muted-foreground text-xs mb-1">Date Shipped</p><p>{shipment.dateShipped ? new Date(shipment.dateShipped).toLocaleDateString() : "—"}</p></div>
-              <div><p className="text-muted-foreground text-xs mb-1">Date Delivered</p><p>{shipment.dateDelivered ? new Date(shipment.dateDelivered).toLocaleDateString() : "—"}</p></div>
+              <div><p className="text-muted-foreground text-xs mb-1">Destination</p><p>{shipment.destination ?? "-"}</p></div>
+              <div><p className="text-muted-foreground text-xs mb-1">Carrier</p><p>{shipment.carrier ?? "-"}</p></div>
+              <div><p className="text-muted-foreground text-xs mb-1">Tracking</p><p className="font-mono text-xs">{shipment.trackingNumber ?? "-"}</p></div>
+              <div><p className="text-muted-foreground text-xs mb-1">Date Packed</p><p>{shipment.datePacked ? new Date(shipment.datePacked).toLocaleDateString() : "-"}</p></div>
+              <div><p className="text-muted-foreground text-xs mb-1">Date Shipped</p><p>{shipment.dateShipped ? new Date(shipment.dateShipped).toLocaleDateString() : "-"}</p></div>
+              <div><p className="text-muted-foreground text-xs mb-1">Date Delivered</p><p>{shipment.dateDelivered ? new Date(shipment.dateDelivered).toLocaleDateString() : "-"}</p></div>
               {shipment.notes && <div className="col-span-2"><p className="text-muted-foreground text-xs mb-1">Notes</p><p className="text-muted-foreground">{shipment.notes}</p></div>}
             </CardContent>
           </Card>

@@ -61,7 +61,7 @@ import { useLocation } from "wouter";
 /**
  * Route guard: only users with one of the given roles may view the wrapped
  * page. Anyone else is sent back to their dashboard. (The API already
- * enforces this; this keeps people from landing on pages they can't use —
+ * enforces this; this keeps people from landing on pages they can't use -
  * e.g. non-admins must never reach the user account list.)
  */
 function RequireRole({ roles, children }: { roles: string[]; children: React.ReactNode }) {

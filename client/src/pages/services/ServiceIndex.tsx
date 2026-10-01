@@ -39,7 +39,7 @@ export default function ServiceIndex() {
         <p className="text-[#b7c5d5] text-lg leading-relaxed max-w-3xl">
           Layer One Staging is the operational layer between equipment procurement and field
           deployment. We receive, inventory, configure, label, QA, kit by location, and forward
-          your equipment to the field — ready for installation.
+          your equipment to the field - ready for installation.
         </p>
       </header>
 
@@ -69,7 +69,7 @@ export default function ServiceIndex() {
         <div className="bg-gradient-to-br from-[#0A84FF]/10 to-transparent border border-[#0A84FF]/20 rounded-3xl p-8 text-center">
           <h2 className="text-2xl font-extrabold mb-3">Not sure which service fits your project?</h2>
           <p className="text-[#b7c5d5] mb-6 max-w-xl mx-auto">
-            Tell us about your rollout — locations, devices, and timeline — and we&apos;ll scope
+            Tell us about your rollout - locations, devices, and timeline - and we&apos;ll scope
             the right staging plan.
           </p>
           <Link

@@ -105,14 +105,14 @@ export function ScheduleCallDialog({ open, onOpenChange }: { open: boolean; onOp
             Schedule a Call
           </DialogTitle>
           <DialogDescription className="text-slate-400">
-            Pick a time and Alex — our AI receptionist — will call you. We verify your email first so nobody can book calls in your name.
+            Pick a time and Alex - our AI receptionist - will call you. We verify your email first so nobody can book calls in your name.
           </DialogDescription>
         </DialogHeader>
 
         {booked ? (
           <div className="py-6 text-center">
             <CheckCircle2 className="w-12 h-12 text-emerald-400 mx-auto mb-4" />
-            <h3 className="text-lg font-bold text-white mb-2">Almost done — check your email</h3>
+            <h3 className="text-lg font-bold text-white mb-2">Almost done - check your email</h3>
             <p className="text-sm text-slate-400 leading-relaxed">
               {booked.emailSent ? (
                 <>We sent a confirmation link to <span className="text-white font-medium">{email}</span>. Click it within an hour and Alex will call you at your chosen time.</>
@@ -146,7 +146,7 @@ export function ScheduleCallDialog({ open, onOpenChange }: { open: boolean; onOp
             <div>
               <label className="text-xs font-semibold text-slate-300 block mb-1.5">Email *</label>
               <input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@company.com" type="email" className={inputClass} maxLength={320} />
-              <p className="text-[11px] text-slate-500 mt-1">We'll send a confirmation link here — the call is only scheduled after you click it.</p>
+              <p className="text-[11px] text-slate-500 mt-1">We'll send a confirmation link here - the call is only scheduled after you click it.</p>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
@@ -176,7 +176,7 @@ export function ScheduleCallDialog({ open, onOpenChange }: { open: boolean; onOp
               {book.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Phone className="w-4 h-4" />}
               {book.isPending ? "Booking…" : "Request My Call"}
             </button>
-            <p className="text-[11px] text-slate-500 text-center">Calls come from +1 (469) 537-4378 — save it so you know it's us.</p>
+            <p className="text-[11px] text-slate-500 text-center">Calls come from +1 (469) 537-4378 - save it so you know it's us.</p>
           </form>
         )}
       </DialogContent>

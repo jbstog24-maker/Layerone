@@ -377,7 +377,7 @@ function QuoteBuilderDialog({
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-slate-100">
               <DollarSign className="w-4 h-4 text-[#6ee7b7]" />
-              Build Quote — {inquiry.company}
+              Build Quote - {inquiry.company}
             </DialogTitle>
             <DialogDescription className="text-slate-400">
               Build a custom quote based on the customer's requirements. The quote will be emailed with a Stripe payment link.
@@ -681,7 +681,7 @@ function InquiryDetailDialog({
       setApprovedLinks({ msaUrl: data.msaUrl, payUrl: data.payUrl });
       utils.inquiry.listQuotes.invalidate({ inquiryId: inquiry!.id });
       utils.inquiry.list.invalidate();
-      toast.success("Proposal sent — MSA + payment link emailed to the customer");
+      toast.success("Proposal sent - MSA + payment link emailed to the customer");
     },
     onError: (err) => toast.error(err.message || "Failed to approve quote"),
   });
@@ -871,7 +871,7 @@ function InquiryDetailDialog({
             {approvedLinks && (
               <div className="rounded-xl border border-[#6ee7b7]/25 bg-[#6ee7b7]/5 p-4 space-y-3">
                 <p className="text-xs font-semibold text-[#6ee7b7] uppercase tracking-wider flex items-center gap-1.5">
-                  <CheckCircle2 className="w-3.5 h-3.5" /> Proposal sent — customer links
+                  <CheckCircle2 className="w-3.5 h-3.5" /> Proposal sent - customer links
                 </p>
                 {[
                   { label: "Sign MSA", url: approvedLinks.msaUrl },
@@ -942,7 +942,7 @@ function InquiryDetailDialog({
           <AlertDialogHeader>
             <AlertDialogTitle>Move this inquiry to trash?</AlertDialogTitle>
             <AlertDialogDescription className="text-slate-400">
-              The inquiry from {inquiry.company} will be moved to trash. It stays recoverable — you can restore it anytime from the Trash view.
+              The inquiry from {inquiry.company} will be moved to trash. It stays recoverable - you can restore it anytime from the Trash view.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -1028,7 +1028,7 @@ function TrashView({
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-1 text-xs text-slate-400">
                         <Calendar className="w-3 h-3" />
-                        {inq.deletedAt ? new Date(inq.deletedAt).toLocaleDateString() : "—"}
+                        {inq.deletedAt ? new Date(inq.deletedAt).toLocaleDateString() : "-"}
                       </div>
                     </td>
                     <td className="px-4 py-3">
@@ -1064,7 +1064,7 @@ function TrashView({
             <AlertDialogTitle>Permanently delete this inquiry?</AlertDialogTitle>
             <AlertDialogDescription className="text-slate-400">
               The inquiry from {purgeTarget?.company} will be permanently removed from the database.
-              This cannot be undone — the nightly backups and the prospect sheet remain as your safety net.
+              This cannot be undone - the nightly backups and the prospect sheet remain as your safety net.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

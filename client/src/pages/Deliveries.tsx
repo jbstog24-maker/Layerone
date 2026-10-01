@@ -161,8 +161,8 @@ export function DeliveriesList() {
                     <p className="font-medium text-sm">{d.projectName ?? `Delivery #${d.id}`}</p>
                     {d.siteName && <p className="text-xs text-muted-foreground">{d.siteName}</p>}
                   </td>
-                  <td className="px-4 py-3 text-sm text-muted-foreground">{d.carrier ?? "—"}</td>
-                  <td className="px-4 py-3 text-sm text-muted-foreground">{d.expectedDate ? new Date(d.expectedDate).toLocaleDateString() : "—"}</td>
+                  <td className="px-4 py-3 text-sm text-muted-foreground">{d.carrier ?? "-"}</td>
+                  <td className="px-4 py-3 text-sm text-muted-foreground">{d.expectedDate ? new Date(d.expectedDate).toLocaleDateString() : "-"}</td>
                   <td className="px-4 py-3 text-sm text-muted-foreground">{d.expectedBoxCount ?? 0} / {d.expectedPalletCount ?? 0}</td>
                   <td className="px-4 py-3"><StatusBadge status={d.status} /></td>
                   <td className="px-4 py-3"><ChevronRight className="w-4 h-4 text-muted-foreground" /></td>
@@ -220,9 +220,9 @@ export function DeliveryDetail() {
             <CardHeader><CardTitle className="text-sm">Delivery Details</CardTitle></CardHeader>
             <CardContent className="grid grid-cols-2 gap-4 text-sm">
               <div><p className="text-muted-foreground text-xs mb-1">Status</p><StatusBadge status={delivery.status} /></div>
-              <div><p className="text-muted-foreground text-xs mb-1">Carrier</p><p>{delivery.carrier ?? "—"}</p></div>
-              <div><p className="text-muted-foreground text-xs mb-1">Tracking</p><p className="font-mono text-xs">{delivery.trackingNumber ?? "—"}</p></div>
-              <div><p className="text-muted-foreground text-xs mb-1">Expected Date</p><p>{delivery.expectedDate ? new Date(delivery.expectedDate).toLocaleDateString() : "—"}</p></div>
+              <div><p className="text-muted-foreground text-xs mb-1">Carrier</p><p>{delivery.carrier ?? "-"}</p></div>
+              <div><p className="text-muted-foreground text-xs mb-1">Tracking</p><p className="font-mono text-xs">{delivery.trackingNumber ?? "-"}</p></div>
+              <div><p className="text-muted-foreground text-xs mb-1">Expected Date</p><p>{delivery.expectedDate ? new Date(delivery.expectedDate).toLocaleDateString() : "-"}</p></div>
               <div><p className="text-muted-foreground text-xs mb-1">Expected Boxes</p><p>{delivery.expectedBoxCount ?? 0}</p></div>
               <div><p className="text-muted-foreground text-xs mb-1">Expected Pallets</p><p>{delivery.expectedPalletCount ?? 0}</p></div>
               {delivery.expectedContents && <div className="col-span-2"><p className="text-muted-foreground text-xs mb-1">Contents</p><p>{delivery.expectedContents}</p></div>}

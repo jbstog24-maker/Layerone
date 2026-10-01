@@ -168,7 +168,7 @@ export default function LeadDetail() {
               ].map(({ label, value }) => (
                 <div key={label}>
                   <p className="text-xs text-muted-foreground">{label}</p>
-                  <p className="font-medium">{value ?? "—"}</p>
+                  <p className="font-medium">{value ?? "-"}</p>
                 </div>
               ))}
               {lead.notes && <div className="col-span-2"><p className="text-xs text-muted-foreground">Notes</p><p className="text-sm">{lead.notes}</p></div>}
@@ -218,7 +218,7 @@ export default function LeadDetail() {
                 {generateMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Brain className="h-4 w-4 mr-2" />}Generate with AI
               </Button>
             </div>
-            {messages?.length === 0 && <div className="text-center py-8 text-muted-foreground text-sm border-2 border-dashed rounded-lg">No messages yet — generate one above</div>}
+            {messages?.length === 0 && <div className="text-center py-8 text-muted-foreground text-sm border-2 border-dashed rounded-lg">No messages yet - generate one above</div>}
             {messages?.map(msg => (
               <Card key={msg.id}>
                 <CardHeader className="pb-2 pt-4 px-5">
@@ -278,7 +278,7 @@ export default function LeadDetail() {
                 <SelectTrigger><SelectValue placeholder="Select a sequence..." /></SelectTrigger>
                 <SelectContent>
                   {sequences?.filter(s => s.isActive).map(s => <SelectItem key={s.id} value={String(s.id)}>{s.name}</SelectItem>)}
-                  {sequences?.filter(s => s.isActive).length === 0 && <SelectItem value="none" disabled>No active sequences — create one first</SelectItem>}
+                  {sequences?.filter(s => s.isActive).length === 0 && <SelectItem value="none" disabled>No active sequences - create one first</SelectItem>}
                 </SelectContent>
               </Select>
             </div>
@@ -296,7 +296,7 @@ export default function LeadDetail() {
           <DialogContent>
             <DialogHeader><DialogTitle>New Quote</DialogTitle></DialogHeader>
             <div className="space-y-3 py-2">
-              <div className="space-y-1.5"><Label>Title</Label><Input placeholder="e.g. 500 Laptops — Q3 Staging" value={quoteForm.title} onChange={e => setQuoteForm(f => ({ ...f, title: e.target.value }))} /></div>
+              <div className="space-y-1.5"><Label>Title</Label><Input placeholder="e.g. 500 Laptops - Q3 Staging" value={quoteForm.title} onChange={e => setQuoteForm(f => ({ ...f, title: e.target.value }))} /></div>
               <div className="grid grid-cols-3 gap-3">
                 <div className="space-y-1.5"><Label>Devices</Label><Input type="number" min={0} value={quoteForm.deviceCount} onChange={e => setQuoteForm(f => ({ ...f, deviceCount: e.target.value }))} /></div>
                 <div className="space-y-1.5"><Label>Monthly Rate</Label><Input type="number" min={0} step="0.01" value={quoteForm.monthlyRate} onChange={e => setQuoteForm(f => ({ ...f, monthlyRate: e.target.value }))} /></div>

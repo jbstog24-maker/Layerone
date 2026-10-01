@@ -171,7 +171,7 @@ export const onboardingRouter = router({
           .set({ status: "won" })
           .where(eq(packageInquiries.id, checklist.inquiryId));
       } else if (!allDone && checklist && checklist.status === "complete") {
-        // Reopened — a task was unchecked after completion.
+        // Reopened - a task was unchecked after completion.
         await db
           .update(onboardingChecklists)
           .set({ status: "in_progress", completedAt: null })

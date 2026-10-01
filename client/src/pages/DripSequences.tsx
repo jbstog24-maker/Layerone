@@ -174,7 +174,7 @@ export default function DripSequences() {
 
                   {selectedSeq.steps?.length === 0 && (
                     <div className="text-center py-8 text-muted-foreground text-sm border-2 border-dashed rounded-lg">
-                      No steps yet — add the first email step
+                      No steps yet - add the first email step
                     </div>
                   )}
 
@@ -264,7 +264,7 @@ export default function DripSequences() {
               </div>
               <div className="space-y-1.5">
                 <Label>Email Body</Label>
-                <Textarea placeholder="Write your email body here. Use plain text — line breaks will be preserved." value={newStep.body} onChange={e => setNewStep(s => ({ ...s, body: e.target.value }))} rows={8} />
+                <Textarea placeholder="Write your email body here. Use plain text - line breaks will be preserved." value={newStep.body} onChange={e => setNewStep(s => ({ ...s, body: e.target.value }))} rows={8} />
               </div>
             </div>
             <DialogFooter>

@@ -255,7 +255,7 @@ function AutoDraftMsaDialog({ open, onClose, onSuccess }: { open: boolean; onClo
               className="bg-[#07111f] border-[#1e3a5f] text-white mt-1 h-28"
             />
             {inq && inq.addons.length > 0 && (
-              <p className="text-[11px] text-slate-500 mt-1">Imported from the client's request — edit as needed.</p>
+              <p className="text-[11px] text-slate-500 mt-1">Imported from the client's request - edit as needed.</p>
             )}
           </div>
           {clientId && (
@@ -267,12 +267,12 @@ function AutoDraftMsaDialog({ open, onClose, onSuccess }: { open: boolean; onClo
                   <strong>Imported from request:</strong> {scopeBits.length > 0 ? scopeBits.join(" · ") : "request on file"}
                   {quote && (
                     <span className="block mt-0.5 text-green-400/80">
-                      Quote #{quote.id} ({quote.status}) — ${Number(quote.totalAmount).toLocaleString()} total
+                      Quote #{quote.id} ({quote.status}) - ${Number(quote.totalAmount).toLocaleString()} total
                     </span>
                   )}
                 </>
               ) : (
-                <span className="text-slate-400">No request/quote found for this client — the MSA will use the assigned package only.</span>
+                <span className="text-slate-400">No request/quote found for this client - the MSA will use the assigned package only.</span>
               )}
             </div>
           )}
@@ -567,10 +567,10 @@ export default function Documents() {
                           </td>
                           <td className="px-4 py-3 text-slate-300 text-xs">{doc.clientName ?? `#${doc.clientId}`}</td>
                           <td className="px-4 py-3"><DocStatusBadge status={doc.status} /></td>
-                          <td className="px-4 py-3 text-slate-400 text-xs">{doc.sentToEmail ?? "—"}</td>
-                          <td className="px-4 py-3 text-slate-400 text-xs">{doc.sentAt ? new Date(doc.sentAt).toLocaleDateString() : "—"}</td>
-                          <td className="px-4 py-3 text-slate-400 text-xs">{doc.signedAt ? new Date(doc.signedAt).toLocaleDateString() : "—"}</td>
-                          <td className="px-4 py-3 text-slate-400 text-xs">{doc.expiresAt ? new Date(doc.expiresAt).toLocaleDateString() : "—"}</td>
+                          <td className="px-4 py-3 text-slate-400 text-xs">{doc.sentToEmail ?? "-"}</td>
+                          <td className="px-4 py-3 text-slate-400 text-xs">{doc.sentAt ? new Date(doc.sentAt).toLocaleDateString() : "-"}</td>
+                          <td className="px-4 py-3 text-slate-400 text-xs">{doc.signedAt ? new Date(doc.signedAt).toLocaleDateString() : "-"}</td>
+                          <td className="px-4 py-3 text-slate-400 text-xs">{doc.expiresAt ? new Date(doc.expiresAt).toLocaleDateString() : "-"}</td>
                           <td className="px-4 py-3">
                             <Button size="sm" variant="outline" onClick={() => setPreviewDoc(doc)} className="border-[#1e3a5f] text-slate-300 hover:text-white gap-1 text-xs">
                               <Eye className="w-3 h-3" /> View

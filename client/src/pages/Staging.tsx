@@ -139,13 +139,13 @@ export function StagingList() {
                     <p className="font-medium text-sm">{t.title}</p>
                     <p className="text-xs text-muted-foreground">{t.projectName ?? ""}</p>
                   </td>
-                  <td className="px-4 py-3 text-sm text-muted-foreground">{t.taskType?.replace(/_/g, " ") ?? "—"}</td>
+                  <td className="px-4 py-3 text-sm text-muted-foreground">{t.taskType?.replace(/_/g, " ") ?? "-"}</td>
                   <td className="px-4 py-3">
                     <span className={`text-xs font-semibold uppercase ${priorityColor[t.priority ?? "normal"]}`}>{t.priority ?? "normal"}</span>
                   </td>
                   <td className="px-4 py-3"><StatusBadge status={t.status} /></td>
                   <td className="px-4 py-3 text-sm text-muted-foreground flex items-center gap-1">
-                    <Clock className="w-3 h-3" />{t.estimatedHours ?? "—"}
+                    <Clock className="w-3 h-3" />{t.estimatedHours ?? "-"}
                   </td>
                   <td className="px-4 py-3 text-sm text-muted-foreground">{new Date(t.createdAt).toLocaleDateString()}</td>
                   <td className="px-4 py-3"><ChevronRight className="w-4 h-4 text-muted-foreground" /></td>
@@ -202,10 +202,10 @@ export function StagingDetail() {
             <CardContent className="grid grid-cols-2 gap-4 text-sm">
               <div><p className="text-muted-foreground text-xs mb-1">Status</p><StatusBadge status={task.status} /></div>
               <div><p className="text-muted-foreground text-xs mb-1">Priority</p><StatusBadge status={task.priority ?? "normal"} /></div>
-              <div><p className="text-muted-foreground text-xs mb-1">Type</p><p>{task.taskType?.replace(/_/g, " ") ?? "—"}</p></div>
-              <div><p className="text-muted-foreground text-xs mb-1">Est. Hours</p><p>{task.estimatedHours ?? "—"}</p></div>
-              <div><p className="text-muted-foreground text-xs mb-1">Actual Hours</p><p>{task.actualHours ?? "—"}</p></div>
-              <div><p className="text-muted-foreground text-xs mb-1">Project</p><p>{task.projectName ?? "—"}</p></div>
+              <div><p className="text-muted-foreground text-xs mb-1">Type</p><p>{task.taskType?.replace(/_/g, " ") ?? "-"}</p></div>
+              <div><p className="text-muted-foreground text-xs mb-1">Est. Hours</p><p>{task.estimatedHours ?? "-"}</p></div>
+              <div><p className="text-muted-foreground text-xs mb-1">Actual Hours</p><p>{task.actualHours ?? "-"}</p></div>
+              <div><p className="text-muted-foreground text-xs mb-1">Project</p><p>{task.projectName ?? "-"}</p></div>
               {task.instructions && <div className="col-span-2"><p className="text-muted-foreground text-xs mb-1">Instructions</p><p className="whitespace-pre-wrap text-sm">{task.instructions}</p></div>}
               {task.notes && <div className="col-span-2"><p className="text-muted-foreground text-xs mb-1">Notes</p><p className="text-muted-foreground">{task.notes}</p></div>}
             </CardContent>

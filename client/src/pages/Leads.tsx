@@ -58,7 +58,7 @@ export default function Leads() {
   });
 
   const scoreMutation = trpc.leads.scoreWithAI.useMutation({
-    onSuccess: (r, vars) => { utils.leads.list.invalidate(); toast.success(`AI scored: ${r.score}/100 — ${r.reasoning}`); },
+    onSuccess: (r, vars) => { utils.leads.list.invalidate(); toast.success(`AI scored: ${r.score}/100 - ${r.reasoning}`); },
     onError: e => toast.error(e.message),
   });
 
@@ -139,7 +139,7 @@ export default function Leads() {
                 {leads?.map(lead => (
                   <TableRow key={lead.id} className="cursor-pointer hover:bg-muted/50" onClick={() => navigate(`/leads/${lead.id}`)}>
                     <TableCell className="font-medium">{lead.companyName}</TableCell>
-                    <TableCell className="text-sm text-muted-foreground">{lead.contactName ?? "—"}</TableCell>
+                    <TableCell className="text-sm text-muted-foreground">{lead.contactName ?? "-"}</TableCell>
                     <TableCell>
                       <span className={`text-xs px-2 py-0.5 rounded-full border font-medium ${STATUS_COLORS[lead.status] ?? ""}`}>
                         {lead.status.replace(/_/g, " ")}
@@ -149,10 +149,10 @@ export default function Leads() {
                     <TableCell>
                       {lead.score != null ? (
                         <span className={`text-sm font-bold ${lead.score >= 70 ? "text-green-600" : lead.score >= 40 ? "text-orange-500" : "text-muted-foreground"}`}>{lead.score}</span>
-                      ) : "—"}
+                      ) : "-"}
                     </TableCell>
-                    <TableCell className="text-xs text-muted-foreground capitalize">{lead.source?.replace(/_/g, " ") ?? "—"}</TableCell>
-                    <TableCell className="text-xs text-muted-foreground">{lead.industry ?? "—"}</TableCell>
+                    <TableCell className="text-xs text-muted-foreground capitalize">{lead.source?.replace(/_/g, " ") ?? "-"}</TableCell>
+                    <TableCell className="text-xs text-muted-foreground">{lead.industry ?? "-"}</TableCell>
                     <TableCell onClick={e => e.stopPropagation()}>
                       <div className="flex gap-1">
                         <Button size="sm" variant="ghost" className="h-7 w-7 p-0" title="AI Score"

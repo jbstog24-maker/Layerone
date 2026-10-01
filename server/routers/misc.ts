@@ -280,7 +280,7 @@ export const usersRouter = router({
     }))
     .mutation(async ({ ctx, input }) => {
       if (!isAdmin(ctx.user.role)) throw new TRPCError({ code: "FORBIDDEN" });
-      // New accounts are created without a password — generate a single-use
+      // New accounts are created without a password - generate a single-use
       // set-password token so the invite email can activate the account.
       const inviteToken = randomBytes(32).toString("hex");
       const inviteTokenExpiresAt = new Date(Date.now() + 72 * 60 * 60 * 1000);

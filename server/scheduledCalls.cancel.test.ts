@@ -22,7 +22,7 @@ const updateCalls: Array<{ values: any; id: number }> = [];
 const insertCalls: Array<any> = [];
 
 function chainable(result: any[]) {
-  // Drizzle chains are awaitable directly AND expose .limit() — emulate both.
+  // Drizzle chains are awaitable directly AND expose .limit() - emulate both.
   const p = Promise.resolve(result) as any;
   p.limit = async (_n: number) => result;
   return p;

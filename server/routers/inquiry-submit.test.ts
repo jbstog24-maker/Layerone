@@ -35,7 +35,7 @@ describe("inquiry.submit rollout scoping fields", () => {
   it("accepts locationCount, equipmentTypes, startDate, rolloutDuration", async () => {
     const caller = appRouter.createCaller(makeCtx());
     // With the DB mocked to null, submit skips persistence but still runs
-    // validation + the draft-quote pipeline — success proves the new fields
+    // validation + the draft-quote pipeline - success proves the new fields
     // flow through without breaking anything.
     const result = await caller.inquiry.submit({
       ...baseInput,
@@ -72,7 +72,7 @@ describe("inquiry.submit rollout scoping fields", () => {
       company: "Acme",
       email: "notier@acme.com",
       phone: "2145550100",
-      // no tier, no quoteType — PackageDetail-era callers keep working
+      // no tier, no quoteType - PackageDetail-era callers keep working
     });
     expect(result.success).toBe(true);
   });

@@ -52,7 +52,7 @@ export default function VerifyCall() {
             <p className="text-sm text-slate-400 leading-relaxed mb-6">
               Alex will call you on{" "}
               <span className="text-white font-medium">{done.scheduledFor ? formatCentral(done.scheduledFor) : "your chosen time"}</span>{" "}
-              (Central). The call comes from <span className="text-white font-medium">+1 (469) 537-4378</span> — save it so you know it's us.
+              (Central). The call comes from <span className="text-white font-medium">+1 (469) 537-4378</span> - save it so you know it's us.
             </p>
             <Link href="/" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold bg-[#0A84FF] text-white hover:bg-[#3d9dff] transition-colors text-sm">
               Back to Homepage

@@ -34,8 +34,8 @@ export function getLandingPageHtml(opts: {
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
-  <title>Layer One Staging Solutions — Receive. Stage. Kit. Deploy.</title>
-  <meta name="description" content="Layer One Staging Solutions is a fully managed IT staging and logistics operation serving MSPs, cabling contractors, and rollout teams in the Dallas area. Receive, stage, kit, and deploy — all tracked in one portal." />
+  <title>Layer One Staging Solutions - Receive. Stage. Kit. Deploy.</title>
+  <meta name="description" content="Layer One Staging Solutions is a fully managed IT staging and logistics operation serving MSPs, cabling contractors, and rollout teams in the Dallas area. Receive, stage, kit, and deploy - all tracked in one portal." />
   <meta name="keywords" content="network equipment staging, device management, logistics portal, warehouse management, IT staging, network operations" />
   <meta property="og:title" content="${appTitle}" />
   <meta property="og:description" content="Professional operations portal for network equipment staging, warehousing, and logistics management." />
@@ -276,7 +276,7 @@ export function getLandingPageHtml(opts: {
       <p>
         Layer One handles receiving, organizing, staging, packing, shipping,
         and deployment-prep for MSPs, cabling contractors, security installers,
-        and rollout teams — with full customer visibility through our portal.
+        and rollout teams - with full customer visibility through our portal.
       </p>
       <div class="hero-actions">
         <a href="${loginUrl}" class="btn-primary" style="font-size:1.05rem;padding:16px 36px;box-shadow:0 0 32px rgba(99,102,241,0.35);">Get Started Free →</a>
@@ -321,7 +321,7 @@ export function getLandingPageHtml(opts: {
             <h3>Device Inventory Management</h3>
             <p>
               Track every piece of network equipment by serial number and MAC address through
-              a 12-stage lifecycle — from Expected through Shipped. Bulk-import devices via CSV.
+              a 12-stage lifecycle - from Expected through Shipped. Bulk-import devices via CSV.
               Export the full inventory at any time.
             </p>
           </article>
@@ -435,7 +435,7 @@ export function getLandingPageHtml(opts: {
             <div class="step-num" aria-hidden="true">3</div>
             <div>
               <h3>Staging &amp; Configuration</h3>
-              <p>Assign staging tasks to technicians — firmware updates, labeling, switch configuration, AP prep. Track progress in real time and update device statuses as each step completes.</p>
+              <p>Assign staging tasks to technicians - firmware updates, labeling, switch configuration, AP prep. Track progress in real time and update device statuses as each step completes.</p>
             </div>
           </div>
           <div class="step" role="listitem">
@@ -449,7 +449,7 @@ export function getLandingPageHtml(opts: {
             <div class="step-num" aria-hidden="true">5</div>
             <div>
               <h3>Invoicing &amp; Closure</h3>
-              <p>Generate the invoice, record payment, and close out the project. All records — devices, shipments, documents, communications — are preserved for future reference.</p>
+              <p>Generate the invoice, record payment, and close out the project. All records - devices, shipments, documents, communications - are preserved for future reference.</p>
             </div>
           </div>
         </div>
@@ -460,7 +460,7 @@ export function getLandingPageHtml(opts: {
         <p class="section-label">User Roles</p>
         <h2 class="section-title" id="roles-title">Built for your whole team and your clients</h2>
         <p class="section-sub">
-          Four role levels give every person exactly the access they need — no more, no less.
+          Four role levels give every person exactly the access they need - no more, no less.
         </p>
 
         <div class="roles-grid" role="list">
@@ -504,7 +504,7 @@ export function getLandingPageHtml(opts: {
     <!-- Footer -->
     <footer>
       <p>© ${new Date().getFullYear()} ${appTitle}. All rights reserved.</p>
-      <p>Layer One Staging Solutions — Dallas–Fort Worth, TX</p>
+      <p>Layer One Staging Solutions - Dallas–Fort Worth, TX</p>
     </footer>
 
   </div><!-- /.landing-page-shell -->

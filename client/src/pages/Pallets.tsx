@@ -139,9 +139,9 @@ export default function Pallets() {
                     </td>
                   )}
                   <td className="px-4 py-3"><span className="font-mono text-sm font-medium text-primary">{p.palletCode}</span></td>
-                  <td className="px-4 py-3 text-sm">{p.projectName ?? "—"}</td>
+                  <td className="px-4 py-3 text-sm">{p.projectName ?? "-"}</td>
                   <td className="px-4 py-3 text-sm">{p.boxCount ?? 0}</td>
-                  <td className="px-4 py-3 text-sm text-muted-foreground">{p.storageLocation ?? "—"}</td>
+                  <td className="px-4 py-3 text-sm text-muted-foreground">{p.storageLocation ?? "-"}</td>
                   <td className="px-4 py-3">
                     {isStaff ? (
                       <Select defaultValue={p.status} onValueChange={(v) => updateMutation.mutate({ id: p.id, status: v as any })}>
@@ -287,9 +287,9 @@ export function PalletDetail() {
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           {[
             { label: "Status", value: pallet.status?.replace(/_/g, " ") },
-            { label: "Box Count", value: pallet.boxCount ?? "—" },
-            { label: "Storage Location", value: pallet.storageLocation ?? "—" },
-            { label: "Received", value: pallet.dateReceived ? new Date(pallet.dateReceived).toLocaleDateString() : "—" },
+            { label: "Box Count", value: pallet.boxCount ?? "-" },
+            { label: "Storage Location", value: pallet.storageLocation ?? "-" },
+            { label: "Received", value: pallet.dateReceived ? new Date(pallet.dateReceived).toLocaleDateString() : "-" },
           ].map(({ label, value }) => (
             <div key={label} className="bg-muted/40 rounded-lg p-3">
               <p className="text-xs text-muted-foreground">{label}</p>
@@ -359,7 +359,7 @@ export function PalletDetail() {
               </div>
               <div className="space-y-1.5">
                 <Label>Contact Name / Phone</Label>
-                <Input placeholder="John Doe — 214-555-0100" value={forwardingForm.forwardingContact} onChange={e => setForwardingForm(f => ({ ...f, forwardingContact: e.target.value }))} />
+                <Input placeholder="John Doe - 214-555-0100" value={forwardingForm.forwardingContact} onChange={e => setForwardingForm(f => ({ ...f, forwardingContact: e.target.value }))} />
               </div>
               <div className="space-y-1.5">
                 <Label>Notes</Label>

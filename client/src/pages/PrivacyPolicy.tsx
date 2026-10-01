@@ -6,7 +6,7 @@ const SECTIONS: { title: string; body: string[] }[] = [
     title: "Information We Collect",
     body: [
       "Contact and business information you provide through our quote request forms, such as your name, company, email address, phone number, and project details (locations, equipment types, schedules).",
-      "Account information you provide when registering for the customer portal, such as your name, email address, and password (stored securely as a hash — we never see your password).",
+      "Account information you provide when registering for the customer portal, such as your name, email address, and password (stored securely as a hash - we never see your password).",
       "Support and project communications, including messages you send through the portal and emails to info@layeronestaging.com.",
       "Payment information is processed securely by our payment provider, Stripe. We do not store full credit card numbers on our servers.",
       "Basic technical information collected automatically, such as IP address, browser type, and pages visited, used for security and to keep the site running reliably.",
@@ -30,7 +30,7 @@ const SECTIONS: { title: string; body: string[] }[] = [
   {
     title: "Data Security & Retention",
     body: [
-      "We use commercially reasonable safeguards — encrypted connections (HTTPS), hashed passwords, and restricted administrative access — to protect your information. No method of transmission over the internet is completely secure, so we cannot guarantee absolute security.",
+      "We use commercially reasonable safeguards - encrypted connections (HTTPS), hashed passwords, and restricted administrative access - to protect your information. No method of transmission over the internet is completely secure, so we cannot guarantee absolute security.",
       "We keep quote inquiries, project records, and messages for as long as needed to operate the business and meet legal obligations. You may request deletion of your personal information at any time (see Contact below); some records may be retained where the law requires it.",
     ],
   },
@@ -56,7 +56,7 @@ const SECTIONS: { title: string; body: string[] }[] = [
   {
     title: "Contact",
     body: [
-      "Questions about this policy: info@layeronestaging.com — Layer One Staging, Dallas–Fort Worth, TX.",
+      "Questions about this policy: info@layeronestaging.com - Layer One Staging, Dallas–Fort Worth, TX.",
     ],
   },
 ];

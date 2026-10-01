@@ -6,21 +6,21 @@ const SECTIONS: { title: string; body: string[] }[] = [
     title: "Acceptance",
     body: [
       "By accessing or using layeronestaging.com (the \"Site\"), you agree to these Terms & Conditions. If you do not agree, do not use the Site.",
-      "These terms cover use of the website only. Actual staging, kitting, and logistics engagements are governed by a signed Master Services Agreement (\"MSA\") and accepted proposal — where those conflict with these website terms, the MSA and proposal control.",
+      "These terms cover use of the website only. Actual staging, kitting, and logistics engagements are governed by a signed Master Services Agreement (\"MSA\") and accepted proposal - where those conflict with these website terms, the MSA and proposal control.",
     ],
   },
   {
     title: "Services & Quotes",
     body: [
       "Layer One Staging provides IT equipment staging, kitting, inventory, and deployment-logistics services for businesses in Dallas–Fort Worth and nationwide.",
-      "Pricing shown on the Site (including per-pallet receiving and storage rates) is informational and may change. A quote request is not a booking — pricing becomes binding only in an accepted written proposal.",
+      "Pricing shown on the Site (including per-pallet receiving and storage rates) is informational and may change. A quote request is not a booking - pricing becomes binding only in an accepted written proposal.",
       "Project quotes are scoped from the details you provide (locations, devices, services, schedule). Inaccurate information may change the final price.",
     ],
   },
   {
     title: "Payment Terms (Summary)",
     body: [
-      "Storage is billed monthly in advance. Project, kitting, and staging labor are due as stated in the proposal — typically a 50% deposit at signing, with the balance due before equipment ships or is released. First-time engagements may require full payment before work begins.",
+      "Storage is billed monthly in advance. Project, kitting, and staging labor are due as stated in the proposal - typically a 50% deposit at signing, with the balance due before equipment ships or is released. First-time engagements may require full payment before work begins.",
       "Invoices for overages, add-ons, or extended storage are due Net 15. Full payment terms are in the Master Services Agreement you sign before work starts.",
     ],
   },
@@ -59,7 +59,7 @@ const SECTIONS: { title: string; body: string[] }[] = [
   {
     title: "Contact",
     body: [
-      "Questions about these terms: info@layeronestaging.com — Layer One Staging, Dallas–Fort Worth, TX.",
+      "Questions about these terms: info@layeronestaging.com - Layer One Staging, Dallas–Fort Worth, TX.",
     ],
   },
 ];

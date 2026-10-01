@@ -23,7 +23,7 @@ export interface AlertItem {
   severity: "urgent" | "warning" | "info";
   title: string;
   detail: string;
-  /** What the user/staff needs to do — shown behind the info button. */
+  /** What the user/staff needs to do - shown behind the info button. */
   actionHint: string;
   clientId: number | null;
   clientName: string | null;
@@ -108,11 +108,11 @@ async function adminAlerts(): Promise<AlertItem[]> {
       severity: isNew ? "info" : "warning",
       title: isNew
         ? `New inquiry from ${q.company}`
-        : `Inquiry needs review — ${q.company}`,
+        : `Inquiry needs review - ${q.company}`,
       detail: `${q.name} · ${q.tier} package · ${new Date(q.createdAt).toLocaleDateString()}`,
       actionHint: isNew
         ? "Open the inquiry, review the requirements, and either generate a draft quote or mark it contacted."
-        : "This inquiry was flagged for review. Check the details and move it forward — approve the draft quote or follow up with the prospect.",
+        : "This inquiry was flagged for review. Check the details and move it forward - approve the draft quote or follow up with the prospect.",
       clientId: null,
       clientName: q.company,
       href: "/inquiries",
@@ -138,7 +138,7 @@ async function adminAlerts(): Promise<AlertItem[]> {
       id: `quote-${q.id}`,
       kind: "quote",
       severity: "warning",
-      title: `Draft quote awaiting approval — ${q.company}`,
+      title: `Draft quote awaiting approval - ${q.company}`,
       detail: `Quote #${q.id} · $${Number(q.totalAmount ?? 0).toLocaleString()}`,
       actionHint:
         "Review the draft quote on the inquiry, then approve and send it to email the customer their proposal, MSA signing link, and payment link.",
@@ -166,7 +166,7 @@ async function adminAlerts(): Promise<AlertItem[]> {
       id: `msa-${m.id}`,
       kind: "msa",
       severity: "warning",
-      title: `MSA awaiting signature — ${m.company}`,
+      title: `MSA awaiting signature - ${m.company}`,
       detail: `Service agreement sent, not yet signed.`,
       actionHint:
         "The customer received the signing link by email. If it's been a while, nudge them via Messages or resend the proposal from the inquiry.",
@@ -226,7 +226,7 @@ async function adminAlerts(): Promise<AlertItem[]> {
       id: `onboarding-${o.id}`,
       kind: "onboarding",
       severity: "info",
-      title: `Onboarding ${o.status === "open" ? "not started" : "in progress"} — ${o.companyName ?? "Unknown client"}`,
+      title: `Onboarding ${o.status === "open" ? "not started" : "in progress"} - ${o.companyName ?? "Unknown client"}`,
       detail: "Customer onboarding checklist is still open.",
       actionHint:
         "Open the onboarding checklist, assign warehouse units if needed, and work through the remaining tasks with the customer.",
@@ -300,7 +300,7 @@ async function customerAlerts(
       title: `${openCount} onboarding task${openCount === 1 ? "" : "s"} still open`,
       detail: "Your move-in checklist isn't finished yet.",
       actionHint:
-        "Open Onboarding to see which steps are left — usually confirming inventory details or delivery scheduling.",
+        "Open Onboarding to see which steps are left - usually confirming inventory details or delivery scheduling.",
       clientId,
       clientName: null,
       href: "/onboarding",
@@ -344,7 +344,7 @@ async function customerAlerts(
 }
 
 export const alertsRouter = router({
-  // Admin/staff: everything pending across clients — the todo list.
+  // Admin/staff: everything pending across clients - the todo list.
   list: protectedProcedure.query(async ({ ctx }) => {
     if (!isStaffOrAdmin(ctx.user?.role)) {
       throw new TRPCError({ code: "FORBIDDEN" });

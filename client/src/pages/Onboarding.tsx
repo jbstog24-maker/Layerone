@@ -21,7 +21,7 @@ import { toast } from "sonner";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 // NOTE: server listChecklists returns each checklist row joined with the
-// inquiry's company + inquiryStatus (no task counts — those are fetched per
+// inquiry's company + inquiryStatus (no task counts - those are fetched per
 // row below for the progress display).
 type UnitAssignment = {
   bays: string[];
@@ -216,7 +216,7 @@ function NotesEditor({
         value={notes}
         onChange={e => setNotes(e.target.value)}
         rows={4}
-        placeholder="Internal notes — kickoff call summary, special handling, key contacts…"
+        placeholder="Internal notes - kickoff call summary, special handling, key contacts…"
         className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/12 text-slate-100 placeholder-slate-500 text-sm focus:outline-none focus:border-[#0A84FF]/50 resize-none"
       />
       <Button
@@ -263,7 +263,7 @@ function ChecklistDetail({
     onSuccess: (res) => {
       utils.onboarding.getChecklist.invalidate({ inquiryId: row.inquiryId });
       utils.onboarding.listChecklists.invalidate();
-      if (res.allComplete) toast.success("All tasks complete — checklist closed out!");
+      if (res.allComplete) toast.success("All tasks complete - checklist closed out!");
     },
     onError: (err) => toast.error(err.message || "Failed to update task"),
   });
@@ -320,7 +320,7 @@ function ChecklistDetail({
             {complete.isPending
               ? "Completing…"
               : confirmComplete
-                ? "Click again to confirm — closes remaining tasks"
+                ? "Click again to confirm - closes remaining tasks"
                 : "Mark Complete"}
           </Button>
         ) : (

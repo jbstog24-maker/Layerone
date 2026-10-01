@@ -3,7 +3,7 @@
  *
  * Runs at boot ONLY when RUN_ONCE_MIGRATION=1 is set. Every step inspects
  * INFORMATION_SCHEMA first and applies only what is missing, so it is safe to
- * run multiple times. Never throws — failures are logged and boot continues.
+ * run multiple times. Never throws - failures are logged and boot continues.
  *
  * Statements applied (additive only, no data touched):
  *  - CREATE TABLE msa_documents / onboarding_checklists / onboarding_tasks
@@ -80,7 +80,7 @@ NOT NULL DEFAULT 'new'`;
 // NOTE (2026-09-27): db.execute() on the mysql2 driver resolves to the raw
 // mysql2 [rows, fields] tuple, NOT the rows array. Reading `.length` on the
 // tuple is always 2 (truthy), which made every existence check below report
-// "already exists" — so this migration silently skipped everything it was
+// "already exists" - so this migration silently skipped everything it was
 // supposed to apply. Always unwrap to the data rows first.
 export async function execRows(db: any, query: any): Promise<any[]> {
   const res = await db.execute(query);
@@ -136,7 +136,7 @@ CREATE TABLE IF NOT EXISTS \`scheduled_calls\` (
 )`;
 
 // 2026-10-01: Bland post-call webhook transcript archive. rawPayload is the
-// full webhook JSON (mediumtext — structured transcript arrays can exceed
+// full webhook JSON (mediumtext - structured transcript arrays can exceed
 // TEXT's 64KB on long calls). blandCallId is unique so retried webhook
 // deliveries are idempotent.
 const CREATE_CALL_LOGS = `
@@ -161,7 +161,7 @@ CREATE TABLE IF NOT EXISTS \`call_logs\` (
   INDEX \`call_logs_syncedToSheet_idx\` (\`syncedToSheet\`)
 )`;
 
-// 2026-10-01: quote_terminations — one auditable row per early back-out.
+// 2026-10-01: quote_terminations - one auditable row per early back-out.
 // Stores Branden's calculator inputs (space cost, re-lease recovery) and the
 // calculated forfeit/refund breakdown under MSA Section 7.4.
 const CREATE_QUOTE_TERMINATIONS = `
@@ -200,7 +200,7 @@ async function applyStep(label: string, fn: () => Promise<void>): Promise<void> 
 
 export async function runOnceMigration(): Promise<void> {
   if (process.env.RUN_ONCE_MIGRATION !== "1") return;
-  console.log("[Migration] RUN_ONCE_MIGRATION=1 — starting one-time migration (invite-token fix)");
+  console.log("[Migration] RUN_ONCE_MIGRATION=1 - starting one-time migration (invite-token fix)");
   try {
     const db = await getDb();
     if (!db) {
@@ -218,7 +218,7 @@ export async function runOnceMigration(): Promise<void> {
     ] as const) {
       await applyStep(`create table ${name}`, async () => {
         if (await tableExists(db, name)) {
-          console.log(`[Migration] table ${name} already exists — skipping`);
+          console.log(`[Migration] table ${name} already exists - skipping`);
         } else {
           await db.execute(sql.raw(ddl));
           console.log(`[Migration] table ${name} created`);
@@ -228,7 +228,7 @@ export async function runOnceMigration(): Promise<void> {
 
     await applyStep("extend package_inquiries.status enum", async () => {
       if (await inquiryStatusHas(db, "needs_review")) {
-        console.log("[Migration] package_inquiries.status already extended — skipping");
+        console.log("[Migration] package_inquiries.status already extended - skipping");
       } else {
         await db.execute(sql.raw(EXTEND_INQUIRY_STATUS));
         console.log("[Migration] package_inquiries.status enum extended");
@@ -238,7 +238,7 @@ export async function runOnceMigration(): Promise<void> {
     for (const col of ["msaStatus", "stripeCheckoutSessionId", "msaDocumentId"] as const) {
       await applyStep(`add quotes.${col}`, async () => {
         if (await columnExists(db, "quotes", col)) {
-          console.log(`[Migration] quotes.${col} already exists — skipping`);
+          console.log(`[Migration] quotes.${col} already exists - skipping`);
         } else if (col === "msaStatus") {
           await db.execute(sql.raw(`ALTER TABLE \`quotes\` ADD \`${col}\` enum('pending','signed','waived') DEFAULT 'pending' NOT NULL`));
           console.log(`[Migration] quotes.${col} added`);
@@ -264,7 +264,7 @@ export async function runOnceMigration(): Promise<void> {
     for (const [col, def] of Object.entries(QUOTE_COLUMN_DEFS)) {
       await applyStep(`add quotes.${col}`, async () => {
         if (await columnExists(db, "quotes", col)) {
-          console.log(`[Migration] quotes.${col} already exists — skipping`);
+          console.log(`[Migration] quotes.${col} already exists - skipping`);
         } else {
           await db.execute(sql.raw(`ALTER TABLE \`quotes\` ADD \`${col}\` ${def}`));
           console.log(`[Migration] quotes.${col} added`);
@@ -280,7 +280,7 @@ export async function runOnceMigration(): Promise<void> {
     for (const [col, def] of Object.entries(USER_COLUMN_DEFS)) {
       await applyStep(`add users.${col}`, async () => {
         if (await columnExists(db, "users", col)) {
-          console.log(`[Migration] users.${col} already exists — skipping`);
+          console.log(`[Migration] users.${col} already exists - skipping`);
         } else {
           await db.execute(sql.raw(`ALTER TABLE \`users\` ADD \`${col}\` ${def}`));
           console.log(`[Migration] users.${col} added`);
@@ -298,7 +298,7 @@ export async function runOnceMigration(): Promise<void> {
     for (const [col, def] of Object.entries(INQUIRY_COLUMN_DEFS)) {
       await applyStep(`add package_inquiries.${col}`, async () => {
         if (await columnExists(db, "package_inquiries", col)) {
-          console.log(`[Migration] package_inquiries.${col} already exists — skipping`);
+          console.log(`[Migration] package_inquiries.${col} already exists - skipping`);
         } else {
           await db.execute(sql.raw(`ALTER TABLE \`package_inquiries\` ADD \`${col}\` ${def}`));
           console.log(`[Migration] package_inquiries.${col} added`);
@@ -309,7 +309,7 @@ export async function runOnceMigration(): Promise<void> {
     // 2026-09-30: quoteType column on package_inquiries (project vs per-pallet path)
     await applyStep("add package_inquiries.quoteType", async () => {
       if (await columnExists(db, "package_inquiries", "quoteType")) {
-        console.log("[Migration] package_inquiries.quoteType already exists — skipping");
+        console.log("[Migration] package_inquiries.quoteType already exists - skipping");
       } else {
         await db.execute(sql.raw("ALTER TABLE `package_inquiries` ADD `quoteType` varchar(20) NULL"));
         console.log("[Migration] package_inquiries.quoteType added");
@@ -319,7 +319,7 @@ export async function runOnceMigration(): Promise<void> {
     // 2026-09-30: deletedAt column on package_inquiries (soft-delete / trash)
     await applyStep("add package_inquiries.deletedAt", async () => {
       if (await columnExists(db, "package_inquiries", "deletedAt")) {
-        console.log("[Migration] package_inquiries.deletedAt already exists — skipping");
+        console.log("[Migration] package_inquiries.deletedAt already exists - skipping");
       } else {
         await db.execute(sql.raw("ALTER TABLE `package_inquiries` ADD `deletedAt` timestamp NULL"));
         console.log("[Migration] package_inquiries.deletedAt added");
@@ -331,7 +331,7 @@ export async function runOnceMigration(): Promise<void> {
     // the Alex call they came from).
     await applyStep("add call_logs.followupEmailSent", async () => {
       if (await columnExists(db, "call_logs", "followupEmailSent")) {
-        console.log("[Migration] call_logs.followupEmailSent already exists — skipping");
+        console.log("[Migration] call_logs.followupEmailSent already exists - skipping");
       } else {
         await db.execute(sql.raw("ALTER TABLE `call_logs` ADD `followupEmailSent` tinyint(1) NOT NULL DEFAULT 0"));
         console.log("[Migration] call_logs.followupEmailSent added");
@@ -340,7 +340,7 @@ export async function runOnceMigration(): Promise<void> {
 
     await applyStep("add package_inquiries.callLogId", async () => {
       if (await columnExists(db, "package_inquiries", "callLogId")) {
-        console.log("[Migration] package_inquiries.callLogId already exists — skipping");
+        console.log("[Migration] package_inquiries.callLogId already exists - skipping");
       } else {
         await db.execute(sql.raw("ALTER TABLE `package_inquiries` ADD `callLogId` int NULL"));
         console.log("[Migration] package_inquiries.callLogId added");
@@ -352,7 +352,7 @@ export async function runOnceMigration(): Promise<void> {
     // cancel links work too.
     await applyStep("add scheduled_calls.cancelToken", async () => {
       if (await columnExists(db, "scheduled_calls", "cancelToken")) {
-        console.log("[Migration] scheduled_calls.cancelToken already exists — skipping");
+        console.log("[Migration] scheduled_calls.cancelToken already exists - skipping");
       } else {
         await db.execute(sql.raw("ALTER TABLE `scheduled_calls` ADD `cancelToken` varchar(64) NULL"));
         console.log("[Migration] scheduled_calls.cancelToken added");

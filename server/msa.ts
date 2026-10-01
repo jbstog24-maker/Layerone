@@ -48,7 +48,7 @@ export function buildMsaHtml(inquiry: MsaInquiryData, quote: MsaQuoteData): stri
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<title>Master Services Agreement — Layer One Staging</title>
+<title>Master Services Agreement - Layer One Staging</title>
 <style>
   body { font-family: Georgia, 'Times New Roman', serif; color: #1a1a1a; line-height: 1.55; margin: 0; padding: 48px; background: #ffffff; }
   .page { max-width: 760px; margin: 0 auto; }
@@ -67,7 +67,7 @@ export function buildMsaHtml(inquiry: MsaInquiryData, quote: MsaQuoteData): stri
 <body>
 <div class="page">
   <h1>MASTER SERVICES AGREEMENT</h1>
-  <p class="subtitle">Layer One Staging — IT Equipment Staging &amp; Deployment Services</p>
+  <p class="subtitle">Layer One Staging - IT Equipment Staging &amp; Deployment Services</p>
 
   <div class="parties">
     <strong>Provider:</strong> Layer One Staging ("Provider")<br />

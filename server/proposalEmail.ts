@@ -125,7 +125,7 @@ export async function sendProposalEmail(
 ): Promise<boolean> {
   if (!ENV.resendApiKey || !ENV.resendFromEmail) {
     console.warn(
-      "[Email] RESEND_API_KEY or RESEND_FROM_EMAIL not configured — skipping proposal email"
+      "[Email] RESEND_API_KEY or RESEND_FROM_EMAIL not configured - skipping proposal email"
     );
     return false;
   }
@@ -135,7 +135,7 @@ export async function sendProposalEmail(
     const { error } = await resend.emails.send({
       from: ENV.resendFromEmail,
       to: params.to,
-      subject: `Your Layer One proposal — ${params.company}`,
+      subject: `Your Layer One proposal - ${params.company}`,
       html: buildProposalHtml(params),
     });
 

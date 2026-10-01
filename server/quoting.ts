@@ -1,5 +1,5 @@
 /**
- * Autonomous quoting pipeline — builds a draft quote from a package inquiry.
+ * Autonomous quoting pipeline - builds a draft quote from a package inquiry.
  *
  * Workstream A. Called from the public `inquiry.submit` mutation right after
  * the inquiry row is inserted. All amounts are computed in dollars (rounded to
@@ -82,13 +82,13 @@ export async function buildDraftQuote(
     // ── Per-pallet quote: receiving + storage, no tier base ──
     const pallets = Math.max(palletCount, 1);
     push(
-      `Pallet receiving & intake — ${pallets} pallet(s)`,
+      `Pallet receiving & intake - ${pallets} pallet(s)`,
       pallets,
       ADDON_RATES.inboundReceivingPerPallet / 100
     );
     const storageMonths = Math.max(1, Math.ceil((inquiry.storageDays ?? 0) / 30));
     push(
-      `Pallet storage — ${pallets} pallet(s) × ${storageMonths} month(s)`,
+      `Pallet storage - ${pallets} pallet(s) × ${storageMonths} month(s)`,
       pallets * storageMonths,
       ADDON_RATES.extraPalletPerMonth / 100
     );
@@ -100,7 +100,7 @@ export async function buildDraftQuote(
 
     // (a) Base package item
     push(
-      `${tier.name} — ${tier.mode === "payment" ? "one-time" : "/month"}`,
+      `${tier.name} - ${tier.mode === "payment" ? "one-time" : "/month"}`,
       1,
       tier.amountCents / 100
     );
@@ -109,7 +109,7 @@ export async function buildDraftQuote(
     if (deviceCount > allowances.maxDevices) {
       const extra = deviceCount - allowances.maxDevices;
       push(
-        `Extra device storage — ${extra} over included ${allowances.maxDevices}`,
+        `Extra device storage - ${extra} over included ${allowances.maxDevices}`,
         extra,
         ADDON_RATES.extraDevicePerMonth / 100
       );
@@ -118,7 +118,7 @@ export async function buildDraftQuote(
     if (boxCount > allowances.maxBoxes) {
       const extra = boxCount - allowances.maxBoxes;
       push(
-        `Extra parcels received — ${extra} over included ${allowances.maxBoxes}`,
+        `Extra parcels received - ${extra} over included ${allowances.maxBoxes}`,
         extra,
         ADDON_RATES.extraBoxPerMonth / 100
       );
@@ -127,7 +127,7 @@ export async function buildDraftQuote(
     if (palletCount > allowances.maxPallets) {
       const extra = palletCount - allowances.maxPallets;
       push(
-        `Extra pallets — ${extra} over included ${allowances.maxPallets}`,
+        `Extra pallets - ${extra} over included ${allowances.maxPallets}`,
         extra,
         ADDON_RATES.extraPalletPerMonth / 100
       );
@@ -138,7 +138,7 @@ export async function buildDraftQuote(
       const extraDays = storageDays - allowances.storageDays;
       const billableUnits = Math.max(boxCount, 1);
       push(
-        `Extended storage — ${extraDays} extra days × ${billableUnits} box(es)`,
+        `Extended storage - ${extraDays} extra days × ${billableUnits} box(es)`,
         extraDays * billableUnits,
         ADDON_RATES.extraStorageDayPerBox / 100
       );
@@ -195,14 +195,14 @@ export async function buildDraftQuote(
         break;
       case "staging_tech":
         push(
-          "Staging technician — verify hours",
+          "Staging technician - verify hours",
           1,
           ADDON_RATES.laborHourStandard / 100
         );
         break;
       case "senior_network_tech":
         push(
-          "Senior network technician — verify hours",
+          "Senior network technician - verify hours",
           1,
           ADDON_RATES.laborHourRush / 100
         );
@@ -212,21 +212,21 @@ export async function buildDraftQuote(
         // for loose devices/boxes. Competitive local rates (30-mi radius).
         if (palletCount > 0) {
           push(
-            `DFW metro delivery — ${palletCount} pallet(s)`,
+            `DFW metro delivery - ${palletCount} pallet(s)`,
             palletCount,
             ADDON_RATES.deliveryDfwPerPallet / 100
           );
         } else {
           const units = deviceCount || boxCount || 1;
           push(
-            `DFW metro delivery — ${units} device(s)/box(es)`,
+            `DFW metro delivery - ${units} device(s)/box(es)`,
             units,
             ADDON_RATES.deliveryDfwPerDevice / 100
           );
         }
         break;
       default:
-        // Unknown add-on key — skip so a rep can price it manually.
+        // Unknown add-on key - skip so a rep can price it manually.
         break;
     }
   }

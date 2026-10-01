@@ -129,7 +129,7 @@ function ForwardingDialog({
             Set Forwarding Location
           </DialogTitle>
           <p className="text-sm text-slate-400 mt-1">
-            {state.label} — <span className="font-mono text-blue-300">{state.code}</span>
+            {state.label} - <span className="font-mono text-blue-300">{state.code}</span>
           </p>
         </DialogHeader>
 
@@ -167,7 +167,7 @@ function ForwardingDialog({
             <Input
               value={contact}
               onChange={(e) => setContact(e.target.value)}
-              placeholder="John Smith — (512) 555-0100"
+              placeholder="John Smith - (512) 555-0100"
               className="bg-[#0d1f35] border-[#1e3a5f] text-white placeholder:text-slate-500"
             />
           </div>
@@ -337,7 +337,7 @@ export default function MyDevices() {
                     Device <span className="font-mono">{n.deviceCode}</span> is Ready to Ship!
                   </p>
                   {n.message && (
-                    <p className="text-xs text-slate-400 mt-0.5 italic">"{n.message}" — {n.notifiedByName}</p>
+                    <p className="text-xs text-slate-400 mt-0.5 italic">"{n.message}" - {n.notifiedByName}</p>
                   )}
                   <p className="text-xs text-slate-500 mt-0.5">
                     {new Date(n.createdAt).toLocaleString()}

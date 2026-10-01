@@ -6,7 +6,7 @@
  *
  *   POST /api/call-log?token=<PROSPECT_SYNC_TOKEN>
  *
- * Every payload is stored durably in `call_logs` — the raw JSON is always
+ * Every payload is stored durably in `call_logs` - the raw JSON is always
  * saved, and the extracted fields are best-effort (this endpoint never throws
  * on a weird payload shape).
  *
@@ -201,7 +201,7 @@ export function drizzleCallLogStore(db: Db): CallLogStore {
         await db.insert(callLogs).values(fields);
       } catch (err: any) {
         // Bland retries webhook deliveries; a duplicate call id means the
-        // payload is already stored — treat as success, not an error.
+        // payload is already stored - treat as success, not an error.
         if (err?.code === "ER_DUP_ENTRY") return;
         throw err;
       }
@@ -278,7 +278,7 @@ export function registerCallLogRoutes(
       });
 
       // Post-call quote follow-up email (Alex). Never throws and never fails
-      // the webhook — maybeSendQuoteFollowup returns false on any problem.
+      // the webhook - maybeSendQuoteFollowup returns false on any problem.
       try {
         const db = await getDb();
         if (db && fields.blandCallId) {

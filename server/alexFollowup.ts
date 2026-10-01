@@ -3,13 +3,13 @@
  *
  * Two jobs live here:
  *
- * 1. maybeSendQuoteFollowup — after a call ends, if the caller discussed a
+ * 1. maybeSendQuoteFollowup - after a call ends, if the caller discussed a
  *    quote/project AND we can find their email in the call summary/transcript,
  *    send a short follow-up email (via Resend) pointing them at the
  *    /get-started quote form. Never throws; never double-sends (the
  *    call_logs.followupEmailSent flag is the idempotency gate).
  *
- * 2. findRecentCallLogId — when a quote inquiry is submitted on the website,
+ * 2. findRecentCallLogId - when a quote inquiry is submitted on the website,
  *    match it to the Alex call it likely came from (by phone or email, most
  *    recent within 7 days) so Branden can review the transcript alongside the
  *    quote in the admin panel.
@@ -100,7 +100,7 @@ function buildQuoteFollowupHtml(firstName: string | null): string {
           <p style="margin:0 0 16px;font-size:16px;font-weight:600;color:#ffffff;">${greeting}</p>
           <p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:#94a3b8;">
             Thanks for calling Layer One Staging. To get your project quote started, please send us the details
-            of your request — number of locations, equipment types and quantities, and your timeline — using our
+            of your request - number of locations, equipment types and quantities, and your timeline - using our
             quote form:
           </p>
           <table cellpadding="0" cellspacing="0" style="margin:0 0 24px;">
@@ -132,7 +132,7 @@ function buildQuoteFollowupHtml(firstName: string | null): string {
 
 export async function sendQuoteFollowupEmail(params: { to: string; name: string | null }): Promise<boolean> {
   if (!ENV.resendApiKey || !ENV.resendFromEmail) {
-    console.warn("[AlexFollowup] RESEND_API_KEY or RESEND_FROM_EMAIL not configured — skipping follow-up");
+    console.warn("[AlexFollowup] RESEND_API_KEY or RESEND_FROM_EMAIL not configured - skipping follow-up");
     return false;
   }
   const firstName = params.name?.trim().split(" ")[0] || null;
@@ -186,7 +186,7 @@ export function drizzleFollowupStore(db: Db): FollowupStore {
 
 /**
  * Decide whether a finished call warrants a quote follow-up email and send it.
- * Returns true only if the email was actually sent. Never throws — a failure
+ * Returns true only if the email was actually sent. Never throws - a failure
  * here must never break the call-log webhook.
  */
 export async function maybeSendQuoteFollowup(

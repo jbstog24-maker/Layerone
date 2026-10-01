@@ -23,7 +23,7 @@ import {
 import rateLimit from "express-rate-limit";
 import { ENV } from "./env";
 
-// Rate limiters — disabled in development to avoid friction
+// Rate limiters - disabled in development to avoid friction
 const apiLimiter = rateLimit({
   windowMs: 60 * 1000, // 1 minute
   max: 300,
@@ -33,7 +33,7 @@ const apiLimiter = rateLimit({
   skip: () => process.env.NODE_ENV === "development",
 });
 
-// Strict limiter for public inquiry/request forms — max 5 per IP per hour
+// Strict limiter for public inquiry/request forms - max 5 per IP per hour
 const inquiryLimiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hour
   max: 5,

@@ -88,7 +88,7 @@ function AiCard({
       <div className="flex items-center gap-5 mb-5">
         <img
           src={avatar}
-          alt={`${name} — ${role} at Layer One Staging`}
+          alt={`${name} - ${role} at Layer One Staging`}
           className="w-20 h-20 rounded-2xl object-cover border border-white/10"
         />
         <div>
@@ -116,7 +116,7 @@ function AiCard({
 export default function Team() {
   usePageMeta(
     "Meet the Team | Layer One Staging",
-    "One human, three AI teammates. Meet James Stogner, Alex, Morgan, and Casey — the crew behind Layer One Staging.",
+    "One human, three AI teammates. Meet James Stogner, Alex, Morgan, and Casey - the crew behind Layer One Staging.",
     "/team"
   );
 
@@ -157,7 +157,7 @@ export default function Team() {
                 <Star className="w-5 h-5 text-amber-400" />
               </div>
               <p className="text-[#6ea8ff] font-semibold mb-4">
-                Founder &amp; Owner — the one with the pulse
+                Founder &amp; Owner - the one with the pulse
               </p>
               <div className="space-y-4 text-slate-400 leading-relaxed max-w-3xl">
                 <p>
@@ -167,7 +167,7 @@ export default function Team() {
                 </p>
                 <p>
                   The AI crew assists. <span className="text-white font-semibold">I answer
-                  for the outcome</span> — every pallet, every device, every deadline.
+                  for the outcome</span> - every pallet, every device, every deadline.
                   That&rsquo;s the deal, and it&rsquo;s non-negotiable, mostly because
                   I wrote this page.
                 </p>
@@ -187,7 +187,7 @@ export default function Team() {
             Helpful technology. Zero mystery.
           </h2>
           <p className="text-slate-400 leading-relaxed max-w-3xl mb-10">
-            Alex, Morgan, and Casey are AI — they&rsquo;ll tell you so themselves,
+            Alex, Morgan, and Casey are AI - they&rsquo;ll tell you so themselves,
             usually in the first minute. They joke lightly, confirm details
             carefully, and handle the routine stuff start to finish.
           </p>
@@ -198,7 +198,7 @@ export default function Team() {
               role="AI Client Representative"
               icon={Phone}
               accent="text-amber-300/90"
-              blurb="The voice you'll hear when you call (469) 537-4378. In his 60s, deep raspy voice, warm Texas drawl — friendly, patient, quietly confident, with a gentle sarcasm that keeps calls interesting. Alex asks the right questions, takes a great message, and knows exactly what he can handle and what needs a human being."
+              blurb="The voice you'll hear when you call (469) 537-4378. In his 60s, deep raspy voice, warm Texas drawl - friendly, patient, quietly confident, with a gentle sarcasm that keeps calls interesting. Alex asks the right questions, takes a great message, and knows exactly what he can handle and what needs a human being."
               quote="Yes sir, I'm AI. They gave me the manners; James kept the good looks."
             />
             <AiCard
@@ -207,7 +207,7 @@ export default function Team() {
               role="AI Scheduling Coordinator"
               icon={CalendarCheck}
               accent="text-teal-300/90"
-              blurb="Warm, sharp, organized — with playful, dry humor and an iron grip on the calendar. Morgan keeps conversations moving and makes sure 'sometime next week' turns into an actual date. Vague timelines fear her."
+              blurb="Warm, sharp, organized - with playful, dry humor and an iron grip on the calendar. Morgan keeps conversations moving and makes sure 'sometime next week' turns into an actual date. Vague timelines fear her."
               quote="'Sometime next week' is a feeling, honey. Let's get you an actual date."
             />
             <AiCard
@@ -216,7 +216,7 @@ export default function Team() {
               role="AI Project Coordinator"
               icon={ClipboardCheck}
               accent="text-sky-300/90"
-              blurb="Calm, detail-oriented, practical. Casey tracks the moving pieces of your rollout with deadpan humor and careful follow-through. Nothing slips — Casey checked twice."
+              blurb="Calm, detail-oriented, practical. Casey tracks the moving pieces of your rollout with deadpan humor and careful follow-through. Nothing slips - Casey checked twice."
               quote="I like my projects organized and my surprises limited to birthday parties."
             />
           </div>
@@ -244,7 +244,7 @@ export default function Team() {
               <ShieldCheck className="w-6 h-6 text-[#0A84FF] mb-3" />
               <h3 className="text-white font-bold mb-2">Confirm details carefully.</h3>
               <p className="text-slate-400 text-sm leading-relaxed">
-                Dates, counts, addresses — read back before anything moves.
+                Dates, counts, addresses - read back before anything moves.
               </p>
             </div>
           </div>
@@ -278,9 +278,9 @@ export default function Team() {
               <Truck className="w-6 h-6 text-[#0A84FF] mb-3" />
               <h3 className="text-white font-bold mb-2">Vetted crew on-site.</h3>
               <p className="text-slate-400 text-sm leading-relaxed">
-                Deliveries and installs are handled by our field crew —
+                Deliveries and installs are handled by our field crew -
                 background-checked, vetted contract techs. One accountable
-                operation, start to finish — no wondering who showed up.
+                operation, start to finish - no wondering who showed up.
               </p>
             </div>
             <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
@@ -288,7 +288,7 @@ export default function Team() {
               <h3 className="text-white font-bold mb-2">Coordinated behind the scenes.</h3>
               <p className="text-slate-400 text-sm leading-relaxed">
                 Alex, Morgan, and Casey keep the schedule, the counts, and the
-                communication tight — so the field work stays the easy part.
+                communication tight - so the field work stays the easy part.
               </p>
             </div>
           </div>

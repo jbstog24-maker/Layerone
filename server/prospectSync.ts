@@ -9,7 +9,7 @@
  * tracking Google Sheet.
  *
  * Auth: shared token from the PROSPECT_SYNC_TOKEN env var (constant-time compare).
- * The endpoint is read-only and exposes prospect PII — keep the token secret.
+ * The endpoint is read-only and exposes prospect PII - keep the token secret.
  */
 import { desc, eq } from "drizzle-orm";
 import type { Express, Request, Response } from "express";

@@ -78,7 +78,7 @@ export default function MyInstructions() {
 
   const handleFileUpload = async (file: File) => {
     if (file.size > 20 * 1024 * 1024) {
-      toast.error("File too large — maximum 20 MB");
+      toast.error("File too large - maximum 20 MB");
       return;
     }
     const reader = new FileReader();
@@ -196,7 +196,7 @@ export default function MyInstructions() {
           >
             <Upload className="mx-auto h-8 w-8 text-muted-foreground mb-2" />
             <p className="text-sm font-medium">Drop files here or click to browse</p>
-            <p className="text-xs text-muted-foreground mt-1">PDF, Word, Excel, images — up to 20 MB each</p>
+            <p className="text-xs text-muted-foreground mt-1">PDF, Word, Excel, images - up to 20 MB each</p>
             <input
               ref={fileInputRef}
               type="file"

@@ -262,7 +262,7 @@ function DashboardLayoutContent({
   const role = (user as any)?.role ?? "customer_viewer";
   const isAdminOrStaff = role === "admin" || role === "staff";
 
-  // Unread message count for badge — only fire when user is confirmed logged in
+  // Unread message count for badge - only fire when user is confirmed logged in
   const { data: totalUnread = 0 } = trpc.messages.totalUnread.useQuery(
     undefined,
     { enabled: !!user && isAdminOrStaff, refetchInterval: 30_000 },
@@ -341,7 +341,7 @@ function DashboardLayoutContent({
                     alt="Layer One Staging Solutions"
                     className="h-7 w-auto object-contain shrink-0"
                   />
-                  {/* Pin button — keeps sidebar expanded */}
+                  {/* Pin button - keeps sidebar expanded */}
                   <button
                     onClick={() => setSidebarPinned(!sidebarPinned)}
                     className="ml-auto h-6 w-6 flex items-center justify-center hover:bg-sidebar-accent rounded-md transition-colors shrink-0"
@@ -356,7 +356,7 @@ function DashboardLayoutContent({
           </SidebarHeader>
 
           <SidebarContent className="gap-0 py-2">
-            {/* Global search — visible only when sidebar is expanded */}
+            {/* Global search - visible only when sidebar is expanded */}
             <div className={`px-3 pb-1 overflow-hidden transition-[opacity,max-height] duration-300 ease-[cubic-bezier(0.23,1,0.32,1)] ${
               isCollapsed ? "opacity-0 max-h-0 pointer-events-none" : "opacity-100 max-h-20"
             }`}>

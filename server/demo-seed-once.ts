@@ -7,7 +7,7 @@
  * into a demo proposal email.
  *
  * Idempotent: if a pending demo document already exists it is reused and no
- * duplicate rows are created. Never throws — failures are logged and boot
+ * duplicate rows are created. Never throws - failures are logged and boot
  * continues. Remove the env var after use (same pattern as RUN_ONCE_MIGRATION).
  */
 import { eq } from "drizzle-orm";
@@ -20,8 +20,8 @@ const SIGNING_BASE_URL = "https://www.layeronestaging.com";
 const MSA_TOKEN_TTL_MS = 30 * 24 * 60 * 60 * 1000; // 30 days
 
 const DEMO_LINE_ITEMS = [
-  { label: "Receiving — pallet intake, count & inspect", qty: 24, unitPrice: 12, total: 288 },
-  { label: "Storage — secure pallet storage (1 month)", qty: 24, unitPrice: 30, total: 720 },
+  { label: "Receiving - pallet intake, count & inspect", qty: 24, unitPrice: 12, total: 288 },
+  { label: "Storage - secure pallet storage (1 month)", qty: 24, unitPrice: 30, total: 720 },
   { label: "Asset tagging, serial/MAC capture", qty: 180, unitPrice: 2.5, total: 450 },
   { label: "Site kitting labor (per site kit)", qty: 12, unitPrice: 95, total: 1140 },
   { label: "DFW pallet delivery", qty: 12, unitPrice: 175, total: 2100 },
@@ -32,7 +32,7 @@ export async function mintDemoDocOnce(): Promise<void> {
   try {
     const db = await getDb();
     if (!db) {
-      console.warn("[DemoSeed] no DB connection — skipping");
+      console.warn("[DemoSeed] no DB connection - skipping");
       return;
     }
 
@@ -60,7 +60,7 @@ export async function mintDemoDocOnce(): Promise<void> {
       tier: "custom",
       deviceCount: 180,
       palletCount: 24,
-      message: "DEMO ONLY — created to preview the customer e-signature flow. Not a real inquiry.",
+      message: "DEMO ONLY - created to preview the customer e-signature flow. Not a real inquiry.",
       status: "needs_review",
     });
     const inquiryId = (inquiryResult[0] as unknown as { insertId: number }).insertId;
@@ -72,7 +72,7 @@ export async function mintDemoDocOnce(): Promise<void> {
       subtotal: total.toFixed(2),
       tax: "0.00",
       totalAmount: total.toFixed(2),
-      notes: "DEMO ONLY — no payment link attached.",
+      notes: "DEMO ONLY - no payment link attached.",
       status: "sent",
       sentAt: new Date(),
     });

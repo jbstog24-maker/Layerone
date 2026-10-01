@@ -155,7 +155,7 @@ export const inquiryRouter = router({
       ].filter(Boolean).join("\n");
 
       await notifyOwner({
-        title: `New Package Inquiry — ${quoteTypeLabel} (${input.company})`,
+        title: `New Package Inquiry - ${quoteTypeLabel} (${input.company})`,
         content,
       }).catch(() => {});
 
@@ -413,7 +413,7 @@ export const inquiryRouter = router({
             currency: "usd",
             unit_amount: totalCents,
             product_data: {
-              name: `Layer One Staging Quote — ${inquiry.company}`,
+              name: `Layer One Staging Quote - ${inquiry.company}`,
               metadata: { inquiry_id: inquiry.id.toString(), quote_id: quote.id.toString() },
             },
           });
@@ -436,7 +436,7 @@ export const inquiryRouter = router({
           paymentLinkId = link.id;
         } catch (err: any) {
           console.error("[Stripe] Failed to create payment link:", err.message);
-          // Fall through — still send quote email with manual payment instructions
+          // Fall through - still send quote email with manual payment instructions
         }
       }
 

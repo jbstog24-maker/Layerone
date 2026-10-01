@@ -101,7 +101,7 @@ export const quotesRouter = router({
           currency: "usd",
           unit_amount: totalCents,
           product_data: {
-            name: `Layer One Staging Proposal — ${inquiry.company}`,
+            name: `Layer One Staging Proposal - ${inquiry.company}`,
             metadata: {
               inquiry_id: inquiry.id.toString(),
               quote_id: quote.id.toString(),
@@ -177,7 +177,7 @@ export const quotesRouter = router({
       });
       if (!emailOk) {
         console.warn(
-          `[Quotes] Proposal email failed for quote ${quote.id} — continuing`
+          `[Quotes] Proposal email failed for quote ${quote.id} - continuing`
         );
       }
 

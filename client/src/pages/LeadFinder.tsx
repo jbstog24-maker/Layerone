@@ -213,7 +213,7 @@ export default function LeadFinder() {
               Lead Finder
             </h1>
             <p className="text-muted-foreground mt-1 text-sm">
-              Discover DFW businesses that match Layer One's customer profile — MSPs, IT VARs, cabling contractors, security integrators, and enterprise IT teams.
+              Discover DFW businesses that match Layer One's customer profile - MSPs, IT VARs, cabling contractors, security integrators, and enterprise IT teams.
             </p>
           </div>
         </div>
@@ -426,7 +426,7 @@ export default function LeadFinder() {
             <DialogTitle className="flex items-center gap-2">
               <Mail className="h-5 w-5 text-primary" />
               Send Introduction Email
-              {introTarget && <span className="text-muted-foreground font-normal">— {introTarget.name}</span>}
+              {introTarget && <span className="text-muted-foreground font-normal">- {introTarget.name}</span>}
             </DialogTitle>
           </DialogHeader>
 
@@ -494,7 +494,7 @@ export default function LeadFinder() {
                     minHeight={220}
                   />
                   <p className="text-xs text-muted-foreground">
-                    {introBody.replace(/<[^>]*>/g, " ").split(/\s+/).filter(Boolean).length} words — use the toolbar to add formatting, bullet points, and links
+                    {introBody.replace(/<[^>]*>/g, " ").split(/\s+/).filter(Boolean).length} words - use the toolbar to add formatting, bullet points, and links
                   </p>
                 </div>
               </>

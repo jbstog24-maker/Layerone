@@ -144,16 +144,16 @@ export function registerStripeRoutes(app: Express) {
                       : "awaiting MSA signature";
 
                   await sendOwnerEmail({
-                    subject: `💳 Payment received — ${inquiry?.company ?? "unknown company"}`,
+                    subject: `💳 Payment received - ${inquiry?.company ?? "unknown company"}`,
                     title: "Payment Received",
                     contentHtml: `
                       <p style="font-size:15px;color:#e2e8f0;margin:0 0 16px;">Payment of <strong style="color:#6ee7b7;">${amount}</strong> received for <strong>${inquiry?.company ?? "unknown company"}</strong>.</p>
                       <table width="100%" cellpadding="0" cellspacing="0" style="background:#0a1929;border-radius:8px;border:1px solid #1e3a5f;margin-bottom:20px;">
-                        <tr><td style="padding:8px 12px;font-size:13px;color:#64748b;width:38%;">Quote</td><td style="padding:8px 12px;font-size:14px;color:#e2e8f0;">#${quoteId} — ${amount}</td></tr>
+                        <tr><td style="padding:8px 12px;font-size:13px;color:#64748b;width:38%;">Quote</td><td style="padding:8px 12px;font-size:14px;color:#e2e8f0;">#${quoteId} - ${amount}</td></tr>
                         <tr><td style="padding:8px 12px;font-size:13px;color:#64748b;">MSA status</td><td style="padding:8px 12px;font-size:14px;color:#e2e8f0;">${msaNote}</td></tr>
                         <tr><td style="padding:8px 12px;font-size:13px;color:#64748b;">Stripe session</td><td style="padding:8px 12px;font-size:14px;color:#e2e8f0;">${session.id}</td></tr>
                       </table>
-                      <p style="font-size:13px;color:#64748b;margin:0;">${quote?.msaStatus === "signed" ? "Both payment and MSA are complete — the onboarding checklist will be opened automatically." : "Onboarding will open automatically once the MSA is signed."}</p>`,
+                      <p style="font-size:13px;color:#64748b;margin:0;">${quote?.msaStatus === "signed" ? "Both payment and MSA are complete - the onboarding checklist will be opened automatically." : "Onboarding will open automatically once the MSA is signed."}</p>`,
                   });
 
                   try {

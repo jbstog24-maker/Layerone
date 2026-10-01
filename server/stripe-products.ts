@@ -16,7 +16,7 @@ export interface TierPricing {
   interval?: "month";
   /** Stripe Product ID */
   stripeProductId: string;
-  /** Stripe Price ID — used in Checkout Sessions */
+  /** Stripe Price ID - used in Checkout Sessions */
   stripePriceId: string;
 }
 
@@ -24,7 +24,7 @@ export const TIER_PRICING: Record<PackageTier, TierPricing> = {
   basic: {
     name: "Project Staging Pilot",
     description:
-      "For first-time customers testing Layer One on a single project. Includes full receiving, organization, intake photos, serial/MAC capture, and one outbound shipment coordination — no monthly commitment. Up to 5 active devices, 5 boxes received, 14-day project window.",
+      "For first-time customers testing Layer One on a single project. Includes full receiving, organization, intake photos, serial/MAC capture, and one outbound shipment coordination - no monthly commitment. Up to 5 active devices, 5 boxes received, 14-day project window.",
     amountCents: 49900, // $499 one-time
     mode: "payment",
     stripeProductId: "prod_UlTppqC7T0otVz",
@@ -43,7 +43,7 @@ export const TIER_PRICING: Record<PackageTier, TierPricing> = {
   professional: {
     name: "Shared Staging Bay",
     description:
-      "Our most popular tier — purpose-built for recurring deployment work. Includes dock/ramp coordination and up to 8 outbound shipment coordinations per month. Up to 25 active devices, 3 pallets/month, 30 boxes/month, 30-day storage.",
+      "Our most popular tier - purpose-built for recurring deployment work. Includes dock/ramp coordination and up to 8 outbound shipment coordinations per month. Up to 25 active devices, 3 pallets/month, 30 boxes/month, 30-day storage.",
     amountCents: 150000, // $1,500/month
     mode: "subscription",
     interval: "month",
@@ -64,7 +64,7 @@ export const TIER_PRICING: Record<PackageTier, TierPricing> = {
     name: "Rollout Suite",
     description:
       "For multi-site deployments, national rollout vendors, POS projects, security deployments, and franchise technology rollouts. Sole-use project area or dedicated suite with chain-of-custody tracking. Up to 150 active devices, 20 pallets/month, 200 boxes/month, 60-day storage.",
-    amountCents: 500000, // $5,000/month base — overridden per client
+    amountCents: 500000, // $5,000/month base - overridden per client
     mode: "subscription",
     interval: "month",
     stripeProductId: "prod_UlTph9k38PGSJy",

@@ -124,7 +124,7 @@ export const terminationRouter = router({
   /**
    * Process the termination: issue the Stripe refund (when > $0), record the
    * auditable termination row, and mark the quote cancelled. Idempotent via
-   * the unique quoteTerminations.quoteId — a double-click returns CONFLICT.
+   * the unique quoteTerminations.quoteId - a double-click returns CONFLICT.
    */
   process: protectedProcedure
     .input(
@@ -150,7 +150,7 @@ export const terminationRouter = router({
       if (input.confirmAmountCents !== b.refundCents) {
         throw new TRPCError({
           code: "BAD_REQUEST",
-          message: "Confirmed amount doesn't match the calculated refund — please recalculate",
+          message: "Confirmed amount doesn't match the calculated refund - please recalculate",
         });
       }
 
@@ -163,7 +163,7 @@ export const terminationRouter = router({
         if (!quote.stripeCheckoutSessionId) {
           throw new TRPCError({
             code: "BAD_REQUEST",
-            message: "Quote has no Stripe checkout session — refund must be issued manually in the Stripe dashboard",
+            message: "Quote has no Stripe checkout session - refund must be issued manually in the Stripe dashboard",
           });
         }
         const session = await stripe.checkout.sessions.retrieve(quote.stripeCheckoutSessionId);
@@ -172,7 +172,7 @@ export const terminationRouter = router({
         if (!paymentIntentId) {
           throw new TRPCError({
             code: "BAD_REQUEST",
-            message: "No payment intent on the checkout session — refund must be issued manually in the Stripe dashboard",
+            message: "No payment intent on the checkout session - refund must be issued manually in the Stripe dashboard",
           });
         }
         const refund = await stripe.refunds.create({

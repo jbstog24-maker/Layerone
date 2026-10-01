@@ -37,7 +37,7 @@ export default function RequestQuoteFab() {
           <DialogHeader className="mb-2 pr-8">
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-[#0A84FF]/30 bg-[#0A84FF]/10 text-[#0A84FF] text-xs font-semibold mb-3 self-start">
               <span className="w-1.5 h-1.5 rounded-full bg-[#6ee7b7] animate-pulse" />
-              Free Consultation — No Commitment
+              Free Consultation - No Commitment
             </div>
             <DialogTitle className="text-2xl font-extrabold text-white leading-tight text-left">
               Get Started with{" "}

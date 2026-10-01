@@ -157,7 +157,7 @@ function UploadDialog({
               <div className="flex flex-col items-center gap-2 text-muted-foreground">
                 <Upload className="w-8 h-8 opacity-50" />
                 <p className="text-sm font-medium">Drop a file here or click to browse</p>
-                <p className="text-xs">PDF, Word, Excel, CSV, or image — max 25 MB</p>
+                <p className="text-xs">PDF, Word, Excel, CSV, or image - max 25 MB</p>
               </div>
             )}
           </div>

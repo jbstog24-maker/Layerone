@@ -152,7 +152,7 @@ export const billingRouter = router({
       if (pkg) {
         lineItems.push({
           invoiceId: newInvoice.id,
-          description: `${pkg.name} — Base Package`,
+          description: `${pkg.name} - Base Package`,
           category: "base_package" as const,
           quantity: "1.00",
           unitPrice: String(pkg.basePrice),

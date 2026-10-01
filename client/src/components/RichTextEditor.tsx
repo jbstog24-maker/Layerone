@@ -224,7 +224,7 @@ export default function RichTextEditor({
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
-        // Disable heading — emails don't need h1/h2
+        // Disable heading - emails don't need h1/h2
         heading: false,
         blockquote: false,
         codeBlock: false,

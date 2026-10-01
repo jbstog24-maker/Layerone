@@ -1,5 +1,5 @@
 /**
- * HelpCenter — searchable documentation page covering every feature
+ * HelpCenter - searchable documentation page covering every feature
  * in the navigation. Content is role-aware: admin/staff see operational
  * docs, customers see portal-usage docs.
  */
@@ -38,7 +38,7 @@ interface DocSection {
 
 interface DocArticle {
   title: string;
-  body: string; // plain text — rendered as paragraphs split on \n\n
+  body: string; // plain text - rendered as paragraphs split on \n\n
   tips?: string[];
 }
 
@@ -76,14 +76,14 @@ const DOCS: DocSection[] = [
     title: "Dashboard",
     icon: LayoutDashboard,
     roles: ["admin", "staff"],
-    summary: "Live KPI overview of your entire operation — clients, devices, shipments, tickets, and revenue.",
+    summary: "Live KPI overview of your entire operation - clients, devices, shipments, tickets, and revenue.",
     articles: [
       {
         title: "Understanding the KPI cards",
         body: "The top row of cards shows the most important numbers at a glance: total active clients, devices currently in staging, pending outbound shipments, open support tickets, and monthly revenue.\n\nEach card is colour-coded: green means healthy, amber means attention needed, red means action required.",
         tips: [
           "Click any KPI card to jump directly to the relevant list page.",
-          "Numbers update in real time — no need to refresh the page.",
+          "Numbers update in real time - no need to refresh the page.",
         ],
       },
       {
@@ -92,7 +92,7 @@ const DOCS: DocSection[] = [
       },
       {
         title: "Recent activity feed",
-        body: "The activity feed on the right side of the dashboard shows the last 20 actions taken by any staff member — client created, device status changed, invoice sent, etc. This gives you a quick audit trail without opening the full activity log.",
+        body: "The activity feed on the right side of the dashboard shows the last 20 actions taken by any staff member - client created, device status changed, invoice sent, etc. This gives you a quick audit trail without opening the full activity log.",
       },
     ],
   },
@@ -108,7 +108,7 @@ const DOCS: DocSection[] = [
         body: "Click 'New Client' in the top-right corner of the Clients page. Fill in the company name, primary contact details, billing email, and select a service package. The system will automatically generate a unique account number (e.g. Layer One-00042) when the record is saved.\n\nThe client starts in 'Onboarding' status. Move them to 'Active' once the contract is signed and the first payment is received.",
         tips: [
           "The account number is permanent and used on all invoices and shipment labels.",
-          "You can assign a package later — leave it blank if the client is still in negotiation.",
+          "You can assign a package later - leave it blank if the client is still in negotiation.",
         ],
       },
       {
@@ -149,7 +149,7 @@ const DOCS: DocSection[] = [
         body: "Every device moves through a defined set of statuses:\n\nExpected → Received → Inventory Captured → Waiting Instructions → Ready for Staging → In Staging → Staged → Labeled → Packed → Ready to Ship → Shipped → Picked Up\n\nThere is also an Exception status for damaged or missing items. Update the status as your team works through each step.",
         tips: [
           "Use the search bar to filter by serial number, MAC address, or model.",
-          "Devices in 'Exception' status appear with a red badge — resolve these promptly.",
+          "Devices in 'Exception' status appear with a red badge - resolve these promptly.",
         ],
       },
       {
@@ -172,7 +172,7 @@ const DOCS: DocSection[] = [
   },
   {
     id: "inventory",
-    title: "Inventory — Boxes & Pallets",
+    title: "Inventory - Boxes & Pallets",
     icon: Package,
     roles: ["admin", "staff"],
     summary: "Log inbound deliveries, manage boxes and pallets, and track storage locations.",
@@ -223,7 +223,7 @@ const DOCS: DocSection[] = [
         title: "Creating a staging task",
         body: "Go to Staging and click 'New Task'. Select the task type (firmware update, labeling, switch staging, AP prep, etc.), assign it to a technician, set the priority, and add step-by-step instructions.\n\nYou can link specific devices to a task so the technician knows exactly which units to work on.",
         tips: [
-          "Use the 'Rush' priority for time-sensitive tasks — they appear at the top of the queue.",
+          "Use the 'Rush' priority for time-sensitive tasks - they appear at the top of the queue.",
           "Add estimated hours so you can track team capacity.",
         ],
       },
@@ -246,7 +246,7 @@ const DOCS: DocSection[] = [
       },
       {
         title: "Adding a lead",
-        body: "Click 'Add Lead' and fill in the company name, contact details, lead source, and estimated value. Assign it to a staff member and set a follow-up date.\n\nLeads can be promoted to a full client record once they convert — click 'Convert to Client' on the lead detail panel.",
+        body: "Click 'Add Lead' and fill in the company name, contact details, lead source, and estimated value. Assign it to a staff member and set a follow-up date.\n\nLeads can be promoted to a full client record once they convert - click 'Convert to Client' on the lead detail panel.",
         tips: [
           "Set a follow-up date on every lead so nothing falls through the cracks.",
           "Use the 'Source' field to track which marketing channels are generating the most leads.",
@@ -271,7 +271,7 @@ const DOCS: DocSection[] = [
     articles: [
       {
         title: "Creating an invoice",
-        body: "Go to Invoices and click 'New Invoice'. Select the client, add line items with descriptions and amounts, set the due date, and save. The invoice is immediately visible in the client's portal.\n\nYou can also generate invoices automatically on a monthly schedule — contact your admin to configure this.",
+        body: "Go to Invoices and click 'New Invoice'. Select the client, add line items with descriptions and amounts, set the due date, and save. The invoice is immediately visible in the client's portal.\n\nYou can also generate invoices automatically on a monthly schedule - contact your admin to configure this.",
         tips: [
           "Add a note to the invoice if there are any special payment instructions.",
           "Invoices in 'Draft' status are not visible to the client until you mark them as 'Sent'.",
@@ -300,10 +300,10 @@ const DOCS: DocSection[] = [
       },
       {
         title: "Responding to a ticket",
-        body: "Click a ticket to open it. You will see the full thread of messages between the client and your team. Type your reply in the text box at the bottom and click 'Send Reply'.\n\nYou can also add an internal note that is only visible to staff — useful for escalation notes or context for other team members.",
+        body: "Click a ticket to open it. You will see the full thread of messages between the client and your team. Type your reply in the text box at the bottom and click 'Send Reply'.\n\nYou can also add an internal note that is only visible to staff - useful for escalation notes or context for other team members.",
         tips: [
           "Change the ticket status to 'In Progress' when you start working on it so the client knows it's being handled.",
-          "Mark tickets 'Resolved' when the issue is fixed — the client can re-open if needed.",
+          "Mark tickets 'Resolved' when the issue is fixed - the client can re-open if needed.",
         ],
       },
       {
@@ -321,11 +321,11 @@ const DOCS: DocSection[] = [
     articles: [
       {
         title: "User roles explained",
-        body: "There are four roles:\n\nAdmin — full access to everything including user management, billing, and reports.\n\nStaff — operational access to clients, devices, shipments, staging, and support. Cannot manage users or view financial reports.\n\nCustomer Admin — portal access for the client's primary contact. Can view all their company's data and submit support tickets.\n\nCustomer Viewer — read-only portal access for additional client contacts.",
+        body: "There are four roles:\n\nAdmin - full access to everything including user management, billing, and reports.\n\nStaff - operational access to clients, devices, shipments, staging, and support. Cannot manage users or view financial reports.\n\nCustomer Admin - portal access for the client's primary contact. Can view all their company's data and submit support tickets.\n\nCustomer Viewer - read-only portal access for additional client contacts.",
       },
       {
         title: "Pre-provisioning a customer account",
-        body: "Go to Users, click 'Add New User', select the Customer Admin or Customer Viewer role, and enter the client's email address. The system sends them an invite email with a link to activate their account.\n\nThe client logs in with their Manus account — no separate password needed.",
+        body: "Go to Users, click 'Add New User', select the Customer Admin or Customer Viewer role, and enter the client's email address. The system sends them an invite email with a link to activate their account.\n\nThe client logs in with their Manus account - no separate password needed.",
         tips: [
           "Always link a customer account to the correct client record using the 'Client' dropdown.",
           "You can resend the invite email from the user's card if they didn't receive it.",
@@ -346,15 +346,15 @@ const DOCS: DocSection[] = [
     articles: [
       {
         title: "Available exports",
-        body: "The Reports page offers three CSV exports:\n\nDevice Inventory — all devices with their status, serial numbers, MAC addresses, and client assignments.\n\nShipments — all outbound shipments with carrier, tracking number, destination, and status.\n\nClient Summary — all clients with account number, contact details, status, and package.",
+        body: "The Reports page offers three CSV exports:\n\nDevice Inventory - all devices with their status, serial numbers, MAC addresses, and client assignments.\n\nShipments - all outbound shipments with carrier, tracking number, destination, and status.\n\nClient Summary - all clients with account number, contact details, status, and package.",
         tips: [
           "Use the client filter on the Shipments export to download data for a single client.",
-          "Exports respect any active filters on the page — use search to narrow the data before exporting.",
+          "Exports respect any active filters on the page - use search to narrow the data before exporting.",
         ],
       },
       {
         title: "KPI summary cards",
-        body: "The top of the Reports page shows the same KPI cards as the dashboard — total clients, devices, shipments, and revenue. Use these as a quick sanity check before diving into the CSV data.",
+        body: "The top of the Reports page shows the same KPI cards as the dashboard - total clients, devices, shipments, and revenue. Use these as a quick sanity check before diving into the CSV data.",
       },
     ],
   },
@@ -378,7 +378,7 @@ const DOCS: DocSection[] = [
     title: "Your Dashboard",
     icon: LayoutDashboard,
     roles: ["customer"],
-    summary: "A summary of your account — devices, shipments, invoices, and recent activity.",
+    summary: "A summary of your account - devices, shipments, invoices, and recent activity.",
     articles: [
       {
         title: "What you can see on the dashboard",
@@ -395,7 +395,7 @@ const DOCS: DocSection[] = [
     articles: [
       {
         title: "Understanding device statuses",
-        body: "Each device moves through a series of statuses as our team works on it:\n\nExpected — we are expecting this device to arrive.\nReceived — the device has arrived at our facility.\nInventory Captured — we have logged the serial number and MAC address.\nIn Staging — a technician is actively working on this device.\nStaged — staging is complete.\nLabeled & Packed — the device is ready for shipment.\nShipped — the device is on its way to you.\n\nYou will see the current status for each device in the list.",
+        body: "Each device moves through a series of statuses as our team works on it:\n\nExpected - we are expecting this device to arrive.\nReceived - the device has arrived at our facility.\nInventory Captured - we have logged the serial number and MAC address.\nIn Staging - a technician is actively working on this device.\nStaged - staging is complete.\nLabeled & Packed - the device is ready for shipment.\nShipped - the device is on its way to you.\n\nYou will see the current status for each device in the list.",
         tips: [
           "Use the search bar to find a specific device by serial number or model.",
           "If a device shows 'Exception', please contact your account manager.",
@@ -432,7 +432,7 @@ const DOCS: DocSection[] = [
         body: "The Invoices page lists all invoices for your account. Click an invoice to see the line items and total. If online payment is enabled, click 'Pay Now' to pay securely via Stripe.\n\nIf you are paying by bank transfer, ask your account manager to record the payment once it clears.",
         tips: [
           "Download a PDF copy of any invoice by clicking the download icon.",
-          "Invoices marked 'Overdue' are past their due date — please contact us if you have any questions.",
+          "Invoices marked 'Overdue' are past their due date - please contact us if you have any questions.",
         ],
       },
     ],
@@ -448,13 +448,13 @@ const DOCS: DocSection[] = [
         title: "Submitting a support ticket",
         body: "Go to Support Tickets and click 'New Ticket'. Give your issue a clear title, describe the problem in detail, and set the priority (Low, Normal, High, Urgent).\n\nOur team will respond in the ticket thread. You will see the reply here and can respond back to continue the conversation.",
         tips: [
-          "Include as much detail as possible — device serial numbers, error messages, screenshots — so we can resolve your issue faster.",
+          "Include as much detail as possible - device serial numbers, error messages, screenshots - so we can resolve your issue faster.",
           "You will receive a notification when we reply to your ticket.",
         ],
       },
       {
         title: "Ticket statuses",
-        body: "Open — your ticket has been received and is waiting for a response.\nIn Progress — a team member is actively working on your issue.\nResolved — we believe the issue is fixed. If it is not, you can re-open the ticket by replying.\nClosed — the ticket has been closed after resolution.",
+        body: "Open - your ticket has been received and is waiting for a response.\nIn Progress - a team member is actively working on your issue.\nResolved - we believe the issue is fixed. If it is not, you can re-open the ticket by replying.\nClosed - the ticket has been closed after resolution.",
       },
     ],
   },

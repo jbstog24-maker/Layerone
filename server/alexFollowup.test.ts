@@ -98,7 +98,7 @@ describe("hasQuoteInterest", () => {
 
   it.each([
     "Wrong number, caller hung up immediately.",
-    "No answer — went to voicemail.",
+    "No answer - went to voicemail.",
     "Caller asked about business hours.",
     "Spam call about extended warranty.",
     "",
@@ -226,7 +226,7 @@ describe("maybeSendQuoteFollowup", () => {
   it("does not send for wrong numbers / hangups", async () => {
     const store = mockStore(false);
     const result = await maybeSendQuoteFollowup(
-      fields({ summary: "Wrong number — jane@acme.com, caller hung up." }),
+      fields({ summary: "Wrong number - jane@acme.com, caller hung up." }),
       store,
     );
     expect(result).toBe(false);

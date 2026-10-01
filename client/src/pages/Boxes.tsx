@@ -179,8 +179,8 @@ export default function Boxes() {
                       </td>
                     )}
                     <td className="px-4 py-3"><span className="font-mono text-sm font-medium text-cyan-400">{b.boxCode}</span></td>
-                    <td className="px-4 py-3 text-sm text-muted-foreground">{(b as any).palletCode ?? "—"}</td>
-                    <td className="px-4 py-3 text-xs font-mono text-muted-foreground">{b.trackingNumber ?? "—"}</td>
+                    <td className="px-4 py-3 text-sm text-muted-foreground">{(b as any).palletCode ?? "-"}</td>
+                    <td className="px-4 py-3 text-xs font-mono text-muted-foreground">{b.trackingNumber ?? "-"}</td>
                     <td className="px-4 py-3"><StatusBadge status={b.condition ?? "good"} /></td>
                     <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
                       {isStaff ? (
@@ -197,7 +197,7 @@ export default function Boxes() {
                         <FwdIcon className="w-3 h-3" />{fwdCfg.label}
                       </Badge>
                     </td>
-                    <td className="px-4 py-3 text-sm text-muted-foreground">{b.storageLocation ?? "—"}</td>
+                    <td className="px-4 py-3 text-sm text-muted-foreground">{b.storageLocation ?? "-"}</td>
                     <td className="px-4 py-3"><ChevronRight className="w-4 h-4 text-muted-foreground" /></td>
                   </tr>
                 );
@@ -317,9 +317,9 @@ export function BoxDetail() {
             <CardContent className="grid grid-cols-2 gap-4 text-sm">
               <div><p className="text-muted-foreground text-xs mb-1">Status</p><StatusBadge status={box.status} /></div>
               <div><p className="text-muted-foreground text-xs mb-1">Condition</p><StatusBadge status={box.condition ?? "good"} /></div>
-              <div><p className="text-muted-foreground text-xs mb-1">Tracking Number</p><p className="font-mono text-xs">{box.trackingNumber ?? "—"}</p></div>
-              <div><p className="text-muted-foreground text-xs mb-1">Storage Location</p><p>{box.storageLocation ?? "—"}</p></div>
-              <div><p className="text-muted-foreground text-xs mb-1">Project</p><p>{box.projectName ?? "—"}</p></div>
+              <div><p className="text-muted-foreground text-xs mb-1">Tracking Number</p><p className="font-mono text-xs">{box.trackingNumber ?? "-"}</p></div>
+              <div><p className="text-muted-foreground text-xs mb-1">Storage Location</p><p>{box.storageLocation ?? "-"}</p></div>
+              <div><p className="text-muted-foreground text-xs mb-1">Project</p><p>{box.projectName ?? "-"}</p></div>
               <div><p className="text-muted-foreground text-xs mb-1">Received</p><p>{new Date(box.createdAt).toLocaleDateString()}</p></div>
               {box.contents && <div className="col-span-2"><p className="text-muted-foreground text-xs mb-1">Contents</p><p className="text-muted-foreground">{box.contents}</p></div>}
               {box.notes && <div className="col-span-2"><p className="text-muted-foreground text-xs mb-1">Notes</p><p className="text-muted-foreground">{box.notes}</p></div>}
@@ -408,7 +408,7 @@ export function BoxDetail() {
             </div>
             <div>
               <Label className="text-xs">Contact at Destination</Label>
-              <Input value={fwdContact} onChange={(e) => setFwdContact(e.target.value)} className="mt-1" placeholder="John Smith — (512) 555-0100" />
+              <Input value={fwdContact} onChange={(e) => setFwdContact(e.target.value)} className="mt-1" placeholder="John Smith - (512) 555-0100" />
             </div>
             <div>
               <Label className="text-xs">Notes</Label>

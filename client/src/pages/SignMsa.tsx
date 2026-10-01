@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
-// Public customer-facing MSA signing page. No login required — access is gated
+// Public customer-facing MSA signing page. No login required - access is gated
 // by the unguessable per-document token in the URL (/sign/:token).
 export default function SignMsa() {
   const params = useParams();
@@ -32,7 +32,7 @@ export default function SignMsa() {
 
   const sign = trpc.msa.sign.useMutation({
     onSuccess: () => {
-      toast.success("Agreement signed — thank you!");
+      toast.success("Agreement signed - thank you!");
       utils.msa.getByToken.invalidate({ token });
     },
     onError: (err) => toast.error(err.message || "Failed to sign agreement"),
@@ -103,7 +103,7 @@ export default function SignMsa() {
         body={
           expired
             ? "Signing links expire after 30 days. Please contact your Layer One rep and we'll send you a fresh link."
-            : "We couldn't find an agreement for this link. It may have been withdrawn — please contact your Layer One rep."
+            : "We couldn't find an agreement for this link. It may have been withdrawn - please contact your Layer One rep."
         }
       />
     );
@@ -129,7 +129,7 @@ export default function SignMsa() {
         body={
           <>
             <p className="mb-2">
-              Thank you{data.signedByName ? `, ${data.signedByName}` : ""} — your
+              Thank you{data.signedByName ? `, ${data.signedByName}` : ""} - your
               Master Services Agreement with Layer One Staging is on file.
             </p>
             {data.signedAt && (
@@ -163,7 +163,7 @@ export default function SignMsa() {
           {data.company && (
             <>
               Prepared for <span className="font-semibold text-white">{data.company}</span>
-              {data.contactName && <> — {data.contactName}</>}
+              {data.contactName && <> - {data.contactName}</>}
             </>
           )}
         </p>

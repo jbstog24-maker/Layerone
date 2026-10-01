@@ -127,7 +127,7 @@ export default function ServicePage() {
         <h2 className="text-2xl font-bold mb-2 flex items-center gap-2">
           <Package className="w-6 h-6 text-[#0A84FF]" /> What&apos;s included
         </h2>
-        <p className="text-[#b7c5d5]/70 mb-6">Every engagement is scoped to your project — these are the standard building blocks.</p>
+        <p className="text-[#b7c5d5]/70 mb-6">Every engagement is scoped to your project - these are the standard building blocks.</p>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {page.included.map((item) => (
             <div key={item.title} className="bg-white/4 border border-white/10 rounded-2xl p-5">
@@ -149,8 +149,8 @@ export default function ServicePage() {
           </h2>
           <p className="text-[#b7c5d5] leading-relaxed">{page.processNote}</p>
           <p className="text-[#b7c5d5] leading-relaxed mt-4">
-            Every project runs through our standard staging workflow — receive, inventory, configure,
-            asset tag, QA, kit by site, document, and ship — with portal visibility at each step.
+            Every project runs through our standard staging workflow - receive, inventory, configure,
+            asset tag, QA, kit by site, document, and ship - with portal visibility at each step.
           </p>
         </div>
       </section>

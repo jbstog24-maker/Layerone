@@ -51,7 +51,7 @@ function buildCallbackTask(row: {
     `You are Alex, the phone receptionist for Layer One Staging, a B2B IT equipment staging, kitting, configuration, storage, and delivery company serving the Dallas-Fort Worth metro.`,
     `Speak like a real person, not a robot: warm, plain-spoken, unhurried, a little Texas friendliness. Short sentences, contractions, one question at a time. React to what they say before moving on.`,
     `You are calling ${row.name}${companyBit} because they scheduled a callback on the Layer One Staging website.${topicBit}`,
-    `Wait for them to say hello first, then greet them BY NAME — for example: "Hi ${row.name}! This is Alex from Layer One Staging, calling about the callback you scheduled. Is now still a good time to chat?" Always use their name in the greeting.`,
+    `Wait for them to say hello first, then greet them BY NAME - for example: "Hi ${row.name}! This is Alex from Layer One Staging, calling about the callback you scheduled. Is now still a good time to chat?" Always use their name in the greeting.`,
     `Help with their questions about staging, kitting, device configuration and testing, warehousing, and delivery.`,
     `Approved pricing you may quote: receiving $12 per pallet, storage $30 per pallet per month, DFW delivery $175 per pallet or $30 per loose device. Larger rollouts get a custom project quote.`,
     `Qualify the caller when natural: their name, company, callback number, email, number of locations, device types and quantities, services needed, and timeline.`,
@@ -76,7 +76,7 @@ async function blandPlaceCall(row: { name: string; phone: string; company: strin
       max_duration: 15,
       // Post-call webhook → call-log archive (same as the 469 inbound number).
       webhook: `${ENV.portalUrl}/api/call-log?token=${process.env.PROSPECT_SYNC_TOKEN ?? ""}`,
-      // Let the person pick up and say hello first — don't talk over the ring.
+      // Let the person pick up and say hello first - don't talk over the ring.
       wait_for_greeting: true,
     }),
   });
@@ -103,7 +103,7 @@ const TERMINAL_FAILURE = new Set([
   "voicemail", // Bland sometimes reports voicemail-only outcomes; message was left
 ]);
 
-// Busy / no-answer get one retry before we give up — the person asked to be
+// Busy / no-answer get one retry before we give up - the person asked to be
 // called, and a single callback 30 minutes later is worth one more attempt.
 const RETRYABLE_NO_ANSWER = new Set(["busy", "no-answer", "no_answer"]);
 
@@ -224,7 +224,7 @@ export function registerScheduledCallRoutes(app: Express) {
                   .set({
                     status: "failed",
                     attempts,
-                    lastError: "No answer after 2 attempts — follow up manually",
+                    lastError: "No answer after 2 attempts - follow up manually",
                   })
                   .where(eq(scheduledCalls.id, row.id));
                 result.failed++;
@@ -247,7 +247,7 @@ export function registerScheduledCallRoutes(app: Express) {
                 .where(eq(scheduledCalls.id, row.id));
               result.failed++;
             }
-            // else: still in progress — leave it for the next run.
+            // else: still in progress - leave it for the next run.
           } catch (err: any) {
             result.errors.push(`finalize #${row.id}: ${err?.message ?? String(err)}`);
           }

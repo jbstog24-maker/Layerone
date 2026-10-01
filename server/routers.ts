@@ -184,7 +184,7 @@ export const appRouter = router({
       }),
 
     // Set an initial password (or reset it) via a single-use invite token.
-    // This is how admin-invited users — who are created without a password —
+    // This is how admin-invited users - who are created without a password -
     // activate their accounts.
     setupPassword: publicProcedure
       .input(

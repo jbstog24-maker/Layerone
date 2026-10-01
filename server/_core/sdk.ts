@@ -30,7 +30,7 @@ const GET_USER_INFO_WITH_JWT_PATH = `/webdev.v1.WebDevAuthPublicService/GetUserI
 
 // Self-hosted sessions don't have a Manus app ID (VITE_APP_ID is unset
 // outside the Manus runtime). verifySession() rejects tokens with an empty
-// appId, so fall back to a stable local identifier — otherwise every
+// appId, so fall back to a stable local identifier - otherwise every
 // login/register would issue a cookie that fails on the next request.
 const SESSION_APP_ID = ENV.appId || "layerone";
 

@@ -67,7 +67,7 @@ export default function SupportTickets() {
 
   const createMut = trpc.support.create.useMutation({
     onSuccess: () => {
-      toast.success("Ticket submitted — our team will respond shortly.");
+      toast.success("Ticket submitted - our team will respond shortly.");
       setShowNew(false);
       setSubject(""); setCategory("general"); setPriority("normal"); setDescription("");
       utils.support.list.invalidate();

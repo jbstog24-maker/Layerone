@@ -29,7 +29,7 @@ describe("buildMsaContent scope import", () => {
         storageDays: 90,
       },
     });
-    expect(content).toContain("SCHEDULE A — SCOPE OF WORK");
+    expect(content).toContain("SCHEDULE A - SCOPE OF WORK");
     expect(content).toContain("Requested package: professional");
     expect(content).toContain("Devices: 250");
     expect(content).toContain("Pallets: 12");
@@ -48,9 +48,9 @@ describe("buildMsaContent scope import", () => {
         ],
       },
     });
-    expect(content).toContain("SCHEDULE A — SCOPE OF WORK");
-    expect(content).toContain("Device staging (x250) — $1,875.00");
-    expect(content).toContain("Extended storage — $575.00");
+    expect(content).toContain("SCHEDULE A - SCOPE OF WORK");
+    expect(content).toContain("Device staging (x250) - $1,875.00");
+    expect(content).toContain("Extended storage - $575.00");
     expect(content).toContain("Quoted total: $2,450.00");
   });
 
@@ -72,7 +72,7 @@ describe("buildMsaContent scope import", () => {
     });
     expect(content).toContain("ADD-ON SERVICES");
     expect(content).toContain("Rush staging service");
-    expect(content).toContain("SCHEDULE A — SCOPE OF WORK");
+    expect(content).toContain("SCHEDULE A - SCOPE OF WORK");
   });
 });
 

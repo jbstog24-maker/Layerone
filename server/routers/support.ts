@@ -11,7 +11,7 @@ const isStaffOrAdmin = (role: string) => role === "admin" || role === "staff";
 const isCustomer = (role: string) => role === "customer_admin" || role === "customer_viewer";
 
 export const supportRouter = router({
-  // List tickets — customers see only their own; staff/admin see all
+  // List tickets - customers see only their own; staff/admin see all
   list: protectedProcedure
     .input(z.object({ clientId: z.number().optional() }).optional())
     .query(async ({ ctx, input }) => {

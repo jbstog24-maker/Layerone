@@ -1,7 +1,7 @@
 import { Resend } from "resend";
 import { ENV } from "./_core/env";
 
-// Layer One brand SVG — kept in sync with Documents.tsx
+// Layer One brand SVG - kept in sync with Documents.tsx
 const LAYER_ONE_LOGO_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 120" width="200" height="43">
   <defs>
     <linearGradient id="shieldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -63,7 +63,7 @@ function buildWelcomeHtml(params: WelcomeEmailParams): string {
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Welcome to Layer One — Next Steps</title>
+  <title>Welcome to Layer One - Next Steps</title>
   <style>
     body { margin: 0; padding: 0; background: #07111f; font-family: Inter, Arial, sans-serif; color: #e2e8f0; }
     .wrapper { max-width: 600px; margin: 0 auto; padding: 32px 16px; }
@@ -158,7 +158,7 @@ function buildWelcomeHtml(params: WelcomeEmailParams): string {
           <div class="step">
             <div class="step-num">5</div>
             <div class="step-content">
-              <p class="step-title">Go Live — 14-Day Onboarding Period</p>
+              <p class="step-title">Go Live - 14-Day Onboarding Period</p>
               <p class="step-desc">Your 14-day onboarding period begins. Our technicians work with you to stage your first batch of devices, configure imaging workflows, and validate your deployment pipeline.</p>
             </div>
           </div>
@@ -211,7 +211,7 @@ function buildWelcomeHtml(params: WelcomeEmailParams): string {
       <!-- Footer -->
       <div class="footer">
         <p>© ${new Date().getFullYear()} Layer One Staging. All rights reserved.</p>
-        <p style="margin-top:4px;">Layer One Staging Solutions Portal — Warehouse &amp; Device Staging Management</p>
+        <p style="margin-top:4px;">Layer One Staging Solutions Portal - Warehouse &amp; Device Staging Management</p>
       </div>
     </div>
   </div>
@@ -225,7 +225,7 @@ function buildWelcomeHtml(params: WelcomeEmailParams): string {
  */
 export async function sendWelcomeEmail(params: WelcomeEmailParams): Promise<boolean> {
   if (!ENV.resendApiKey || !ENV.resendFromEmail) {
-    console.warn("[Email] RESEND_API_KEY or RESEND_FROM_EMAIL not configured — skipping welcome email");
+    console.warn("[Email] RESEND_API_KEY or RESEND_FROM_EMAIL not configured - skipping welcome email");
     return false;
   }
 
@@ -236,7 +236,7 @@ export async function sendWelcomeEmail(params: WelcomeEmailParams): Promise<bool
     const { error } = await resend.emails.send({
       from: ENV.resendFromEmail,
       to: params.to,
-      subject: `Welcome to Layer One — Your ${tierLabel} Package Inquiry`,
+      subject: `Welcome to Layer One - Your ${tierLabel} Package Inquiry`,
       html: buildWelcomeHtml(params),
     });
 
@@ -256,7 +256,7 @@ export async function sendWelcomeEmail(params: WelcomeEmailParams): Promise<bool
 // ─── Inquiry Owner Notification Email ─────────────────────────────────────────
 // Sent to the Layer One owner inbox when a prospect submits a package inquiry.
 // (notifyOwner targets the Manus platform notification service, which is not
-// available on self-hosted Render — this email is the production path.)
+// available on self-hosted Render - this email is the production path.)
 
 export type InquiryOwnerEmailParams = {
   to: string;
@@ -280,7 +280,7 @@ export type InquiryOwnerEmailParams = {
 
 export async function sendInquiryOwnerEmail(params: InquiryOwnerEmailParams): Promise<boolean> {
   if (!ENV.resendApiKey || !ENV.resendFromEmail) {
-    console.warn("[Email] RESEND_API_KEY or RESEND_FROM_EMAIL not configured — skipping inquiry owner email");
+    console.warn("[Email] RESEND_API_KEY or RESEND_FROM_EMAIL not configured - skipping inquiry owner email");
     return false;
   }
 
@@ -312,7 +312,7 @@ export async function sendInquiryOwnerEmail(params: InquiryOwnerEmailParams): Pr
       <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;background:#0d1f35;border-radius:12px;border:1px solid #1e3a5f;overflow:hidden;">
         <tr><td style="padding:28px 40px;border-bottom:1px solid #1e3a5f;">
           <p style="margin:0;font-size:20px;font-weight:800;color:#0A84FF;letter-spacing:1px;">New Package Inquiry</p>
-          <p style="margin:6px 0 0;font-size:13px;color:#94a3b8;">${params.tierLabel} — ${params.company}</p>
+          <p style="margin:6px 0 0;font-size:13px;color:#94a3b8;">${params.tierLabel} - ${params.company}</p>
         </td></tr>
         <tr><td style="padding:24px 40px;">
           <table width="100%" cellpadding="0" cellspacing="0" style="background:#0a1929;border-radius:8px;border:1px solid #1e3a5f;margin-bottom:20px;">${details}</table>
@@ -333,7 +333,7 @@ export async function sendInquiryOwnerEmail(params: InquiryOwnerEmailParams): Pr
       from: ENV.resendFromEmail,
       to: params.to,
       replyTo: params.email,
-      subject: `New Package Inquiry — ${params.tierLabel} (${params.company})`,
+      subject: `New Package Inquiry - ${params.tierLabel} (${params.company})`,
       html,
     });
     if (error) {
@@ -426,7 +426,7 @@ export function buildPortalInviteHtml(params: PortalInviteEmailParams): string {
           <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:28px;">
             ${[
               ["1", params.setPasswordUrl ? "Set Your Password" : "Sign In", params.setPasswordUrl ? `Click the button above to choose your password, then sign in with the email address this message was sent to.` : `Visit <a href="${portalUrl}" style="color:#38bdf8;">${portalUrl}</a> and click <strong>Sign In</strong>. Use the email address this message was sent to.`],
-              ["2", "Explore Your Dashboard", "View your devices, staging tasks, shipments, and documents — all in one place."],
+              ["2", "Explore Your Dashboard", "View your devices, staging tasks, shipments, and documents - all in one place."],
               ["3", "Message Your Team", "Use the Support Messages section to communicate directly with Layer One staff."],
               ["4", "Track Onboarding Progress", "Your onboarding timeline, go-live date, and warehouse assignment are visible on your profile."],
             ].map(([num, title, desc]) => `
@@ -471,7 +471,7 @@ export function buildPortalInviteHtml(params: PortalInviteEmailParams): string {
  */
 export async function sendPortalInviteEmail(params: PortalInviteEmailParams): Promise<boolean> {
   if (!ENV.resendApiKey || !ENV.resendFromEmail) {
-    console.warn("[Email] RESEND_API_KEY or RESEND_FROM_EMAIL not configured — skipping portal invite email");
+    console.warn("[Email] RESEND_API_KEY or RESEND_FROM_EMAIL not configured - skipping portal invite email");
     return false;
   }
 
@@ -507,7 +507,7 @@ export type PasswordResetEmailParams = {
 
 export async function sendPasswordResetEmail(params: PasswordResetEmailParams): Promise<boolean> {
   if (!ENV.resendApiKey || !ENV.resendFromEmail) {
-    console.warn("[Email] RESEND_API_KEY or RESEND_FROM_EMAIL not configured — skipping password reset email");
+    console.warn("[Email] RESEND_API_KEY or RESEND_FROM_EMAIL not configured - skipping password reset email");
     return false;
   }
   const firstName = params.name.split(" ")[0] ?? params.name;
@@ -535,7 +535,7 @@ export async function sendPasswordResetEmail(params: PasswordResetEmailParams): 
               <a href="${params.resetUrl}" style="color:#fff;font-size:15px;font-weight:600;text-decoration:none;display:block;text-align:center;">Set New Password →</a>
             </td></tr>
           </table>
-          <p style="margin:0;font-size:13px;color:#64748b;">If you didn't request this, you can safely ignore this email — your password won't change.</p>
+          <p style="margin:0;font-size:13px;color:#64748b;">If you didn't request this, you can safely ignore this email - your password won't change.</p>
         </td></tr>
       </table>
     </td></tr>
@@ -569,7 +569,7 @@ export type CallVerificationEmailParams = {
 
 export async function sendCallVerificationEmail(params: CallVerificationEmailParams): Promise<boolean> {
   if (!ENV.resendApiKey || !ENV.resendFromEmail) {
-    console.warn("[Email] RESEND_API_KEY or RESEND_FROM_EMAIL not configured — skipping call verification email");
+    console.warn("[Email] RESEND_API_KEY or RESEND_FROM_EMAIL not configured - skipping call verification email");
     return false;
   }
   const firstName = params.name.split(" ")[0] ?? params.name;
@@ -602,14 +602,14 @@ export async function sendCallVerificationEmail(params: CallVerificationEmailPar
           <h1 style="margin:0 0 8px;font-size:24px;font-weight:700;color:#ffffff;">One quick step, ${firstName}</h1>
           <p style="margin:0 0 16px;color:#94a3b8;font-size:15px;line-height:1.6;">
             You asked Alex from Layer One Staging to call you on <strong style="color:#e2e8f0;">${whenCentral} (Central)</strong>.
-            Click below to confirm — we'll only call once you've verified this email.
+            Click below to confirm - we'll only call once you've verified this email.
           </p>
           <table cellpadding="0" cellspacing="0" style="margin:0 0 24px;">
             <tr><td style="background:#0A84FF;border-radius:12px;padding:14px 28px;">
               <a href="${params.verifyUrl}" style="color:#fff;font-size:15px;font-weight:700;text-decoration:none;display:block;text-align:center;">Confirm My Callback →</a>
             </td></tr>
           </table>
-          <p style="margin:0;font-size:13px;color:#64748b;">This link expires in 1 hour. If you didn't request a call, just ignore this email — nothing will be scheduled.</p>
+          <p style="margin:0;font-size:13px;color:#64748b;">This link expires in 1 hour. If you didn't request a call, just ignore this email - nothing will be scheduled.</p>
           <p style="margin:16px 0 0;font-size:13px;color:#64748b;">Changed your mind? <a href="${params.cancelUrl}" style="color:#94a3b8;text-decoration:underline;">Cancel this callback</a>.</p>
         </td></tr>
       </table>
@@ -643,7 +643,7 @@ export type StagingCompleteEmailParams = {
 
 export async function sendStagingCompleteEmail(params: StagingCompleteEmailParams): Promise<boolean> {
   if (!ENV.resendApiKey || !ENV.resendFromEmail) {
-    console.warn("[Email] RESEND_API_KEY or RESEND_FROM_EMAIL not configured — skipping staging complete email");
+    console.warn("[Email] RESEND_API_KEY or RESEND_FROM_EMAIL not configured - skipping staging complete email");
     return false;
   }
 
@@ -655,8 +655,8 @@ export async function sendStagingCompleteEmail(params: StagingCompleteEmailParam
   const deviceRows = params.devices.map(d => `
     <tr>
       <td style="padding:8px 12px;border-bottom:1px solid #1e3a5f;font-size:13px;color:#e2e8f0;font-family:monospace;">${d.deviceCode}</td>
-      <td style="padding:8px 12px;border-bottom:1px solid #1e3a5f;font-size:13px;color:#94a3b8;">${d.model ?? "—"}</td>
-      <td style="padding:8px 12px;border-bottom:1px solid #1e3a5f;font-size:13px;color:#64748b;">${d.serialNumber ?? "—"}</td>
+      <td style="padding:8px 12px;border-bottom:1px solid #1e3a5f;font-size:13px;color:#94a3b8;">${d.model ?? "-"}</td>
+      <td style="padding:8px 12px;border-bottom:1px solid #1e3a5f;font-size:13px;color:#64748b;">${d.serialNumber ?? "-"}</td>
     </tr>`).join("");
 
   const html = `<!DOCTYPE html>
@@ -682,7 +682,7 @@ export async function sendStagingCompleteEmail(params: StagingCompleteEmailParam
             <tr>
               <td style="padding-right:12px;font-size:28px;">✅</td>
               <td>
-                <p style="margin:0;font-size:18px;font-weight:700;color:#6ee7b7;">Staging Complete — Ready to Ship</p>
+                <p style="margin:0;font-size:18px;font-weight:700;color:#6ee7b7;">Staging Complete - Ready to Ship</p>
                 <p style="margin:4px 0 0;font-size:13px;color:#a7f3d0;">${deviceCount} ${deviceWord} ${deviceCount === 1 ? "has" : "have"} been staged and ${deviceCount === 1 ? "is" : "are"} ready for outbound shipment.</p>
               </td>
             </tr>
@@ -693,10 +693,10 @@ export async function sendStagingCompleteEmail(params: StagingCompleteEmailParam
         <tr><td style="padding:32px 40px;">
           <p style="margin:0 0 16px;font-size:16px;color:#e2e8f0;">Hi ${firstName},</p>
           <p style="margin:0 0 20px;font-size:14px;color:#94a3b8;line-height:1.6;">
-            Great news — your ${deviceWord} ${deviceCount === 1 ? "has" : "have"} completed staging at the Layer One facility and ${deviceCount === 1 ? "is" : "are"} now <strong style="color:#6ee7b7;">ready to ship</strong>. Please log into your portal to set or confirm the forwarding address and request outbound shipment.
+            Great news - your ${deviceWord} ${deviceCount === 1 ? "has" : "have"} completed staging at the Layer One facility and ${deviceCount === 1 ? "is" : "are"} now <strong style="color:#6ee7b7;">ready to ship</strong>. Please log into your portal to set or confirm the forwarding address and request outbound shipment.
           </p>
 
-          ${params.message ? `<div style="background:#07111f;border-left:3px solid #38bdf8;padding:12px 16px;margin:0 0 20px;border-radius:0 6px 6px 0;"><p style="margin:0;font-size:13px;color:#94a3b8;font-style:italic;">"${params.message}"</p><p style="margin:6px 0 0;font-size:12px;color:#475569;">— ${params.staffName}, Layer One</p></div>` : ""}
+          ${params.message ? `<div style="background:#07111f;border-left:3px solid #38bdf8;padding:12px 16px;margin:0 0 20px;border-radius:0 6px 6px 0;"><p style="margin:0;font-size:13px;color:#94a3b8;font-style:italic;">"${params.message}"</p><p style="margin:6px 0 0;font-size:12px;color:#475569;">- ${params.staffName}, Layer One</p></div>` : ""}
 
           <!-- Device Table -->
           <p style="margin:0 0 10px;font-size:13px;font-weight:700;color:#ffffff;text-transform:uppercase;letter-spacing:1px;">Staged ${deviceWord.charAt(0).toUpperCase() + deviceWord.slice(1)}</p>
@@ -726,7 +726,7 @@ export async function sendStagingCompleteEmail(params: StagingCompleteEmailParam
         <!-- Footer -->
         <tr><td style="padding:20px 40px;border-top:1px solid #1e3a5f;text-align:center;">
           <p style="margin:0;font-size:12px;color:#475569;">© ${new Date().getFullYear()} Layer One Staging. All rights reserved.</p>
-          <p style="margin:4px 0 0;font-size:12px;color:#475569;">Layer One Staging Solutions Portal — Warehouse &amp; Device Staging Management</p>
+          <p style="margin:4px 0 0;font-size:12px;color:#475569;">Layer One Staging Solutions Portal - Warehouse &amp; Device Staging Management</p>
         </td></tr>
       </table>
     </td></tr>
@@ -737,8 +737,8 @@ export async function sendStagingCompleteEmail(params: StagingCompleteEmailParam
   try {
     const resend = getResend();
     const subject = deviceCount === 1
-      ? `Device ${params.devices[0].deviceCode} is Ready to Ship — Layer One`
-      : `${deviceCount} Devices Ready to Ship — Layer One`;
+      ? `Device ${params.devices[0].deviceCode} is Ready to Ship - Layer One`
+      : `${deviceCount} Devices Ready to Ship - Layer One`;
 
     const { error } = await resend.emails.send({
       from: ENV.resendFromEmail,
@@ -776,7 +776,7 @@ export type IntroductionEmailParams = {
  */
 export async function sendIntroductionEmail(params: IntroductionEmailParams): Promise<boolean> {
   if (!ENV.resendApiKey || !ENV.resendFromEmail) {
-    console.warn("[Email] RESEND_API_KEY or RESEND_FROM_EMAIL not configured — skipping intro email");
+    console.warn("[Email] RESEND_API_KEY or RESEND_FROM_EMAIL not configured - skipping intro email");
     return false;
   }
 
@@ -864,7 +864,7 @@ export type DripEmailParams = {
  */
 export async function sendDripEmail(params: DripEmailParams): Promise<boolean> {
   if (!ENV.resendApiKey || !ENV.resendFromEmail) {
-    console.warn("[Email] RESEND_API_KEY or RESEND_FROM_EMAIL not configured — skipping drip email");
+    console.warn("[Email] RESEND_API_KEY or RESEND_FROM_EMAIL not configured - skipping drip email");
     return false;
   }
 
@@ -979,7 +979,7 @@ export async function sendDeliveryNotificationEmail(params: DeliveryNotification
     const { error } = await resend.emails.send({
       from: ENV.resendFromEmail,
       to: params.to,
-      subject: `Delivery received at Layer One — ${params.boxCount} box${params.boxCount !== 1 ? "es" : ""}, ${params.palletCount} pallet${params.palletCount !== 1 ? "s" : ""}`,
+      subject: `Delivery received at Layer One - ${params.boxCount} box${params.boxCount !== 1 ? "es" : ""}, ${params.palletCount} pallet${params.palletCount !== 1 ? "s" : ""}`,
       html,
     });
     if (error) { console.warn("[Email] Delivery notification error:", error); return false; }
@@ -1038,7 +1038,7 @@ export async function sendShipmentApprovalRequestEmail(params: ShipmentApprovalR
     const { error } = await resend.emails.send({
       from: ENV.resendFromEmail,
       to: params.staffEmail,
-      subject: `[Action Required] Shipment request from ${params.clientName} — #${params.shipmentId}`,
+      subject: `[Action Required] Shipment request from ${params.clientName} - #${params.shipmentId}`,
       html,
     });
     if (error) { console.warn("[Email] Shipment approval email error:", error); return false; }
@@ -1073,7 +1073,7 @@ export async function sendSupportTicketEmail(params: SupportTicketEmailParams): 
       <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;background:#0d1f35;border-radius:12px;border:1px solid #1e3a5f;overflow:hidden;">
         <tr><td style="padding:24px 32px;border-bottom:1px solid #1e3a5f;">
           <h2 style="margin:0;color:#fff;font-size:18px;">New Support Ticket</h2>
-          <p style="margin:4px 0 0;color:#94a3b8;font-size:13px;">Layer One Staging Solutions Portal — Client #${clientId}</p>
+          <p style="margin:4px 0 0;color:#94a3b8;font-size:13px;">Layer One Staging Solutions Portal - Client #${clientId}</p>
         </td></tr>
         <tr><td style="padding:24px 32px;">
           <table width="100%" cellpadding="0" cellspacing="0" style="font-size:14px;">
@@ -1125,7 +1125,7 @@ export type QuoteEmailParams = {
 
 export async function sendQuoteEmail(params: QuoteEmailParams): Promise<boolean> {
   if (!ENV.resendApiKey || !ENV.resendFromEmail) {
-    console.warn("[Email] RESEND_API_KEY or RESEND_FROM_EMAIL not configured — skipping quote email");
+    console.warn("[Email] RESEND_API_KEY or RESEND_FROM_EMAIL not configured - skipping quote email");
     return false;
   }
 
@@ -1203,7 +1203,7 @@ export async function sendQuoteEmail(params: QuoteEmailParams): Promise<boolean>
           <!-- CTA -->
           <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px;">
             <tr><td align="center">
-              <a href="${params.paymentLinkUrl}" style="display:inline-block;background:linear-gradient(135deg,#39a7ff,#6ee7b7);color:#07111f;font-weight:700;font-size:16px;padding:16px 40px;border-radius:8px;text-decoration:none;letter-spacing:0.5px;">Pay Now — ${fmt(params.totalAmount)}</a>
+              <a href="${params.paymentLinkUrl}" style="display:inline-block;background:linear-gradient(135deg,#39a7ff,#6ee7b7);color:#07111f;font-weight:700;font-size:16px;padding:16px 40px;border-radius:8px;text-decoration:none;letter-spacing:0.5px;">Pay Now - ${fmt(params.totalAmount)}</a>
             </td></tr>
           </table>
           <p style="margin:0 0 24px;font-size:13px;color:#64748b;text-align:center;">Secure payment powered by Stripe. Your account will be activated immediately after payment.</p>
@@ -1221,7 +1221,7 @@ export async function sendQuoteEmail(params: QuoteEmailParams): Promise<boolean>
         <!-- Footer -->
         <tr><td style="padding:20px 40px;border-top:1px solid #1e3a5f;text-align:center;">
           <p style="margin:0;font-size:12px;color:#475569;">© ${new Date().getFullYear()} Layer One Staging · Dallas-Fort Worth, TX</p>
-          <p style="margin:4px 0 0;font-size:12px;color:#475569;">Layer One Staging Solutions Portal — Warehouse &amp; Device Staging Management</p>
+          <p style="margin:4px 0 0;font-size:12px;color:#475569;">Layer One Staging Solutions Portal - Warehouse &amp; Device Staging Management</p>
         </td></tr>
       </table>
     </td></tr>
@@ -1234,7 +1234,7 @@ export async function sendQuoteEmail(params: QuoteEmailParams): Promise<boolean>
     const { error } = await resend.emails.send({
       from: ENV.resendFromEmail,
       to: params.to,
-      subject: `Your Layer One Quote — ${fmt(params.totalAmount)} (${params.company})`,
+      subject: `Your Layer One Quote - ${fmt(params.totalAmount)} (${params.company})`,
       html,
     });
     if (error) { console.warn("[Email] Quote email error:", error); return false; }
@@ -1313,7 +1313,7 @@ export async function sendTrackingNotificationEmail(params: TrackingNotification
     const { error } = await resend.emails.send({
       from: ENV.resendFromEmail,
       to: params.to,
-      subject: `Shipment ${params.shipmentCode} Dispatched — ${params.carrier} ${params.trackingNumber}`,
+      subject: `Shipment ${params.shipmentCode} Dispatched - ${params.carrier} ${params.trackingNumber}`,
       html,
     });
     if (error) { console.warn("[Email] Tracking notification error:", error); return false; }

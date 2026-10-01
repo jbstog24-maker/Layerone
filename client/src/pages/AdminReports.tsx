@@ -366,8 +366,8 @@ export default function AdminReports() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-1.5">
-            {(stats?.pendingShipments ?? 0) > 5 && <p className="text-sm text-amber-300/80">{stats?.pendingShipments} shipments are pending — review the shipments queue.</p>}
-            {(stats?.pendingTasks ?? 0) > 10 && <p className="text-sm text-amber-300/80">{stats?.pendingTasks} staging tasks are pending — check the staging board.</p>}
+            {(stats?.pendingShipments ?? 0) > 5 && <p className="text-sm text-amber-300/80">{stats?.pendingShipments} shipments are pending - review the shipments queue.</p>}
+            {(stats?.pendingTasks ?? 0) > 10 && <p className="text-sm text-amber-300/80">{stats?.pendingTasks} staging tasks are pending - check the staging board.</p>}
             {(stats?.draftInvoices ?? 0) > 3 && <p className="text-sm text-amber-300/80">{stats?.draftInvoices} draft invoices need review before sending.</p>}
           </CardContent>
         </Card>

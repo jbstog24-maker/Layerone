@@ -300,7 +300,7 @@ export async function createUser(data: {
 }) {
   const db = await getDb();
   if (!db) throw new Error("Database unavailable");
-  // Generate a placeholder openId — will be replaced when user logs in via OAuth
+  // Generate a placeholder openId - will be replaced when user logs in via OAuth
   const placeholderOpenId = `pre_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
   const [row] = await db.insert(users).values({
     openId: placeholderOpenId,
@@ -1203,7 +1203,7 @@ export async function restoreInquiry(id: number) {
 export async function purgeInquiry(id: number) {
   const db = await getDb();
   if (!db) throw new Error("DB unavailable");
-  // Hard delete — only called from the trash view after explicit confirmation.
+  // Hard delete - only called from the trash view after explicit confirmation.
   await db.delete(packageInquiries).where(eq(packageInquiries.id, id));
 }
 

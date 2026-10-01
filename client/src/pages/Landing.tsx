@@ -91,7 +91,7 @@ function Hero() {
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/15 bg-white/5 text-slate-400 text-xs mb-6">
               <span className="w-2 h-2 rounded-full bg-[#0A84FF] shadow-[0_0_0_5px_rgba(10,132,255,0.15)]" />
-              IT Staging &amp; Rollout Logistics — Dallas–Fort Worth, TX
+              IT Staging &amp; Rollout Logistics - Dallas–Fort Worth, TX
             </div>
             <h1 className="text-5xl md:text-6xl font-black leading-[1.02] tracking-[-2px] mb-6 text-white">
               IT Equipment Staged, Kitted
@@ -99,7 +99,7 @@ function Hero() {
               <span className="text-[#0A84FF]">&amp; Deployment-Ready.</span>
             </h1>
             <p className="text-slate-400 text-lg leading-relaxed mb-8 max-w-lg">
-              Ship your equipment to us. We receive, inventory, configure, label, QA, kit by location, and forward it to the field — ready for installation.
+              Ship your equipment to us. We receive, inventory, configure, label, QA, kit by location, and forward it to the field - ready for installation.
             </p>
             <div className="flex flex-wrap gap-3 mb-8">
               {isAuthenticated ? (
@@ -152,7 +152,7 @@ function Hero() {
             </div>
           </div>
 
-          {/* Right — facility photo card */}
+          {/* Right - facility photo card */}
           <div className="relative hidden md:block">
             <div className="relative rounded-2xl overflow-hidden border border-white/10 shadow-[0_24px_70px_rgba(0,0,0,0.5)]">
               <img
@@ -164,7 +164,7 @@ function Hero() {
               <div className="absolute bottom-0 left-0 right-0 p-6">
                 <p className="text-sm font-bold text-white mb-1">Carrollton, TX Staging Facility</p>
                 <p className="text-xs text-slate-300 leading-relaxed">
-                  Secure, camera-monitored units with dock access — your equipment received, organized, and staged under one roof.
+                  Secure, camera-monitored units with dock access - your equipment received, organized, and staged under one roof.
                 </p>
               </div>
             </div>
@@ -188,7 +188,7 @@ function Services() {
     {
       icon: Truck,
       title: "Receiving & Inventory Control",
-      desc: "We accept inbound freight on your behalf — every pallet, box, and device counted, inspected, photographed, and logged. Damage is flagged immediately.",
+      desc: "We accept inbound freight on your behalf - every pallet, box, and device counted, inspected, photographed, and logged. Damage is flagged immediately.",
     },
     {
       icon: Warehouse,
@@ -203,7 +203,7 @@ function Services() {
     {
       icon: Tags,
       title: "Asset Tagging & Labeling",
-      desc: "Barcode and QR asset tags plus site labels applied to your specification — scannable from receiving to install.",
+      desc: "Barcode and QR asset tags plus site labels applied to your specification - scannable from receiving to install.",
     },
     {
       icon: Zap,
@@ -213,17 +213,17 @@ function Services() {
     {
       icon: ClipboardCheck,
       title: "QA Verification",
-      desc: "Deployment-readiness verification on every device — power-on checks, config review, and a signed QA checklist.",
+      desc: "Deployment-readiness verification on every device - power-on checks, config review, and a signed QA checklist.",
     },
     {
       icon: Camera,
       title: "Photo Documentation",
-      desc: "Every stage photographed — inbound condition, staging progress, outbound packing — visible in your customer portal.",
+      desc: "Every stage photographed - inbound condition, staging progress, outbound packing - visible in your customer portal.",
     },
     {
       icon: Package,
       title: "Site-Specific Kitting",
-      desc: "Kits assembled per location: devices, patch cables, labels, packing lists, and install notes — ready to open and install.",
+      desc: "Kits assembled per location: devices, patch cables, labels, packing lists, and install notes - ready to open and install.",
     },
     {
       icon: Box,
@@ -238,12 +238,12 @@ function Services() {
     {
       icon: Shield,
       title: "Chain-of-Custody Tracking",
-      desc: "Every item tracked from receipt to dispatch with a complete audit trail — nothing moves without a record.",
+      desc: "Every item tracked from receipt to dispatch with a complete audit trail - nothing moves without a record.",
     },
     {
       icon: Users,
       title: "Dedicated Staging Support",
-      desc: "Staging labor scoped to your rollout and approved by you — labeling, config, packing, and kit prep handled by our team.",
+      desc: "Staging labor scoped to your rollout and approved by you - labeling, config, packing, and kit prep handled by our team.",
     },
   ];
 
@@ -257,7 +257,7 @@ function Services() {
             <span className="text-[#0A84FF]">not a storage unit with a forklift.</span>
           </h2>
           <p className="text-slate-400 text-lg max-w-2xl">
-            Every capability your rollout needs between procurement and installation — run by our warehouse team with full accountability and portal visibility.
+            Every capability your rollout needs between procurement and installation - run by our warehouse team with full accountability and portal visibility.
           </p>
         </div>
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -281,9 +281,9 @@ function WhyLayerOne() {
     { title: "Deployment-ready equipment", desc: "Configured, labeled, and QA-verified before it leaves our dock." },
     { title: "Reduced onsite technician time", desc: "Techs install instead of unboxing, sorting, and troubleshooting." },
     { title: "Fewer missing or wrong devices", desc: "Per-site kits are checked against the site list before they ship." },
-    { title: "Standardized configurations", desc: "Every location gets the same baseline — no snowflake installs." },
+    { title: "Standardized configurations", desc: "Every location gets the same baseline - no snowflake installs." },
     { title: "Documented QA", desc: "A signed readiness checklist and photos travel with every kit." },
-    { title: "Site-specific kits", desc: "Each location receives exactly what it needs — nothing more, nothing less." },
+    { title: "Site-specific kits", desc: "Each location receives exactly what it needs - nothing more, nothing less." },
     { title: "Centralized rollout inventory", desc: "One live inventory across all sites, visible in your portal." },
     { title: "One staging point for multi-site deployments", desc: "A single accountable partner between your vendors and your field teams." },
   ];
@@ -299,7 +299,7 @@ function WhyLayerOne() {
               <span className="text-[#0A84FF]">We close the gaps.</span>
             </h2>
             <p className="text-slate-400 text-lg leading-relaxed">
-              Most deployment problems aren&apos;t installation problems — they&apos;re staging problems. Wrong gear at the wrong site, missing cables, unconfigured devices, no record of what shipped where. Layer One exists to eliminate that entire category of failure.
+              Most deployment problems aren&apos;t installation problems - they&apos;re staging problems. Wrong gear at the wrong site, missing cables, unconfigured devices, no record of what shipped where. Layer One exists to eliminate that entire category of failure.
             </p>
           </div>
           <ul className="space-y-3">
@@ -321,7 +321,7 @@ function WhyLayerOne() {
 
 function Rollouts() {
   const useCases = [
-    { icon: Store, title: "Retail Rollouts", desc: "Identical kits for every store — POS, network, and peripherals staged to the planogram." },
+    { icon: Store, title: "Retail Rollouts", desc: "Identical kits for every store - POS, network, and peripherals staged to the planogram." },
     { icon: Users, title: "Restaurant & Franchise Deployments", desc: "Repeatable site kits that make 10 locations feel like one." },
     { icon: Network, title: "Network Refreshes", desc: "Switches and firewalls configured, labeled, and shipped per site cutover schedule." },
     { icon: BarChart3, title: "POS Deployments", desc: "Terminals, printers, and payment hardware kitted complete with install guides." },
@@ -342,7 +342,7 @@ function Rollouts() {
             <span className="text-[#0A84FF]">thousands of locations.</span>
           </h2>
           <p className="text-slate-400 text-lg max-w-2xl mx-auto">
-            One staging point, one inventory, one accountable team — whether you&apos;re opening five stores or refreshing five hundred sites.
+            One staging point, one inventory, one accountable team - whether you&apos;re opening five stores or refreshing five hundred sites.
           </p>
         </div>
         <div className="grid md:grid-cols-3 gap-4">
@@ -371,14 +371,14 @@ function Rollouts() {
 
 function HowItWorks() {
   const steps = [
-    { n: "01", icon: Truck, title: "Receive", desc: "Inbound freight accepted on your behalf — every pallet, box, and device counted and inspected at the dock." },
+    { n: "01", icon: Truck, title: "Receive", desc: "Inbound freight accepted on your behalf - every pallet, box, and device counted and inspected at the dock." },
     { n: "02", icon: ClipboardCheck, title: "Inventory", desc: "Every item logged into your portal inventory with photos, quantities, and condition notes." },
     { n: "03", icon: Zap, title: "Configure", desc: "Firmware updates and baseline device configuration completed to your spec sheet before anything ships." },
     { n: "04", icon: Tags, title: "Asset Tag", desc: "Asset tags and labels applied; serial numbers and MAC addresses captured per device." },
-    { n: "05", icon: Shield, title: "QA", desc: "Deployment-readiness verification — power-on checks, config review, and a signed QA checklist." },
+    { n: "05", icon: Shield, title: "QA", desc: "Deployment-readiness verification - power-on checks, config review, and a signed QA checklist." },
     { n: "06", icon: Package, title: "Kit by Site", desc: "Site-specific kits assembled: devices, patch cables, labels, packing lists, and install notes per location." },
-    { n: "07", icon: Camera, title: "Document", desc: "Photo documentation at every stage — inbound, staging, and outbound — visible in your portal." },
-    { n: "08", icon: Send, title: "Ship / Deliver", desc: "Palletized or parcel outbound shipped nationwide with tracking — or local DFW delivery to your sites." },
+    { n: "07", icon: Camera, title: "Document", desc: "Photo documentation at every stage - inbound, staging, and outbound - visible in your portal." },
+    { n: "08", icon: Send, title: "Ship / Deliver", desc: "Palletized or parcel outbound shipped nationwide with tracking - or local DFW delivery to your sites." },
   ];
 
   return (
@@ -391,7 +391,7 @@ function HowItWorks() {
             <span className="text-[#0A84FF]"> and installation.</span>
           </h2>
           <p className="text-slate-400 text-lg max-w-3xl leading-relaxed">
-            Your vendors ship to us. Your technicians receive finished kits. In between, Layer One runs a disciplined staging operation —{" "}
+            Your vendors ship to us. Your technicians receive finished kits. In between, Layer One runs a disciplined staging operation -{" "}
             <span className="text-slate-100 font-semibold">every technician receives the correct equipment, configured correctly, labeled, documented, and ready to install before they arrive onsite.</span>
           </p>
         </div>
@@ -518,7 +518,7 @@ function Packages() {
                 Every rollout is quoted as a project.
               </h2>
               <p className="text-slate-400 text-lg max-w-2xl leading-relaxed">
-                Tell us the number of locations, devices, services required, storage needs, and deployment schedule — we&apos;ll build a staging and logistics quote around your rollout. Volume discounts apply: per-device and per-site rates come down as quantities scale, itemized in your quote. Prefer it simple? Our per-pallet path is $12/pallet receiving and $30/pallet/month storage, plus the services you pick.
+                Tell us the number of locations, devices, services required, storage needs, and deployment schedule - we&apos;ll build a staging and logistics quote around your rollout. Volume discounts apply: per-device and per-site rates come down as quantities scale, itemized in your quote. Prefer it simple? Our per-pallet path is $12/pallet receiving and $30/pallet/month storage, plus the services you pick.
               </p>
             </div>
             <a
@@ -533,7 +533,7 @@ function Packages() {
         <div className="mb-12">
           <h2 className="text-4xl font-black tracking-[-1.5px] text-white mb-3">Managed service packages</h2>
           <p className="text-slate-400 text-lg max-w-2xl">
-            Our package tiers are starting frameworks for recurring work — most multi-site projects are custom-quoted. Every package includes full portal access, photo documentation, and transparent billing.
+            Our package tiers are starting frameworks for recurring work - most multi-site projects are custom-quoted. Every package includes full portal access, photo documentation, and transparent billing.
           </p>
         </div>
         <div className="grid md:grid-cols-3 lg:grid-cols-5 gap-4">
@@ -567,7 +567,7 @@ function Packages() {
                     align="end"
                     className="w-72 max-w-[calc(100vw-2rem)] bg-[#0B1320] border border-white/10 rounded-xl p-4 shadow-2xl"
                   >
-                    <p className="text-sm font-bold text-white mb-1">{t.name} — what's included</p>
+                    <p className="text-sm font-bold text-white mb-1">{t.name} - what's included</p>
                     <p className="text-xs text-[#0A84FF] font-semibold mb-3">{t.details.billing}</p>
                     <dl className="space-y-2 text-xs">
                       {[
@@ -634,7 +634,7 @@ function AddOns() {
       points: [
         "Applies when your stored device count goes over your package's included limit.",
         "Secure, inventoried storage with full visibility in your client portal.",
-        "Billed monthly per device — only for devices above your included limit.",
+        "Billed monthly per device - only for devices above your included limit.",
       ],
     },
     {
@@ -654,7 +654,7 @@ function AddOns() {
       points: [
         "Applies to pallets received or stored beyond your included allowance.",
         "Forklift receiving, inspection, and secure floor or rack storage.",
-        "Billed per pallet — final rate depends on facility, size, handling, and duration.",
+        "Billed per pallet - final rate depends on facility, size, handling, and duration.",
       ],
     },
     {
@@ -690,7 +690,7 @@ function AddOns() {
     {
       item: "Site-kit assembly",
       rate: "$250+/site kit",
-      note: "Up to 2 hrs staging labor, QA checklist & photo docs — devices, patch cables, labels, packing list & install notes",
+      note: "Up to 2 hrs staging labor, QA checklist & photo docs - devices, patch cables, labels, packing list & install notes",
       points: [
         "Fixed-price kit build for a single site deployment.",
         "Up to 2 hours of staging labor, QA checklist, and photo documentation.",
@@ -725,7 +725,7 @@ function AddOns() {
       points: [
         "Expedited turnaround when your timeline can't wait for standard scheduling.",
         "Applies a 1.5×–2× multiplier to the standard labor rate.",
-        "A minimum labor block may apply — confirmed with you before work starts.",
+        "A minimum labor block may apply - confirmed with you before work starts.",
       ],
     },
   ];
@@ -736,7 +736,7 @@ function AddOns() {
         <div className="mb-10">
           <h2 className="text-4xl font-black tracking-[-1.5px] text-white mb-3">Overages &amp; add-on services</h2>
           <p className="text-slate-400 text-lg max-w-2xl">
-            Package limits keep pricing predictable. Any volume or work outside the included allowance is billed as an overage or add-on after approval. On large rollouts, per-device and per-site rates are discounted by volume — your project quote will show the scaled pricing.
+            Package limits keep pricing predictable. Any volume or work outside the included allowance is billed as an overage or add-on after approval. On large rollouts, per-device and per-site rates are discounted by volume - your project quote will show the scaled pricing.
           </p>
         </div>
         <div className="rounded-2xl border border-white/10 overflow-hidden">
@@ -791,7 +791,7 @@ function AddOns() {
         </div>
         <div className="mt-5 rounded-xl border border-amber-400/25 bg-amber-400/10 px-5 py-4">
           <p className="text-amber-200 text-sm leading-relaxed">
-            <span className="font-bold">Not included by default:</span> unlimited storage, unlimited dock usage, free packing materials, shipping carrier costs, advanced configuration labor, troubleshooting, disposal/recycling, or insurance for unusually high-value equipment — unless added in writing.
+            <span className="font-bold">Not included by default:</span> unlimited storage, unlimited dock usage, free packing materials, shipping carrier costs, advanced configuration labor, troubleshooting, disposal/recycling, or insurance for unusually high-value equipment - unless added in writing.
           </p>
         </div>
       </div>
@@ -822,7 +822,7 @@ function PortalSection() {
               <span className="text-[#0A84FF]">your operations.</span>
             </h2>
             <p className="text-slate-400 text-lg leading-relaxed mb-8">
-              Every Layer One client gets access to a dedicated customer portal. Track your inventory, view photos, monitor shipments, and review invoices — all in one place, in real time.
+              Every Layer One client gets access to a dedicated customer portal. Track your inventory, view photos, monitor shipments, and review invoices - all in one place, in real time.
             </p>
             <div className="grid grid-cols-2 gap-3">
               {features.map(f => (
@@ -906,7 +906,7 @@ function Industries() {
           <span className="inline-block text-xs font-semibold tracking-widest uppercase text-[#0A84FF] mb-3">Built for your business</span>
           <h2 className="text-4xl font-black tracking-[-1.5px] text-white mb-3">Industries we support</h2>
           <p className="text-slate-400 text-lg max-w-2xl mx-auto">
-            Layer One is purpose-built for the teams that move technology at scale — from single-site installs to multi-location rollouts.
+            Layer One is purpose-built for the teams that move technology at scale - from single-site installs to multi-location rollouts.
           </p>
         </div>
         <div className="grid md:grid-cols-3 gap-4">
@@ -939,10 +939,10 @@ function About() {
               Disabled Veteran-Owned · 20+ Years in IT
             </div>
             <p className="text-slate-400 text-lg leading-relaxed mb-6">
-              Layer One Staging is a disabled veteran-owned deployment staging, warehousing, and IT equipment logistics company based in Carrollton, Texas — founded by a U.S. Air Force veteran with more than 20 years in the IT field. We exist for one reason: to make sure the right equipment arrives at the right site, configured, labeled, and ready — every time.
+              Layer One Staging is a disabled veteran-owned deployment staging, warehousing, and IT equipment logistics company based in Carrollton, Texas - founded by a U.S. Air Force veteran with more than 20 years in the IT field. We exist for one reason: to make sure the right equipment arrives at the right site, configured, labeled, and ready - every time.
             </p>
             <p className="text-slate-400 leading-relaxed mb-6">
-              We are not an IT support company and we don&apos;t dispatch field technicians to your locations. We run the warehouse behind your rollout: receiving, secure storage, staging, kitting, QA verification, and outbound shipping — with photo documentation and live portal visibility on every step.
+              We are not an IT support company and we don&apos;t dispatch field technicians to your locations. We run the warehouse behind your rollout: receiving, secure storage, staging, kitting, QA verification, and outbound shipping - with photo documentation and live portal visibility on every step.
             </p>
             <ul className="space-y-3">
               {[
@@ -969,7 +969,7 @@ function About() {
             <div className="absolute inset-0 bg-gradient-to-t from-[#0B1320]/90 via-[#0B1320]/20 to-transparent" />
             <div className="absolute bottom-0 left-0 right-0 p-5">
               <h3 className="text-base font-bold text-white mb-1">Dock Access for Deliveries</h3>
-              <p className="text-xs text-slate-300 leading-relaxed">Roll-up dock doors accept palletized freight from any carrier — FedEx, UPS, LTL, and white-glove.</p>
+              <p className="text-xs text-slate-300 leading-relaxed">Roll-up dock doors accept palletized freight from any carrier - FedEx, UPS, LTL, and white-glove.</p>
             </div>
           </div>
         </div>
@@ -982,7 +982,7 @@ const FACILITY_IMAGES = [
   {
     src: "/images/facility-corridor.jpg",
     title: "Secure Access Corridor",
-    desc: "Individual secured units line the main corridor — client equipment organized on industrial racking, isolated, labeled, and access-controlled.",
+    desc: "Individual secured units line the main corridor - client equipment organized on industrial racking, isolated, labeled, and access-controlled.",
     callouts: [
       { icon: Video, label: "Multi-Camera Coverage", pos: "top-4 left-4" },
       { icon: Shield, label: "Keypad-Secured Units", pos: "bottom-4 left-4" },
@@ -991,7 +991,7 @@ const FACILITY_IMAGES = [
   {
     src: "/images/facility-dock.jpg",
     title: "Dock Access for Deliveries",
-    desc: "Roll-up dock doors with yellow safety bumpers accept palletized freight from any carrier — FedEx, UPS, LTL, and white-glove.",
+    desc: "Roll-up dock doors with yellow safety bumpers accept palletized freight from any carrier - FedEx, UPS, LTL, and white-glove.",
     callouts: [
       { icon: Truck, label: "Dock-Height Access", pos: "bottom-4 right-4" },
       { icon: Video, label: "Dock Camera", pos: "top-4 left-4" },
@@ -1012,7 +1012,7 @@ function FacilityGallery() {
             <span className="text-[#0A84FF]">professional-grade staging.</span>
           </h2>
           <p className="text-slate-400 text-lg max-w-2xl">
-            Purpose-built for receiving, staging, and shipping technology equipment — every device tracked from dock to dispatch.
+            Purpose-built for receiving, staging, and shipping technology equipment - every device tracked from dock to dispatch.
           </p>
         </div>
 
@@ -1073,7 +1073,7 @@ const FAQ_ITEMS = [
   {
     category: "Services",
     q: "What exactly does Layer One do?",
-    a: "Layer One Staging provides professional warehousing, receiving, staging, and outbound shipping services for technology equipment. We receive your hardware shipments, inventory every device, kit and stage equipment to your specifications, and ship it to your deployment sites — all tracked in real time through our customer portal."
+    a: "Layer One Staging provides professional warehousing, receiving, staging, and outbound shipping services for technology equipment. We receive your hardware shipments, inventory every device, kit and stage equipment to your specifications, and ship it to your deployment sites - all tracked in real time through our customer portal."
   },
   {
     category: "Services",
@@ -1088,7 +1088,7 @@ const FAQ_ITEMS = [
   {
     category: "Pricing & Packages",
     q: "What is the difference between the packages?",
-    a: "Our five tiers — Basic, Standard, Professional, Enterprise, and Custom — differ in storage capacity, device limits, included receiving volume, and outbound shipment coordination. Basic is ideal for one-time projects; Custom is designed for large-scale, ongoing enterprise deployments. See our Packages section for a full comparison."
+    a: "Our five tiers - Basic, Standard, Professional, Enterprise, and Custom - differ in storage capacity, device limits, included receiving volume, and outbound shipment coordination. Basic is ideal for one-time projects; Custom is designed for large-scale, ongoing enterprise deployments. See our Packages section for a full comparison."
   },
   {
     category: "Pricing & Packages",
@@ -1133,7 +1133,7 @@ const FAQ_ITEMS = [
   {
     category: "Portal & Tracking",
     q: "How do I track my equipment through the portal?",
-    a: "Your customer portal provides real-time visibility into every stage of your equipment's lifecycle. You can view expected delivery status, receiving logs with photos, pallet and box inventory, device-level staging progress, outbound shipment tracking, and invoices — all from a single dashboard accessible 24/7."
+    a: "Your customer portal provides real-time visibility into every stage of your equipment's lifecycle. You can view expected delivery status, receiving logs with photos, pallet and box inventory, device-level staging progress, outbound shipment tracking, and invoices - all from a single dashboard accessible 24/7."
   },
   {
     category: "Portal & Tracking",
@@ -1215,7 +1215,7 @@ function FAQ() {
         </div>
 
         <p className="text-center text-sm text-slate-500 mt-10">
-          Still have questions? <a href="mailto:info@layeronestaging.com" className="text-[#0A84FF] hover:underline">Contact our team</a> — we typically respond within one business day.
+          Still have questions? <a href="mailto:info@layeronestaging.com" className="text-[#0A84FF] hover:underline">Contact our team</a> - we typically respond within one business day.
         </p>
       </div>
     </section>
@@ -1278,7 +1278,7 @@ function CTA() {
 }
 
 const FOOTER_SERVICES = [
-  { href: "/services/it-equipment-staging-dallas-fort-worth", label: "IT Equipment Staging — DFW" },
+  { href: "/services/it-equipment-staging-dallas-fort-worth", label: "IT Equipment Staging - DFW" },
   { href: "/services/network-equipment-staging", label: "Network Equipment Staging" },
   { href: "/services/it-rollout-logistics", label: "IT Rollout Logistics" },
   { href: "/services/technology-deployment-logistics", label: "Technology Deployment Logistics" },
@@ -1300,7 +1300,7 @@ function Footer() {
           <div>
             <LayerOneLogo />
             <p className="text-slate-400 text-sm leading-relaxed mt-4 max-w-xs">
-              The operational layer between equipment procurement and field deployment — serving the Dallas–Fort Worth metro and shipping nationwide.
+              The operational layer between equipment procurement and field deployment - serving the Dallas–Fort Worth metro and shipping nationwide.
             </p>
           </div>
           <div>
@@ -1349,7 +1349,7 @@ const LOCAL_BUSINESS_SCHEMA = {
   "@id": "https://www.layeronestaging.com/#business",
   name: "Layer One Staging",
   description:
-    "IT equipment staging, kitting, and deployment logistics. We receive, inventory, configure, label, QA, kit by location, and ship technology equipment deployment-ready — serving Dallas–Fort Worth and shipping nationwide.",
+    "IT equipment staging, kitting, and deployment logistics. We receive, inventory, configure, label, QA, kit by location, and ship technology equipment deployment-ready - serving Dallas–Fort Worth and shipping nationwide.",
   url: "https://www.layeronestaging.com",
   email: "info@layeronestaging.com",
   telephone: "+1-469-537-4378",

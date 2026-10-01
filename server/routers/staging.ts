@@ -111,7 +111,7 @@ export const stagingRouter = router({
       if (allStaged) {
         await updateStagingTask(input.taskId, { status: "completed", completionDate: new Date() } as any);
         await logActivity({ userId: ctx.user.id, clientId: task.clientId, action: `Staging task #${input.taskId} auto-completed (all ${deviceIds.length} devices staged)`, entityType: "staging_task", entityId: input.taskId });
-        return { advanced: true, message: `Task auto-completed — all ${deviceIds.length} devices staged` };
+        return { advanced: true, message: `Task auto-completed - all ${deviceIds.length} devices staged` };
       }
       return { advanced: false };
     }),

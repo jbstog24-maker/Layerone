@@ -175,7 +175,7 @@ function ActionCenter() {
         {alerts.length === 0 ? (
           <div className="flex items-center gap-2 text-sm text-muted-foreground py-2">
             <CheckCircle2 className="w-4 h-4 text-green-400" />
-            All caught up — nothing needs your attention.
+            All caught up - nothing needs your attention.
           </div>
         ) : (
           <div className="space-y-2">

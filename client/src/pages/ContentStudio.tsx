@@ -113,9 +113,9 @@ const IMAGE_TEMPLATES = [
 
 // ─── Video duration options ───────────────────────────────────────────────────
 const VIDEO_DURATIONS = [
-  { value: "15s", label: "15 seconds — Social / Reel" },
-  { value: "30s", label: "30 seconds — Standard Ad" },
-  { value: "60s", label: "60 seconds — Explainer" },
+  { value: "15s", label: "15 seconds - Social / Reel" },
+  { value: "30s", label: "30 seconds - Standard Ad" },
+  { value: "60s", label: "60 seconds - Explainer" },
 ];
 
 // ─── Video concept templates ──────────────────────────────────────────────────
@@ -566,7 +566,7 @@ export default function ContentStudio() {
                         Video Settings
                       </CardTitle>
                       <CardDescription className="text-slate-400 text-xs mt-1">
-                        Describe your video concept — AI generates a full production package with script, scenes, and storyboard
+                        Describe your video concept - AI generates a full production package with script, scenes, and storyboard
                       </CardDescription>
                     </div>
                     {(videoTitle || videoConcept || generatedVideo) && (
@@ -772,7 +772,7 @@ export default function ContentStudio() {
                         Caption Settings
                       </CardTitle>
                       <CardDescription className="text-slate-400 text-xs mt-1">
-                        Pick a generated image or describe one — AI writes platform-optimised captions
+                        Pick a generated image or describe one - AI writes platform-optimised captions
                       </CardDescription>
                     </div>
                     {(captionAssetId || captionCustomDesc || captionResult) && (
@@ -809,7 +809,7 @@ export default function ContentStudio() {
                       </Select>
                     ) : (
                       <p className="text-slate-500 text-xs bg-slate-800 rounded-lg p-3 border border-slate-700">
-                        No gallery images yet — generate one in the Image Generator tab first, or use a custom description below.
+                        No gallery images yet - generate one in the Image Generator tab first, or use a custom description below.
                       </p>
                     )}
                   </div>
