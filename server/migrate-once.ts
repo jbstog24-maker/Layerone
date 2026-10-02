@@ -185,6 +185,80 @@ CREATE TABLE IF NOT EXISTS \`quote_terminations\` (
   INDEX \`quote_terminations_inquiryId_idx\` (\`inquiryId\`)
 )`;
 
+// 2026-10-02: Alex voice account-access tables. The session token Alex holds
+// is an HMAC; only its SHA-256 hash is stored (never the token itself).
+const CREATE_VOICE_SESSIONS = `
+CREATE TABLE IF NOT EXISTS \`voice_sessions\` (
+  \`id\` int AUTO_INCREMENT NOT NULL,
+  \`userId\` int NOT NULL,
+  \`blandCallId\` varchar(128),
+  \`tokenHash\` varchar(255),
+  \`verifiedAt\` timestamp NULL,
+  \`expiresAt\` timestamp NULL,
+  \`failedAttempts\` int NOT NULL DEFAULT 0,
+  \`lockedUntil\` timestamp NULL,
+  CONSTRAINT \`voice_sessions_id\` PRIMARY KEY(\`id\`),
+  INDEX \`voice_sessions_userId_idx\` (\`userId\`)
+)`;
+
+const CREATE_ACCOUNT_NOTES = `
+CREATE TABLE IF NOT EXISTS \`account_notes\` (
+  \`id\` int AUTO_INCREMENT NOT NULL,
+  \`userId\` int NOT NULL,
+  \`authorType\` enum('alex','admin','customer','system') NOT NULL DEFAULT 'alex',
+  \`note\` text,
+  \`blandCallId\` varchar(128),
+  \`createdAt\` timestamp NOT NULL DEFAULT (now()),
+  CONSTRAINT \`account_notes_id\` PRIMARY KEY(\`id\`),
+  INDEX \`account_notes_userId_idx\` (\`userId\`)
+)`;
+
+const CREATE_ACCOUNT_AUDIT_LOG = `
+CREATE TABLE IF NOT EXISTS \`account_audit_log\` (
+  \`id\` int AUTO_INCREMENT NOT NULL,
+  \`userId\` int NOT NULL,
+  \`actor\` enum('alex','admin','customer') NOT NULL,
+  \`action\` varchar(128) NOT NULL,
+  \`entityType\` varchar(64),
+  \`entityId\` varchar(128),
+  \`beforeValue\` text,
+  \`afterValue\` text,
+  \`blandCallId\` varchar(128),
+  \`createdAt\` timestamp NOT NULL DEFAULT (now()),
+  CONSTRAINT \`account_audit_log_id\` PRIMARY KEY(\`id\`),
+  INDEX \`account_audit_log_userId_idx\` (\`userId\`)
+)`;
+
+const CREATE_VOICE_APPROVALS = `
+CREATE TABLE IF NOT EXISTS \`voice_approvals\` (
+  \`id\` int AUTO_INCREMENT NOT NULL,
+  \`userId\` int NOT NULL,
+  \`kind\` varchar(64) NOT NULL,
+  \`field\` varchar(128),
+  \`requestedValue\` text,
+  \`status\` enum('pending','approved','rejected') NOT NULL DEFAULT 'pending',
+  \`blandCallId\` varchar(128),
+  \`createdAt\` timestamp NOT NULL DEFAULT (now()),
+  \`resolvedAt\` timestamp NULL,
+  \`resolvedBy\` int,
+  CONSTRAINT \`voice_approvals_id\` PRIMARY KEY(\`id\`),
+  INDEX \`voice_approvals_status_idx\` (\`status\`)
+)`;
+
+// 2026-10-02: inbound spam/sales-call blocklist. Alex checks this at the start
+// of every inbound call; blocked callers are ended immediately so Bland
+// per-minute charges stay near zero for spam. Phone is digits-only.
+const CREATE_BLOCKED_NUMBERS = `
+CREATE TABLE IF NOT EXISTS \`blocked_numbers\` (
+  \`id\` int AUTO_INCREMENT NOT NULL,
+  \`phone\` varchar(30) NOT NULL,
+  \`reason\` varchar(255),
+  \`source\` enum('alex','manual','auto') NOT NULL DEFAULT 'manual',
+  \`createdAt\` timestamp NOT NULL DEFAULT (now()),
+  CONSTRAINT \`blocked_numbers_id\` PRIMARY KEY(\`id\`),
+  CONSTRAINT \`blocked_numbers_phone_unique\` UNIQUE(\`phone\`)
+)`;
+
 /**
  * Run one additive step without letting it abort the remaining steps.
  * A failure here is never fatal to boot; it is logged and we continue so a
@@ -364,6 +438,60 @@ export async function runOnceMigration(): Promise<void> {
       );
       const affected = res?.affectedRows ?? 0;
       if (affected > 0) console.log(`[Migration] scheduled_calls.cancelToken backfilled for ${affected} in-flight booking(s)`);
+    });
+
+    // 2026-10-02: Alex voice account-access tables (caller verification,
+    // account notes, audit log, Tier 2 approvals, spam blocklist).
+    for (const [name, ddl] of [
+      ["voice_sessions", CREATE_VOICE_SESSIONS],
+      ["account_notes", CREATE_ACCOUNT_NOTES],
+      ["account_audit_log", CREATE_ACCOUNT_AUDIT_LOG],
+      ["voice_approvals", CREATE_VOICE_APPROVALS],
+      ["blocked_numbers", CREATE_BLOCKED_NUMBERS],
+    ] as const) {
+      await applyStep(`create table ${name}`, async () => {
+        if (await tableExists(db, name)) {
+          console.log(`[Migration] table ${name} already exists - skipping`);
+        } else {
+          await db.execute(sql.raw(ddl));
+          console.log(`[Migration] table ${name} created`);
+        }
+      });
+    }
+
+    // 2026-10-02: phone PIN + voice-updatable fields on users.
+    const VOICE_USER_COLUMN_DEFS: Record<string, string> = {
+      phonePinHash: "varchar(255) NULL",
+      phonePinSetAt: "timestamp NULL",
+      deliveryNotes: "text NULL",
+      notificationPrefs: "varchar(255) NULL",
+      consecutiveLockouts: "int NOT NULL DEFAULT 0",
+    };
+    for (const [col, def] of Object.entries(VOICE_USER_COLUMN_DEFS)) {
+      await applyStep(`add users.${col}`, async () => {
+        if (await columnExists(db, "users", col)) {
+          console.log(`[Migration] users.${col} already exists - skipping`);
+        } else {
+          await db.execute(sql.raw(`ALTER TABLE \`users\` ADD \`${col}\` ${def}`));
+          console.log(`[Migration] users.${col} added`);
+        }
+      });
+    }
+
+    // 2026-10-02: extend blocked_numbers.source with 'auto' if the table was
+    // created before the rapid-repeat auto-block was added.
+    await applyStep("extend blocked_numbers.source enum", async () => {
+      if (!(await tableExists(db, "blocked_numbers"))) return;
+      const rows = await execRows(db, sql`SHOW COLUMNS FROM \`blocked_numbers\` LIKE 'source'`);
+      const type = (rows?.[0] as any)?.Type as string | undefined;
+      if (type && !type.includes("'auto'")) {
+        await db.execute(
+          sql.raw("ALTER TABLE `blocked_numbers` MODIFY COLUMN `source` enum('alex','manual','auto') NOT NULL DEFAULT 'manual'")
+        );
+        console.log("[Migration] blocked_numbers.source extended with 'auto'");
+      } else {
+        console.log("[Migration] blocked_numbers.source already has 'auto' - skipping");
+      }
     });
 
     console.log("[Migration] one-time migration complete");

@@ -1339,3 +1339,73 @@ export async function sendTrackingNotificationEmail(params: TrackingNotification
     return false;
   }
 }
+
+// ─── Voice Change Notification Email ─────────────────────────────────────────
+// Out-of-band confirmation whenever Alex applies a Tier 1 change or stages a
+// Tier 2 change during a phone call. Tells the account holder what happened
+// and invites them to report it if it wasn't them. Never includes the PIN.
+export type VoiceChangeEmailParams = {
+  to: string;
+  name: string;
+  changeDescription: string; // e.g. 'Updated delivery notes to "call upon arrival"'
+  staged: boolean; // true = sent to Branden for review, not applied yet
+};
+
+export async function sendVoiceChangeEmail(params: VoiceChangeEmailParams): Promise<boolean> {
+  if (!ENV.resendApiKey || !ENV.resendFromEmail) {
+    console.warn("[Email] RESEND_API_KEY or RESEND_FROM_EMAIL not configured - skipping voice change email");
+    return false;
+  }
+  if (!params.to) return false;
+  const firstName = params.name.split(" ")[0] ?? params.name;
+  const subject = params.staged
+    ? "Change request received by phone - Layer One"
+    : "Account change made by phone - Layer One";
+  const headline = params.staged ? "Change request received" : "Account change made";
+  const bodyCopy = params.staged
+    ? `During a phone call with Alex, a change was requested on your Layer One account. It has been sent to our team for review and has <strong>not</strong> been applied yet:`
+    : `During a phone call with Alex, the following change was made on your Layer One account:`;
+  try {
+    const resend = getResend();
+    const { error } = await sendHtmlEmail(resend, {
+      from: ENV.resendFromEmail,
+      cc: INFO_CC,
+      to: params.to,
+      subject,
+      html: `<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>${headline}</title></head>
+<body style="margin:0;padding:0;background:#07111f;font-family:'Segoe UI',Arial,sans-serif;color:#e2e8f0;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#07111f;padding:32px 16px;">
+    <tr><td align="center">
+      <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;background:#0d1f35;border-radius:12px;border:1px solid #1e3a5f;overflow:hidden;">
+        <tr><td style="padding:36px 40px;">
+          <h1 style="margin:0 0 8px;font-size:24px;font-weight:700;color:#f1f5f9;">${headline}</h1>
+          <p style="margin:0 0 16px;color:#94a3b8;font-size:15px;line-height:1.6;">
+            Hi ${firstName}, ${bodyCopy}
+          </p>
+          <table width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 24px;background:#07111f;border:1px solid #1e3a5f;border-radius:8px;">
+            <tr><td style="padding:16px 20px;font-size:15px;color:#e2e8f0;">${params.changeDescription}</td></tr>
+          </table>
+          <p style="margin:0;font-size:13px;color:#64748b;line-height:1.6;">
+            If this was you, no action is needed. If you did not make this request, please let us know right away by replying to this email or calling (469) 537-4378.
+          </p>
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`,
+    });
+    if (error) {
+      console.warn("[Email] Resend error (voice change):", error);
+      return false;
+    }
+    console.log(`[Email] Voice change notification sent to ${params.to}`);
+    return true;
+  } catch (err) {
+    console.warn("[Email] Failed to send voice change email:", err);
+    return false;
+  }
+}

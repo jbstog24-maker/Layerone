@@ -18,6 +18,7 @@ import { useForm } from "react-hook-form";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
+import { ClientVoiceSection, BlockedNumbersCard } from "@/components/VoiceAdmin";
 
 function ClientForm({ onClose, clientId }: { onClose: () => void; clientId?: number }) {
   const utils = trpc.useUtils();
@@ -692,6 +693,10 @@ export function ClientDetail() {
 
       {/* Internal Notes (staff/admin only) */}
       {isAdminOrStaff && <ClientInternalNotes clientId={id} />}
+
+      {/* Voice & Notes + spam blocklist (staff/admin only) */}
+      {isAdminOrStaff && <ClientVoiceSection clientId={id} />}
+      {isAdminOrStaff && <BlockedNumbersCard />}
 
       {/* Edit Client Dialog */}
       <Dialog open={showEdit} onOpenChange={setShowEdit}>

@@ -9,6 +9,7 @@ import {
   packageInquiries,
   quotes,
   users,
+  voiceApprovals,
 } from "../../drizzle/schema";
 import { getDb } from "../db";
 import { customerProcedure, protectedProcedure, router } from "../_core/trpc";
@@ -19,7 +20,7 @@ function isStaffOrAdmin(role: string | undefined) {
 
 export interface AlertItem {
   id: string;
-  kind: "message" | "inquiry" | "quote" | "msa" | "user" | "onboarding";
+  kind: "message" | "inquiry" | "quote" | "msa" | "user" | "onboarding" | "voice";
   severity: "urgent" | "warning" | "info";
   title: string;
   detail: string;
@@ -234,6 +235,40 @@ async function adminAlerts(): Promise<AlertItem[]> {
       clientName: o.companyName ?? null,
       href: "/onboarding",
       createdAt: new Date(o.updatedAt).toISOString(),
+    });
+  }
+
+  // ── Voice approvals: Tier 2 change requests Alex staged for review ─────────
+  const pendingVoice = await db
+    .select({
+      id: voiceApprovals.id,
+      kind: voiceApprovals.kind,
+      field: voiceApprovals.field,
+      requestedValue: voiceApprovals.requestedValue,
+      createdAt: voiceApprovals.createdAt,
+      userName: users.name,
+      clientId: users.clientId,
+      companyName: clients.companyName,
+    })
+    .from(voiceApprovals)
+    .leftJoin(users, eq(users.id, voiceApprovals.userId))
+    .leftJoin(clients, eq(clients.id, users.clientId))
+    .where(eq(voiceApprovals.status, "pending"))
+    .orderBy(desc(voiceApprovals.createdAt))
+    .limit(25);
+  for (const v of pendingVoice) {
+    alerts.push({
+      id: `voice-${v.id}`,
+      kind: "voice",
+      severity: "warning",
+      title: `Alex staged a change for ${v.userName ?? v.companyName ?? "a customer"}`,
+      detail: `${v.kind}${v.field ? ` (${v.field})` : ""}: ${(v.requestedValue ?? "").slice(0, 100)}`,
+      actionHint:
+        "Review the requested change in the customer's Voice & Notes section and approve or reject it. Nothing is applied until you approve.",
+      clientId: v.clientId,
+      clientName: v.companyName ?? null,
+      href: v.clientId ? `/clients/${v.clientId}` : "/clients",
+      createdAt: new Date(v.createdAt).toISOString(),
     });
   }
 

@@ -38,6 +38,14 @@ export const users = mysqlTable("users", {
   // Single-use token for invite / password-reset flows (set-password link)
   inviteToken: varchar("inviteToken", { length: 128 }),
   inviteTokenExpiresAt: timestamp("inviteTokenExpiresAt"),
+  // Phone PIN for Alex voice-agent caller verification (scrypt hash, never the raw PIN)
+  phonePinHash: varchar("phonePinHash", { length: 255 }),
+  phonePinSetAt: timestamp("phonePinSetAt"),
+  // Consecutive voice-PIN lockouts (exponential backoff: 15min * 2^(n-1), cap 24h)
+  consecutiveLockouts: int("consecutiveLockouts").default(0).notNull(),
+  // Voice-updatable account fields (Tier 1)
+  deliveryNotes: text("deliveryNotes"),
+  notificationPrefs: varchar("notificationPrefs", { length: 255 }),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
   lastSignedIn: timestamp("lastSignedIn").defaultNow().notNull(),
@@ -1170,3 +1178,94 @@ export const quoteTerminations = mysqlTable("quote_terminations", {
 
 export type QuoteTermination = typeof quoteTerminations.$inferSelect;
 export type InsertQuoteTermination = typeof quoteTerminations.$inferInsert;
+
+// ─── Voice Sessions (Alex caller verification) ──────────────────────────────
+// One row per successful phone-PIN verification. The session token Alex holds
+// is an HMAC; only its SHA-256 hash is stored here (never the token itself).
+export const voiceSessions = mysqlTable("voice_sessions", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  blandCallId: varchar("blandCallId", { length: 128 }),
+  tokenHash: varchar("tokenHash", { length: 255 }),
+  verifiedAt: timestamp("verifiedAt"),
+  expiresAt: timestamp("expiresAt"),
+  failedAttempts: int("failedAttempts").default(0).notNull(),
+  lockedUntil: timestamp("lockedUntil"),
+});
+
+export type VoiceSession = typeof voiceSessions.$inferSelect;
+export type InsertVoiceSession = typeof voiceSessions.$inferInsert;
+
+// ─── Account Notes ───────────────────────────────────────────────────────────
+// Per-account timeline notes. Alex writes one after every account-related call
+// (authorType 'alex'); staff and customers can add their own.
+export const accountNotes = mysqlTable("account_notes", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(), // the customer account the note belongs to
+  authorType: mysqlEnum("authorType", ["alex", "admin", "customer", "system"])
+    .default("alex")
+    .notNull(),
+  note: text("note"),
+  blandCallId: varchar("blandCallId", { length: 128 }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type AccountNote = typeof accountNotes.$inferSelect;
+export type InsertAccountNote = typeof accountNotes.$inferInsert;
+
+// ─── Account Audit Log ───────────────────────────────────────────────────────
+// Immutable record of every account read/write made via the voice agent (and
+// admin resolutions of voice approvals). beforeValue/afterValue are the raw
+// field values; never store secrets here.
+export const accountAuditLog = mysqlTable("account_audit_log", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  actor: mysqlEnum("actor", ["alex", "admin", "customer"]).notNull(),
+  action: varchar("action", { length: 128 }).notNull(),
+  entityType: varchar("entityType", { length: 64 }),
+  entityId: varchar("entityId", { length: 128 }),
+  beforeValue: text("beforeValue"),
+  afterValue: text("afterValue"),
+  blandCallId: varchar("blandCallId", { length: 128 }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type AccountAuditLog = typeof accountAuditLog.$inferSelect;
+export type InsertAccountAuditLog = typeof accountAuditLog.$inferInsert;
+
+// ─── Voice Approvals (Tier 2 change requests) ───────────────────────────────
+// Changes Alex may not apply directly. Branden approves/rejects them from the
+// Action Center; on approval the requested change is applied via the same
+// field allowlist as Tier 1 updates.
+export const voiceApprovals = mysqlTable("voice_approvals", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  kind: varchar("kind", { length: 64 }).notNull(),
+  field: varchar("field", { length: 128 }),
+  requestedValue: text("requestedValue"),
+  status: mysqlEnum("status", ["pending", "approved", "rejected"])
+    .default("pending")
+    .notNull(),
+  blandCallId: varchar("blandCallId", { length: 128 }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  resolvedAt: timestamp("resolvedAt"),
+  resolvedBy: int("resolvedBy"),
+});
+
+export type VoiceApproval = typeof voiceApprovals.$inferSelect;
+export type InsertVoiceApproval = typeof voiceApprovals.$inferInsert;
+
+// ─── Blocked Numbers (inbound spam/sales-call blocking) ──────────────────────
+// Alex checks this list at the start of every inbound call (via the
+// check-blocklist voice endpoint) and ends blocked calls immediately so Bland
+// per-minute charges stay near zero for spam. `phone` is digits-only.
+export const blockedNumbers = mysqlTable("blocked_numbers", {
+  id: int("id").autoincrement().primaryKey(),
+  phone: varchar("phone", { length: 30 }).notNull().unique(),
+  reason: varchar("reason", { length: 255 }),
+  source: mysqlEnum("source", ["alex", "manual", "auto"]).default("manual").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type BlockedNumber = typeof blockedNumbers.$inferSelect;
+export type InsertBlockedNumber = typeof blockedNumbers.$inferInsert;

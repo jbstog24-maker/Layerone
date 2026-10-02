@@ -12,6 +12,7 @@ import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import { Pencil, Save, X, Mail, Phone, Briefcase, Building2, Shield, Clock, KeyRound, User as UserIcon } from "lucide-react";
 import { useAuth } from "@/_core/hooks/useAuth";
+import { PhonePinCard, MyActivityTimeline } from "@/components/VoiceAccount";
 
 const ROLE_LABELS: Record<string, string> = {
   admin: "Admin",
@@ -259,6 +260,14 @@ export default function MyAccount() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Phone PIN for Alex + activity timeline (customers) */}
+        {isCustomer && (
+          <>
+            <PhonePinCard />
+            <MyActivityTimeline />
+          </>
+        )}
       </div>
     </DashboardLayout>
   );

@@ -48,6 +48,7 @@ import { leadsRouter } from "./routers/leads";
 import { contentRouter } from "./routers/content";
 import { supportRouter } from "./routers/support";
 import { instructionsRouter } from "./routers/instructions";
+import { voiceRouter } from "./routers/voice";
 import { ENV } from "./_core/env";
 
 function getPortalBaseUrl(): string {
@@ -260,6 +261,7 @@ export const appRouter = router({
   content: contentRouter,
   support: supportRouter,
   instructions: instructionsRouter,
+  voice: voiceRouter,
 });
 
 export type AppRouter = typeof appRouter;

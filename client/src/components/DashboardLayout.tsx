@@ -67,6 +67,7 @@ import { DashboardLayoutSkeleton } from "./DashboardLayoutSkeleton";
 import PendingApproval from "@/pages/PendingApproval";
 import { Button } from "./ui/button";
 import GlobalSearch from "./GlobalSearch";
+import { PhonePinBanner } from "./VoiceAccount";
 
 type NavItem = {
   icon: React.ElementType;
@@ -500,7 +501,10 @@ function DashboardLayoutContent({
             </button>
           </div>
         )}
-        <main className="flex-1 p-4 md:p-6">{children}</main>
+        <main className="flex-1 p-4 md:p-6">
+          {!isAdminOrStaff && <PhonePinBanner />}
+          {children}
+        </main>
       </SidebarInset>
     </>
   );

@@ -15,6 +15,7 @@ import { registerBackupExportRoute } from "../backupExport";
 import { registerMessageSyncRoutes } from "../messageSync";
 import { registerScheduledCallRoutes } from "../scheduledCalls";
 import { registerCallLogRoutes } from "../callLog";
+import { registerVoiceRoutes } from "../voice";
 import {
   handleMonthlyInvoices,
   handleDripAutoSend,
@@ -100,6 +101,8 @@ async function startServer() {
   registerScheduledCallRoutes(app);
   // Bland post-call webhook → durable call transcript archive (token-authenticated)
   registerCallLogRoutes(app);
+  // Alex voice account-access + spam blocklist (token-authenticated)
+  registerVoiceRoutes(app);
   // tRPC API
   app.use(
     "/api/trpc",
