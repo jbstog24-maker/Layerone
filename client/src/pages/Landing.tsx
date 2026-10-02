@@ -889,6 +889,54 @@ function PortalSection() {
   );
 }
 
+function DirectLine() {
+  const points = [
+    { icon: Zap, title: "No hold time", desc: "Your call is answered right away, day or night." },
+    { icon: FileText, title: "Account questions", desc: "Ask about quotes, invoices, shipments, and balances." },
+    { icon: ClipboardCheck, title: "Process questions", desc: "How staging, kitting, and delivery work, explained plainly." },
+    { icon: Phone, title: "Always Alex", desc: "Our AI receptionist knows your account and your history." },
+  ];
+  return (
+    <section id="direct-line" className="py-20 border-t border-white/10 bg-[#1F2937]/30">
+      <div className="max-w-6xl mx-auto px-6">
+        <div className="grid md:grid-cols-2 gap-12 items-center">
+          <div>
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/15 bg-white/5 text-slate-400 text-xs mb-6">
+              <Phone className="w-3.5 h-3.5 text-[#0A84FF]" /> 24/7 Direct Line
+            </div>
+            <h2 className="text-4xl font-black tracking-[-1.5px] text-white mb-4">
+              A dedicated point of contact,<br />
+              <span className="text-[#0A84FF]">around the clock.</span>
+            </h2>
+            <p className="text-slate-400 text-lg leading-relaxed mb-8">
+              Every Layer One customer company gets a direct line that is answered 24/7. No hold music, no phone tree. Call any time with questions about your account, your shipments, our process, or any feature, and get an answer on the spot.
+            </p>
+            <a
+              href="tel:+14695374378"
+              className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl font-bold bg-[#0A84FF] text-white hover:bg-[#3d9dff] transition-colors shadow-[0_14px_34px_rgba(10,132,255,0.3)]"
+            >
+              <Phone className="w-4 h-4" /> Call (469) 537-4378
+            </a>
+          </div>
+          <div className="grid gap-3">
+            {points.map(p => (
+              <div key={p.title} className="flex items-start gap-3 p-4 rounded-xl border border-white/10 bg-white/5">
+                <div className="w-8 h-8 rounded-lg bg-[#0A84FF]/10 border border-[#0A84FF]/20 flex items-center justify-center shrink-0">
+                  <p.icon className="w-4 h-4 text-[#0A84FF]" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-white">{p.title}</p>
+                  <p className="text-sm text-slate-400 mt-0.5 leading-relaxed">{p.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function Industries() {
   const industries = [
     { icon: Network, title: "MSPs & Integrators", desc: "Offload receiving and staging so your engineers stay billable." },
@@ -1270,6 +1318,9 @@ function CTA() {
               </button>
             </div>
             <ScheduleCallDialog open={scheduleOpen} onOpenChange={setScheduleOpen} />
+            <p className="text-slate-500 text-sm mt-6">
+              Prefer to talk? Call <a href="tel:+14695374378" className="text-[#0A84FF] hover:underline">(469) 537-4378</a> any time. Answered around the clock, no hold time.
+            </p>
           </div>
         </div>
       </div>
@@ -1402,6 +1453,7 @@ export default function Landing() {
         <Packages />
         <AddOns />
         <PortalSection />
+        <DirectLine />
         <Industries />
         <About />
         <FacilityGallery />
