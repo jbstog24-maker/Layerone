@@ -7,6 +7,7 @@
  */
 import { Resend } from "resend";
 import { INFO_CC } from "./infoCc";
+import { sendHtmlEmail } from "./emailText";
 import { desc, eq } from "drizzle-orm";
 import {
   onboardingChecklists,
@@ -110,7 +111,7 @@ export async function sendOwnerEmail(params: {
 
   try {
     const resend = getResend();
-    const { error } = await resend.emails.send({
+    const { error } = await sendHtmlEmail(resend, {
       from: ENV.resendFromEmail,
       cc: INFO_CC,
       to: ENV.ownerNotifyEmail,

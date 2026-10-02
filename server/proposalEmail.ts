@@ -1,5 +1,6 @@
 import { Resend } from "resend";
 import { INFO_CC } from "./infoCc";
+import { sendHtmlEmail } from "./emailText";
 import { ENV } from "./_core/env";
 
 // ─── Proposal Email (MSA + payment) ──────────────────────────────────────────
@@ -133,7 +134,7 @@ export async function sendProposalEmail(
 
   try {
     const resend = getResend();
-    const { error } = await resend.emails.send({
+    const { error } = await sendHtmlEmail(resend, {
       from: ENV.resendFromEmail,
       cc: INFO_CC,
       to: params.to,

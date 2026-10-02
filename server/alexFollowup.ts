@@ -18,6 +18,7 @@
  */
 import { Resend } from "resend";
 import { INFO_CC } from "./infoCc";
+import { sendHtmlEmail } from "./emailText";
 import { desc, eq, gte } from "drizzle-orm";
 import { ENV } from "./_core/env";
 import { getDb } from "./db";
@@ -139,7 +140,7 @@ export async function sendQuoteFollowupEmail(params: { to: string; name: string 
   const firstName = params.name?.trim().split(" ")[0] || null;
   try {
     const resend = getFollowupResend();
-    const { error } = await resend.emails.send({
+    const { error } = await sendHtmlEmail(resend, {
       from: ENV.resendFromEmail,
       cc: INFO_CC,
       to: params.to,

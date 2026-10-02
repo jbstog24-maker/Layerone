@@ -1,5 +1,6 @@
 import { Resend } from "resend";
 import { INFO_CC } from "./infoCc";
+import { sendHtmlEmail } from "./emailText";
 import { ENV } from "./_core/env";
 
 // Layer One brand SVG - kept in sync with Documents.tsx
@@ -234,7 +235,7 @@ export async function sendWelcomeEmail(params: WelcomeEmailParams): Promise<bool
     const resend = getResend();
     const tierLabel = TIER_DETAILS[params.tier]?.label ?? params.tier;
 
-    const { error } = await resend.emails.send({
+    const { error } = await sendHtmlEmail(resend, {
       from: ENV.resendFromEmail,
       cc: INFO_CC,
       to: params.to,
@@ -331,7 +332,7 @@ export async function sendInquiryOwnerEmail(params: InquiryOwnerEmailParams): Pr
 
   try {
     const resend = getResend();
-    const { error } = await resend.emails.send({
+    const { error } = await sendHtmlEmail(resend, {
       from: ENV.resendFromEmail,
       cc: INFO_CC,
       to: params.to,
@@ -480,7 +481,7 @@ export async function sendPortalInviteEmail(params: PortalInviteEmailParams): Pr
 
   try {
     const resend = getResend();
-    const { error } = await resend.emails.send({
+    const { error } = await sendHtmlEmail(resend, {
       from: ENV.resendFromEmail,
       cc: INFO_CC,
       to: params.to,
@@ -517,7 +518,7 @@ export async function sendPasswordResetEmail(params: PasswordResetEmailParams): 
   const firstName = params.name.split(" ")[0] ?? params.name;
   try {
     const resend = getResend();
-    const { error } = await resend.emails.send({
+    const { error } = await sendHtmlEmail(resend, {
       from: ENV.resendFromEmail,
       cc: INFO_CC,
       to: params.to,
@@ -588,7 +589,7 @@ export async function sendCallVerificationEmail(params: CallVerificationEmailPar
   }).format(params.scheduledFor);
   try {
     const resend = getResend();
-    const { error } = await resend.emails.send({
+    const { error } = await sendHtmlEmail(resend, {
       from: ENV.resendFromEmail,
       cc: INFO_CC,
       to: params.to,
@@ -746,7 +747,7 @@ export async function sendStagingCompleteEmail(params: StagingCompleteEmailParam
       ? `Device ${params.devices[0].deviceCode} is Ready to Ship - Layer One`
       : `${deviceCount} Devices Ready to Ship - Layer One`;
 
-    const { error } = await resend.emails.send({
+    const { error } = await sendHtmlEmail(resend, {
       from: ENV.resendFromEmail,
       cc: INFO_CC,
       to: params.to,
@@ -836,7 +837,7 @@ export async function sendIntroductionEmail(params: IntroductionEmailParams): Pr
 
   try {
     const resend = getResend();
-    const { error } = await resend.emails.send({
+    const { error } = await sendHtmlEmail(resend, {
       from: ENV.resendFromEmail,
       cc: INFO_CC,
       to: params.to,
@@ -914,7 +915,7 @@ export async function sendDripEmail(params: DripEmailParams): Promise<boolean> {
 
   try {
     const resend = getResend();
-    const { error } = await resend.emails.send({
+    const { error } = await sendHtmlEmail(resend, {
       from: ENV.resendFromEmail,
       cc: INFO_CC,
       to: params.to,
@@ -985,7 +986,7 @@ export async function sendDeliveryNotificationEmail(params: DeliveryNotification
 
   try {
     const resend = getResend();
-    const { error } = await resend.emails.send({
+    const { error } = await sendHtmlEmail(resend, {
       from: ENV.resendFromEmail,
       cc: INFO_CC,
       to: params.to,
@@ -1045,7 +1046,7 @@ export async function sendShipmentApprovalRequestEmail(params: ShipmentApprovalR
 
   try {
     const resend = getResend();
-    const { error } = await resend.emails.send({
+    const { error } = await sendHtmlEmail(resend, {
       from: ENV.resendFromEmail,
       cc: INFO_CC,
       to: params.staffEmail,
@@ -1107,7 +1108,7 @@ export async function sendSupportTicketEmail(params: SupportTicketEmailParams): 
 </body></html>`;
   try {
     const resend = getResend();
-    const { error } = await resend.emails.send({
+    const { error } = await sendHtmlEmail(resend, {
       from: ENV.resendFromEmail,
       cc: INFO_CC,
       to: ENV.resendFromEmail, // notify the Layer One ops inbox
@@ -1243,7 +1244,7 @@ export async function sendQuoteEmail(params: QuoteEmailParams): Promise<boolean>
 
   try {
     const resend = getResend();
-    const { error } = await resend.emails.send({
+    const { error } = await sendHtmlEmail(resend, {
       from: ENV.resendFromEmail,
       cc: INFO_CC,
       to: params.to,
@@ -1323,7 +1324,7 @@ export async function sendTrackingNotificationEmail(params: TrackingNotification
 
   try {
     const resend = getResend();
-    const { error } = await resend.emails.send({
+    const { error } = await sendHtmlEmail(resend, {
       from: ENV.resendFromEmail,
       cc: INFO_CC,
       to: params.to,

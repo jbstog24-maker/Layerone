@@ -13,6 +13,7 @@ import { invokeLLM, Message } from "../_core/llm";
 import { makeRequest } from "../_core/map";
 import { sendIntroductionEmail } from "../email";
 import { INFO_CC } from "../infoCc";
+import { sendHtmlEmail } from "../emailText";
 
 export const leadsRouter = router({
   // ─── Leads CRUD ─────────────────────────────────────────────────────────────
@@ -570,7 +571,7 @@ Respond with JSON: {"subject":"<subject line>","body":"<email body with \\n for 
       const step = steps[idx];
       const Resend = (await import("resend")).Resend;
       const resend = new Resend(process.env.RESEND_API_KEY);
-      await resend.emails.send({
+      await sendHtmlEmail(resend, {
         from: process.env.RESEND_FROM_EMAIL ?? "noreply@resend.dev",
         cc: INFO_CC,
         to: lead.email,
