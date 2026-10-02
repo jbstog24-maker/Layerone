@@ -71,6 +71,7 @@ export default function RequestForm({ onSubmitted }: { onSubmitted?: () => void 
   const [quoteType, setQuoteType] = useState<QuoteType>("project");
   const [selectedAddons, setSelectedAddons] = useState<string[]>([]);
   const [selectedEquipment, setSelectedEquipment] = useState<string[]>([]);
+  const [workingWithRep, setWorkingWithRep] = useState(false);
   const [form, setForm] = useState({
     name: "",
     company: "",
@@ -83,6 +84,7 @@ export default function RequestForm({ onSubmitted }: { onSubmitted?: () => void 
     locationCount: "",
     startDate: "",
     rolloutDuration: "",
+    salesRepName: "",
     message: "",
   });
   type FormField = keyof typeof form;
@@ -132,6 +134,10 @@ export default function RequestForm({ onSubmitted }: { onSubmitted?: () => void 
       equipmentTypes: selectedEquipment.length > 0 ? selectedEquipment : undefined,
       startDate: !isPallet && form.startDate ? form.startDate : undefined,
       rolloutDuration: !isPallet && form.rolloutDuration ? form.rolloutDuration : undefined,
+      // Sales-rep attribution: only sent when the prospect says they are
+      // working with a rep and names them.
+      salesRepName:
+        workingWithRep && form.salesRepName.trim() ? form.salesRepName.trim() : undefined,
     });
   };
 
@@ -414,6 +420,39 @@ export default function RequestForm({ onSubmitted }: { onSubmitted?: () => void 
           placeholder={isPallet ? "Pallet dimensions, stackability, delivery appointment needs…" : "Describe your deployment timeline, special requirements, or any questions…"}
           className={`${inputClass} resize-none`}
         />
+      </section>
+
+      {/* ── Sales Rep ── */}
+      <section>
+        <label className="flex items-center gap-3 cursor-pointer select-none">
+          <input
+            type="checkbox"
+            checked={workingWithRep}
+            onChange={e => setWorkingWithRep(e.target.checked)}
+            className="w-5 h-5 rounded accent-[#0A84FF]"
+          />
+          <span className="text-sm font-medium text-[#b7c5d5]">
+            Are you working with a Layer One sales representative?{" "}
+            <span className="text-[#b7c5d5]/50">(optional)</span>
+          </span>
+        </label>
+        {workingWithRep && (
+          <div className="mt-3">
+            <label className="block text-sm font-medium text-[#b7c5d5] mb-1.5">
+              <User className="inline w-3.5 h-3.5 mr-1 opacity-70" />Sales Rep Name
+            </label>
+            <input
+              type="text"
+              value={form.salesRepName}
+              onChange={set("salesRepName")}
+              placeholder="Your sales rep's name"
+              className={inputClass}
+            />
+            <p className="text-xs text-[#b7c5d5]/60 mt-1.5">
+              So they get credit for your business.
+            </p>
+          </div>
+        )}
       </section>
 
       {/* ── Submit ── */}

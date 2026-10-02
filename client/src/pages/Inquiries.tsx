@@ -65,6 +65,7 @@ import {
   CalendarDays,
   RotateCcw,
   PhoneCall,
+  User,
 } from "lucide-react";
 
 const DURATION_LABELS: Record<string, string> = {
@@ -107,6 +108,7 @@ type Inquiry = {
   equipmentTypes: string | null;
   startDate: string | null;
   rolloutDuration: string | null;
+  salesRepName: string | null;
   status: InquiryStatus;
   createdAt: Date;
   deletedAt: Date | null;
@@ -427,6 +429,11 @@ function QuoteBuilderDialog({
               {inquiry.rolloutDuration && (
                 <span className="inline-flex items-center gap-1 text-xs bg-white/5 border border-white/10 px-2 py-0.5 rounded-full text-slate-300">
                   <Clock className="w-3 h-3" /> {DURATION_LABELS[inquiry.rolloutDuration] ?? inquiry.rolloutDuration}
+                </span>
+              )}
+              {inquiry.salesRepName && (
+                <span className="inline-flex items-center gap-1 text-xs bg-[#0A84FF]/15 border border-[#0A84FF]/40 px-2 py-0.5 rounded-full text-sky-300 font-medium">
+                  <User className="w-3 h-3" /> Sales Rep: {inquiry.salesRepName}
                 </span>
               )}
             </div>

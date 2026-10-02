@@ -94,3 +94,36 @@ describe("inquiry.submit rollout scoping fields", () => {
     ).rejects.toThrow();
   });
 });
+
+describe("inquiry.submit sales-rep attribution", () => {
+  it("accepts an optional salesRepName", async () => {
+    const caller = appRouter.createCaller(makeCtx());
+    const result = await caller.inquiry.submit({
+      ...baseInput,
+      salesRepName: "Jerry Sales",
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("trims whitespace on salesRepName", async () => {
+    const caller = appRouter.createCaller(makeCtx());
+    const result = await caller.inquiry.submit({
+      ...baseInput,
+      salesRepName: "  Jerry Sales  ",
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("rejects a salesRepName over 120 characters", async () => {
+    const caller = appRouter.createCaller(makeCtx());
+    await expect(
+      caller.inquiry.submit({ ...baseInput, salesRepName: "x".repeat(121) })
+    ).rejects.toThrow();
+  });
+
+  it("accepts a submission without salesRepName (backwards compatible)", async () => {
+    const caller = appRouter.createCaller(makeCtx());
+    const result = await caller.inquiry.submit(baseInput);
+    expect(result.success).toBe(true);
+  });
+});

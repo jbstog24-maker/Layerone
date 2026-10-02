@@ -279,6 +279,7 @@ export type InquiryOwnerEmailParams = {
   equipmentTypes?: string[];
   startDate?: string | null;
   rolloutDuration?: string | null;
+  salesRepName?: string | null;
 };
 
 export async function sendInquiryOwnerEmail(params: InquiryOwnerEmailParams): Promise<boolean> {
@@ -305,6 +306,7 @@ export async function sendInquiryOwnerEmail(params: InquiryOwnerEmailParams): Pr
     row("Equipment Types", params.equipmentTypes?.length ? params.equipmentTypes.join(", ") : null) +
     row("Start Date", params.startDate) +
     row("Rollout Duration", params.rolloutDuration) +
+    row("Sales Rep", params.salesRepName) +
     row("Add-ons", params.addons?.length ? params.addons.join(", ") : null);
 
   const html = `<!DOCTYPE html>

@@ -70,6 +70,9 @@ export const inquiryRouter = router({
       equipmentTypes: z.array(z.string().max(40)).max(12).optional(),
       startDate: z.string().max(20).optional(),
       rolloutDuration: z.string().max(40).optional(),
+      // Optional sales-rep attribution: the prospect names the Layer One
+      // sales rep they are working with so the rep can be compensated.
+      salesRepName: z.string().trim().max(120).optional(),
     }))
     .mutation(async ({ input }) => {
       const db = await getDb();
@@ -95,6 +98,7 @@ export const inquiryRouter = router({
           equipmentTypes: input.equipmentTypes ? JSON.stringify(input.equipmentTypes) : null,
           startDate: input.startDate ?? null,
           rolloutDuration: input.rolloutDuration ?? null,
+          salesRepName: input.salesRepName || null,
         });
         inquiryId = (result[0] as any)?.insertId ?? null;
       }
@@ -150,6 +154,7 @@ export const inquiryRouter = router({
         input.equipmentTypes?.length ? `**Equipment Types:** ${input.equipmentTypes.join(", ")}` : null,
         input.startDate ? `**Start Date:** ${input.startDate}` : null,
         input.rolloutDuration ? `**Rollout Duration:** ${input.rolloutDuration}` : null,
+        input.salesRepName ? `**Sales Rep:** ${input.salesRepName}` : null,
         input.addons?.length ? `**Add-ons:** ${input.addons.join(", ")}` : null,
         input.message ? `**Message:** ${input.message}` : null,
       ].filter(Boolean).join("\n");
@@ -179,6 +184,7 @@ export const inquiryRouter = router({
         equipmentTypes: input.equipmentTypes ?? [],
         startDate: input.startDate ?? null,
         rolloutDuration: input.rolloutDuration ?? null,
+        salesRepName: input.salesRepName || null,
       }).catch(() => {});
 
       // Send branded welcome email to the prospect

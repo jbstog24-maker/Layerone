@@ -586,6 +586,9 @@ export const packageInquiries = mysqlTable("package_inquiries", {
   // or email at submit time). Lets Branden review the call transcript
   // alongside the quote request in the admin panel.
   callLogId: int("callLogId"),
+  // Name of the commission sales rep the prospect is working with, if any.
+  // Self-reported on the quote request form so the rep gets compensated.
+  salesRepName: varchar("salesRepName", { length: 120 }),
 });
 
 export type PackageInquiry = typeof packageInquiries.$inferSelect;

@@ -494,6 +494,17 @@ export async function runOnceMigration(): Promise<void> {
       }
     });
 
+    // 2026-10-02: salesRepName on package_inquiries so a prospect can name
+    // the sales rep who should be compensated for the sale.
+    await applyStep("add package_inquiries.salesRepName", async () => {
+      if (await columnExists(db, "package_inquiries", "salesRepName")) {
+        console.log("[Migration] package_inquiries.salesRepName already exists - skipping");
+      } else {
+        await db.execute(sql.raw("ALTER TABLE `package_inquiries` ADD `salesRepName` varchar(120) NULL"));
+        console.log("[Migration] package_inquiries.salesRepName added");
+      }
+    });
+
     console.log("[Migration] one-time migration complete");
   } catch (err: any) {
     console.error("[Migration] FAILED (non-fatal):", err?.message ?? err);
