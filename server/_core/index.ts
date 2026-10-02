@@ -16,6 +16,7 @@ import { registerMessageSyncRoutes } from "../messageSync";
 import { registerScheduledCallRoutes } from "../scheduledCalls";
 import { registerCallLogRoutes } from "../callLog";
 import { registerVoiceRoutes } from "../voice";
+import { registerTrainingGuideRoutes } from "../trainingGuide";
 import {
   handleMonthlyInvoices,
   handleDripAutoSend,
@@ -103,6 +104,8 @@ async function startServer() {
   registerCallLogRoutes(app);
   // Alex voice account-access + spam blocklist (token-authenticated)
   registerVoiceRoutes(app);
+  // Sadie training guide email (token-authenticated)
+  registerTrainingGuideRoutes(app);
   // tRPC API
   app.use(
     "/api/trpc",
