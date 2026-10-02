@@ -129,6 +129,9 @@ export function registerProspectSyncRoute(app: Express) {
             startDate: inq.startDate,
             rolloutDuration: inq.rolloutDuration,
             status: inq.status,
+            // Sales-rep attribution from the quote form checkbox (added
+            // 2026-10-02). Consumed by the commission-ledger sync job.
+            salesRepName: inq.salesRepName ?? null,
             // Soft-delete flag: lets the sheet mark trashed rows "🗑️ Deleted"
             // instead of "⚠️ Removed from site DB" (which is reserved for rows
             // genuinely gone from the database, e.g. hard-purged from trash).
