@@ -1,5 +1,5 @@
 import { timingSafeEqual } from "crypto";
-import { readFileSync } from "fs";
+import { readFileSync, existsSync } from "fs";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
 import type { Express, Request, Response } from "express";
@@ -18,9 +18,19 @@ import { ENV } from "./_core/env";
 const GUIDE_FILENAME = "training-guide.pdf";
 
 function getGuidePath(): string {
-  // trainingGuide.ts lives in server/, assets/ is server/assets/
-  const here = dirname(fileURLToPath(import.meta.url));
-  return join(here, "assets", GUIDE_FILENAME);
+  // Try multiple locations: bundled dist, project root server/, and relative to module
+  const candidates = [
+    join(process.cwd(), "server", "assets", GUIDE_FILENAME),
+    join(process.cwd(), "dist", "assets", GUIDE_FILENAME),
+    join(dirname(fileURLToPath(import.meta.url)), "assets", GUIDE_FILENAME),
+  ];
+  for (const p of candidates) {
+    try {
+      if (existsSync(p)) return p;
+    } catch {}
+  }
+  // Fallback to the first candidate (will trigger "guide unavailable")
+  return candidates[0];
 }
 
 function trainingGuideTokenOk(req: Request): boolean {
