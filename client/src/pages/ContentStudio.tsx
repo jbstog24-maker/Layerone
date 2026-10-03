@@ -497,7 +497,7 @@ export default function ContentStudio() {
                       <div className="rounded-xl overflow-hidden border border-slate-700">
                         <img
                           src={generatedImage.url}
-                          alt="Generated marketing image"
+                          alt="AI-generated marketing image for Layer One Staging"
                           className="w-full object-cover"
                         />
                       </div>

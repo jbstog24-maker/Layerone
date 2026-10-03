@@ -115,7 +115,7 @@ function AiCard({
 
 export default function Team() {
   usePageMeta(
-    "Meet the Team | Layer One Staging",
+    "Meet the Team | Layer One Staging, DFW",
     "One human, three AI teammates. Meet James Stogner, Alex, Morgan, and Casey - the crew behind Layer One Staging.",
     "/team"
   );

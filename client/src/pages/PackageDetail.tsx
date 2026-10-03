@@ -14,7 +14,7 @@ const LOGO_URL = "/images/layerone-logo-on-dark.png";
 
 function LayerOneLogo() {
   return (
-    <img src={LOGO_URL} alt="Layer One" className="h-10 w-auto" />
+    <img src={LOGO_URL} alt="Layer One Staging logo" className="h-10 w-auto" />
   );
 }
 

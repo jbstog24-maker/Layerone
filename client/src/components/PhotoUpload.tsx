@@ -129,7 +129,7 @@ export function PhotoGallery({ entityType, entityId, clientId, showUpload = fals
           <button className="absolute top-4 right-4 text-white/80 hover:text-white" onClick={() => setSelected(null)}>
             <X className="w-6 h-6" />
           </button>
-          <img src={selected} alt="Photo" className="max-w-full max-h-full rounded-xl object-contain" />
+          <img src={selected} alt="Uploaded facility or equipment photo preview" className="max-w-full max-h-full rounded-xl object-contain" />
         </div>
       )}
     </div>

@@ -1,9 +1,41 @@
+import { useEffect } from "react";
 import { Link } from "wouter";
 import { ArrowLeft } from "lucide-react";
 import { getLoginUrl } from "@/const";
 import RequestForm from "@/components/RequestForm";
 
+function usePageMeta(title: string, description: string, canonicalPath: string) {
+  useEffect(() => {
+    document.title = title;
+    const setMeta = (attr: string, key: string, value: string) => {
+      let el = document.querySelector<HTMLMetaElement>(`meta[${attr}="${key}"]`);
+      if (!el) {
+        el = document.createElement("meta");
+        el.setAttribute(attr, key);
+        document.head.appendChild(el);
+      }
+      el.setAttribute("content", value);
+    };
+    setMeta("name", "description", description);
+    setMeta("property", "og:title", title);
+    setMeta("property", "og:description", description);
+    let link = document.querySelector<HTMLLinkElement>('link[rel="canonical"]');
+    if (!link) {
+      link = document.createElement("link");
+      link.setAttribute("rel", "canonical");
+      document.head.appendChild(link);
+    }
+    link.setAttribute("href", `https://www.layeronestaging.com${canonicalPath}`);
+  }, [title, description, canonicalPath]);
+}
+
 export default function GetStarted() {
+  usePageMeta(
+    "Get a Project Quote | Layer One Staging, DFW",
+    "Request a custom project quote or per-pallet pricing from Layer One Staging. IT hardware staging, kitting, and deployment logistics in Dallas-Fort Worth, shipped nationwide.",
+    "/get-started"
+  );
+
   return (
     <div className="min-h-screen bg-[#06111f] text-white">
       {/* Nav */}
