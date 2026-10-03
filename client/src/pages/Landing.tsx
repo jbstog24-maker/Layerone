@@ -1384,11 +1384,12 @@ function Footer() {
             © {new Date().getFullYear()} Layer One Staging · Dallas–Fort Worth, TX · <a href="tel:+14695374378" className="hover:text-white transition-colors">(469) 537-4378</a>
           </p>
           <div className="flex items-center gap-5">
-            <a href="https://www.facebook.com/profile.php?id=61591450593413" target="_blank" rel="noopener noreferrer" aria-label="Layer One Staging on Facebook" className="text-slate-500 hover:text-white transition-colors">
-              <Facebook className="w-4 h-4" />
+            <span className="text-slate-500 text-xs uppercase tracking-widest font-bold">Follow Us</span>
+            <a href="https://www.facebook.com/profile.php?id=61591450593413" target="_blank" rel="noopener noreferrer" aria-label="Layer One Staging on Facebook" className="text-slate-400 hover:text-white transition-colors">
+              <Facebook className="w-6 h-6" />
             </a>
-            <a href="https://www.linkedin.com/company/l1staging" target="_blank" rel="noopener noreferrer" aria-label="Layer One Staging on LinkedIn" className="text-slate-500 hover:text-white transition-colors">
-              <Linkedin className="w-4 h-4" />
+            <a href="https://www.linkedin.com/company/l1staging" target="_blank" rel="noopener noreferrer" aria-label="Layer One Staging on LinkedIn" className="text-slate-400 hover:text-white transition-colors">
+              <Linkedin className="w-6 h-6" />
             </a>
             <a href="/privacy" className="text-slate-500 text-xs hover:text-white transition-colors">Privacy Policy</a>
             <a href="/terms" className="text-slate-500 text-xs hover:text-white transition-colors">Terms &amp; Conditions</a>
