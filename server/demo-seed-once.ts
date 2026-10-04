@@ -20,7 +20,9 @@ const DEMO_COMPANY = "Stogner IT Services (DEMO)";
 const SIGNING_BASE_URL = "https://www.layeronestaging.com";
 const MSA_TOKEN_TTL_MS = 30 * 24 * 60 * 60 * 1000; // 30 days
 const DEMO_PORTAL_EMAIL = "demo@layeronestaging.com";
-const DEMO_PORTAL_PASSWORD = "Demo1234!";
+// Never hardcode the demo password in source. Set DEMO_PORTAL_PASSWORD
+// as an environment variable on Render.
+const DEMO_PORTAL_PASSWORD = process.env.DEMO_PORTAL_PASSWORD || "";
 
 const DEMO_LINE_ITEMS = [
   { label: "Receiving - pallet intake, count & inspect", qty: 24, unitPrice: 12, total: 288 },
@@ -121,6 +123,10 @@ export async function mintDemoDocOnce(): Promise<void> {
  */
 export async function mintDemoUserOnce(): Promise<void> {
   if (process.env.MINT_DEMO_USER !== "1") return;
+  if (!DEMO_PORTAL_PASSWORD) {
+    console.warn("[DemoSeed] DEMO_PORTAL_PASSWORD env var not set - skipping demo user");
+    return;
+  }
   try {
     const db = await getDb();
     if (!db) {
@@ -151,7 +157,7 @@ export async function mintDemoUserOnce(): Promise<void> {
     });
     const id = (result[0] as unknown as { insertId: number }).insertId;
     console.log(
-      `[DemoSeed] demo portal user created (id=${id}): ${DEMO_PORTAL_EMAIL} / ${DEMO_PORTAL_PASSWORD}`
+      `[DemoSeed] demo portal user created (id=${id}): ${DEMO_PORTAL_EMAIL}`
     );
   } catch (err) {
     console.warn(
