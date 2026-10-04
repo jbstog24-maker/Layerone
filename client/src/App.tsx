@@ -47,6 +47,9 @@ import { PalletDetail } from "./pages/Pallets";
 import GetStarted from "./pages/GetStarted";
 import ServicePage from "./pages/services/ServicePage";
 import ServiceIndex from "./pages/services/ServiceIndex";
+import FaqPage from "./pages/FaqPage";
+import WarehousingPage from "./pages/WarehousingPage";
+import PackagesPage from "./pages/PackagesPage";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import SetPassword from "./pages/SetPassword";
@@ -182,6 +185,11 @@ function Router() {
       {/* SEO service pages */}
       <Route path="/services" component={ServiceIndex} />
       <Route path="/services/:slug" component={ServicePage} />
+
+      {/* Standalone content pages */}
+      <Route path="/faq" component={FaqPage} />
+      <Route path="/warehousing" component={WarehousingPage} />
+      <Route path="/pricing" component={PackagesPage} />
 
       <Route path="/404" component={NotFound} />
       <Route component={NotFound} />

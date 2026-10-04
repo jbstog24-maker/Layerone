@@ -2,14 +2,13 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
 import { useLocation } from "wouter";
 import { useState } from "react";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
   Shield, Truck, Package, Warehouse, Box,
   ArrowRight, CheckCircle, ChevronRight, Zap, Lock,
   BarChart3, FileText, Camera, Activity,
-  Thermometer, Video, MapPin, ChevronDown, Layers,
+  Thermometer, Video, MapPin, Layers,
   Tags, ClipboardCheck, Send, Network, Users, Store,
-  Server, Repeat, Info, Phone, Facebook, Linkedin,
+  Server, Repeat, Phone, Facebook, Linkedin,
 } from "lucide-react";
 import { ScheduleCallDialog } from "@/components/ScheduleCallDialog";
 
@@ -26,24 +25,26 @@ function LayerOneLogo({ className = "" }: { className?: string }) {
   );
 }
 
-function NavBar() {
+export function NavBar() {
   const { isAuthenticated } = useAuth();
   const [, setLocation] = useLocation();
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 border-b border-white/10 bg-[#0B1320]/85 backdrop-blur-xl">
       <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-        <a href="#top" aria-label="Layer One Staging home">
+        <a href="/" aria-label="Layer One Staging home">
           <LayerOneLogo />
         </a>
         <nav className="hidden md:flex items-center gap-7 text-sm text-slate-400">
-          <a href="#top" className="hover:text-white transition-colors">Home</a>
-          <a href="#services" className="hover:text-white transition-colors">Services</a>
-          <a href="#waas" className="hover:text-white transition-colors">Warehousing</a>
-          <a href="#industries" className="hover:text-white transition-colors">Industries</a>
+          <a href="/" className="hover:text-white transition-colors">Home</a>
+          <a href="/#services" className="hover:text-white transition-colors">Services</a>
+          <a href="/warehousing" className="hover:text-white transition-colors">Warehousing</a>
+          <a href="/#industries" className="hover:text-white transition-colors">Industries</a>
           <a href="/about" className="hover:text-white transition-colors">About</a>
           <a href="/team" className="hover:text-white transition-colors">Team</a>
-          <a href="#contact" className="hover:text-white transition-colors">Contact</a>
+          <a href="/faq" className="hover:text-white transition-colors">FAQ</a>
+          <a href="/pricing" className="hover:text-white transition-colors">Pricing</a>
+          <a href="/#contact" className="hover:text-white transition-colors">Contact</a>
         </nav>
         <div className="flex items-center gap-3">
           {isAuthenticated ? (
@@ -283,36 +284,39 @@ function Services() {
 }
 
 function WarehousingAsAService() {
-  const features = [
-    { title: "Turnkey Setup", desc: "We handle everything: space, receiving, labor, and logistics. You get a fully operational warehousing solution without managing any of it." },
-    { title: "Short-Term or Long-Term", desc: "Need space for a 3-month project or a 3-year operation? Flexible terms that match your timeline, not a rigid lease." },
-    { title: "Secure & Monitored", desc: "Access-controlled facilities with camera monitoring. Your equipment is protected around the clock." },
-    { title: "Customized to Your Needs", desc: "Shared cages, dedicated space, or anything in between. We build the solution around your specific requirements and budget." },
-    { title: "Operational in 14 Days", desc: "From first call to receiving your first shipment. No long build-outs, no waiting on leases." },
-    { title: "On-Demand Labor", desc: "Trained warehouse staff available when you need them, including 24/7 coverage for critical operations." },
+  const highlights = [
+    { title: "Turnkey Setup", desc: "Space, receiving, labor, and logistics handled for you." },
+    { title: "Short-Term or Long-Term", desc: "Flexible terms that match your timeline, not a rigid lease." },
+    { title: "Operational in 14 Days", desc: "From first call to receiving your first shipment." },
   ];
 
   return (
     <section id="waas" className="py-20 border-t border-white/10">
       <div className="max-w-6xl mx-auto px-6">
-        <div className="mb-12">
+        <div className="mb-10">
           <span className="inline-block text-xs font-semibold tracking-widest uppercase text-[#0A84FF] mb-3">Warehousing as a Service</span>
           <h2 className="text-4xl font-black tracking-[-1.5px] text-white mb-3">
             Warehouse space without<br />
             <span className="text-[#0A84FF]">the warehouse headache.</span>
           </h2>
           <p className="text-slate-400 text-lg max-w-2xl">
-            Get the warehouse capacity you need in DFW without signing a lease, hiring staff, or managing a facility. We deliver a complete, customized warehousing solution through our network of secure DFW locations. You pay for what you use, we handle the rest.
+            Get the warehouse capacity you need in DFW without signing a lease, hiring staff, or managing a facility.
           </p>
         </div>
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {features.map(f => (
-            <div key={f.title} className="rounded-2xl border border-white/10 bg-white/5 p-5 hover:border-[#0A84FF]/40 hover:bg-white/[0.07] transition-all group">
+        <div className="grid md:grid-cols-3 gap-4 mb-8">
+          {highlights.map(f => (
+            <div key={f.title} className="rounded-2xl border border-white/10 bg-white/5 p-5">
               <h3 className="text-base font-bold text-white mb-2">{f.title}</h3>
               <p className="text-sm text-slate-400 leading-relaxed">{f.desc}</p>
             </div>
           ))}
         </div>
+        <a
+          href="/warehousing"
+          className="inline-flex items-center gap-2 px-5 py-3 rounded-xl font-bold bg-[#0A84FF] text-white hover:bg-[#3d9dff] transition-colors shadow-[0_14px_34px_rgba(10,132,255,0.3)]"
+        >
+          Learn More <ArrowRight className="w-4 h-4" />
+        </a>
       </div>
     </section>
   );
@@ -459,383 +463,40 @@ function HowItWorks() {
   );
 }
 
-function Packages() {
-  const [, setLocation] = useLocation();
-  // Detail values pulled from server/stripe-products.ts TIER_PRICING descriptions.
-  const tiers = [
-    {
-      name: "Basic",
-      price: "$499",
-      priceSuffix: "/project",
-      desc: "First-time customers testing the service on a small deployment.",
-      features: ["One project, up to 14 days", "Up to 5 active devices", "Up to 5 boxes received", "Intake photos & serial/MAC capture", "1 outbound shipment coordination", "Staging labor billed separately"],
-      featured: false,
-      details: {
-        billing: "One-time · $499 per project",
-        devices: "Up to 5 active devices",
-        boxes: "Up to 5 boxes received",
-        pallets: "Not included",
-        storage: "14-day project window",
-        shipments: "1 outbound shipment coordination",
-      },
-    },
-    {
-      name: "Standard",
-      price: "$750",
-      priceSuffix: "/month starting",
-      desc: "Light recurring receiving, organization, and short-term storage.",
-      features: ["Up to 10 active devices stored", "Up to 10 boxes/month", "Up to 1 pallet/month", "30-day storage per item", "3 outbound shipment coordinations/mo", "Monthly usage summary"],
-      featured: false,
-      details: {
-        billing: "Monthly · $750/mo",
-        devices: "Up to 10 active devices",
-        boxes: "Up to 10 boxes / month",
-        pallets: "Up to 1 pallet / month",
-        storage: "30-day storage per item",
-        shipments: "3 outbound shipment coordinations / mo",
-      },
-    },
-    {
-      name: "Professional",
-      price: "$1,500",
-      priceSuffix: "/month starting",
-      desc: "Recurring deployment work with more receiving volume and organized staging capacity.",
-      features: ["Up to 25 active devices stored", "Up to 30 boxes/month", "Up to 3 pallets/month", "30-day storage per item", "8 outbound shipment coordinations/mo", "Dock/ramp coordination available"],
-      featured: true,
-      details: {
-        billing: "Monthly · $1,500/mo",
-        devices: "Up to 25 active devices",
-        boxes: "Up to 30 boxes / month",
-        pallets: "Up to 3 pallets / month",
-        storage: "30-day storage per item",
-        shipments: "8 outbound shipment coordinations / mo",
-      },
-    },
-    {
-      name: "Enterprise",
-      price: "$3,500",
-      priceSuffix: "/month starting",
-      desc: "Dedicated staging zone with higher volume and a dedicated LayerOne-managed workflow.",
-      features: ["Up to 75 active devices stored", "Up to 75 boxes/month", "Up to 6 pallets/month", "45-day storage per item", "20 outbound shipment coordinations/mo", "Weekly inventory report + 1 project call/mo"],
-      featured: false,
-      details: {
-        billing: "Monthly · $3,500/mo",
-        devices: "Up to 75 active devices",
-        boxes: "Up to 75 boxes / month",
-        pallets: "Up to 6 pallets / month",
-        storage: "45-day storage per item",
-        shipments: "20 outbound shipment coordinations / mo",
-      },
-    },
-    {
-      name: "Custom",
-      price: "Custom",
-      priceSuffix: "/project or month",
-      desc: "Multi-site deployments, national rollouts, POS, security, and franchise tech rollouts.",
-      features: ["Up to 150 active devices stored", "Up to 200 boxes/month", "Up to 20 pallets/month", "60-day storage per item", "50 outbound shipment coordinations/mo", "Chain-of-custody tracking & custom labor"],
-      featured: false,
-      details: {
-        billing: "Monthly · $5,000/mo base (custom-quoted)",
-        devices: "Up to 150 active devices",
-        boxes: "Up to 200 boxes / month",
-        pallets: "Up to 20 pallets / month",
-        storage: "60-day storage per item",
-        shipments: "50 outbound shipment coordinations / mo",
-      },
-    },
+function PricingTeaser() {
+  const highlights = [
+    { title: "Project-Based Quotes", desc: "Every rollout is quoted as a project around your locations, devices, and schedule." },
+    { title: "Managed Packages", desc: "Five tiers from $499/project to custom enterprise, with volume discounts built in." },
+    { title: "Transparent Add-Ons", desc: "Published overage rates. Nothing is billed without your approval." },
   ];
 
   return (
     <section id="packages" className="py-20 border-t border-white/10">
       <div className="max-w-6xl mx-auto px-6">
-        {/* Project-quote lead-in */}
-        <div className="relative rounded-3xl border border-[#0A84FF]/30 bg-gradient-to-br from-[#0A84FF]/10 to-white/[0.03] p-8 md:p-10 mb-12 overflow-hidden">
-          <div className="absolute inset-0 pointer-events-none">
-            <div className="absolute -top-10 left-1/3 w-[400px] h-[200px] rounded-full bg-[#0A84FF]/10 blur-[70px]" />
-          </div>
-          <div className="relative grid md:grid-cols-[1fr_auto] gap-6 items-center">
-            <div>
-              <span className="inline-block text-xs font-semibold tracking-widest uppercase text-[#0A84FF] mb-3">Project-based &amp; volume pricing</span>
-              <h2 className="text-3xl md:text-4xl font-black tracking-[-1.5px] text-white mb-3">
-                Every rollout is quoted as a project.
-              </h2>
-              <p className="text-slate-400 text-lg max-w-2xl leading-relaxed">
-                Tell us the number of locations, devices, services required, storage needs, and deployment schedule - we&apos;ll build a staging and logistics quote around your rollout. Volume discounts apply: per-device and per-site rates come down as quantities scale, itemized in your quote. Prefer it simple? Our per-pallet path is $12/pallet receiving and $30/pallet/month storage, plus the services you pick.
-              </p>
-            </div>
-            <a
-              href="/get-started"
-              className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl font-bold bg-[#0A84FF] text-white hover:bg-[#3d9dff] transition-colors shadow-[0_14px_34px_rgba(10,132,255,0.3)] whitespace-nowrap"
-            >
-              Request a Project Quote <ArrowRight className="w-4 h-4" />
-            </a>
-          </div>
-        </div>
-
-        <div className="mb-12">
-          <h2 className="text-4xl font-black tracking-[-1.5px] text-white mb-3">Managed service packages</h2>
-          <p className="text-slate-400 text-lg max-w-2xl">
-            Our package tiers are starting frameworks for recurring work - most multi-site projects are custom-quoted. Every package includes full portal access, photo documentation, and transparent billing.
-          </p>
-        </div>
-        <div className="grid md:grid-cols-3 lg:grid-cols-5 gap-4">
-          {tiers.map(t => (
-            <div
-              key={t.name}
-              className={`rounded-2xl border p-5 flex flex-col transition-all ${
-                t.featured
-                  ? "border-[#0A84FF]/50 bg-gradient-to-b from-[#0A84FF]/10 to-white/5 shadow-[0_20px_60px_rgba(10,132,255,0.15)]"
-                  : "border-white/10 bg-white/5 hover:border-white/20"
-              }`}
-            >
-              {t.featured && (
-                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#0A84FF]/15 border border-[#0A84FF]/30 text-[#5eb2ff] text-xs font-bold mb-3 self-start">
-                  <Zap className="w-3 h-3" /> Most Popular
-                </div>
-              )}
-              <div className="flex items-start justify-between gap-2 mb-1">
-                <h3 className="text-lg font-black text-white">{t.name}</h3>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <button
-                      type="button"
-                      aria-label={`${t.name} package details`}
-                      className="shrink-0 p-1.5 rounded-full text-slate-400 hover:text-[#0A84FF] hover:bg-[#0A84FF]/10 transition-colors"
-                    >
-                      <Info className="w-4 h-4" />
-                    </button>
-                  </PopoverTrigger>
-                  <PopoverContent
-                    align="end"
-                    className="w-72 max-w-[calc(100vw-2rem)] bg-[#0B1320] border border-white/10 rounded-xl p-4 shadow-2xl"
-                  >
-                    <p className="text-sm font-bold text-white mb-1">{t.name} - what's included</p>
-                    <p className="text-xs text-[#0A84FF] font-semibold mb-3">{t.details.billing}</p>
-                    <dl className="space-y-2 text-xs">
-                      {[
-                        ["Devices", t.details.devices],
-                        ["Boxes", t.details.boxes],
-                        ["Pallets", t.details.pallets],
-                        ["Storage", t.details.storage],
-                        ["Outbound", t.details.shipments],
-                      ].map(([label, value]) => (
-                        <div key={label} className="flex justify-between gap-3">
-                          <dt className="text-slate-500 shrink-0">{label}</dt>
-                          <dd className="text-slate-200 text-right">{value}</dd>
-                        </div>
-                      ))}
-                    </dl>
-                    <p className="mt-3 pt-3 border-t border-white/10 text-[11px] leading-relaxed text-slate-500">
-                      Anything beyond the included limits bills as an overage at our published add-on rates.
-                    </p>
-                  </PopoverContent>
-                </Popover>
-              </div>
-              <div className="mb-3">
-                <span className="text-2xl font-black text-[#0A84FF]">{t.price}</span>
-                <span className="text-xs text-slate-400 ml-1">{t.priceSuffix}</span>
-              </div>
-              <p className="text-xs text-slate-400 mb-4 leading-relaxed">{t.desc}</p>
-              <ul className="space-y-2 flex-1 mb-5">
-                {t.features.map(f => (
-                  <li key={f} className="flex items-start gap-2 text-xs text-slate-400">
-                    <CheckCircle className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
-                    {f}
-                  </li>
-                ))}
-              </ul>
-              <button
-                onClick={() => setLocation(`/packages/${t.name.toLowerCase()}`)}
-                className={`w-full flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-bold transition-colors ${
-                  t.featured
-                    ? "bg-[#0A84FF] text-white hover:bg-[#3d9dff]"
-                    : "border border-white/15 bg-white/5 text-white hover:border-white/30"
-                }`}
-              >
-                Get Started <ArrowRight className="w-3 h-3" />
-              </button>
-            </div>
-          ))}
-        </div>
-
-        {/* Pricing note */}
-        <p className="mt-6 text-xs text-slate-500 text-center">
-          Final pricing depends on selected DFW facility, storage footprint, receiving volume, and exact work scope. 3, 6, or 12-month terms available.
-        </p>
-      </div>
-    </section>
-  );
-}
-
-function AddOns() {
-  const addons = [
-    {
-      item: "Extra device stored",
-      rate: "$15–$25/device/mo",
-      note: "When stored device count exceeds package limit",
-      points: [
-        "Applies when your stored device count goes over your package's included limit.",
-        "Secure, inventoried storage with full visibility in your client portal.",
-        "Billed monthly per device - only for devices above your included limit.",
-      ],
-    },
-    {
-      item: "Extra parcel received",
-      rate: "$5–$10/box",
-      note: "Includes intake logging, photos & project assignment",
-      points: [
-        "Applies to inbound parcels beyond your package's included allowance.",
-        "Receiving inspection, photo documentation, portal logging, and assignment to your project.",
-        "Billed per box received.",
-      ],
-    },
-    {
-      item: "Extra pallet",
-      rate: "$25–$40/pallet",
-      note: "Rate depends on facility, size, handling & storage duration",
-      points: [
-        "Applies to pallets received or stored beyond your included allowance.",
-        "Forklift receiving, inspection, and secure floor or rack storage.",
-        "Billed per pallet - final rate depends on facility, size, handling, and duration.",
-      ],
-    },
-    {
-      item: "Extended storage",
-      rate: "$2–$5/day",
-      note: "After included duration: 14d Pilot · 30d Shelf/Bay · 45d Dedicated · 60d Rollout",
-      points: [
-        "Applies when gear stays in storage past your package's included window: 14 days (Pilot), 30 days (Shelf/Bay), 45 days (Dedicated), 60 days (Rollout).",
-        "Keeps your equipment secure and inventoried while you finalize deployment dates.",
-        "Billed per day until the gear ships or the project closes.",
-      ],
-    },
-    {
-      item: "Extra outbound shipment",
-      rate: "$20–$35/shipment",
-      note: "Packing coordination, labels, carrier handoff & documentation",
-      points: [
-        "Applies to outbound shipments beyond your package's included allowance.",
-        "Packing coordination, shipping labels, carrier handoff, and shipment documentation.",
-        "Billed per shipment.",
-      ],
-    },
-    {
-      item: "Inventory & asset capture",
-      rate: "$15/device",
-      note: "Model, serial, MAC address, asset photo & inventory log",
-      points: [
-        "Per-device service available on any package.",
-        "Captures model, serial number, MAC address, asset photo, and inventory log entry.",
-        "Billed once per device.",
-      ],
-    },
-    {
-      item: "Site-kit assembly",
-      rate: "$250+/site kit",
-      note: "Up to 2 hrs staging labor, QA checklist & photo docs - devices, patch cables, labels, packing list & install notes",
-      points: [
-        "Fixed-price kit build for a single site deployment.",
-        "Up to 2 hours of staging labor, QA checklist, and photo documentation.",
-        "Includes devices, patch cables, labels, packing list, and install notes.",
-        "Billed per site kit.",
-      ],
-    },
-    {
-      item: "Layer One staging technician",
-      rate: "$95–$125/hr",
-      note: "Labeling, firmware checks, packing, site-kit prep & approved staging tasks",
-      points: [
-        "Hands-on staging labor: labeling, firmware checks, packing, site-kit prep, and other approved staging tasks.",
-        "Work is approved by you before it starts.",
-        "Billed by the hour.",
-      ],
-    },
-    {
-      item: "Senior network technician",
-      rate: "$135–$175/hr",
-      note: "Switch, firewall, VLAN, VPN, IP plan & deployment readiness review",
-      points: [
-        "Engineering-level work: switch and firewall configuration, VLANs, VPN, IP planning, and deployment readiness review.",
-        "Scoped and approved by you before work starts.",
-        "Billed by the hour.",
-      ],
-    },
-    {
-      item: "Rush / weekend / after-hours",
-      rate: "1.5×–2× rate",
-      note: "Minimum labor block may apply",
-      points: [
-        "Expedited turnaround when your timeline can't wait for standard scheduling.",
-        "Applies a 1.5×–2× multiplier to the standard labor rate.",
-        "A minimum labor block may apply - confirmed with you before work starts.",
-      ],
-    },
-  ];
-
-  return (
-    <section id="addons" className="py-20 border-t border-white/10">
-      <div className="max-w-6xl mx-auto px-6">
         <div className="mb-10">
-          <h2 className="text-4xl font-black tracking-[-1.5px] text-white mb-3">Overages &amp; add-on services</h2>
+          <span className="inline-block text-xs font-semibold tracking-widest uppercase text-[#0A84FF] mb-3">Pricing</span>
+          <h2 className="text-4xl font-black tracking-[-1.5px] text-white mb-3">
+            Straightforward pricing,<br />
+            <span className="text-[#0A84FF]">no surprises.</span>
+          </h2>
           <p className="text-slate-400 text-lg max-w-2xl">
-            Package limits keep pricing predictable. Any volume or work outside the included allowance is billed as an overage or add-on after approval. On large rollouts, per-device and per-site rates are discounted by volume - your project quote will show the scaled pricing.
+            Project-based quotes, managed service packages, and published add-on rates.
           </p>
         </div>
-        <div className="rounded-2xl border border-white/10 overflow-hidden">
-          <div className="grid grid-cols-3 bg-white/10 px-5 py-3 text-xs font-bold text-slate-400 uppercase tracking-widest">
-            <span>Service / Overage</span>
-            <span>Starting Rate</span>
-            <span>Notes</span>
-          </div>
-          {addons.map((a, i) => (
-            <div
-              key={a.item}
-              className={`grid grid-cols-3 px-5 py-4 text-sm gap-4 ${
-                i % 2 === 0 ? "bg-white/[0.03]" : "bg-transparent"
-              } border-t border-white/10`}
-            >
-              <span className="font-semibold text-white flex items-center gap-1.5">
-                {a.item}
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <button
-                      type="button"
-                      aria-label={`${a.item} details`}
-                      className="shrink-0 p-1 rounded-full text-slate-500 hover:text-[#0A84FF] hover:bg-[#0A84FF]/10 transition-colors"
-                    >
-                      <Info className="w-3.5 h-3.5" />
-                    </button>
-                  </PopoverTrigger>
-                  <PopoverContent
-                    align="start"
-                    className="w-72 max-w-[calc(100vw-2rem)] bg-[#0B1320] border border-white/10 rounded-xl p-4 shadow-2xl"
-                  >
-                    <p className="text-sm font-bold text-white mb-1">{a.item}</p>
-                    <p className="text-xs text-[#0A84FF] font-semibold mb-3">{a.rate}</p>
-                    <ul className="space-y-2">
-                      {a.points.map(p => (
-                        <li key={p} className="flex gap-2 text-xs leading-relaxed text-slate-300">
-                          <span className="text-[#0A84FF] shrink-0">•</span>
-                          <span>{p}</span>
-                        </li>
-                      ))}
-                    </ul>
-                    <p className="mt-3 pt-3 border-t border-white/10 text-[11px] leading-relaxed text-slate-500">
-                      All overages and add-ons are approved by you before they're billed.
-                    </p>
-                  </PopoverContent>
-                </Popover>
-              </span>
-              <span className="text-[#0A84FF] font-bold">{a.rate}</span>
-              <span className="text-slate-400 text-xs leading-relaxed">{a.note}</span>
+        <div className="grid md:grid-cols-3 gap-4 mb-8">
+          {highlights.map(h => (
+            <div key={h.title} className="rounded-2xl border border-white/10 bg-white/5 p-5">
+              <h3 className="text-base font-bold text-white mb-2">{h.title}</h3>
+              <p className="text-sm text-slate-400 leading-relaxed">{h.desc}</p>
             </div>
           ))}
         </div>
-        <div className="mt-5 rounded-xl border border-amber-400/25 bg-amber-400/10 px-5 py-4">
-          <p className="text-amber-200 text-sm leading-relaxed">
-            <span className="font-bold">Not included by default:</span> unlimited storage, unlimited dock usage, free packing materials, shipping carrier costs, advanced configuration labor, troubleshooting, disposal/recycling, or insurance for unusually high-value equipment - unless added in writing.
-          </p>
-        </div>
+        <a
+          href="/pricing"
+          className="inline-flex items-center gap-2 px-5 py-3 rounded-xl font-bold bg-[#0A84FF] text-white hover:bg-[#3d9dff] transition-colors shadow-[0_14px_34px_rgba(10,132,255,0.3)]"
+        >
+          View Packages &amp; Pricing <ArrowRight className="w-4 h-4" />
+        </a>
       </div>
     </section>
   );
@@ -1159,154 +820,19 @@ function FacilityGallery() {
   );
 }
 
-const FAQ_ITEMS = [
-  {
-    category: "Services",
-    q: "What exactly does Layer One do?",
-    a: "Layer One Staging provides professional warehousing, receiving, staging, and outbound shipping services for technology equipment. We receive your hardware shipments, inventory every device, kit and stage equipment to your specifications, and ship it to your deployment sites - all tracked in real time through our customer portal."
-  },
-  {
-    category: "Services",
-    q: "What types of equipment do you handle?",
-    a: "We handle a wide range of network and IT equipment including routers, switches, firewalls, access points, servers, UPS units, cabling, and other rack-mount hardware. If you're unsure whether your equipment qualifies, contact us and we'll confirm before you ship."
-  },
-  {
-    category: "Services",
-    q: "Do you offer staging and QA services?",
-    a: "Yes. Depending on your package, our warehouse team can perform staging tasks such as firmware checks, asset labeling, serial/MAC capture, site-kit assembly, and deployment-readiness verification. Custom staging workflows are available on Professional, Enterprise, and Custom packages."
-  },
-  {
-    category: "Pricing & Packages",
-    q: "What is the difference between the packages?",
-    a: "Our five tiers - Basic, Standard, Professional, Enterprise, and Custom - differ in storage capacity, device limits, included receiving volume, and outbound shipment coordination. Basic is ideal for one-time projects; Custom is designed for large-scale, ongoing enterprise deployments. See our Packages section for a full comparison."
-  },
-  {
-    category: "Pricing & Packages",
-    q: "Are there any setup fees?",
-    a: "There are no hidden setup fees. The price listed for each package is the full monthly or per-project rate. Overages (extra pallets, boxes, devices, or labor hours beyond your plan limits) are billed at the rates listed in our Add-on Services table."
-  },
-  {
-    category: "Pricing & Packages",
-    q: "Can I add services to my existing package?",
-    a: "Yes. Add-on services such as extended storage, rush staging, site-kit assembly, photo documentation, and inventory & asset capture can be added to any package. These are billed at the per-unit rates shown in our Add-ons section and appear as line items on your monthly invoice."
-  },
-  {
-    category: "Onboarding",
-    q: "How long does it take to get started after signing up?",
-    a: "We require a 2-week setup period after your contract is signed and first payment is received. During this time, we configure your dedicated warehouse space and set up your customer portal account. You'll receive your warehouse details and go-live date via email as soon as your space is ready."
-  },
-  {
-    category: "Onboarding",
-    q: "What happens after I sign the agreement?",
-    a: "Once your service agreement is signed, you'll receive a Stripe payment link for your first invoice. After payment is confirmed, your 2-week onboarding clock starts. You'll receive a welcome email with your assigned warehouse unit number, facility address, and loading dock instructions. Your portal account will be activated and ready to use on your go-live date."
-  },
-  {
-    category: "Onboarding",
-    q: "Can I ship equipment before my go-live date?",
-    a: "We ask that all inbound shipments be coordinated after your go-live date to ensure your space is fully prepared. If you have a time-sensitive shipment, contact us in advance and we'll do our best to accommodate it during the setup period."
-  },
-  {
-    category: "Security & Facility",
-    q: "Is my equipment secure at your facility?",
-    a: "Yes. Our facility features 24/7 HD surveillance cameras throughout all storage and staging areas, keypad-controlled access to individual units, climate-controlled environments maintained at 65–72°F, and fire suppression systems. All access events are logged. Only authorized Layer One staff and your designated representatives may access your space."
-  },
-  {
-    category: "Security & Facility",
-    q: "Is the facility climate controlled?",
-    a: "Yes. The entire facility is climate controlled with temperature maintained between 65–72°F and humidity levels kept within safe ranges for sensitive electronics. This protects your equipment from thermal stress, condensation, and electrostatic damage during storage."
-  },
-  {
-    category: "Security & Facility",
-    q: "Do you have loading dock access for large deliveries?",
-    a: "Yes. Our facility has dedicated dock-height loading bays with forklift access for pallet deliveries. We accept LTL (less-than-truckload) and FTL (full truckload) freight shipments. Please notify us in advance for large deliveries so we can coordinate dock availability and receiving staff."
-  },
-  {
-    category: "Portal & Tracking",
-    q: "How do I track my equipment through the portal?",
-    a: "Your customer portal provides real-time visibility into every stage of your equipment's lifecycle. You can view expected delivery status, receiving logs with photos, pallet and box inventory, device-level staging progress, outbound shipment tracking, and invoices - all from a single dashboard accessible 24/7."
-  },
-  {
-    category: "Portal & Tracking",
-    q: "Can multiple people from my company access the portal?",
-    a: "Yes. We support two customer roles: Customer Admin (full read access plus the ability to submit delivery requests and shipment requests) and Customer Viewer (read-only access to all data). Contact your Layer One account manager to add additional users to your account."
-  },
-  {
-    category: "Portal & Tracking",
-    q: "What happens if my equipment arrives damaged?",
-    a: "Our receiving staff documents all inbound shipments with photos and flags any visible damage at the time of receipt. Damage exceptions are recorded in your receiving log and you'll be notified immediately. Photos are attached to the receiving record and visible in your portal. You can use this documentation for carrier claims or insurance purposes."
-  },
-];
-
-function FAQ() {
-  const categories = Array.from(new Set(FAQ_ITEMS.map(f => f.category)));
-  const [openIndex, setOpenIndex] = useState<number | null>(null);
-  const [activeCategory, setActiveCategory] = useState<string>("All");
-
-  const filtered = activeCategory === "All" ? FAQ_ITEMS : FAQ_ITEMS.filter(f => f.category === activeCategory);
-
+function FAQTeaser() {
   return (
     <section id="faq" className="py-20 border-t border-white/10">
-      <div className="max-w-4xl mx-auto px-6">
-        <div className="text-center mb-12">
-          <span className="inline-block text-xs font-semibold tracking-widest uppercase text-[#0A84FF] mb-3">FAQ</span>
-          <h2 className="text-3xl md:text-4xl font-bold mb-4 text-white">Frequently Asked Questions</h2>
-          <p className="text-slate-400 max-w-xl mx-auto">Everything you need to know about Layer One services, pricing, onboarding, and facility security.</p>
-        </div>
-
-        {/* Category Filter */}
-        <div className="flex flex-wrap gap-2 justify-center mb-8">
-          {["All", ...categories].map(cat => (
-            <button
-              key={cat}
-              onClick={() => setActiveCategory(cat)}
-              className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all border ${
-                activeCategory === cat
-                  ? "bg-[#0A84FF] text-white border-[#0A84FF]"
-                  : "border-white/15 text-slate-400 hover:border-[#0A84FF]/50 hover:text-slate-200"
-              }`}
-            >
-              {cat}
-            </button>
-          ))}
-        </div>
-
-        {/* Accordion */}
-        <div className="space-y-2">
-          {filtered.map((item, i) => {
-            const globalIndex = FAQ_ITEMS.indexOf(item);
-            const isOpen = openIndex === globalIndex;
-            return (
-              <div
-                key={globalIndex}
-                className={`rounded-xl border transition-all ${
-                  isOpen ? "border-[#0A84FF]/40 bg-white/[0.06]" : "border-white/10 bg-white/[0.03] hover:border-white/15"
-                }`}
-              >
-                <button
-                  className="w-full flex items-center justify-between px-5 py-4 text-left gap-4"
-                  onClick={() => setOpenIndex(isOpen ? null : globalIndex)}
-                >
-                  <div className="flex items-start gap-3">
-                    <span className="mt-0.5 text-xs font-semibold px-2 py-0.5 rounded-full bg-[#0A84FF]/15 text-[#5eb2ff] shrink-0">{item.category}</span>
-                    <span className="font-medium text-sm text-slate-100">{item.q}</span>
-                  </div>
-                  <ChevronDown className={`w-4 h-4 text-slate-400 shrink-0 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`} />
-                </button>
-                {isOpen && (
-                  <div className="px-5 pb-5">
-                    <div className="border-l-2 border-[#0A84FF]/20 pl-4">
-                      <p className="text-sm text-slate-300 leading-relaxed">{item.a}</p>
-                    </div>
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
-
-        <p className="text-center text-sm text-slate-500 mt-10">
-          Still have questions? <a href="mailto:info@layeronestaging.com" className="text-[#0A84FF] hover:underline">Contact our team</a> - we typically respond within one business day.
-        </p>
+      <div className="max-w-4xl mx-auto px-6 text-center">
+        <span className="inline-block text-xs font-semibold tracking-widest uppercase text-[#0A84FF] mb-3">FAQ</span>
+        <h2 className="text-3xl md:text-4xl font-bold mb-4 text-white">Frequently Asked Questions</h2>
+        <p className="text-slate-400 max-w-xl mx-auto mb-8">Everything you need to know about Layer One services, pricing, onboarding, and facility security.</p>
+        <a
+          href="/faq"
+          className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl font-bold bg-[#0A84FF] text-white hover:bg-[#3d9dff] transition-colors shadow-[0_14px_34px_rgba(10,132,255,0.3)]"
+        >
+          View all FAQs <ArrowRight className="w-4 h-4" />
+        </a>
       </div>
     </section>
   );
@@ -1385,7 +911,7 @@ const FOOTER_SERVICES = [
   { href: "/services/restaurant-franchise-technology-rollouts", label: "Restaurant & Franchise Rollouts" },
 ];
 
-function Footer() {
+export function Footer() {
   return (
     <footer className="border-t border-white/10 pt-14 pb-10">
       <div className="max-w-6xl mx-auto px-6">
@@ -1411,11 +937,11 @@ function Footer() {
             <ul className="space-y-2.5">
               <li><a href="/about" className="text-sm text-slate-400 hover:text-white transition-colors">About Us</a></li>
               <li><a href="/team" className="text-sm text-slate-400 hover:text-white transition-colors">Meet the Team</a></li>
-              <li><a href="#how-it-works" className="text-sm text-slate-400 hover:text-white transition-colors">How It Works</a></li>
-              <li><a href="#why-layer-one" className="text-sm text-slate-400 hover:text-white transition-colors">Why Layer One</a></li>
-              <li><a href="#rollouts" className="text-sm text-slate-400 hover:text-white transition-colors">Multi-Site Rollouts</a></li>
-              <li><a href="#packages" className="text-sm text-slate-400 hover:text-white transition-colors">Pricing</a></li>
-              <li><a href="#faq" className="text-sm text-slate-400 hover:text-white transition-colors">FAQ</a></li>
+              <li><a href="/#how-it-works" className="text-sm text-slate-400 hover:text-white transition-colors">How It Works</a></li>
+              <li><a href="/#why-layer-one" className="text-sm text-slate-400 hover:text-white transition-colors">Why Layer One</a></li>
+              <li><a href="/#rollouts" className="text-sm text-slate-400 hover:text-white transition-colors">Multi-Site Rollouts</a></li>
+              <li><a href="/pricing" className="text-sm text-slate-400 hover:text-white transition-colors">Pricing</a></li>
+              <li><a href="/faq" className="text-sm text-slate-400 hover:text-white transition-colors">FAQ</a></li>
               <li><a href="/get-started" className="text-sm text-slate-400 hover:text-white transition-colors">Request a Project Quote</a></li>
               <li><a href={getLoginUrl()} className="text-sm text-slate-400 hover:text-white transition-colors">Portal Login</a></li>
             </ul>
@@ -1494,14 +1020,13 @@ export default function Landing() {
         <WarehousingAsAService />
         <WhyLayerOne />
         <Rollouts />
-        <Packages />
-        <AddOns />
+        <PricingTeaser />
         <PortalSection />
         <DirectLine />
         <Industries />
         <About />
         <FacilityGallery />
-        <FAQ />
+        <FAQTeaser />
         <CTA />
       </main>
       <Footer />
