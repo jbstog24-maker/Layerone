@@ -12,12 +12,15 @@
  */
 import { eq } from "drizzle-orm";
 import { getDb } from "./db";
-import { packageInquiries, quotes, msaDocuments } from "../drizzle/schema";
+import { packageInquiries, quotes, msaDocuments, users } from "../drizzle/schema";
 import { buildMsaHtml, generateMsaToken } from "./msa";
+import { hashPassword } from "./_core/password";
 
 const DEMO_COMPANY = "Stogner IT Services (DEMO)";
 const SIGNING_BASE_URL = "https://www.layeronestaging.com";
 const MSA_TOKEN_TTL_MS = 30 * 24 * 60 * 60 * 1000; // 30 days
+const DEMO_PORTAL_EMAIL = "demo@layeronestaging.com";
+const DEMO_PORTAL_PASSWORD = "Demo1234!";
 
 const DEMO_LINE_ITEMS = [
   { label: "Receiving - pallet intake, count & inspect", qty: 24, unitPrice: 12, total: 288 },
@@ -101,6 +104,58 @@ export async function mintDemoDocOnce(): Promise<void> {
   } catch (err) {
     console.warn(
       "[DemoSeed] failed:",
+      err instanceof Error ? err.message : String(err)
+    );
+  }
+}
+
+/**
+ * One-time DEMO portal user seeder.
+ *
+ * Runs at boot ONLY when MINT_DEMO_USER=1 is set. Creates a clearly-labeled
+ * DEMO customer_admin portal login (demo@layeronestaging.com) with a known
+ * password for showing the customer portal to prospects.
+ *
+ * Idempotent: if the demo user already exists it is reused. Never throws.
+ * Remove the env var after use (same pattern as MINT_DEMO_DOC).
+ */
+export async function mintDemoUserOnce(): Promise<void> {
+  if (process.env.MINT_DEMO_USER !== "1") return;
+  try {
+    const db = await getDb();
+    if (!db) {
+      console.warn("[DemoSeed] no DB connection - skipping demo user");
+      return;
+    }
+
+    const existing = await db
+      .select({ id: users.id })
+      .from(users)
+      .where(eq(users.email, DEMO_PORTAL_EMAIL))
+      .limit(1);
+    if (existing.length > 0) {
+      console.log(`[DemoSeed] demo portal user already exists (id=${existing[0].id})`);
+      return;
+    }
+
+    const passwordHash = await hashPassword(DEMO_PORTAL_PASSWORD);
+    const result = await db.insert(users).values({
+      openId: `demo-${Date.now()}`,
+      name: "Demo User",
+      email: DEMO_PORTAL_EMAIL,
+      passwordHash,
+      loginMethod: "password",
+      role: "customer_admin",
+      businessName: "Demo Company (DEMO)",
+      isActive: true,
+    });
+    const id = (result[0] as unknown as { insertId: number }).insertId;
+    console.log(
+      `[DemoSeed] demo portal user created (id=${id}): ${DEMO_PORTAL_EMAIL} / ${DEMO_PORTAL_PASSWORD}`
+    );
+  } catch (err) {
+    console.warn(
+      "[DemoSeed] failed to create demo user:",
       err instanceof Error ? err.message : String(err)
     );
   }

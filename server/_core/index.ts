@@ -9,7 +9,7 @@ import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
 import { registerStripeRoutes } from "../stripe";
 import { runOnceMigration } from "../migrate-once";
-import { mintDemoDocOnce } from "../demo-seed-once";
+import { mintDemoDocOnce, mintDemoUserOnce } from "../demo-seed-once";
 import { registerProspectSyncRoute } from "../prospectSync";
 import { registerBackupExportRoute } from "../backupExport";
 import { registerMessageSyncRoutes } from "../messageSync";
@@ -76,6 +76,8 @@ async function startServer() {
   await runOnceMigration();
   // One-time demo MSA seeder (only runs when MINT_DEMO_DOC=1). Never throws.
   await mintDemoDocOnce();
+  // One-time demo portal user seeder (only runs when MINT_DEMO_USER=1). Never throws.
+  await mintDemoUserOnce();
   // Register Stripe webhook BEFORE express.json() so raw body is available for signature verification
   registerStripeRoutes(app);
   // Configure body parser with larger size limit for file uploads
