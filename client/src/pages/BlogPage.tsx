@@ -30,6 +30,11 @@ function BlogContent() {
           <p className="text-slate-400 text-lg max-w-xl mx-auto">Practical notes on staging, kitting, rollout logistics, and the problems we solve every day. Written by people who have done the work.</p>
         </div>
 
+        {/* Hero Image */}
+        <div className="rounded-2xl overflow-hidden border border-white/10 mb-12">
+          <img src="/images/blog-hero.png" alt="Layer One Staging blog - insights, tips, and industry updates from the field to the warehouse" className="w-full h-auto" />
+        </div>
+
         {/* Category Filter */}
         <div className="flex flex-wrap gap-2 justify-center mb-10">
           {["All", ...categories].map(cat => (
