@@ -74,6 +74,7 @@ export function NavBar() {
             )}
           </div>
           <a href="/about" className="hover:text-white transition-colors">About</a>
+          <a href="/blog" className="hover:text-white transition-colors">Blog</a>
           <a href="/#contact" className="hover:text-white transition-colors">Contact</a>
         </nav>
         <div className="flex items-center gap-3">
@@ -972,6 +973,7 @@ export function Footer() {
               <li><a href="/#rollouts" className="text-sm text-slate-400 hover:text-white transition-colors">Multi-Site Rollouts</a></li>
               <li><a href="/pricing" className="text-sm text-slate-400 hover:text-white transition-colors">Pricing</a></li>
               <li><a href="/faq" className="text-sm text-slate-400 hover:text-white transition-colors">FAQ</a></li>
+              <li><a href="/blog" className="text-sm text-slate-400 hover:text-white transition-colors">Blog</a></li>
               <li><a href="/get-started" className="text-sm text-slate-400 hover:text-white transition-colors">Request a Project Quote</a></li>
               <li><a href={getLoginUrl()} className="text-sm text-slate-400 hover:text-white transition-colors">Portal Login</a></li>
             </ul>

@@ -51,6 +51,8 @@ import FaqPage from "./pages/FaqPage";
 import WarehousingPage from "./pages/WarehousingPage";
 import PackagesPage from "./pages/PackagesPage";
 import HowWeWork from "./pages/HowWeWork";
+import BlogPage from "./pages/BlogPage";
+import BlogPost from "./pages/BlogPost";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import SetPassword from "./pages/SetPassword";
@@ -192,6 +194,8 @@ function Router() {
       <Route path="/warehousing" component={WarehousingPage} />
       <Route path="/pricing" component={PackagesPage} />
       <Route path="/how-we-work" component={HowWeWork} />
+      <Route path="/blog" component={BlogPage} />
+      <Route path="/blog/:slug" component={BlogPost} />
 
       <Route path="/404" component={NotFound} />
       <Route component={NotFound} />
