@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
-import { and, asc, desc, eq, isNull } from "drizzle-orm";
+import { and, asc, desc, eq, inArray, isNull } from "drizzle-orm";
 import { protectedProcedure, router } from "../_core/trpc";
 import { getDb } from "../db";
 import {
@@ -252,4 +252,43 @@ export const onboardingRouter = router({
         .where(eq(packageInquiries.id, checklist.inquiryId));
       return { success: true };
     }),
+
+  // ── Customer: read-only view of my own onboarding checklist(s) ─────────────
+  // Matches the signed-in user's email to their inquiries, then returns the
+  // checklist + tasks. No mutations - customers cannot toggle tasks.
+  myChecklist: protectedProcedure.query(async ({ ctx }) => {
+    const email = ctx.user?.email?.toLowerCase().trim();
+    if (!email) {
+      throw new TRPCError({ code: "UNAUTHORIZED", message: "Sign in required" });
+    }
+    const db = await dbOrThrow();
+    const myInquiries = await db
+      .select({ id: packageInquiries.id })
+      .from(packageInquiries)
+      .where(eq(packageInquiries.email, email));
+    if (myInquiries.length === 0) return null;
+    const inquiryIds = myInquiries.map((i) => i.id);
+    // Take the most recently updated checklist across my inquiries.
+    const [checklist] = await db
+      .select()
+      .from(onboardingChecklists)
+      .where(inArray(onboardingChecklists.inquiryId, inquiryIds))
+      .orderBy(desc(onboardingChecklists.updatedAt))
+      .limit(1);
+    if (!checklist) return null;
+    const tasks = await db
+      .select()
+      .from(onboardingTasks)
+      .where(eq(onboardingTasks.checklistId, checklist.id))
+      .orderBy(asc(onboardingTasks.sortOrder));
+    const done = tasks.filter((t) => t.completedAt).length;
+    return {
+      checklist: {
+        ...checklist,
+        unitAssignment: parseUnitAssignment(checklist.unitAssignment),
+      },
+      tasks,
+      progress: tasks.length > 0 ? Math.round((done / tasks.length) * 100) : 0,
+    };
+  }),
 });

@@ -1,7 +1,7 @@
 import express, { type Express, type Request, type Response } from "express";
 import Stripe from "stripe";
 import { eq } from "drizzle-orm";
-import { getClient, getDb, updateClient, logActivity } from "./db";
+import { getClient, getDb, updateClient, logActivity, getInvoice, updateInvoice } from "./db";
 import { notifyOwner } from "./_core/notification";
 import { TIER_PRICING, type PackageTier } from "./stripe-products";
 import { packageInquiries, quotes } from "../drizzle/schema";
@@ -169,6 +169,36 @@ export function registerStripeRoutes(app: Express) {
               }
             } catch (err) {
               console.error("[Stripe Webhook] Quote payment flow failed:", err);
+            }
+
+            // ── Invoice payment flow (portal Pay Now) ──────────────────────
+            // Marks the invoice paid when a customer completes Checkout from
+            // the portal. Wrapped in try/catch so the webhook still returns 200.
+            try {
+              const invoiceId = session.metadata?.invoice_id
+                ? parseInt(session.metadata.invoice_id, 10)
+                : null;
+              if (invoiceId) {
+                const invoice = await getInvoice(invoiceId);
+                if (invoice && invoice.status !== "paid") {
+                  await updateInvoice(invoiceId, {
+                    status: "paid",
+                    paidAt: new Date(),
+                  });
+                  await logActivity({
+                    clientId: invoice.clientId,
+                    action: `Invoice ${invoice.invoiceNumber} paid via Stripe Checkout (${session.id})`,
+                    entityType: "invoice",
+                    entityId: invoiceId,
+                  });
+                  await notifyOwner({
+                    title: `💳 Invoice Paid: ${invoice.invoiceNumber}`,
+                    content: `Invoice ${invoice.invoiceNumber} was paid via the customer portal.\n\nAmount: $${(session.amount_total != null ? (session.amount_total / 100).toFixed(2) : "N/A")}\nStripe session: ${session.id}`,
+                  });
+                }
+              }
+            } catch (err) {
+              console.error("[Stripe Webhook] Invoice payment flow failed:", err);
             }
             break;
           }
