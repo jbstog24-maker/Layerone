@@ -8,7 +8,7 @@ import {
   BarChart3, FileText, Camera, Activity,
   Thermometer, Video, MapPin, Layers,
   Tags, ClipboardCheck, Send, Network, Users, Store,
-  Server, Repeat, Phone, Facebook, Linkedin,
+  Server, Repeat, Phone, Facebook, Linkedin, ChevronDown,
 } from "lucide-react";
 import { ScheduleCallDialog } from "@/components/ScheduleCallDialog";
 
@@ -28,6 +28,14 @@ function LayerOneLogo({ className = "" }: { className?: string }) {
 export function NavBar() {
   const { isAuthenticated } = useAuth();
   const [, setLocation] = useLocation();
+  const [servicesOpen, setServicesOpen] = useState(false);
+
+  const serviceLinks = [
+    { href: "/#services", label: "IT Staging Services" },
+    { href: "/warehousing", label: "Warehousing as a Service" },
+    { href: "/how-we-work", label: "How We Work" },
+    { href: "/pricing", label: "Packages & Pricing" },
+  ];
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 border-b border-white/10 bg-[#0B1320]/85 backdrop-blur-xl">
@@ -37,10 +45,34 @@ export function NavBar() {
         </a>
         <nav className="hidden md:flex items-center gap-7 text-sm text-slate-400">
           <a href="/" className="hover:text-white transition-colors">Home</a>
-          <a href="/#services" className="hover:text-white transition-colors">Services</a>
-          <a href="/warehousing" className="hover:text-white transition-colors">Warehousing</a>
-          <a href="/how-we-work" className="hover:text-white transition-colors">How We Work</a>
-          <a href="/pricing" className="hover:text-white transition-colors">Pricing</a>
+          <div
+            className="relative"
+            onMouseEnter={() => setServicesOpen(true)}
+            onMouseLeave={() => setServicesOpen(false)}
+          >
+            <button
+              className="flex items-center gap-1 hover:text-white transition-colors"
+              onClick={() => setServicesOpen(!servicesOpen)}
+            >
+              Services <ChevronDown className={`w-3.5 h-3.5 transition-transform ${servicesOpen ? "rotate-180" : ""}`} />
+            </button>
+            {servicesOpen && (
+              <div className="absolute top-full left-0 pt-2 w-64">
+                <div className="rounded-xl border border-white/10 bg-[#0B1320] shadow-[0_16px_40px_rgba(0,0,0,0.5)] py-2">
+                  {serviceLinks.map(l => (
+                    <a
+                      key={l.href}
+                      href={l.href}
+                      className="block px-4 py-2.5 text-sm text-slate-400 hover:text-white hover:bg-white/5 transition-colors"
+                      onClick={() => setServicesOpen(false)}
+                    >
+                      {l.label}
+                    </a>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
           <a href="/about" className="hover:text-white transition-colors">About</a>
           <a href="/#contact" className="hover:text-white transition-colors">Contact</a>
         </nav>
