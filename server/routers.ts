@@ -149,17 +149,28 @@ export const appRouter = router({
     login: publicProcedure
       .input(
         z.object({
-          email: z.string().trim().toLowerCase().email().max(320),
+          email: z
+            .string()
+            .trim()
+            .toLowerCase()
+            .max(320)
+            .refine(
+              (v) => v === "demo" || z.string().email().safeParse(v).success,
+              { message: "Enter a valid email" }
+            ),
           password: z.string().min(1).max(128),
         })
       )
       .mutation(async ({ ctx, input }) => {
-        checkLoginRateLimit(input.email);
-        const user = await getUserByEmail(input.email);
+        // Allow "demo" as a shortcut username for the demo portal account.
+        const loginEmail =
+          input.email === "demo" ? "demo@layeronestaging.com" : input.email;
+        checkLoginRateLimit(loginEmail);
+        const user = await getUserByEmail(loginEmail);
         const valid =
           user && (await verifyPassword(input.password, user.passwordHash));
         if (!valid) {
-          recordFailedLogin(input.email);
+          recordFailedLogin(loginEmail);
           throw new TRPCError({
             code: "UNAUTHORIZED",
             message: "Invalid email or password.",
@@ -172,7 +183,7 @@ export const appRouter = router({
           });
         }
         await upsertUser({ openId: user.openId, lastSignedIn: new Date() });
-        clearLoginAttempts(input.email);
+        clearLoginAttempts(loginEmail);
         const sessionToken = await sdk.createSessionToken(user.openId, {
           name: user.name || "",
           expiresInMs: ONE_YEAR_MS,

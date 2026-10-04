@@ -94,12 +94,12 @@ export default function Login() {
                 </Label>
                 <Input
                   id="email"
-                  type="email"
+                  type="text"
                   required
                   autoComplete="email"
                   value={email}
                   onChange={e => setEmail(e.target.value)}
-                  placeholder="you@company.com"
+                  placeholder="you@company.com or demo"
                   className="bg-white/5 border-white/15 text-white placeholder:text-slate-500 focus-visible:ring-[#0A84FF] focus-visible:border-[#0A84FF]"
                 />
               </div>
