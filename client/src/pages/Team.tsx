@@ -177,6 +177,33 @@ export default function Team() {
         </div>
       </section>
 
+      {/* The warehouse crew */}
+      <section className="py-14 border-b border-white/10">
+        <div className="max-w-6xl mx-auto px-6">
+          <span className="inline-block text-xs font-semibold tracking-widest uppercase text-[#0A84FF] mb-6">
+            The warehouse crew
+          </span>
+          <div className="rounded-3xl border border-white/10 bg-white/[0.03] overflow-hidden">
+            <img
+              src="/images/warehouse-crew.png"
+              alt="Layer One Staging warehouse crew at work"
+              className="w-full h-64 md:h-80 object-cover"
+            />
+            <div className="p-8 md:p-10">
+              <h2 className="text-2xl md:text-3xl font-black tracking-[-0.5px] text-white mb-4">
+                Assigned warehouse techs, per site.
+              </h2>
+              <p className="text-slate-400 leading-relaxed max-w-3xl">
+                Behind every rollout is a crew of background-checked warehouse technicians who receive,
+                stage, kit, and ship your equipment. Dedicated techs assigned to your project, available
+                around the clock when your timeline demands it. Real people, doing real work, accountable
+                for every pallet.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* The AI crew */}
       <section className="py-14 border-b border-white/10">
         <div className="max-w-6xl mx-auto px-6">
