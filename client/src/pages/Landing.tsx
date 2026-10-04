@@ -39,6 +39,7 @@ export function NavBar() {
           <a href="/" className="hover:text-white transition-colors">Home</a>
           <a href="/#services" className="hover:text-white transition-colors">Services</a>
           <a href="/warehousing" className="hover:text-white transition-colors">Warehousing</a>
+          <a href="/how-we-work" className="hover:text-white transition-colors">How We Work</a>
           <a href="/pricing" className="hover:text-white transition-colors">Pricing</a>
           <a href="/about" className="hover:text-white transition-colors">About</a>
           <a href="/#contact" className="hover:text-white transition-colors">Contact</a>

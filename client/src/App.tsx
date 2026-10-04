@@ -50,6 +50,7 @@ import ServiceIndex from "./pages/services/ServiceIndex";
 import FaqPage from "./pages/FaqPage";
 import WarehousingPage from "./pages/WarehousingPage";
 import PackagesPage from "./pages/PackagesPage";
+import HowWeWork from "./pages/HowWeWork";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import SetPassword from "./pages/SetPassword";
@@ -190,6 +191,7 @@ function Router() {
       <Route path="/faq" component={FaqPage} />
       <Route path="/warehousing" component={WarehousingPage} />
       <Route path="/pricing" component={PackagesPage} />
+      <Route path="/how-we-work" component={HowWeWork} />
 
       <Route path="/404" component={NotFound} />
       <Route component={NotFound} />
