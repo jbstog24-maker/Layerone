@@ -25,8 +25,60 @@ import { timingSafeEqual } from "crypto";
 import { getDb } from "./db";
 import { callLogs, type CallLog, type InsertCallLog } from "../drizzle/schema";
 import { maybeSendQuoteFollowup, drizzleFollowupStore } from "./alexFollowup";
+import { ENV } from "./_core/env";
 
 const UNSYNCED_LIMIT = 100;
+
+// Branden's cell for post-call SMS alerts. Bland charges ~$0.02 per SMS.
+const CALL_ALERT_SMS_TO = "+12146066204";
+const BLAND_SMS_API = "https://api.bland.ai/v1/sms/send";
+
+/**
+ * Text Branden a summary after each inbound call to Alex. Fire-and-forget:
+ * returns false (and logs) on any problem, never throws.
+ */
+async function maybeSendCallAlertSms(fields: ExtractedCallLog): Promise<boolean> {
+  try {
+    const apiKey = ENV.blandApiKey;
+    if (!apiKey) {
+      console.warn("[CallLog] BLAND_API_KEY not set - skipping call-alert SMS");
+      return false;
+    }
+    // Only alert on inbound calls to the business line with some substance.
+    // Skip ultra-short calls (likely hangups/pocket dials).
+    const isInbound = (fields.direction || "").toLowerCase() === "inbound";
+    if (!isInbound) return false;
+    if ((fields.durationSeconds || 0) < 5) return false;
+
+    const caller = fields.callerName || fields.fromNumber || "Unknown caller";
+    const summary = (fields.summary || "No summary available").slice(0, 200);
+    const text =
+      `Layer One call: ${caller} (${fields.fromNumber || "no number"})\n` +
+      `${fields.durationSeconds || 0}s. ${summary}`;
+
+    const res = await fetch(BLAND_SMS_API, {
+      method: "POST",
+      headers: {
+        authorization: apiKey,
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        to: CALL_ALERT_SMS_TO,
+        from: "+14695374378",
+        message: text,
+      }),
+    });
+    if (!res.ok) {
+      console.warn(`[CallLog] Bland SMS API returned ${res.status} - skipping`);
+      return false;
+    }
+    console.log(`[CallLog] call-alert SMS sent for ${fields.blandCallId}`);
+    return true;
+  } catch (err: any) {
+    console.warn("[CallLog] call-alert SMS error:", err?.message ?? err);
+    return false;
+  }
+}
 
 export function tokenOk(provided: unknown): boolean {
   const expected = process.env.PROSPECT_SYNC_TOKEN;
@@ -286,6 +338,13 @@ export function registerCallLogRoutes(
         }
       } catch (followupErr: any) {
         console.error("[CallLog] follow-up hook failed (non-fatal):", followupErr?.message ?? followupErr);
+      }
+
+      // Post-call SMS to Branden. Never throws, never fails the webhook.
+      try {
+        await maybeSendCallAlertSms(fields);
+      } catch (smsErr: any) {
+        console.error("[CallLog] call-alert SMS failed (non-fatal):", smsErr?.message ?? smsErr);
       }
 
       res.json({ ok: true });
