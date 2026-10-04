@@ -126,6 +126,8 @@ export const clients = mysqlTable("clients", {
   warehouseNotes: text("warehouseNotes"),
   warehouseAssignedAt: timestamp("warehouseAssignedAt"),
   assignedTechNames: text("assignedTechNames"),
+  // Warehouse location (ship-to facility) assigned from the locations table
+  locationId: int("locationId"),
   archivedAt: timestamp("archivedAt"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
@@ -589,6 +591,9 @@ export const packageInquiries = mysqlTable("package_inquiries", {
   // Name of the commission sales rep the prospect is working with, if any.
   // Self-reported on the quote request form so the rep gets compensated.
   salesRepName: varchar("salesRepName", { length: 120 }),
+  // Timestamp when the customer how-to guide welcome email was sent
+  // (fired automatically on the paid+signed onboarding handoff).
+  howToGuideSentAt: timestamp("howToGuideSentAt"),
 });
 
 export type PackageInquiry = typeof packageInquiries.$inferSelect;
@@ -1272,3 +1277,27 @@ export const blockedNumbers = mysqlTable("blocked_numbers", {
 
 export type BlockedNumber = typeof blockedNumbers.$inferSelect;
 export type InsertBlockedNumber = typeof blockedNumbers.$inferInsert;
+
+// ─── Warehouse Locations ─────────────────────────────────────────────────────
+// Physical warehouse facilities around DFW. Staff manage the list; each client
+// account can be assigned one location, which customers see in their portal
+// as the ship-to address for sending equipment.
+export const locations = mysqlTable("locations", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 128 }).notNull(),
+  address: text("address").notNull(),
+  city: varchar("city", { length: 64 }).notNull(),
+  state: varchar("state", { length: 8 }).notNull().default("TX"),
+  zip: varchar("zip", { length: 16 }).notNull(),
+  contactName: varchar("contactName", { length: 128 }),
+  contactPhone: varchar("contactPhone", { length: 32 }),
+  receivingHours: varchar("receivingHours", { length: 256 }),
+  dockInfo: text("dockInfo"),
+  notes: text("notes"),
+  isActive: boolean("isActive").default(true).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Location = typeof locations.$inferSelect;
+export type InsertLocation = typeof locations.$inferInsert;

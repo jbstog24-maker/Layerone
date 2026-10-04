@@ -238,6 +238,30 @@ export async function checkAndTriggerHandoff(inquiryId: number): Promise<boolean
     console.log(
       `[Onboarding] Handoff triggered for inquiry ${inquiryId} (${inquiry.company})`
     );
+
+    // Send the customer welcome email with the how-to guide, and mark it sent.
+    // Non-blocking: never fail the handoff because the email failed.
+    try {
+      const { sendCustomerWelcomeEmail } = await import("./email");
+      const guideUrl = "https://docs.google.com/document/d/11NZtYPrpFZiH7o84SPl2n3VR65dRafZUnNZKh_3g3jw/edit";
+      const sent = await sendCustomerWelcomeEmail({
+        to: inquiry.email,
+        contactName: inquiry.name,
+        companyName: inquiry.company,
+        guideUrl,
+        portalUrl: ENV.portalUrl,
+      });
+      if (sent) {
+        await db
+          .update(packageInquiries)
+          .set({ howToGuideSentAt: new Date() })
+          .where(eq(packageInquiries.id, inquiryId));
+        console.log(`[Onboarding] How-to guide sent to ${inquiry.email}`);
+      }
+    } catch (welcomeErr) {
+      console.warn("[Onboarding] welcome email failed (non-fatal):", welcomeErr);
+    }
+
     return true;
   } catch (err) {
     console.error("[Onboarding] checkAndTriggerHandoff failed:", err);

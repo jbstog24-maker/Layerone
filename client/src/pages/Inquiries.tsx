@@ -109,6 +109,7 @@ type Inquiry = {
   startDate: string | null;
   rolloutDuration: string | null;
   salesRepName: string | null;
+  howToGuideSentAt: Date | null;
   status: InquiryStatus;
   createdAt: Date;
   deletedAt: Date | null;
@@ -434,6 +435,11 @@ function QuoteBuilderDialog({
               {inquiry.salesRepName && (
                 <span className="inline-flex items-center gap-1 text-xs bg-[#0A84FF]/15 border border-[#0A84FF]/40 px-2 py-0.5 rounded-full text-sky-300 font-medium">
                   <User className="w-3 h-3" /> Sales Rep: {inquiry.salesRepName}
+                </span>
+              )}
+              {inquiry.howToGuideSentAt && (
+                <span className="inline-flex items-center gap-1 text-xs bg-green-500/15 border border-green-500/40 px-2 py-0.5 rounded-full text-green-300 font-medium">
+                  <CheckCircle2 className="w-3 h-3" /> Guide Sent
                 </span>
               )}
             </div>

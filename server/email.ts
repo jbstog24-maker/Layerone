@@ -1723,3 +1723,34 @@ export async function sendWarehouseAssignedEmail(params: WarehouseAssignedEmailP
     html,
   });
 }
+
+// ─── Customer welcome (how-to guide) ─────────────────────────────────────────
+export type CustomerWelcomeEmailParams = {
+  to: string;
+  contactName: string;
+  companyName: string;
+  guideUrl: string;
+  portalUrl: string;
+};
+
+export async function sendCustomerWelcomeEmail(params: CustomerWelcomeEmailParams): Promise<boolean> {
+  const html = customerEmailShell({
+    emoji: "👋",
+    heading: "Welcome to Layer One Staging",
+    greeting: `Hi ${params.contactName},`,
+    bodyHtml: `<p style="margin:0 0 16px;color:#cbd5e1;font-size:15px;">
+        Your account is all set. ${params.companyName} is now onboard with Layer One Staging, and your first payment is confirmed.
+      </p>
+      <p style="margin:0 0 24px;color:#cbd5e1;font-size:15px;">
+        We put together a short how-to guide that walks you through the customer portal: viewing and paying invoices, tracking shipments, signing documents, and following your onboarding checklist.
+      </p>`,
+    cta: { label: "Open the Customer How-To Guide", href: params.guideUrl },
+    footerNote: `You can also sign in anytime at ${params.portalUrl}. Questions? Reply to this email or call (469) 537-4378.`,
+  });
+  return sendCustomerEmail({
+    to: params.to,
+    subject: "Welcome to Layer One Staging - Your Customer How-To Guide",
+    tag: "customer-welcome",
+    html,
+  });
+}

@@ -1,4 +1,5 @@
 import DashboardLayout from "@/components/DashboardLayout";
+import DeviceCsvUpload from "@/components/DeviceCsvUpload";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -34,6 +35,7 @@ import {
   Search,
   Server,
   Truck,
+  Upload,
 } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
@@ -391,6 +393,8 @@ export default function MyDevices() {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [bulkOpen, setBulkOpen] = useState(false);
   const [bulkSaving, setBulkSaving] = useState(false);
+  const [csvOpen, setCsvOpen] = useState(false);
+  const role = (user as any)?.role ?? "";
 
   // Staging notifications (Ready to Ship)
   const { data: notifications, isLoading: notifLoading } = trpc.stagingNotify.listForClient.useQuery(
@@ -578,15 +582,29 @@ export default function MyDevices() {
         )}
 
         {/* Header */}
-        <div>
-          <h1 className="text-2xl font-bold text-white flex items-center gap-3">
-            <MapPin className="w-7 h-7 text-blue-400" />
-            My Devices & Forwarding
-          </h1>
-          <p className="text-slate-400 text-sm mt-1">
-            Track where your staged devices, boxes, and pallets are being forwarded to.
-          </p>
+        <div className="flex items-start justify-between gap-3 flex-wrap">
+          <div>
+            <h1 className="text-2xl font-bold text-white flex items-center gap-3">
+              <MapPin className="w-7 h-7 text-blue-400" />
+              My Devices & Forwarding
+            </h1>
+            <p className="text-slate-400 text-sm mt-1">
+              Track where your staged devices, boxes, and pallets are being forwarded to.
+            </p>
+          </div>
+          {role !== "customer_viewer" && (
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => setCsvOpen(true)}
+              className="border-[#1e3a5f] text-slate-300 gap-1.5 shrink-0"
+            >
+              <Upload className="w-3.5 h-3.5" /> Upload CSV
+            </Button>
+          )}
         </div>
+
+        <DeviceCsvUpload open={csvOpen} onClose={() => setCsvOpen(false)} />
 
         {/* Summary cards */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">

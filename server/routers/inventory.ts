@@ -333,4 +333,50 @@ export const devicesRouter = router({
       await logActivity({ userId: ctx.user.id, clientId: input.clientId, action: `Bulk imported ${results.length} devices via CSV`, entityType: "device" });
       return { imported: results.length, devices: results };
     }),
+
+  bulkImport: protectedProcedure
+    .input(z.object({
+      clientId: z.number().optional(),
+      rows: z.array(z.object({
+        deviceType: z.string().max(128).optional(),
+        brand: z.string().max(128).optional(),
+        model: z.string().max(128).optional(),
+        serialNumber: z.string().max(128).optional(),
+        macAddress: z.string().max(64).optional(),
+        assetTag: z.string().max(128).optional(),
+        projectName: z.string().max(256).optional(),
+        siteName: z.string().max(256).optional(),
+        notes: z.string().max(2000).optional(),
+      })).min(1).max(50),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const role = ctx.user.role;
+      if (role !== "customer_admin" && !isStaffOrAdmin(role)) {
+        throw new TRPCError({ code: "FORBIDDEN", message: "Bulk import is not available for your role." });
+      }
+      // customer_admin is locked to their own client; staff/admin may pass a clientId.
+      const clientId = role === "customer_admin" ? ctx.user.clientId : input.clientId;
+      if (!clientId) throw new TRPCError({ code: "BAD_REQUEST", message: "No client selected for import." });
+
+      let imported = 0;
+      const errors: string[] = [];
+      for (let i = 0; i < input.rows.length; i++) {
+        const row = input.rows[i];
+        try {
+          await createDevice({ ...row, clientId });
+          imported++;
+        } catch (err: any) {
+          errors.push(`Row ${i + 1}: ${err?.message ?? "failed to import"}`);
+        }
+      }
+      try {
+        await logActivity({
+          userId: ctx.user.id,
+          clientId,
+          action: `Bulk imported ${imported} device${imported === 1 ? "" : "s"} via CSV${errors.length > 0 ? ` (${errors.length} failed)` : ""}`,
+          entityType: "device",
+        });
+      } catch { /* non-blocking */ }
+      return { imported, failed: errors.length, errors };
+    }),
 });

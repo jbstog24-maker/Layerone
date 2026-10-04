@@ -12,7 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
-import { Building2, Plus, Search, ChevronRight, Mail, Phone, FileText, Warehouse, Calendar, CheckCircle, Clock, AlertCircle, Send, CreditCard, Download, MessageSquare, User, Archive, ArchiveRestore, ClipboardList, CheckCircle2, Trash2 } from "lucide-react";
+import { Building2, Plus, Search, ChevronRight, Mail, Phone, FileText, Warehouse, Calendar, CheckCircle, Clock, AlertCircle, Send, CreditCard, Download, MessageSquare, User, Archive, ArchiveRestore, ClipboardList, CheckCircle2, Trash2, MapPin } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { useAuth } from "@/_core/hooks/useAuth";
@@ -231,6 +231,65 @@ export function ClientsList() {
         </DialogContent>
       </Dialog>
     </DashboardLayout>
+  );
+}
+
+// Warehouse Location Assignment (ship-to facility)
+function LocationAssignmentCard({ clientId, client, onChanged }: { clientId: number; client: any; onChanged: () => void }) {
+  const utils = trpc.useUtils();
+  const { data: locations = [] } = trpc.locations.list.useQuery({});
+  const assignMut = trpc.locations.assignToClient.useMutation({
+    onSuccess: () => {
+      toast.success("Warehouse location assigned");
+      utils.locations.list.invalidate();
+      onChanged();
+    },
+    onError: (e) => toast.error(e.message),
+  });
+
+  const currentId = (client as any).locationId as number | null;
+  const current = locations.find((l: any) => l.id === currentId);
+
+  return (
+    <Card className="bg-card/60 border-border/50 mb-4">
+      <CardHeader className="flex flex-row items-center justify-between">
+        <CardTitle className="text-sm flex items-center gap-2">
+          <MapPin className="w-4 h-4 text-blue-400" />Ship-To Location
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        {current ? (
+          <div className="rounded-lg border border-border/50 bg-black/20 p-3">
+            <p className="text-sm font-semibold">{current.name}</p>
+            <p className="text-xs text-muted-foreground mt-1">
+              {current.address}, {current.city}, {current.state} {current.zip}
+            </p>
+            {current.receivingHours && (
+              <p className="text-xs text-muted-foreground mt-1">Receiving: {current.receivingHours}</p>
+            )}
+          </div>
+        ) : (
+          <p className="text-sm text-muted-foreground">No location assigned. The customer will not see a ship-to address until one is assigned.</p>
+        )}
+        <div className="flex items-center gap-2">
+          <Select
+            value={currentId ? String(currentId) : "none"}
+            onValueChange={(v) => assignMut.mutate({ clientId, locationId: v === "none" ? null : parseInt(v) })}
+          >
+            <SelectTrigger className="w-64">
+              <SelectValue placeholder="Select a location" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="none">No location</SelectItem>
+              {locations.map((l: any) => (
+                <SelectItem key={l.id} value={String(l.id)}>{l.name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {assignMut.isPending && <span className="text-xs text-muted-foreground">Saving...</span>}
+        </div>
+      </CardContent>
+    </Card>
   );
 }
 
@@ -639,6 +698,11 @@ export function ClientDetail() {
 
       {/* Messages Thread */}
       <ClientMessageThread clientId={id} isAdminOrStaff={isAdminOrStaff} />
+
+      {/* Ship-To Location Assignment (staff/admin only) */}
+      {isAdminOrStaff && (
+        <LocationAssignmentCard clientId={id} client={client} onChanged={() => void refetchClient()} />
+      )}
 
       {/* Documents Tab (admin/staff only) */}
       {isAdminOrStaff && (

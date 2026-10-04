@@ -12,9 +12,9 @@ import {
   Package, Warehouse, Box, ArrowRight, Loader2,
   AlertTriangle, Clock, ChevronRight, Hash,
   MessageSquare, Inbox, PenLine, User, ClipboardList,
-  CheckCircle2, BellRing
+  CheckCircle2, BellRing, Rocket, MapPin, Copy, Check
 } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
 
 function StatCard({ icon: Icon, label, value, sub, color, href }: {
@@ -282,6 +282,136 @@ function AdminDashboard() {
   );
 }
 
+function GettingStartedCard({ stats }: { stats?: { deliveries?: number; devices?: number; pallets?: number; boxes?: number } | null }) {
+  const [, setLocation] = useLocation();
+  const [dismissed, setDismissed] = useState(false);
+
+  const hasData = (stats?.deliveries ?? 0) > 0 || (stats?.devices ?? 0) > 0 ||
+    (stats?.pallets ?? 0) > 0 || (stats?.boxes ?? 0) > 0;
+
+  if (dismissed || hasData) return null;
+
+  const steps = [
+    {
+      icon: Truck,
+      title: "Add your shipping info",
+      desc: "Tell us what equipment is headed our way so we can plan receiving.",
+      cta: "Add a delivery",
+      href: "/deliveries",
+      color: "bg-blue-500/10 text-blue-400",
+    },
+    {
+      icon: Server,
+      title: "Add your devices",
+      desc: "List the devices you need staged, kitted, or stored. Got a lot? Upload a CSV to add them in bulk.",
+      cta: "Add devices",
+      href: "/devices",
+      color: "bg-violet-500/10 text-violet-400",
+    },
+    {
+      icon: ClipboardList,
+      title: "Complete onboarding",
+      desc: "Work through your checklist so we can get you live.",
+      cta: "View checklist",
+      href: "/my-onboarding",
+      color: "bg-green-500/10 text-green-400",
+    },
+  ];
+
+  return (
+    <Card className="bg-gradient-to-br from-primary/10 via-card/60 to-card/60 border-primary/30">
+      <CardHeader className="pb-3">
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-base flex items-center gap-2">
+            <Rocket className="w-5 h-5 text-primary" />
+            Start here
+          </CardTitle>
+          <Button variant="ghost" size="sm" className="h-7 text-xs text-muted-foreground" onClick={() => setDismissed(true)}>
+            Dismiss
+          </Button>
+        </div>
+        <p className="text-sm text-muted-foreground">
+          Three quick steps to get your equipment into our hands.
+        </p>
+      </CardHeader>
+      <CardContent className="grid gap-3 md:grid-cols-3 pt-0">
+        {steps.map((step, i) => (
+          <div key={step.title} className="rounded-lg border border-border/50 bg-black/20 p-4 space-y-3">
+            <div className="flex items-center gap-3">
+              <div className={`w-9 h-9 rounded-xl ${step.color} flex items-center justify-center shrink-0`}>
+                <step.icon className="w-4.5 h-4.5" />
+              </div>
+              <span className="text-xs font-semibold text-muted-foreground">STEP {i + 1}</span>
+            </div>
+            <div>
+              <p className="text-sm font-semibold">{step.title}</p>
+              <p className="text-xs text-muted-foreground mt-1">{step.desc}</p>
+            </div>
+            <Button size="sm" className="w-full" onClick={() => setLocation(step.href)}>
+              {step.cta}
+              <ArrowRight className="w-3.5 h-3.5 ml-1" />
+            </Button>
+          </div>
+        ))}
+      </CardContent>
+    </Card>
+  );
+}
+
+function ShipToLocationCard() {
+  const { data: location } = trpc.locations.myLocation.useQuery();
+  const [copied, setCopied] = useState(false);
+
+  if (!location) return null;
+
+  const fullAddress = `${location.address}, ${location.city}, ${location.state} ${location.zip}`;
+
+  const copyAddress = async () => {
+    try {
+      await navigator.clipboard.writeText(fullAddress);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // clipboard unavailable, ignore
+    }
+  };
+
+  return (
+    <Card className="bg-card/60 border-border/50">
+      <CardHeader className="pb-3">
+        <CardTitle className="text-sm flex items-center gap-2">
+          <MapPin className="w-4 h-4 text-blue-400" />
+          Ship-To Location
+        </CardTitle>
+        <p className="text-xs text-muted-foreground">Send your equipment to this address.</p>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        <div>
+          <p className="font-semibold text-sm">{location.name}</p>
+          <div className="flex items-start justify-between gap-2 mt-1">
+            <p className="text-sm text-muted-foreground">{fullAddress}</p>
+            <Button size="sm" variant="outline" className="h-7 px-2 text-xs gap-1 shrink-0" onClick={copyAddress}>
+              {copied ? <Check className="w-3 h-3 text-green-400" /> : <Copy className="w-3 h-3" />}
+              {copied ? "Copied" : "Copy"}
+            </Button>
+          </div>
+        </div>
+        {(location.contactName || location.contactPhone) && (
+          <p className="text-xs text-muted-foreground">
+            Contact: {location.contactName}{location.contactName && location.contactPhone && " · "}{location.contactPhone}
+          </p>
+        )}
+        {location.receivingHours && (
+          <p className="text-xs text-muted-foreground">Receiving hours: {location.receivingHours}</p>
+        )}
+        {location.dockInfo && (
+          <p className="text-xs bg-black/20 border border-border/50 rounded p-2">{location.dockInfo}</p>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
 function CustomerDashboard() {
   const { data: usage } = trpc.dashboard.clientUsage.useQuery({});
   const { data: recentActivity } = trpc.activity.list.useQuery({ limit: 5 });
@@ -293,6 +423,12 @@ function CustomerDashboard() {
 
   return (
     <div className="space-y-6">
+      {/* Start Here - getting started guide for new customers */}
+      <GettingStartedCard stats={stats} />
+
+      {/* Ship-To Location - where to send equipment */}
+      <ShipToLocationCard />
+
       {/* Account Number Banner */}
       {client?.accountNumber && (
         <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-primary/5 border border-primary/20 w-fit">

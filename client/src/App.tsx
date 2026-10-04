@@ -44,6 +44,7 @@ import HelpCenter from "./pages/HelpCenter";
 import MyInstructions from "./pages/MyInstructions";
 import MyDocuments from "./pages/MyDocuments";
 import MyOnboarding from "./pages/MyOnboarding";
+import Locations from "./pages/Locations";
 import OnboardingTour from "./components/OnboardingTour";
 import { PalletDetail } from "./pages/Pallets";
 import GetStarted from "./pages/GetStarted";
@@ -108,6 +109,7 @@ function Router() {
       {/* Clients */}
       <Route path="/clients" component={ClientsList} />
       <Route path="/clients/:id" component={ClientDetail} />
+      <Route path="/locations" component={Locations} />
 
       {/* Packages */}
       <Route path="/packages" component={Packages} />

@@ -505,6 +505,52 @@ export async function runOnceMigration(): Promise<void> {
       }
     });
 
+    // 2026-10-04: howToGuideSentAt on package_inquiries to track whether the
+    // customer welcome email with the how-to guide was sent (paid+signed handoff).
+    await applyStep("add package_inquiries.howToGuideSentAt", async () => {
+      if (await columnExists(db, "package_inquiries", "howToGuideSentAt")) {
+        console.log("[Migration] package_inquiries.howToGuideSentAt already exists - skipping");
+      } else {
+        await db.execute(sql.raw("ALTER TABLE `package_inquiries` ADD `howToGuideSentAt` timestamp NULL"));
+        console.log("[Migration] package_inquiries.howToGuideSentAt added");
+      }
+    });
+
+    // 2026-10-04: warehouse locations table + clients.locationId so staff can
+    // assign one ship-to facility per customer account.
+    await applyStep("create locations table", async () => {
+      if (await tableExists(db, "locations")) {
+        console.log("[Migration] locations table already exists - skipping");
+      } else {
+        await db.execute(sql.raw(`CREATE TABLE IF NOT EXISTS \`locations\` (
+          \`id\` int AUTO_INCREMENT NOT NULL,
+          \`name\` varchar(128) NOT NULL,
+          \`address\` text NOT NULL,
+          \`city\` varchar(64) NOT NULL,
+          \`state\` varchar(8) NOT NULL DEFAULT 'TX',
+          \`zip\` varchar(16) NOT NULL,
+          \`contactName\` varchar(128),
+          \`contactPhone\` varchar(32),
+          \`receivingHours\` varchar(256),
+          \`dockInfo\` text,
+          \`notes\` text,
+          \`isActive\` boolean NOT NULL DEFAULT true,
+          \`createdAt\` timestamp NOT NULL DEFAULT (now()),
+          \`updatedAt\` timestamp NOT NULL DEFAULT (now()) ON UPDATE (now()),
+          CONSTRAINT \`locations_id\` PRIMARY KEY(\`id\`)
+        )`));
+        console.log("[Migration] locations table created");
+      }
+    });
+    await applyStep("add clients.locationId", async () => {
+      if (await columnExists(db, "clients", "locationId")) {
+        console.log("[Migration] clients.locationId already exists - skipping");
+      } else {
+        await db.execute(sql.raw("ALTER TABLE `clients` ADD `locationId` int NULL"));
+        console.log("[Migration] clients.locationId added");
+      }
+    });
+
     console.log("[Migration] one-time migration complete");
   } catch (err: any) {
     console.error("[Migration] FAILED (non-fatal):", err?.message ?? err);
