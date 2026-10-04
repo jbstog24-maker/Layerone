@@ -42,6 +42,8 @@ import AdminTickets from "./pages/AdminTickets";
 import AdminReports from "./pages/AdminReports";
 import HelpCenter from "./pages/HelpCenter";
 import MyInstructions from "./pages/MyInstructions";
+import MyDocuments from "./pages/MyDocuments";
+import MyOnboarding from "./pages/MyOnboarding";
 import OnboardingTour from "./components/OnboardingTour";
 import { PalletDetail } from "./pages/Pallets";
 import GetStarted from "./pages/GetStarted";
@@ -178,6 +180,22 @@ function Router() {
 
       {/* My Instructions (customer portal) */}
       <Route path="/my-instructions" component={MyInstructions} />
+
+      {/* My Documents + My Onboarding (customer portal, read-only) */}
+      <Route path="/my-documents">
+        {() => (
+          <RequireRole roles={["customer_admin", "customer_viewer"]}>
+            <MyDocuments />
+          </RequireRole>
+        )}
+      </Route>
+      <Route path="/my-onboarding">
+        {() => (
+          <RequireRole roles={["customer_admin", "customer_viewer"]}>
+            <MyOnboarding />
+          </RequireRole>
+        )}
+      </Route>
 
       {/* Pallet Detail */}
       <Route path="/pallets/:id" component={PalletDetail} />

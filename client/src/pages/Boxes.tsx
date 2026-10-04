@@ -10,6 +10,14 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -84,8 +92,11 @@ function BoxForm({ onClose }: { onClose: () => void }) {
 }
 
 // ─── Boxes List ───────────────────────────────────────────────────────────────
+const PAGE_SIZE = 25;
+
 export default function Boxes() {
   const [showCreate, setShowCreate] = useState(false);
+  const [page, setPage] = useState(1);
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
   const [showBulkNotify, setShowBulkNotify] = useState(false);
   const [bulkMessage, setBulkMessage] = useState("");
@@ -94,6 +105,12 @@ export default function Boxes() {
   const role = (user as any)?.role ?? "";
   const isStaff = role === "admin" || role === "staff";
   const { data: boxes, isLoading } = trpc.boxes.list.useQuery({});
+
+  const totalPages = Math.max(1, Math.ceil((boxes?.length ?? 0) / PAGE_SIZE));
+  const currentPage = Math.min(page, totalPages);
+  const pagedBoxes = boxes?.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+  const pageNumbers = Array.from({ length: totalPages }, (_, i) => i + 1);
+  const goToPage = (p: number) => setPage(Math.min(Math.max(1, p), totalPages));
   const utils = trpc.useUtils();
   const updateMutation = trpc.boxes.update.useMutation({
     onSuccess: () => { toast.success("Updated"); utils.boxes.list.invalidate(); },
@@ -167,7 +184,7 @@ export default function Boxes() {
             <tbody>
               {isLoading ? <LoadingRows cols={8} /> : boxes?.length === 0 ? (
                 <tr><td colSpan={8}><EmptyState icon={Box} title="No boxes yet" /></td></tr>
-              ) : boxes?.map((b) => {
+              ) : pagedBoxes?.map((b) => {
                 const fwdSt = ((b as any).forwardingStatus ?? "pending") as keyof typeof FWD_STATUS_CONFIG;
                 const fwdCfg = FWD_STATUS_CONFIG[fwdSt];
                 const FwdIcon = fwdCfg.icon;
@@ -205,6 +222,42 @@ export default function Boxes() {
             </tbody>
           </table>
         </div>
+        {(boxes?.length ?? 0) > PAGE_SIZE && (
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-4 py-3 border-t border-border/50">
+            <p className="text-xs text-muted-foreground">
+              Showing {((currentPage - 1) * PAGE_SIZE) + 1}-{(currentPage - 1) * PAGE_SIZE + (pagedBoxes?.length ?? 0)} of {boxes?.length} boxes
+            </p>
+            <Pagination className="w-auto mx-0">
+              <PaginationContent>
+                <PaginationItem>
+                  <PaginationPrevious
+                    href="#"
+                    onClick={(e) => { e.preventDefault(); goToPage(currentPage - 1); }}
+                    className={currentPage === 1 ? "pointer-events-none opacity-40" : undefined}
+                  />
+                </PaginationItem>
+                {pageNumbers.map((p) => (
+                  <PaginationItem key={p}>
+                    <PaginationLink
+                      href="#"
+                      isActive={currentPage === p}
+                      onClick={(e) => { e.preventDefault(); goToPage(p); }}
+                    >
+                      {p}
+                    </PaginationLink>
+                  </PaginationItem>
+                ))}
+                <PaginationItem>
+                  <PaginationNext
+                    href="#"
+                    onClick={(e) => { e.preventDefault(); goToPage(currentPage + 1); }}
+                    className={currentPage === totalPages ? "pointer-events-none opacity-40" : undefined}
+                  />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
+          </div>
+        )}
       </Card>
 
       <Dialog open={showCreate} onOpenChange={setShowCreate}>

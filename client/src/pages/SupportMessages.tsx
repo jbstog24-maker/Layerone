@@ -17,7 +17,7 @@ export default function SupportMessages() {
 
   const { data: messages = [], isLoading, isError, refetch } = trpc.messages.list.useQuery(
     { clientId: clientId! },
-    { enabled: !!clientId, refetchInterval: 15_000 },
+    { enabled: !!clientId, refetchInterval: 60_000 },
   );
 
   const sendMsg = trpc.messages.send.useMutation({

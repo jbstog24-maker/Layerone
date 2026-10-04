@@ -1,23 +1,33 @@
 import { useState, useEffect, useCallback } from "react";
 import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
+import { useAuth } from "@/_core/hooks/useAuth";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Search, Building2, Users, Package, Truck, FileText, Loader2 } from "lucide-react";
+import { Search, Building2, Users, Package, Truck, FileText, Loader2, ClipboardList, LifeBuoy } from "lucide-react";
 
 type SearchResult = {
   id: number;
   label: string;
   sublabel?: string;
-  type: "client" | "lead" | "shipment" | "invoice" | "device";
+  type: "client" | "lead" | "shipment" | "invoice" | "device" | "delivery" | "ticket";
   href: string;
+};
+
+const matchesQuery = (q: string, ...fields: (string | null | undefined)[]) => {
+  const needle = q.trim().toLowerCase();
+  return fields.some(f => (f ?? "").toLowerCase().includes(needle));
 };
 
 export default function GlobalSearch() {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [, navigate] = useLocation();
+
+  const { user } = useAuth();
+  const role = (user as any)?.role ?? "customer_viewer";
+  const isCustomer = role === "customer_admin" || role === "customer_viewer";
 
   // Keyboard shortcut: Cmd+K / Ctrl+K
   useEffect(() => {
@@ -32,21 +42,51 @@ export default function GlobalSearch() {
     return () => window.removeEventListener("keydown", handler);
   }, []);
 
+  const searchActive = open && query.length >= 2;
+
+  // ── Staff-only sources (clients, leads) ──────────────────────────────
   const { data: clients, isFetching: fetchingClients } = trpc.clients.list.useQuery(
     { search: query },
-    { enabled: open && query.length >= 2 }
+    { enabled: searchActive && !isCustomer }
   );
 
   const { data: leads, isFetching: fetchingLeads } = trpc.leads.list.useQuery(
     { search: query },
-    { enabled: open && query.length >= 2 }
+    { enabled: searchActive && !isCustomer }
   );
 
-  const isLoading = fetchingClients || fetchingLeads;
+  // ── Customer-visible sources (server-side scoped to the caller's clientId for customer roles) ──
+  const { data: shipments, isFetching: fetchingShipments } = trpc.shipments.list.useQuery(
+    {},
+    { enabled: searchActive }
+  );
+
+  const { data: invoices, isFetching: fetchingInvoices } = trpc.billing.listInvoices.useQuery(
+    {},
+    { enabled: searchActive }
+  );
+
+  const { data: devices, isFetching: fetchingDevices } = trpc.devices.list.useQuery(
+    { search: query },
+    { enabled: searchActive }
+  );
+
+  const { data: deliveries, isFetching: fetchingDeliveries } = trpc.deliveries.list.useQuery(
+    {},
+    { enabled: searchActive }
+  );
+
+  const { data: tickets, isFetching: fetchingTickets } = trpc.support.list.useQuery(
+    {},
+    { enabled: searchActive }
+  );
+
+  const isLoading = fetchingClients || fetchingLeads || fetchingShipments ||
+    fetchingInvoices || fetchingDevices || fetchingDeliveries || fetchingTickets;
 
   const results: SearchResult[] = [];
 
-  if (clients) {
+  if (!isCustomer && clients) {
     clients.slice(0, 4).forEach(c => results.push({
       id: c.id,
       label: c.companyName,
@@ -56,7 +96,7 @@ export default function GlobalSearch() {
     }));
   }
 
-  if (leads) {
+  if (!isCustomer && leads) {
     leads.slice(0, 4).forEach(l => results.push({
       id: l.id,
       label: l.companyName,
@@ -64,6 +104,68 @@ export default function GlobalSearch() {
       type: "lead",
       href: `/leads/${l.id}`,
     }));
+  }
+
+  if (shipments) {
+    shipments
+      .filter(s => matchesQuery(query, s.shipmentCode, s.projectName, s.destination, s.trackingNumber, s.carrier, s.status))
+      .slice(0, 4)
+      .forEach(s => results.push({
+        id: s.id,
+        label: s.shipmentCode,
+        sublabel: `${s.status?.replace(/_/g, " ")}${s.destination ? ` · ${s.destination}` : ""}`,
+        type: "shipment",
+        href: `/shipments/${s.id}`,
+      }));
+  }
+
+  if (invoices) {
+    invoices
+      .filter(i => matchesQuery(query, i.invoiceNumber, i.status))
+      .slice(0, 4)
+      .forEach(i => results.push({
+        id: i.id,
+        label: i.invoiceNumber,
+        sublabel: `${i.status}${i.total ? ` · $${Number(i.total).toLocaleString()}` : ""}`,
+        type: "invoice",
+        href: `/invoices/${i.id}`,
+      }));
+  }
+
+  if (devices) {
+    devices.slice(0, 4).forEach(d => results.push({
+      id: d.id,
+      label: d.serialNumber ?? d.deviceCode,
+      sublabel: [d.brand, d.model].filter(Boolean).join(" ") + (d.assetTag ? ` · ${d.assetTag}` : ""),
+      type: "device",
+      href: `/devices/${d.id}`,
+    }));
+  }
+
+  if (deliveries) {
+    deliveries
+      .filter(d => matchesQuery(query, d.trackingNumber, d.carrier, d.projectName, d.siteName, d.expectedContents, d.status))
+      .slice(0, 4)
+      .forEach(d => results.push({
+        id: d.id,
+        label: d.trackingNumber ?? `Delivery #${d.id}`,
+        sublabel: `${d.carrier ?? "Delivery"} · ${d.status?.replace(/_/g, " ")}`,
+        type: "delivery",
+        href: `/deliveries/${d.id}`,
+      }));
+  }
+
+  if (tickets) {
+    tickets
+      .filter(t => matchesQuery(query, t.subject, t.category, t.status))
+      .slice(0, 4)
+      .forEach(t => results.push({
+        id: t.id,
+        label: t.subject,
+        sublabel: `${t.status?.replace(/_/g, " ")} · ${t.category}`,
+        type: "ticket",
+        href: "/support",
+      }));
   }
 
   const handleSelect = useCallback((href: string) => {
@@ -79,6 +181,8 @@ export default function GlobalSearch() {
       case "shipment": return <Truck className="h-4 w-4 text-green-400" />;
       case "invoice": return <FileText className="h-4 w-4 text-yellow-400" />;
       case "device": return <Package className="h-4 w-4 text-orange-400" />;
+      case "delivery": return <ClipboardList className="h-4 w-4 text-teal-400" />;
+      case "ticket": return <LifeBuoy className="h-4 w-4 text-rose-400" />;
     }
   };
 
@@ -89,8 +193,14 @@ export default function GlobalSearch() {
       case "shipment": return "Shipment";
       case "invoice": return "Invoice";
       case "device": return "Device";
+      case "delivery": return "Delivery";
+      case "ticket": return "Ticket";
     }
   };
+
+  const placeholder = isCustomer
+    ? "Search shipments, invoices, devices, deliveries, tickets..."
+    : "Search clients, leads, shipments, invoices, devices...";
 
   return (
     <>
@@ -113,7 +223,7 @@ export default function GlobalSearch() {
             <Search className="h-4 w-4 text-muted-foreground shrink-0" />
             <Input
               autoFocus
-              placeholder="Search clients, leads, shipments..."
+              placeholder={placeholder}
               value={query}
               onChange={e => setQuery(e.target.value)}
               className="border-0 shadow-none focus-visible:ring-0 p-0 h-auto text-base bg-transparent"

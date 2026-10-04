@@ -131,7 +131,7 @@ function OverdueFollowUpWidget() {
 function ActionCenter() {
   const { data: alerts = [], isLoading } = trpc.alerts.list.useQuery(
     undefined,
-    { refetchInterval: 30_000 }
+    { refetchInterval: 60_000 }
   );
   const [, setLocation] = useLocation();
 
@@ -405,7 +405,7 @@ function CustomerDashboard() {
 function CustomerAttention() {
   const { data: alerts = [], isLoading } = trpc.alerts.myList.useQuery(
     undefined,
-    { refetchInterval: 30_000 }
+    { refetchInterval: 60_000 }
   );
   const [, setLocation] = useLocation();
 

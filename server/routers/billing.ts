@@ -1,5 +1,6 @@
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
+import Stripe from "stripe";
 import {
   createInvoice, createLineItem, deleteLineItem, getClient, getClientUsage,
   getInvoice, getInvoiceLineItems, getPackage, listInvoices,
@@ -12,6 +13,14 @@ const canRead = (role: string, userClientId: number | null | undefined, targetCl
   if (isAdmin(role) || role === "staff") return true;
   return userClientId === targetClientId;
 };
+
+// Mirrors the Stripe setup in quotes.ts and stripe.ts: one-off sessions, no
+// subscription handling here.
+function getStripe(): Stripe | null {
+  const key = process.env.STRIPE_SECRET_KEY;
+  if (!key) return null;
+  return new Stripe(key, { apiVersion: "2026-08-26.dahlia" });
+}
 
 export const billingRouter = router({
   listInvoices: protectedProcedure
@@ -115,6 +124,74 @@ export const billingRouter = router({
         total: subtotal.toFixed(2),
       } as any);
       return { success: true };
+    }),
+
+  // ── "Pay Now": create a one-off Stripe Checkout session for an unpaid invoice.
+  // Redirects back to /invoices/:id with ?payment=success|cancelled; the client
+  // renders a graceful status from that param.
+  createCheckoutSession: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ ctx, input }) => {
+      const invoice = await getInvoice(input.id);
+      if (!invoice) throw new TRPCError({ code: "NOT_FOUND" });
+      if (!canRead(ctx.user.role, ctx.user.clientId, invoice.clientId)) {
+        throw new TRPCError({ code: "FORBIDDEN" });
+      }
+      if (invoice.status === "paid" || invoice.status === "void") {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "This invoice cannot be paid" });
+      }
+      const totalCents = Math.round(parseFloat(String(invoice.total)) * 100);
+      if (!Number.isFinite(totalCents) || totalCents <= 0) {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "Invoice total must be greater than $0" });
+      }
+
+      const stripe = getStripe();
+      if (!stripe) {
+        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Stripe is not configured" });
+      }
+
+      const client = await getClient(invoice.clientId);
+      const origin = (ctx.req.headers.origin as string | undefined) || `https://${ctx.req.headers.host}`;
+
+      try {
+        const session = await stripe.checkout.sessions.create({
+          mode: "payment",
+          customer_email: client?.billingEmail ?? client?.contactEmail ?? undefined,
+          client_reference_id: invoice.clientId.toString(),
+          metadata: {
+            invoice_id: invoice.id.toString(),
+            invoice_number: invoice.invoiceNumber,
+            client_id: invoice.clientId.toString(),
+            client_name: client?.companyName ?? "",
+          },
+          line_items: [
+            {
+              price_data: {
+                currency: "usd",
+                product_data: { name: `Layer One Staging - Invoice ${invoice.invoiceNumber}` },
+                unit_amount: totalCents,
+              },
+              quantity: 1,
+            },
+          ],
+          success_url: `${origin}/invoices/${invoice.id}?payment=success`,
+          cancel_url: `${origin}/invoices/${invoice.id}?payment=cancelled`,
+        });
+
+        await logActivity({
+          userId: ctx.user.id,
+          clientId: invoice.clientId,
+          action: `Created Stripe checkout session for invoice ${invoice.invoiceNumber}`,
+          entityType: "invoice",
+          entityId: invoice.id,
+        });
+
+        return { url: session.url };
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : String(err);
+        console.error("[Stripe] Failed to create invoice checkout session:", message);
+        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Failed to create payment session" });
+      }
     }),
 
   generateFromUsage: protectedProcedure

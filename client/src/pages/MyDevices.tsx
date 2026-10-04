@@ -2,6 +2,7 @@ import DashboardLayout from "@/components/DashboardLayout";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -213,6 +214,9 @@ function ItemCard({
   forwardingContact,
   forwardingStatus,
   onEdit,
+  selectable,
+  checked,
+  onToggleSelect,
 }: {
   icon: React.ElementType;
   code: string;
@@ -223,11 +227,22 @@ function ItemCard({
   forwardingContact: string | null | undefined;
   forwardingStatus: ForwardingStatus | null | undefined;
   onEdit: () => void;
+  selectable?: boolean;
+  checked?: boolean;
+  onToggleSelect?: () => void;
 }) {
   return (
     <Card className="bg-[#0d1f35] border-[#1e3a5f] hover:border-blue-500/30 transition-colors">
       <CardContent className="p-4">
         <div className="flex items-start gap-3">
+          {selectable && (
+            <Checkbox
+              checked={checked}
+              onCheckedChange={onToggleSelect}
+              className="mt-1 border-[#1e3a5f] data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600 shrink-0"
+              aria-label={`Select ${code}`}
+            />
+          )}
           <div className="w-9 h-9 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center shrink-0">
             <Icon className="w-4.5 h-4.5 text-blue-400" />
           </div>
@@ -268,6 +283,102 @@ function ItemCard({
   );
 }
 
+// ─── Search Row (per tab: search input + select-all) ──────────────────────────
+function SearchRow({
+  value,
+  onChange,
+  placeholder,
+  allSelected,
+  someSelected,
+  onToggleSelectAll,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  placeholder: string;
+  allSelected: boolean;
+  someSelected: boolean;
+  onToggleSelectAll: () => void;
+}) {
+  return (
+    <div className="flex items-center gap-3">
+      <div className="relative flex-1">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+        <Input
+          placeholder={placeholder}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className="pl-9 bg-[#0d1f35] border-[#1e3a5f] text-white placeholder:text-slate-500 focus:border-blue-500"
+        />
+      </div>
+      <label className="flex items-center gap-1.5 text-xs text-slate-400 cursor-pointer select-none shrink-0">
+        <Checkbox
+          checked={allSelected ? true : someSelected ? "indeterminate" : false}
+          onCheckedChange={onToggleSelectAll}
+          className="border-[#1e3a5f] data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
+          aria-label="Select all visible items"
+        />
+        Select all
+      </label>
+    </div>
+  );
+}
+
+// ─── Bulk "Set Forwarding Address" Dialog ─────────────────────────────────────
+function BulkForwardingDialog({
+  count,
+  saving,
+  onClose,
+  onApply,
+}: {
+  count: number;
+  saving: boolean;
+  onClose: () => void;
+  onApply: (address: string) => void;
+}) {
+  const [address, setAddress] = useState("");
+
+  return (
+    <Dialog open onOpenChange={onClose}>
+      <DialogContent className="bg-[#0a1628] border-[#1e3a5f] text-white max-w-lg">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2 text-white">
+            <MapPin className="w-5 h-5 text-blue-400" />
+            Set Forwarding Address
+          </DialogTitle>
+          <p className="text-sm text-slate-400 mt-1">
+            Applies to <span className="text-blue-300 font-semibold">{count} selected item{count === 1 ? "" : "s"}</span>.
+            Items that already have an address will be overwritten.
+          </p>
+        </DialogHeader>
+
+        <div className="space-y-1.5 py-2">
+          <Label className="text-slate-300 text-sm">Forwarding Address *</Label>
+          <Textarea
+            value={address}
+            onChange={(e) => setAddress(e.target.value)}
+            placeholder="123 Main St, Suite 400&#10;Austin, TX 78701"
+            rows={3}
+            className="bg-[#0d1f35] border-[#1e3a5f] text-white placeholder:text-slate-500 resize-none"
+          />
+        </div>
+
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose} className="border-[#1e3a5f] text-slate-300">
+            Cancel
+          </Button>
+          <Button
+            onClick={() => onApply(address)}
+            disabled={saving || !address.trim()}
+            className="bg-blue-600 hover:bg-blue-700"
+          >
+            {saving ? "Applying…" : `Apply to ${count} item${count === 1 ? "" : "s"}`}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 // ─── Main Page ────────────────────────────────────────────────────────────────
 export default function MyDevices() {
   const { data, isLoading } = trpc.forwarding.myItems.useQuery();
@@ -275,6 +386,11 @@ export default function MyDevices() {
   const clientId = (user as any)?.clientId as number | undefined;
   const [editState, setEditState] = useState<ForwardingDialogState | null>(null);
   const [deviceSearch, setDeviceSearch] = useState("");
+  const [boxSearch, setBoxSearch] = useState("");
+  const [palletSearch, setPalletSearch] = useState("");
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [bulkOpen, setBulkOpen] = useState(false);
+  const [bulkSaving, setBulkSaving] = useState(false);
 
   // Staging notifications (Ready to Ship)
   const { data: notifications, isLoading: notifLoading } = trpc.stagingNotify.listForClient.useQuery(
@@ -287,25 +403,64 @@ export default function MyDevices() {
   });
   const utils = trpc.useUtils();
 
+  // Bulk "Set forwarding address" mutations (no batch endpoint exists, so we
+  // fire the individual single-item mutations in parallel)
+  const bulkUpdateDevice = trpc.forwarding.updateDevice.useMutation();
+  const bulkUpdateBox = trpc.forwarding.updateBox.useMutation();
+  const bulkUpdatePallet = trpc.forwarding.updatePallet.useMutation();
+
   const unreadNotifs = (notifications ?? []).filter((n) => !n.acknowledgedAt);
 
   const allDevices = data?.devices ?? [];
-  const boxes = data?.boxes ?? [];
-  const pallets = data?.pallets ?? [];
+  const allBoxes = data?.boxes ?? [];
+  const allPallets = data?.pallets ?? [];
+
+  const matchesQuery = (q: string, ...fields: (string | null | undefined)[]) => {
+    const s = q.trim().toLowerCase();
+    if (!s) return true;
+    return fields.some((f) => (f ?? "").toLowerCase().includes(s));
+  };
 
   const devices = deviceSearch.trim()
-    ? allDevices.filter((d) => {
-        const q = deviceSearch.toLowerCase();
-        return (
-          d.deviceCode.toLowerCase().includes(q) ||
-          (d.brand ?? "").toLowerCase().includes(q) ||
-          (d.model ?? "").toLowerCase().includes(q) ||
-          (d.serialNumber ?? "").toLowerCase().includes(q) ||
-          (d.deviceType ?? "").toLowerCase().includes(q) ||
-          (d.siteName ?? "").toLowerCase().includes(q)
-        );
-      })
+    ? allDevices.filter((d) =>
+        matchesQuery(
+          deviceSearch,
+          d.deviceCode,
+          d.brand,
+          d.model,
+          d.serialNumber,
+          d.deviceType,
+          d.siteName,
+          d.forwardingAddress
+        )
+      )
     : allDevices;
+
+  const boxes = boxSearch.trim()
+    ? allBoxes.filter((b) =>
+        matchesQuery(
+          boxSearch,
+          b.boxCode,
+          b.projectName,
+          b.contents,
+          b.status,
+          b.forwardingAddress
+        )
+      )
+    : allBoxes;
+
+  const pallets = palletSearch.trim()
+    ? allPallets.filter((p) =>
+        matchesQuery(
+          palletSearch,
+          p.palletCode,
+          p.projectName,
+          p.storageLocation,
+          p.status,
+          p.forwardingAddress
+        )
+      )
+    : allPallets;
 
   const totalItems = allDevices.length + boxes.length + pallets.length;
   const deliveredCount = [
@@ -315,9 +470,74 @@ export default function MyDevices() {
   ].filter((s) => s === "delivered").length;
   const inTransitCount = [
     ...allDevices.map((d) => d.forwardingStatus),
-    ...boxes.map((b) => b.forwardingStatus),
-    ...pallets.map((p) => p.forwardingStatus),
+    ...allBoxes.map((b) => b.forwardingStatus),
+    ...allPallets.map((p) => p.forwardingStatus),
   ].filter((s) => s === "in_transit").length;
+
+  // ─── Multi-select + bulk "Set forwarding address" ─────────────────────────
+  type ItemType = "device" | "box" | "pallet";
+  const selKey = (type: ItemType, id: number) => `${type}:${id}`;
+
+  const toggleSelect = (type: ItemType, id: number) => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      const k = selKey(type, id);
+      if (next.has(k)) next.delete(k);
+      else next.add(k);
+      return next;
+    });
+  };
+
+  const toggleSelectAll = (type: ItemType, items: { id: number }[]) => {
+    const keys = items.map((i) => selKey(type, i.id));
+    setSelected((prev) => {
+      const next = new Set(prev);
+      const allOn = keys.length > 0 && keys.every((k) => next.has(k));
+      if (allOn) keys.forEach((k) => next.delete(k));
+      else keys.forEach((k) => next.add(k));
+      return next;
+    });
+  };
+
+  const selectStateFor = (type: ItemType, items: { id: number }[]) => {
+    const keys = items.map((i) => selKey(type, i.id));
+    const onCount = keys.filter((k) => selected.has(k)).length;
+    return {
+      allSelected: keys.length > 0 && onCount === keys.length,
+      someSelected: onCount > 0 && onCount < keys.length,
+    };
+  };
+
+  const handleBulkApply = async (address: string) => {
+    const keys = Array.from(selected);
+    if (keys.length === 0) return;
+    const forwardingAddress = address.trim() || null;
+    setBulkSaving(true);
+    const results = await Promise.allSettled(
+      keys.map((k) => {
+        const [type, idStr] = k.split(":");
+        const id = Number(idStr);
+        if (type === "device") return bulkUpdateDevice.mutateAsync({ deviceId: id, forwardingAddress });
+        if (type === "box") return bulkUpdateBox.mutateAsync({ boxId: id, forwardingAddress });
+        return bulkUpdatePallet.mutateAsync({ palletId: id, forwardingAddress });
+      })
+    );
+    setBulkSaving(false);
+    const failures = keys.filter((_, i) => results[i].status === "rejected");
+    const okCount = keys.length - failures.length;
+    utils.forwarding.myItems.invalidate();
+    if (failures.length === 0) {
+      toast.success(`Forwarding address set on ${okCount} item${okCount === 1 ? "" : "s"}`);
+      setSelected(new Set());
+      setBulkOpen(false);
+    } else {
+      // Keep failed items selected so they can be retried
+      setSelected(new Set(failures));
+      toast.error(
+        `${okCount} of ${keys.length} updated, ${failures.length} failed. Failed items are still selected so you can retry.`
+      );
+    }
+  };
 
   return (
     <DashboardLayout>
@@ -396,6 +616,33 @@ export default function MyDevices() {
           </Card>
         </div>
 
+        {/* Bulk action bar */}
+        {selected.size > 0 && (
+          <div className="flex items-center justify-between gap-3 bg-blue-500/10 border border-blue-500/30 rounded-xl px-4 py-3">
+            <p className="text-sm text-white">
+              <span className="font-semibold text-blue-300">{selected.size}</span> item{selected.size === 1 ? "" : "s"} selected
+            </p>
+            <div className="flex gap-2">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setSelected(new Set())}
+                className="border-[#1e3a5f] text-slate-300"
+              >
+                Clear
+              </Button>
+              <Button
+                size="sm"
+                onClick={() => setBulkOpen(true)}
+                className="bg-blue-600 hover:bg-blue-700 gap-1.5"
+              >
+                <MapPin className="w-3.5 h-3.5" />
+                Set forwarding address
+              </Button>
+            </div>
+          </div>
+        )}
+
         {/* Tabs */}
         <Tabs defaultValue="devices">
           <TabsList className="bg-[#0d1f35] border border-[#1e3a5f]">
@@ -405,27 +652,26 @@ export default function MyDevices() {
             </TabsTrigger>
             <TabsTrigger value="boxes" className="gap-1.5 data-[state=active]:bg-blue-600 data-[state=active]:text-white">
               <Box className="w-3.5 h-3.5" />
-              Boxes <span className="text-xs opacity-70">({boxes.length})</span>
+              Boxes <span className="text-xs opacity-70">({boxSearch ? `${boxes.length}/${allBoxes.length}` : allBoxes.length})</span>
             </TabsTrigger>
             <TabsTrigger value="pallets" className="gap-1.5 data-[state=active]:bg-blue-600 data-[state=active]:text-white">
               <Layers className="w-3.5 h-3.5" />
-              Pallets <span className="text-xs opacity-70">({pallets.length})</span>
+              Pallets <span className="text-xs opacity-70">({palletSearch ? `${pallets.length}/${allPallets.length}` : allPallets.length})</span>
             </TabsTrigger>
           </TabsList>
 
           {/* Devices Tab */}
           <TabsContent value="devices" className="mt-4 space-y-3">
-            {/* Device Search */}
+            {/* Device Search + select all */}
             {allDevices.length > 0 && (
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                <Input
-                  placeholder="Search by code, brand, model, serial..."
-                  value={deviceSearch}
-                  onChange={(e) => setDeviceSearch(e.target.value)}
-                  className="pl-9 bg-[#0d1f35] border-[#1e3a5f] text-white placeholder:text-slate-500 focus:border-blue-500"
-                />
-              </div>
+              <SearchRow
+                value={deviceSearch}
+                onChange={setDeviceSearch}
+                placeholder="Search by code, brand, model, serial..."
+                allSelected={selectStateFor("device", devices).allSelected}
+                someSelected={selectStateFor("device", devices).someSelected}
+                onToggleSelectAll={() => toggleSelectAll("device", devices)}
+              />
             )}
             {isLoading ? (
               [...Array(3)].map((_, i) => <Skeleton key={i} className="h-20 w-full rounded-xl bg-[#0d1f35]" />)
@@ -433,8 +679,12 @@ export default function MyDevices() {
               <Card className="bg-[#0d1f35] border-[#1e3a5f]">
                 <CardContent className="flex flex-col items-center justify-center py-12 text-slate-400 gap-2">
                   <Server className="w-10 h-10 opacity-30" />
-                  <p className="font-medium">No staged devices yet</p>
-                  <p className="text-sm text-center">Devices will appear here once they have been staged by the Layer One team.</p>
+                  <p className="font-medium">
+                    {deviceSearch.trim() ? `No devices match "${deviceSearch.trim()}"` : "No staged devices yet"}
+                  </p>
+                  {!deviceSearch.trim() && (
+                    <p className="text-sm text-center">Devices will appear here once they have been staged by the Layer One team.</p>
+                  )}
                 </CardContent>
               </Card>
             ) : (
@@ -449,6 +699,9 @@ export default function MyDevices() {
                   forwardingAddress={d.forwardingAddress}
                   forwardingContact={d.forwardingContact}
                   forwardingStatus={d.forwardingStatus as ForwardingStatus | null}
+                  selectable
+                  checked={selected.has(selKey("device", d.id))}
+                  onToggleSelect={() => toggleSelect("device", d.id)}
                   onEdit={() => setEditState({
                     type: "device",
                     id: d.id,
@@ -466,14 +719,28 @@ export default function MyDevices() {
 
           {/* Boxes Tab */}
           <TabsContent value="boxes" className="mt-4 space-y-2">
+            {allBoxes.length > 0 && (
+              <SearchRow
+                value={boxSearch}
+                onChange={setBoxSearch}
+                placeholder="Search by code, project, contents..."
+                allSelected={selectStateFor("box", boxes).allSelected}
+                someSelected={selectStateFor("box", boxes).someSelected}
+                onToggleSelectAll={() => toggleSelectAll("box", boxes)}
+              />
+            )}
             {isLoading ? (
               [...Array(2)].map((_, i) => <Skeleton key={i} className="h-20 w-full rounded-xl bg-[#0d1f35]" />)
             ) : boxes.length === 0 ? (
               <Card className="bg-[#0d1f35] border-[#1e3a5f]">
                 <CardContent className="flex flex-col items-center justify-center py-12 text-slate-400 gap-2">
                   <Box className="w-10 h-10 opacity-30" />
-                  <p className="font-medium">No staged boxes yet</p>
-                  <p className="text-sm text-center">Boxes will appear here once they have been staged.</p>
+                  <p className="font-medium">
+                    {boxSearch.trim() ? `No boxes match "${boxSearch.trim()}"` : "No staged boxes yet"}
+                  </p>
+                  {!boxSearch.trim() && (
+                    <p className="text-sm text-center">Boxes will appear here once they have been staged.</p>
+                  )}
                 </CardContent>
               </Card>
             ) : (
@@ -488,6 +755,9 @@ export default function MyDevices() {
                   forwardingAddress={b.forwardingAddress}
                   forwardingContact={b.forwardingContact}
                   forwardingStatus={b.forwardingStatus as ForwardingStatus | null}
+                  selectable
+                  checked={selected.has(selKey("box", b.id))}
+                  onToggleSelect={() => toggleSelect("box", b.id)}
                   onEdit={() => setEditState({
                     type: "box",
                     id: b.id,
@@ -505,14 +775,28 @@ export default function MyDevices() {
 
           {/* Pallets Tab */}
           <TabsContent value="pallets" className="mt-4 space-y-2">
+            {allPallets.length > 0 && (
+              <SearchRow
+                value={palletSearch}
+                onChange={setPalletSearch}
+                placeholder="Search by code, project, storage location..."
+                allSelected={selectStateFor("pallet", pallets).allSelected}
+                someSelected={selectStateFor("pallet", pallets).someSelected}
+                onToggleSelectAll={() => toggleSelectAll("pallet", pallets)}
+              />
+            )}
             {isLoading ? (
               [...Array(2)].map((_, i) => <Skeleton key={i} className="h-20 w-full rounded-xl bg-[#0d1f35]" />)
             ) : pallets.length === 0 ? (
               <Card className="bg-[#0d1f35] border-[#1e3a5f]">
                 <CardContent className="flex flex-col items-center justify-center py-12 text-slate-400 gap-2">
                   <Layers className="w-10 h-10 opacity-30" />
-                  <p className="font-medium">No staged pallets yet</p>
-                  <p className="text-sm text-center">Pallets will appear here once they have been staged.</p>
+                  <p className="font-medium">
+                    {palletSearch.trim() ? `No pallets match "${palletSearch.trim()}"` : "No staged pallets yet"}
+                  </p>
+                  {!palletSearch.trim() && (
+                    <p className="text-sm text-center">Pallets will appear here once they have been staged.</p>
+                  )}
                 </CardContent>
               </Card>
             ) : (
@@ -527,6 +811,9 @@ export default function MyDevices() {
                   forwardingAddress={p.forwardingAddress}
                   forwardingContact={p.forwardingContact}
                   forwardingStatus={p.forwardingStatus as ForwardingStatus | null}
+                  selectable
+                  checked={selected.has(selKey("pallet", p.id))}
+                  onToggleSelect={() => toggleSelect("pallet", p.id)}
                   onEdit={() => setEditState({
                     type: "pallet",
                     id: p.id,
@@ -567,6 +854,16 @@ export default function MyDevices() {
           state={editState}
           onClose={() => setEditState(null)}
           onSaved={() => setEditState(null)}
+        />
+      )}
+
+      {/* Bulk "Set forwarding address" dialog */}
+      {bulkOpen && (
+        <BulkForwardingDialog
+          count={selected.size}
+          saving={bulkSaving}
+          onClose={() => setBulkOpen(false)}
+          onApply={handleBulkApply}
         />
       )}
     </DashboardLayout>

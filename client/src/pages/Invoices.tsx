@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useLocation, useRoute } from "wouter";
 import DashboardLayout from "@/components/DashboardLayout";
 import { PageHeader } from "@/components/PageHeader";
@@ -12,11 +12,17 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
+import {
+  Pagination, PaginationContent, PaginationEllipsis, PaginationItem,
+  PaginationLink, PaginationNext, PaginationPrevious,
+} from "@/components/ui/pagination";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
-import { FileText, Plus, ChevronRight, Trash2, Zap, Download } from "lucide-react";
+import { FileText, Plus, ChevronRight, Trash2, Zap, Download, Printer, CreditCard } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { useAuth } from "@/_core/hooks/useAuth";
+
+const PAGE_SIZE = 25;
 
 const LINE_ITEM_CATEGORIES = [
   { value: "base_package", label: "Base Package" },
@@ -89,6 +95,28 @@ export function InvoicesList() {
   const role = (user as any)?.role ?? "";
   const isAdmin = role === "admin";
   const { data: invoices, isLoading } = trpc.billing.listInvoices.useQuery({});
+  const [page, setPage] = useState(1);
+
+  // Reset to page 1 whenever the invoice list changes (e.g. filters applied,
+  // new invoice created, refetch after payment).
+  useEffect(() => { setPage(1); }, [invoices]);
+
+  const totalPages = Math.max(1, Math.ceil((invoices?.length ?? 0) / PAGE_SIZE));
+  const safePage = Math.min(page, totalPages);
+  const pageItems = invoices?.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE) ?? [];
+
+  // Page numbers to display: up to 5 around the current page, with ellipses.
+  const pageNumbers: (number | "ellipsis")[] = (() => {
+    if (totalPages <= 7) return Array.from({ length: totalPages }, (_, i) => i + 1);
+    const pages = new Set<number>([1, 2, safePage - 1, safePage, safePage + 1, totalPages - 1, totalPages]);
+    const sorted = Array.from(pages).filter(p => p >= 1 && p <= totalPages).sort((a, b) => a - b);
+    const out: (number | "ellipsis")[] = [];
+    sorted.forEach((p, i) => {
+      if (i > 0 && p - sorted[i - 1] > 1) out.push("ellipsis");
+      out.push(p);
+    });
+    return out;
+  })();
 
   function exportInvoicesCSV() {
     if (!invoices?.length) { toast.info("No invoices to export"); return; }
@@ -137,7 +165,7 @@ export function InvoicesList() {
             <tbody>
               {isLoading ? <LoadingRows cols={6} /> : invoices?.length === 0 ? (
                 <tr><td colSpan={6}><EmptyState icon={FileText} title="No invoices yet" /></td></tr>
-              ) : invoices?.map((inv) => (
+              ) : pageItems.map((inv) => (
                 <tr key={inv.id} className="border-b border-border/50 hover:bg-muted/20 cursor-pointer transition-colors" onClick={() => setLocation(`/invoices/${inv.id}`)}>
                   <td className="px-4 py-3"><span className="font-mono text-sm font-medium">{inv.invoiceNumber}</span></td>
                   <td className="px-4 py-3 text-sm text-muted-foreground">
@@ -153,6 +181,50 @@ export function InvoicesList() {
           </table>
         </div>
       </Card>
+
+      {!isLoading && invoices && invoices.length > 0 && (
+        <div className="mt-4 space-y-3">
+          <p className="text-center text-xs text-muted-foreground">
+            Showing {(safePage - 1) * PAGE_SIZE + 1}–{Math.min(safePage * PAGE_SIZE, invoices.length)} of {invoices.length} invoices
+          </p>
+          {totalPages > 1 && (
+            <Pagination>
+              <PaginationContent>
+                <PaginationItem>
+                  <PaginationPrevious
+                    href="#"
+                    onClick={(e) => { e.preventDefault(); setPage(p => Math.max(1, p - 1)); }}
+                    aria-disabled={safePage === 1}
+                    className={safePage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                  />
+                </PaginationItem>
+                {pageNumbers.map((p, i) => (
+                  <PaginationItem key={`${p}-${i}`}>
+                    {p === "ellipsis" ? <PaginationEllipsis /> : (
+                      <PaginationLink
+                        href="#"
+                        isActive={p === safePage}
+                        onClick={(e) => { e.preventDefault(); setPage(p); }}
+                        className="cursor-pointer"
+                      >
+                        {p}
+                      </PaginationLink>
+                    )}
+                  </PaginationItem>
+                ))}
+                <PaginationItem>
+                  <PaginationNext
+                    href="#"
+                    onClick={(e) => { e.preventDefault(); setPage(p => Math.min(totalPages, p + 1)); }}
+                    aria-disabled={safePage === totalPages}
+                    className={safePage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                  />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
+          )}
+        </div>
+      )}
 
       <Dialog open={showCreate} onOpenChange={setShowCreate}>
         <DialogContent className="max-w-lg">
@@ -183,11 +255,20 @@ export function InvoiceDetail() {
     onSuccess: () => { toast.success("Line item removed"); utils.billing.getInvoice.invalidate({ id }); },
     onError: (e) => toast.error(e.message),
   });
+  const checkoutMutation = trpc.billing.createCheckoutSession.useMutation({
+    onSuccess: (data) => {
+      if (data.url) window.location.href = data.url;
+      else toast.error("Stripe did not return a payment URL");
+    },
+    onError: (e) => toast.error(e.message),
+  });
 
-  const exportPDF = () => {
+  // Print-friendly view: opens the invoice in a new window and triggers the
+  // browser print dialog so the user can print or save as PDF.
+  const printInvoice = () => {
     if (!invoice) return;
     const lines = invoice.lineItems ?? [];
-    const periodStr = `${new Date(invoice.periodStart).toLocaleDateString()} – ${new Date(invoice.periodEnd).toLocaleDateString()}`;
+    const periodStr = `${new Date(invoice.periodStart).toLocaleDateString()} - ${new Date(invoice.periodEnd).toLocaleDateString()}`;
     const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${invoice.invoiceNumber}</title><style>
       body{font-family:Arial,sans-serif;color:#111;padding:40px;max-width:800px;margin:auto}
       h1{font-size:24px;margin-bottom:4px}h2{font-size:14px;color:#666;font-weight:normal;margin:0 0 24px}
@@ -213,14 +294,17 @@ export function InvoiceDetail() {
         <tr class="total-row"><td>Total</td><td>$${Number(invoice.total).toFixed(2)}</td></tr>
       </table></div>
       ${invoice.notes ? `<p style="margin-top:24px;font-size:13px;color:#555"><strong>Notes:</strong> ${invoice.notes}</p>` : ""}
-      <footer>Generated by Layer One Staging Solutions Portal · Layer One · ${new Date().toLocaleDateString()}</footer>
+      <footer>Generated by Layer One Staging Solutions Portal - Layer One - ${new Date().toLocaleDateString()}</footer>
+      <script>window.addEventListener("load", function(){ window.print(); });</script>
     </body></html>`;
-    const blob = new Blob([html], { type: "text/html" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url; a.download = `${invoice.invoiceNumber}.html`; a.click();
-    URL.revokeObjectURL(url);
-    toast.success("Invoice exported - open in browser and print to PDF");
+    const win = window.open("", "_blank", "width=900,height=700");
+    if (!win) {
+      toast.error("Please allow pop-ups to print the invoice");
+      return;
+    }
+    win.document.write(html);
+    win.document.close();
+    win.focus();
   };
 
   const { register: regLine, handleSubmit: handleLine, setValue: setLineVal, reset: resetLine } = useForm({
@@ -231,6 +315,27 @@ export function InvoiceDetail() {
     onError: (e) => toast.error(e.message),
   });
   const onAddLine = (data: any) => addLineMutation.mutate({ invoiceId: id, ...data });
+  const unpaid = invoice ? invoice.status !== "paid" && invoice.status !== "void" : false;
+
+  // Stripe checkout redirects back here with ?payment=success or
+  // ?payment=cancelled. Show a graceful status instead of an error page, then
+  // clear the param so a refresh does not replay the toast.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const payment = params.get("payment");
+    if (payment === "success") {
+      toast.success("Payment submitted - the invoice will show as paid once Stripe confirms it.");
+      utils.billing.getInvoice.invalidate({ id });
+    } else if (payment === "cancelled") {
+      toast.info("Payment was cancelled - your invoice is still outstanding.");
+    }
+    if (payment) {
+      params.delete("payment");
+      const qs = params.toString();
+      window.history.replaceState(null, "", `${window.location.pathname}${qs ? `?${qs}` : ""}`);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   if (isLoading) return <DashboardLayout><div className="animate-pulse h-32 bg-muted/50 rounded" /></DashboardLayout>;
   if (!invoice) return <DashboardLayout><EmptyState icon={FileText} title="Invoice not found" /></DashboardLayout>;
@@ -243,9 +348,14 @@ export function InvoiceDetail() {
         action={
           <div className="flex gap-2">
             <Button variant="outline" size="sm" onClick={() => setLocation("/invoices")}>Back</Button>
-            <Button variant="outline" size="sm" onClick={exportPDF}>
-              <Download className="w-4 h-4 mr-1" />Export
+            <Button variant="outline" size="sm" onClick={printInvoice}>
+              <Printer className="w-4 h-4 mr-1" />Print / Save PDF
             </Button>
+            {unpaid && (
+              <Button size="sm" onClick={() => checkoutMutation.mutate({ id })} disabled={checkoutMutation.isPending}>
+                <CreditCard className="w-4 h-4 mr-1" />{checkoutMutation.isPending ? "Preparing..." : "Pay Now"}
+              </Button>
+            )}
             {isAdmin && (
               <Select defaultValue={invoice.status} onValueChange={(v) => updateMutation.mutate({ id, status: v as any })}>
                 <SelectTrigger className="h-8 text-xs w-28"><SelectValue /></SelectTrigger>

@@ -131,6 +131,8 @@ const NAV_GROUPS: NavGroup[] = [
     items: [
       { icon: MapPin, label: "My Devices", path: "/my-devices", roles: ["customer_admin", "customer_viewer"] },
       { icon: ClipboardList, label: "Staging Instructions", path: "/my-instructions", roles: ["customer_admin", "customer_viewer"] },
+      { icon: FileText, label: "My Documents", path: "/my-documents", roles: ["customer_admin", "customer_viewer"] },
+      { icon: ClipboardCheck, label: "My Onboarding", path: "/my-onboarding", roles: ["customer_admin", "customer_viewer"] },
       { icon: MessageSquare, label: "Messages", path: "/support-messages", roles: ["customer_admin", "customer_viewer"] },
       { icon: LifeBuoy, label: "Support Tickets", path: "/support", roles: ["customer_admin", "customer_viewer"] },
     ],
@@ -268,13 +270,13 @@ function DashboardLayoutContent({
   // Unread message count for badge - only fire when user is confirmed logged in
   const { data: totalUnread = 0 } = trpc.messages.totalUnread.useQuery(
     undefined,
-    { enabled: !!user && isAdminOrStaff, refetchInterval: 30_000 },
+    { enabled: !!user && isAdminOrStaff, refetchInterval: 60_000 },
   );
 
   // Customer-facing unread count (staff replies not yet read)
   const { data: myUnread = 0 } = trpc.messages.myUnread.useQuery(
     undefined,
-    { enabled: !!user && !isAdminOrStaff, refetchInterval: 30_000 },
+    { enabled: !!user && !isAdminOrStaff, refetchInterval: 60_000 },
   );
 
   // Open support ticket count for staff badge

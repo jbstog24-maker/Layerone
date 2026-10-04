@@ -8,6 +8,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -50,8 +58,11 @@ function PalletForm({ onClose }: { onClose: () => void }) {
   );
 }
 
+const PAGE_SIZE = 25;
+
 export default function Pallets() {
   const [showCreate, setShowCreate] = useState(false);
+  const [page, setPage] = useState(1);
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
   const [showBulkNotify, setShowBulkNotify] = useState(false);
   const [bulkMessage, setBulkMessage] = useState("");
@@ -60,6 +71,12 @@ export default function Pallets() {
   const role = (user as any)?.role ?? "";
   const isStaff = role === "admin" || role === "staff";
   const { data: pallets, isLoading } = trpc.pallets.list.useQuery({});
+
+  const totalPages = Math.max(1, Math.ceil((pallets?.length ?? 0) / PAGE_SIZE));
+  const currentPage = Math.min(page, totalPages);
+  const pagedPallets = pallets?.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+  const pageNumbers = Array.from({ length: totalPages }, (_, i) => i + 1);
+  const goToPage = (p: number) => setPage(Math.min(Math.max(1, p), totalPages));
   const utils = trpc.useUtils();
   const updateMutation = trpc.pallets.update.useMutation({
     onSuccess: () => { toast.success("Updated"); utils.pallets.list.invalidate(); },
@@ -131,7 +148,7 @@ export default function Pallets() {
             <tbody>
               {isLoading ? <LoadingRows cols={6} /> : pallets?.length === 0 ? (
                 <tr><td colSpan={6}><EmptyState icon={Warehouse} title="No pallets yet" /></td></tr>
-              ) : pallets?.map((p) => (
+              ) : pagedPallets?.map((p) => (
                 <tr key={p.id} className={`border-b border-border/50 hover:bg-muted/20 transition-colors cursor-pointer ${selectedIds.has(p.id) ? "bg-green-500/5" : ""}`} onClick={() => setLocation(`/pallets/${p.id}`)}>
                   {isStaff && (
                     <td className="px-4 py-3" onClick={(e) => toggleSelect(p.id, e)}>
@@ -158,6 +175,42 @@ export default function Pallets() {
             </tbody>
           </table>
         </div>
+        {(pallets?.length ?? 0) > PAGE_SIZE && (
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-4 py-3 border-t border-border/50">
+            <p className="text-xs text-muted-foreground">
+              Showing {((currentPage - 1) * PAGE_SIZE) + 1}-{(currentPage - 1) * PAGE_SIZE + (pagedPallets?.length ?? 0)} of {pallets?.length} pallets
+            </p>
+            <Pagination className="w-auto mx-0">
+              <PaginationContent>
+                <PaginationItem>
+                  <PaginationPrevious
+                    href="#"
+                    onClick={(e) => { e.preventDefault(); goToPage(currentPage - 1); }}
+                    className={currentPage === 1 ? "pointer-events-none opacity-40" : undefined}
+                  />
+                </PaginationItem>
+                {pageNumbers.map((p) => (
+                  <PaginationItem key={p}>
+                    <PaginationLink
+                      href="#"
+                      isActive={currentPage === p}
+                      onClick={(e) => { e.preventDefault(); goToPage(p); }}
+                    >
+                      {p}
+                    </PaginationLink>
+                  </PaginationItem>
+                ))}
+                <PaginationItem>
+                  <PaginationNext
+                    href="#"
+                    onClick={(e) => { e.preventDefault(); goToPage(currentPage + 1); }}
+                    className={currentPage === totalPages ? "pointer-events-none opacity-40" : undefined}
+                  />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
+          </div>
+        )}
       </Card>
 
       <Dialog open={showCreate} onOpenChange={setShowCreate}>

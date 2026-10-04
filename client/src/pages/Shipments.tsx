@@ -9,6 +9,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -90,7 +98,9 @@ function ShipmentTimeline({ shipment }: { shipment: any }) {
               {step.key === "shipped" && isCurrent && shipment.carrier && (
                 <div className="mt-2 p-2 rounded bg-blue-500/10 border border-blue-500/20 text-xs text-blue-300">
                   <span className="font-medium">{shipment.carrier}</span>
-                  {shipment.trackingNumber && <span className="ml-2 font-mono">{shipment.trackingNumber}</span>}
+                  {shipment.trackingNumber && (
+                    <span className="ml-2 font-mono"><TrackingLink trackingNumber={shipment.trackingNumber} /></span>
+                  )}
                 </div>
               )}
             </div>
@@ -140,12 +150,52 @@ function ShipmentForm({ onClose }: { onClose: () => void }) {
   );
 }
 
+// ─── Carrier tracking URLs ───────────────────────────────────────────────────
+/** Build a carrier tracking URL from a tracking number, detected by format. */
+function getTrackingUrl(trackingNumber: string): string {
+  const num = trackingNumber.trim();
+  const encoded = encodeURIComponent(num);
+  if (/^1Z/i.test(num)) {
+    return `https://www.ups.com/track?tracknum=${encoded}`;
+  }
+  if (/^\d{20,22}$/.test(num) || num.startsWith("94")) {
+    return `https://tools.usps.com/go/TrackConfirmAction?tLabels=${encoded}`;
+  }
+  if (/^\d{12,15}$/.test(num)) {
+    return `https://www.fedex.com/fedextrack/?trknbr=${encoded}`;
+  }
+  return `https://www.google.com/search?q=${encoded}`;
+}
+
+function TrackingLink({ trackingNumber, className }: { trackingNumber: string; className?: string }) {
+  return (
+    <a
+      href={getTrackingUrl(trackingNumber)}
+      target="_blank"
+      rel="noopener noreferrer"
+      className={`text-blue-400 hover:text-blue-300 hover:underline underline-offset-2 ${className ?? ""}`}
+      onClick={(e) => e.stopPropagation()}
+    >
+      {trackingNumber}
+    </a>
+  );
+}
+
+const PAGE_SIZE = 25;
+
 export function ShipmentsList() {
   const [showCreate, setShowCreate] = useState(false);
+  const [page, setPage] = useState(1);
   const [, setLocation] = useLocation();
   const { user } = useAuth();
   const role = (user as any)?.role ?? "";
   const { data: shipments, isLoading } = trpc.shipments.list.useQuery({});
+
+  const totalPages = Math.max(1, Math.ceil((shipments?.length ?? 0) / PAGE_SIZE));
+  const currentPage = Math.min(page, totalPages);
+  const pagedShipments = shipments?.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+  const pageNumbers = Array.from({ length: totalPages }, (_, i) => i + 1);
+  const goToPage = (p: number) => setPage(Math.min(Math.max(1, p), totalPages));
 
   return (
     <DashboardLayout>
@@ -177,7 +227,7 @@ export function ShipmentsList() {
             <tbody>
               {isLoading ? <LoadingRows cols={7} /> : shipments?.length === 0 ? (
                 <tr><td colSpan={7}><EmptyState icon={Ship} title="No shipments yet" /></td></tr>
-              ) : shipments?.map((s) => (
+              ) : pagedShipments?.map((s) => (
                 <tr key={s.id} className="border-b border-border/50 hover:bg-muted/20 cursor-pointer transition-colors" onClick={() => setLocation(`/shipments/${s.id}`)}>
                   <td className="px-4 py-3">
                     <p className="font-mono text-sm font-medium text-violet-400">{s.shipmentCode}</p>
@@ -194,6 +244,42 @@ export function ShipmentsList() {
             </tbody>
           </table>
         </div>
+        {(shipments?.length ?? 0) > PAGE_SIZE && (
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-4 py-3 border-t border-border/50">
+            <p className="text-xs text-muted-foreground">
+              Showing {((currentPage - 1) * PAGE_SIZE) + 1}-{(currentPage - 1) * PAGE_SIZE + (pagedShipments?.length ?? 0)} of {shipments?.length} shipments
+            </p>
+            <Pagination className="w-auto mx-0">
+              <PaginationContent>
+                <PaginationItem>
+                  <PaginationPrevious
+                    href="#"
+                    onClick={(e) => { e.preventDefault(); goToPage(currentPage - 1); }}
+                    className={currentPage === 1 ? "pointer-events-none opacity-40" : undefined}
+                  />
+                </PaginationItem>
+                {pageNumbers.map((p) => (
+                  <PaginationItem key={p}>
+                    <PaginationLink
+                      href="#"
+                      isActive={currentPage === p}
+                      onClick={(e) => { e.preventDefault(); goToPage(p); }}
+                    >
+                      {p}
+                    </PaginationLink>
+                  </PaginationItem>
+                ))}
+                <PaginationItem>
+                  <PaginationNext
+                    href="#"
+                    onClick={(e) => { e.preventDefault(); goToPage(currentPage + 1); }}
+                    className={currentPage === totalPages ? "pointer-events-none opacity-40" : undefined}
+                  />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
+          </div>
+        )}
       </Card>
 
       <Dialog open={showCreate} onOpenChange={setShowCreate}>
@@ -243,7 +329,7 @@ export function ShipmentDetail() {
               <div><p className="text-muted-foreground text-xs mb-1">Status</p><StatusBadge status={shipment.status} /></div>
               <div><p className="text-muted-foreground text-xs mb-1">Destination</p><p>{shipment.destination ?? "-"}</p></div>
               <div><p className="text-muted-foreground text-xs mb-1">Carrier</p><p>{shipment.carrier ?? "-"}</p></div>
-              <div><p className="text-muted-foreground text-xs mb-1">Tracking</p><p className="font-mono text-xs">{shipment.trackingNumber ?? "-"}</p></div>
+              <div><p className="text-muted-foreground text-xs mb-1">Tracking</p>{shipment.trackingNumber ? <TrackingLink trackingNumber={shipment.trackingNumber} className="font-mono text-xs" /> : <p className="text-xs">-</p>}</div>
               <div><p className="text-muted-foreground text-xs mb-1">Date Packed</p><p>{shipment.datePacked ? new Date(shipment.datePacked).toLocaleDateString() : "-"}</p></div>
               <div><p className="text-muted-foreground text-xs mb-1">Date Shipped</p><p>{shipment.dateShipped ? new Date(shipment.dateShipped).toLocaleDateString() : "-"}</p></div>
               <div><p className="text-muted-foreground text-xs mb-1">Date Delivered</p><p>{shipment.dateDelivered ? new Date(shipment.dateDelivered).toLocaleDateString() : "-"}</p></div>

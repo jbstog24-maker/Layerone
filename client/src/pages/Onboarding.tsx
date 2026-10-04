@@ -468,7 +468,7 @@ export default function Onboarding() {
 
   const { data: checklists = [], isLoading } = trpc.onboarding.listChecklists.useQuery(
     statusFilter === "all" ? {} : { status: statusFilter },
-    { refetchInterval: 30_000 }
+    { refetchInterval: 60_000 }
   );
   const rows = checklists as ChecklistRow[];
 

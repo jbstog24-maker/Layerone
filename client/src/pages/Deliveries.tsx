@@ -17,6 +17,27 @@ import { toast } from "sonner";
 import { Truck, Plus, ChevronRight } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { useAuth } from "@/_core/hooks/useAuth";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
+
+const PAGE_SIZE = 25;
+
+function getPageNumbers(current: number, total: number): (number | "ellipsis")[] {
+  if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+  const pages: (number | "ellipsis")[] = [1];
+  if (current > 3) pages.push("ellipsis");
+  for (let p = Math.max(2, current - 1); p <= Math.min(total - 1, current + 1); p++) pages.push(p);
+  if (current < total - 2) pages.push("ellipsis");
+  pages.push(total);
+  return pages;
+}
 
 function DeliveryForm({ onClose, deliveryId }: { onClose: () => void; deliveryId?: number }) {
   const utils = trpc.useUtils();
@@ -125,8 +146,16 @@ function DeliveryForm({ onClose, deliveryId }: { onClose: () => void; deliveryId
 
 export function DeliveriesList() {
   const [showCreate, setShowCreate] = useState(false);
+  const [page, setPage] = useState(1);
   const [, setLocation] = useLocation();
+  const { user } = useAuth();
+  const role = (user as any)?.role ?? "";
   const { data: deliveries, isLoading } = trpc.deliveries.list.useQuery({});
+
+  const totalPages = Math.max(1, Math.ceil((deliveries?.length ?? 0) / PAGE_SIZE));
+  const currentPage = Math.min(page, totalPages);
+  const paged = deliveries?.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE) ?? [];
+  const goToPage = (p: number) => setPage(Math.min(Math.max(1, p), totalPages));
 
   return (
     <DashboardLayout>
@@ -134,9 +163,11 @@ export function DeliveriesList() {
         title="Expected Deliveries"
         subtitle="Track inbound shipments and expected arrivals"
         action={
-          <Button onClick={() => setShowCreate(true)} size="sm">
-            <Plus className="w-4 h-4 mr-1" /> New Delivery
-          </Button>
+          role !== "customer_viewer" ? (
+            <Button onClick={() => setShowCreate(true)} size="sm">
+              <Plus className="w-4 h-4 mr-1" /> New Delivery
+            </Button>
+          ) : undefined
         }
       />
       <Card className="bg-card/60 border-border/50">
@@ -155,7 +186,7 @@ export function DeliveriesList() {
             <tbody>
               {isLoading ? <LoadingRows cols={6} /> : deliveries?.length === 0 ? (
                 <tr><td colSpan={6}><EmptyState icon={Truck} title="No deliveries yet" description="Submit an expected delivery to get started." /></td></tr>
-              ) : deliveries?.map((d) => (
+              ) : paged.map((d) => (
                 <tr key={d.id} className="border-b border-border/50 hover:bg-muted/20 cursor-pointer transition-colors" onClick={() => setLocation(`/deliveries/${d.id}`)}>
                   <td className="px-4 py-3">
                     <p className="font-medium text-sm">{d.projectName ?? `Delivery #${d.id}`}</p>
@@ -172,6 +203,47 @@ export function DeliveriesList() {
           </table>
         </div>
       </Card>
+
+      {!isLoading && totalPages > 1 && (
+        <div className="mt-4 space-y-2">
+          <Pagination>
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious
+                  href="#"
+                  className={currentPage === 1 ? "pointer-events-none opacity-50" : undefined}
+                  onClick={(e) => { e.preventDefault(); goToPage(currentPage - 1); }}
+                />
+              </PaginationItem>
+              {getPageNumbers(currentPage, totalPages).map((p, i) => (
+                <PaginationItem key={i}>
+                  {p === "ellipsis" ? (
+                    <PaginationEllipsis />
+                  ) : (
+                    <PaginationLink
+                      href="#"
+                      isActive={p === currentPage}
+                      onClick={(e) => { e.preventDefault(); goToPage(p); }}
+                    >
+                      {p}
+                    </PaginationLink>
+                  )}
+                </PaginationItem>
+              ))}
+              <PaginationItem>
+                <PaginationNext
+                  href="#"
+                  className={currentPage === totalPages ? "pointer-events-none opacity-50" : undefined}
+                  onClick={(e) => { e.preventDefault(); goToPage(currentPage + 1); }}
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+          <p className="text-xs text-muted-foreground text-center">
+            Showing {(currentPage - 1) * PAGE_SIZE + 1} - {Math.min(currentPage * PAGE_SIZE, deliveries?.length ?? 0)} of {deliveries?.length ?? 0} deliveries
+          </p>
+        </div>
+      )}
 
       <Dialog open={showCreate} onOpenChange={setShowCreate}>
         <DialogContent className="max-w-lg">
