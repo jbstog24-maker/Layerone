@@ -80,6 +80,17 @@ export default function HowWeWork() {
         </div>
       </section>
 
+      {/* Infographic */}
+      <section className="py-12 border-b border-white/10">
+        <div className="max-w-6xl mx-auto px-6">
+          <img
+            src="/images/how-we-work-infographic.png"
+            alt="How We Work: from receipt to deployment in 6 steps"
+            className="w-full rounded-2xl border border-white/10"
+          />
+        </div>
+      </section>
+
       {/* Steps */}
       <section className="py-16">
         <div className="max-w-4xl mx-auto px-6">
