@@ -139,12 +139,18 @@ export async function mintDemoUserOnce(): Promise<void> {
       .from(users)
       .where(eq(users.email, DEMO_PORTAL_EMAIL))
       .limit(1);
+    const passwordHash = await hashPassword(DEMO_PORTAL_PASSWORD);
     if (existing.length > 0) {
-      console.log(`[DemoSeed] demo portal user already exists (id=${existing[0].id})`);
+      // Sync the password on every boot so rotating DEMO_PORTAL_PASSWORD
+      // takes effect without manual DB edits.
+      await db
+        .update(users)
+        .set({ passwordHash })
+        .where(eq(users.id, existing[0].id));
+      console.log(`[DemoSeed] demo portal user password synced (id=${existing[0].id})`);
       return;
     }
 
-    const passwordHash = await hashPassword(DEMO_PORTAL_PASSWORD);
     const result = await db.insert(users).values({
       openId: `demo-${Date.now()}`,
       name: "Demo User",
