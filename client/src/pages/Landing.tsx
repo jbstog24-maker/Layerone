@@ -39,6 +39,7 @@ function NavBar() {
         <nav className="hidden md:flex items-center gap-7 text-sm text-slate-400">
           <a href="#top" className="hover:text-white transition-colors">Home</a>
           <a href="#services" className="hover:text-white transition-colors">Services</a>
+          <a href="#waas" className="hover:text-white transition-colors">Warehousing</a>
           <a href="#industries" className="hover:text-white transition-colors">Industries</a>
           <a href="/about" className="hover:text-white transition-colors">About</a>
           <a href="/team" className="hover:text-white transition-colors">Team</a>
@@ -192,6 +193,11 @@ function Services() {
     },
     {
       icon: Warehouse,
+      title: "Warehousing as a Service",
+      desc: "Short-term or long-term warehouse space in DFW without the lease commitment. Secure, camera-monitored storage with on-demand labor, customized to your needs and operational within 14 days.",
+    },
+    {
+      icon: Warehouse,
       title: "Secure Equipment Storage",
       desc: "Access-controlled, camera-monitored storage. Your equipment is isolated per client and organized on industrial racking.",
     },
@@ -268,6 +274,42 @@ function Services() {
               </div>
               <h3 className="text-base font-bold text-white mb-2">{s.title}</h3>
               <p className="text-sm text-slate-400 leading-relaxed">{s.desc}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function WarehousingAsAService() {
+  const features = [
+    { title: "Turnkey Setup", desc: "We handle everything: space, receiving, labor, and logistics. You get a fully operational warehousing solution without managing any of it." },
+    { title: "Short-Term or Long-Term", desc: "Need space for a 3-month project or a 3-year operation? Flexible terms that match your timeline, not a rigid lease." },
+    { title: "Secure & Monitored", desc: "Access-controlled facilities with camera monitoring. Your equipment is protected around the clock." },
+    { title: "Customized to Your Needs", desc: "Shared cages, dedicated space, or anything in between. We build the solution around your specific requirements and budget." },
+    { title: "Operational in 14 Days", desc: "From first call to receiving your first shipment. No long build-outs, no waiting on leases." },
+    { title: "On-Demand Labor", desc: "Trained warehouse staff available when you need them, including 24/7 coverage for critical operations." },
+  ];
+
+  return (
+    <section id="waas" className="py-20 border-t border-white/10">
+      <div className="max-w-6xl mx-auto px-6">
+        <div className="mb-12">
+          <span className="inline-block text-xs font-semibold tracking-widest uppercase text-[#0A84FF] mb-3">Warehousing as a Service</span>
+          <h2 className="text-4xl font-black tracking-[-1.5px] text-white mb-3">
+            Warehouse space without<br />
+            <span className="text-[#0A84FF]">the warehouse headache.</span>
+          </h2>
+          <p className="text-slate-400 text-lg max-w-2xl">
+            Get the warehouse capacity you need in DFW without signing a lease, hiring staff, or managing a facility. We deliver a complete, customized warehousing solution through our network of secure DFW locations. You pay for what you use, we handle the rest.
+          </p>
+        </div>
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {features.map(f => (
+            <div key={f.title} className="rounded-2xl border border-white/10 bg-white/5 p-5 hover:border-[#0A84FF]/40 hover:bg-white/[0.07] transition-all group">
+              <h3 className="text-base font-bold text-white mb-2">{f.title}</h3>
+              <p className="text-sm text-slate-400 leading-relaxed">{f.desc}</p>
             </div>
           ))}
         </div>
@@ -1449,6 +1491,7 @@ export default function Landing() {
         <Hero />
         <HowItWorks />
         <Services />
+        <WarehousingAsAService />
         <WhyLayerOne />
         <Rollouts />
         <Packages />
