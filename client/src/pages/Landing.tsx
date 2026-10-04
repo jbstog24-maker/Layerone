@@ -1047,6 +1047,15 @@ export default function Landing() {
         <Hero />
         <HowItWorks />
         <Services />
+        {/* Full-width warehouse image break */}
+        <section className="relative border-t border-white/10 overflow-hidden">
+          <img
+            src="/images/warehouse-team-home.png"
+            alt="Layer One Staging warehouse team preparing equipment"
+            className="w-full h-72 md:h-96 object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0B1320]/60 via-transparent to-transparent pointer-events-none" />
+        </section>
         <WarehousingAsAService />
         <WhyLayerOne />
         <Rollouts />
