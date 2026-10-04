@@ -39,11 +39,8 @@ export function NavBar() {
           <a href="/" className="hover:text-white transition-colors">Home</a>
           <a href="/#services" className="hover:text-white transition-colors">Services</a>
           <a href="/warehousing" className="hover:text-white transition-colors">Warehousing</a>
-          <a href="/#industries" className="hover:text-white transition-colors">Industries</a>
-          <a href="/about" className="hover:text-white transition-colors">About</a>
-          <a href="/team" className="hover:text-white transition-colors">Team</a>
-          <a href="/faq" className="hover:text-white transition-colors">FAQ</a>
           <a href="/pricing" className="hover:text-white transition-colors">Pricing</a>
+          <a href="/about" className="hover:text-white transition-colors">About</a>
           <a href="/#contact" className="hover:text-white transition-colors">Contact</a>
         </nav>
         <div className="flex items-center gap-3">
