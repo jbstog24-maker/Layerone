@@ -221,11 +221,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     );
   }
 
-  // Customer approval gate: customer roles without a linked, approved client cannot access the portal
+  // Customer approval gate: customer roles without a linked, approved client cannot access the portal.
+  // The demo account bypasses this gate so prospects can preview the portal.
   const userRole = (user as any)?.role ?? "";
   const isCustomer = userRole === "customer_admin" || userRole === "customer_viewer";
   const hasClientId = Boolean((user as any)?.clientId);
-  if (isCustomer && !hasClientId) {
+  const isDemoAccount = (user as any)?.email === "demo@layeronestaging.com";
+  if (isCustomer && !hasClientId && !isDemoAccount) {
     return <PendingApproval />;
   }
 

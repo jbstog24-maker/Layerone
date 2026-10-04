@@ -12,7 +12,7 @@
  */
 import { eq } from "drizzle-orm";
 import { getDb } from "./db";
-import { packageInquiries, quotes, msaDocuments, users, clients } from "../drizzle/schema";
+import { packageInquiries, quotes, msaDocuments, users } from "../drizzle/schema";
 import { buildMsaHtml, generateMsaToken } from "./msa";
 import { hashPassword } from "./_core/password";
 
@@ -21,7 +21,6 @@ const SIGNING_BASE_URL = "https://www.layeronestaging.com";
 const MSA_TOKEN_TTL_MS = 30 * 24 * 60 * 60 * 1000; // 30 days
 const DEMO_PORTAL_EMAIL = "demo@layeronestaging.com";
 const DEMO_PORTAL_PASSWORD = "Demo1234!";
-const DEMO_CLIENT_NAME = "Demo Company (DEMO)";
 
 const DEMO_LINE_ITEMS = [
   { label: "Receiving - pallet intake, count & inspect", qty: 24, unitPrice: 12, total: 288 },
@@ -129,47 +128,13 @@ export async function mintDemoUserOnce(): Promise<void> {
       return;
     }
 
-    // Ensure a demo client record exists and link the demo user to it,
-    // otherwise the portal approval gate blocks the demo login.
-    const existingClients = await db
-      .select({ id: clients.id })
-      .from(clients)
-      .where(eq(clients.companyName, DEMO_CLIENT_NAME))
-      .limit(1);
-    let clientId: number;
-    if (existingClients.length > 0) {
-      clientId = existingClients[0].id;
-    } else {
-      const clientResult = await db.insert(clients).values({
-        companyName: DEMO_CLIENT_NAME,
-        contactName: "Demo User",
-        contactEmail: DEMO_PORTAL_EMAIL,
-        status: "active",
-        projectNotes: "DEMO ONLY - client record for the demo portal login. Not a real customer.",
-      });
-      clientId = (clientResult[0] as unknown as { insertId: number }).insertId;
-      console.log(`[DemoSeed] demo client created (id=${clientId})`);
-    }
-
     const existing = await db
-      .select({ id: users.id, clientId: users.clientId })
+      .select({ id: users.id })
       .from(users)
       .where(eq(users.email, DEMO_PORTAL_EMAIL))
       .limit(1);
     if (existing.length > 0) {
-      // Backfill the client link on the existing demo user so the
-      // approval gate lets it into the portal.
-      if (!existing[0].clientId) {
-        await db
-          .update(users)
-          .set({ clientId })
-          .where(eq(users.id, existing[0].id));
-        console.log(
-          `[DemoSeed] demo portal user linked to demo client (user id=${existing[0].id}, client id=${clientId})`
-        );
-      } else {
-        console.log(`[DemoSeed] demo portal user already exists (id=${existing[0].id})`);
-      }
+      console.log(`[DemoSeed] demo portal user already exists (id=${existing[0].id})`);
       return;
     }
 
@@ -181,8 +146,7 @@ export async function mintDemoUserOnce(): Promise<void> {
       passwordHash,
       loginMethod: "password",
       role: "customer_admin",
-      clientId,
-      businessName: DEMO_CLIENT_NAME,
+      businessName: "Demo Company (DEMO)",
       isActive: true,
     });
     const id = (result[0] as unknown as { insertId: number }).insertId;
