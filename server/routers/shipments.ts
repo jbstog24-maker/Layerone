@@ -4,7 +4,7 @@ import {
   addShipmentItem, createShipment, getClient, getShipment, getShipmentItems,
   listShipments, logActivity, updateShipment,
 } from "../db";
-import { sendShipmentApprovalRequestEmail, sendTrackingNotificationEmail } from "../email";
+import { sendShipmentApprovalRequestEmail, sendTrackingNotificationEmail, sendShipmentDeliveredEmail } from "../email";
 import { ENV } from "../_core/env";
 import { protectedProcedure, router } from "../_core/trpc";
 
@@ -120,6 +120,25 @@ export const shipmentsRouter = router({
                 portalUrl,
               }).catch(() => {});
             }
+          }
+        } catch (_e) { /* non-blocking */ }
+      }
+
+      // Send delivered confirmation email on transition to delivered (non-blocking).
+      const markedDelivered = data.status === "delivered" && shipment.status !== "delivered";
+      if (markedDelivered) {
+        try {
+          const client = await getClient(shipment.clientId);
+          const contactEmail = client ? ((client as any).contactEmail ?? (client as any).email) : undefined;
+          if (contactEmail) {
+            const deliveredAt = data.dateDelivered
+              ? new Date(data.dateDelivered).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })
+              : new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+            sendShipmentDeliveredEmail({
+              to: contactEmail,
+              trackingNumber: data.trackingNumber ?? shipment.trackingNumber ?? `#${id}`,
+              deliveredAt,
+            }).catch(() => {});
           }
         } catch (_e) { /* non-blocking */ }
       }

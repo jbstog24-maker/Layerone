@@ -250,6 +250,23 @@ export const onboardingRouter = router({
         .update(packageInquiries)
         .set({ status: "won" })
         .where(eq(packageInquiries.id, checklist.inquiryId));
+      // Completion email to the customer (non-blocking).
+      {
+        const [inquiry] = await db
+          .select({ email: packageInquiries.email, company: packageInquiries.company })
+          .from(packageInquiries)
+          .where(eq(packageInquiries.id, checklist.inquiryId))
+          .limit(1);
+        if (inquiry?.email) {
+          const { sendOnboardingCompleteEmail } = await import("../email");
+          sendOnboardingCompleteEmail({
+            to: inquiry.email,
+            companyName: inquiry.company || "there",
+          }).catch((err) => {
+            console.warn(`[Onboarding] completion email failed for checklist ${input.checklistId}:`, err);
+          });
+        }
+      }
       return { success: true };
     }),
 

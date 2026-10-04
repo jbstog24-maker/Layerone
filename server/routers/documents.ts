@@ -23,6 +23,7 @@ import {
   quotes,
 } from "../../drizzle/schema";
 import { notifyOwner } from "../_core/notification";
+import { sendWarehouseAssignedEmail, sendDocumentSignedEmail } from "../email";
 import { storagePut } from "../storage";
 import { protectedProcedure, router } from "../_core/trpc";
 import { TIER_PRICING, type PackageTier } from "../stripe-products";
@@ -615,6 +616,20 @@ export const documentsRouter = router({
             entityType: "client_document",
             entityId: input.id,
           });
+
+          // Confirmation email to the signer (non-blocking).
+          {
+            const signerEmail = input.signedByEmail;
+            if (signerEmail) {
+              sendDocumentSignedEmail({
+                to: signerEmail,
+                signerName: input.signedByName ?? "there",
+                documentType: doc.name,
+              }).catch((err) => {
+                console.warn(`[Documents] signed confirmation email failed for doc ${input.id}:`, err);
+              });
+            }
+          }
         } else if (input.status === "approved") {
           updateData.approvedAt = now;
           updateData.approvedByUserId = ctx.user.id;
@@ -684,6 +699,27 @@ export const documentsRouter = router({
         title: `🏭 Warehouse Assigned: ${client.companyName}`,
         content: `Warehouse space has been assigned to ${client.companyName}.\n\nPlease send the following details to the client at ${client.contactEmail ?? client.billingEmail ?? "their email"}:\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\nWAREHOUSE SPACE DETAILS\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\nUnit Number: ${input.warehouseUnitNumber}\nAddress: ${input.warehouseAddress}\nAccess Code: ${input.warehouseAccessCode ?? "Will be provided separately"}\nDimensions: ${input.warehouseDimensions ?? "N/A"}\nAssigned Technicians: ${input.assignedTechNames ?? "TBD"}\nNotes: ${input.warehouseNotes ?? "None"}\n\nGo-Live Date: ${client.goLiveDate ? new Date(client.goLiveDate).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }) : "TBD"}\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`,
       });
+
+      // Auto-send the warehouse details to the client (non-blocking).
+      {
+        const clientEmail = client.contactEmail ?? client.billingEmail;
+        if (clientEmail) {
+          sendWarehouseAssignedEmail({
+            to: clientEmail,
+            contactName: client.contactName ?? client.companyName,
+            unitNumber: input.warehouseUnitNumber,
+            address: input.warehouseAddress,
+            accessCode: input.warehouseAccessCode,
+            dimensions: input.warehouseDimensions,
+            goLiveDate: client.goLiveDate
+              ? new Date(client.goLiveDate).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })
+              : undefined,
+            notes: input.warehouseNotes,
+          }).catch((err) => {
+            console.warn(`[Documents] warehouse assigned email failed for client ${clientId}:`, err);
+          });
+        }
+      }
 
       await logActivity({
         userId: ctx.user.id,

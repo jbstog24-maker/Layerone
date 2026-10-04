@@ -1411,3 +1411,315 @@ export async function sendVoiceChangeEmail(params: VoiceChangeEmailParams): Prom
     return false;
   }
 }
+
+// ─── Customer Notification Email Suite ───────────────────────────────────────
+// Templates used by the daily automation endpoint (server/automation.ts) and
+// event wiring in stripe.ts / routers. All follow the params-object convention
+// and return boolean. No em dashes in copy.
+
+/** Shared dark-theme shell matching the other Layer One email templates. */
+function customerEmailShell(opts: {
+  heading: string;
+  emoji: string;
+  greeting: string;
+  bodyHtml: string;
+  cta?: { label: string; href: string };
+  footerNote?: string;
+}): string {
+  return `<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;padding:0;background:#07111f;font-family:'Segoe UI',Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#07111f;padding:40px 20px;">
+    <tr><td align="center">
+      <table width="600" cellpadding="0" cellspacing="0" style="background:#0d1f35;border-radius:12px;border:1px solid #1e3a5f;overflow:hidden;max-width:600px;width:100%;">
+        <tr><td style="background:linear-gradient(135deg,#0f3460 0%,#1a5276 100%);padding:32px 40px;text-align:center;">
+          <h1 style="margin:0;font-size:22px;font-weight:700;color:#ffffff;">${opts.emoji} ${opts.heading}</h1>
+          <p style="margin:8px 0 0;color:#94a3b8;font-size:13px;">Layer One Staging Solutions</p>
+        </td></tr>
+        <tr><td style="padding:32px 40px;">
+          <p style="margin:0 0 16px;color:#cbd5e1;font-size:15px;">${opts.greeting}</p>
+          ${opts.bodyHtml}
+          ${opts.cta ? `<div style="text-align:center;margin:24px 0;">
+            <a href="${opts.cta.href}" style="display:inline-block;background:linear-gradient(135deg,#3b82f6,#2563eb);color:#ffffff;text-decoration:none;padding:12px 28px;border-radius:8px;font-size:14px;font-weight:600;">
+              ${opts.cta.label} →
+            </a>
+          </div>` : ""}
+          ${opts.footerNote ? `<p style="margin:0;color:#64748b;font-size:13px;text-align:center;">${opts.footerNote}</p>` : ""}
+        </td></tr>
+        <tr><td style="padding:20px 40px;border-top:1px solid #1e3a5f;text-align:center;">
+          <p style="margin:0;font-size:12px;color:#475569;">© ${new Date().getFullYear()} Layer One Staging · Dallas-Fort Worth, TX</p>
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`;
+}
+
+async function sendCustomerEmail(opts: {
+  to: string;
+  subject: string;
+  tag: string;
+  html: string;
+}): Promise<boolean> {
+  try {
+    const resend = getResend();
+    const { error } = await sendHtmlEmail(resend, {
+      from: ENV.resendFromEmail,
+      cc: INFO_CC,
+      to: opts.to,
+      subject: opts.subject,
+      html: opts.html,
+    });
+    if (error) { console.warn(`[Email] ${opts.tag} error:`, error); return false; }
+    console.log(`[Email] ${opts.tag} sent to ${opts.to}`);
+    return true;
+  } catch (err) {
+    console.warn(`[Email] Failed to send ${opts.tag}:`, err);
+    return false;
+  }
+}
+
+// ─── Invoice sent ────────────────────────────────────────────────────────────
+export type InvoiceSentEmailParams = {
+  to: string;
+  invoiceNumber: string;
+  amount: string;
+  dueDate: string;
+  portalUrl: string;
+};
+
+export async function sendInvoiceSentEmail(params: InvoiceSentEmailParams): Promise<boolean> {
+  const html = customerEmailShell({
+    emoji: "🧾",
+    heading: "Your Invoice Is Ready",
+    greeting: `Hi there,`,
+    bodyHtml: `<p style="margin:0 0 24px;color:#cbd5e1;font-size:15px;">
+        Invoice <strong style="color:#e2e8f0;">${params.invoiceNumber}</strong> for
+        <strong style="color:#e2e8f0;">${params.amount}</strong> is ready for review.
+        Payment is due by <strong style="color:#e2e8f0;">${params.dueDate}</strong>.
+      </p>`,
+    cta: { label: "View and Pay Invoice", href: `${params.portalUrl}/invoices` },
+    footerNote: "You can pay securely from your customer portal.",
+  });
+  return sendCustomerEmail({
+    to: params.to,
+    subject: `Invoice ${params.invoiceNumber} Ready - ${params.amount} Due ${params.dueDate}`,
+    tag: "invoice-sent",
+    html,
+  });
+}
+
+// ─── Invoice overdue reminder ────────────────────────────────────────────────
+export type InvoiceOverdueEmailParams = {
+  to: string;
+  invoiceNumber: string;
+  amount: string;
+  daysOverdue: number;
+  portalUrl: string;
+};
+
+export async function sendInvoiceOverdueEmail(params: InvoiceOverdueEmailParams): Promise<boolean> {
+  const html = customerEmailShell({
+    emoji: "⏰",
+    heading: "Friendly Payment Reminder",
+    greeting: `Hi there,`,
+    bodyHtml: `<p style="margin:0 0 24px;color:#cbd5e1;font-size:15px;">
+        Just a friendly reminder that invoice <strong style="color:#e2e8f0;">${params.invoiceNumber}</strong>
+        for <strong style="color:#e2e8f0;">${params.amount}</strong> is now
+        <strong style="color:#fbbf24;">${params.daysOverdue} days past due</strong>.
+        If you have already paid, please disregard this message. If something is holding
+        up payment, reply to this email and we will sort it out.
+      </p>`,
+    cta: { label: "Pay Invoice Now", href: `${params.portalUrl}/invoices` },
+    footerNote: "Questions about this invoice? Reply to this email or call (469) 537-4378.",
+  });
+  return sendCustomerEmail({
+    to: params.to,
+    subject: `Reminder: Invoice ${params.invoiceNumber} (${params.daysOverdue} Days Past Due)`,
+    tag: "invoice-overdue",
+    html,
+  });
+}
+
+// ─── Payment received ────────────────────────────────────────────────────────
+export type PaymentReceivedEmailParams = {
+  to: string;
+  invoiceNumber: string;
+  amount: string;
+};
+
+export async function sendPaymentReceivedEmail(params: PaymentReceivedEmailParams): Promise<boolean> {
+  const html = customerEmailShell({
+    emoji: "✅",
+    heading: "Payment Received - Thank You",
+    greeting: `Hi there,`,
+    bodyHtml: `<p style="margin:0 0 24px;color:#cbd5e1;font-size:15px;">
+        We have received your payment of <strong style="color:#6ee7b7;">${params.amount}</strong>
+        for invoice <strong style="color:#e2e8f0;">${params.invoiceNumber}</strong>.
+        Your account is up to date. Thank you for your business.
+      </p>`,
+    footerNote: "A receipt is available anytime in your customer portal.",
+  });
+  return sendCustomerEmail({
+    to: params.to,
+    subject: `Payment Received for Invoice ${params.invoiceNumber}`,
+    tag: "payment-received",
+    html,
+  });
+}
+
+// ─── Document signing reminder ───────────────────────────────────────────────
+export type DocumentReminderEmailParams = {
+  to: string;
+  signerName: string;
+  documentType: string;
+  expiresInDays: number;
+  signingUrl: string;
+};
+
+export async function sendDocumentReminderEmail(params: DocumentReminderEmailParams): Promise<boolean> {
+  const html = customerEmailShell({
+    emoji: "✍️",
+    heading: "Your Signing Link Expires Soon",
+    greeting: `Hi ${params.signerName},`,
+    bodyHtml: `<p style="margin:0 0 24px;color:#cbd5e1;font-size:15px;">
+        Your <strong style="color:#e2e8f0;">${params.documentType}</strong> is still waiting for
+        your signature, and the signing link expires in
+        <strong style="color:#fbbf24;">${params.expiresInDays} day${params.expiresInDays === 1 ? "" : "s"}</strong>.
+        It only takes a minute to complete.
+      </p>`,
+    cta: { label: "Sign Now", href: params.signingUrl },
+    footerNote: "Need changes before signing? Reply to this email.",
+  });
+  return sendCustomerEmail({
+    to: params.to,
+    subject: `Action Needed: ${params.documentType} Expires in ${params.expiresInDays} Day${params.expiresInDays === 1 ? "" : "s"}`,
+    tag: "document-reminder",
+    html,
+  });
+}
+
+// ─── Document signed confirmation ────────────────────────────────────────────
+export type DocumentSignedEmailParams = {
+  to: string;
+  signerName: string;
+  documentType: string;
+};
+
+export async function sendDocumentSignedEmail(params: DocumentSignedEmailParams): Promise<boolean> {
+  const html = customerEmailShell({
+    emoji: "📝",
+    heading: "Document Signed",
+    greeting: `Hi ${params.signerName},`,
+    bodyHtml: `<p style="margin:0 0 24px;color:#cbd5e1;font-size:15px;">
+        Your <strong style="color:#e2e8f0;">${params.documentType}</strong> has been signed
+        successfully. A copy is available in your customer portal under My Documents.
+      </p>`,
+    footerNote: "We will be in touch about next steps shortly.",
+  });
+  return sendCustomerEmail({
+    to: params.to,
+    subject: `${params.documentType} Signed - Confirmation`,
+    tag: "document-signed",
+    html,
+  });
+}
+
+// ─── Shipment delivered ──────────────────────────────────────────────────────
+export type ShipmentDeliveredEmailParams = {
+  to: string;
+  trackingNumber: string;
+  deliveredAt: string;
+};
+
+export async function sendShipmentDeliveredEmail(params: ShipmentDeliveredEmailParams): Promise<boolean> {
+  const html = customerEmailShell({
+    emoji: "📬",
+    heading: "Your Shipment Was Delivered",
+    greeting: `Hi there,`,
+    bodyHtml: `<p style="margin:0 0 24px;color:#cbd5e1;font-size:15px;">
+        Good news. Your shipment <strong style="color:#38bdf8;">${params.trackingNumber}</strong>
+        was delivered on <strong style="color:#e2e8f0;">${params.deliveredAt}</strong>.
+        Please confirm everything arrived as expected.
+      </p>`,
+    footerNote: "Something missing or damaged? Reply to this email right away.",
+  });
+  return sendCustomerEmail({
+    to: params.to,
+    subject: `Delivered: Shipment ${params.trackingNumber}`,
+    tag: "shipment-delivered",
+    html,
+  });
+}
+
+// ─── Onboarding complete ─────────────────────────────────────────────────────
+export type OnboardingCompleteEmailParams = {
+  to: string;
+  companyName: string;
+};
+
+export async function sendOnboardingCompleteEmail(params: OnboardingCompleteEmailParams): Promise<boolean> {
+  const html = customerEmailShell({
+    emoji: "🎉",
+    heading: "Your Onboarding Is Complete",
+    greeting: `Hi ${params.companyName} team,`,
+    bodyHtml: `<p style="margin:0 0 24px;color:#cbd5e1;font-size:15px;">
+        Your onboarding with Layer One Staging is complete. Your account is fully set up
+        and ready to go. You can now submit staging requests, track shipments, and manage
+        invoices from your customer portal.
+      </p>`,
+    footerNote: "Welcome aboard. We are glad to have you.",
+  });
+  return sendCustomerEmail({
+    to: params.to,
+    subject: "Your Layer One Staging Onboarding Is Complete",
+    tag: "onboarding-complete",
+    html,
+  });
+}
+
+// ─── Warehouse space assigned ────────────────────────────────────────────────
+export type WarehouseAssignedEmailParams = {
+  to: string;
+  contactName: string;
+  unitNumber: string;
+  address: string;
+  accessCode?: string;
+  dimensions?: string;
+  goLiveDate?: string;
+  notes?: string;
+};
+
+export async function sendWarehouseAssignedEmail(params: WarehouseAssignedEmailParams): Promise<boolean> {
+  const row = (label: string, value: string | undefined) =>
+    value
+      ? `<tr><td style="padding:6px 0;color:#64748b;font-size:13px;width:140px;">${label}</td><td style="padding:6px 0;color:#e2e8f0;font-size:13px;font-weight:600;">${value}</td></tr>`
+      : "";
+  const html = customerEmailShell({
+    emoji: "🏭",
+    heading: "Your Warehouse Space Is Ready",
+    greeting: `Hi ${params.contactName},`,
+    bodyHtml: `<p style="margin:0 0 24px;color:#cbd5e1;font-size:15px;">
+        Your warehouse space has been assigned. Here are the details:
+      </p>
+      <div style="background:#07111f;border:1px solid #1e3a5f;border-radius:8px;padding:20px 24px;margin-bottom:24px;">
+        <table width="100%" cellpadding="0" cellspacing="0">
+          ${row("Unit Number", params.unitNumber)}
+          ${row("Address", params.address)}
+          ${row("Access Code", params.accessCode)}
+          ${row("Dimensions", params.dimensions)}
+          ${row("Go-Live Date", params.goLiveDate)}
+          ${row("Notes", params.notes)}
+        </table>
+      </div>`,
+    footerNote: "Keep your access code private. Call (469) 537-4378 with any questions.",
+  });
+  return sendCustomerEmail({
+    to: params.to,
+    subject: `Your Warehouse Space Is Assigned - Unit ${params.unitNumber}`,
+    tag: "warehouse-assigned",
+    html,
+  });
+}

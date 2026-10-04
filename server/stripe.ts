@@ -6,6 +6,7 @@ import { notifyOwner } from "./_core/notification";
 import { TIER_PRICING, type PackageTier } from "./stripe-products";
 import { packageInquiries, quotes } from "../drizzle/schema";
 import { sendOwnerEmail } from "./onboarding";
+import { sendPaymentReceivedEmail } from "./email";
 
 function getStripe(): Stripe | null {
   const key = process.env.STRIPE_SECRET_KEY;
@@ -195,6 +196,22 @@ export function registerStripeRoutes(app: Express) {
                     title: `💳 Invoice Paid: ${invoice.invoiceNumber}`,
                     content: `Invoice ${invoice.invoiceNumber} was paid via the customer portal.\n\nAmount: $${(session.amount_total != null ? (session.amount_total / 100).toFixed(2) : "N/A")}\nStripe session: ${session.id}`,
                   });
+                  // Customer receipt email (non-blocking - never breaks the webhook).
+                  {
+                    const client = await getClient(invoice.clientId);
+                    const receiptTo = client?.billingEmail ?? client?.contactEmail;
+                    if (receiptTo) {
+                      sendPaymentReceivedEmail({
+                        to: receiptTo,
+                        invoiceNumber: invoice.invoiceNumber,
+                        amount: session.amount_total != null
+                          ? `$${(session.amount_total / 100).toFixed(2)}`
+                          : String(invoice.total ?? ""),
+                      }).catch((err) => {
+                        console.warn(`[Stripe Webhook] payment receipt email failed for invoice ${invoiceId}:`, err);
+                      });
+                    }
+                  }
                 }
               }
             } catch (err) {

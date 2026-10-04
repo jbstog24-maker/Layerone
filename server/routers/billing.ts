@@ -7,6 +7,8 @@ import {
   logActivity, updateInvoice,
 } from "../db";
 import { protectedProcedure, router } from "../_core/trpc";
+import { ENV } from "../_core/env";
+import { sendInvoiceSentEmail } from "../email";
 
 const isAdmin = (role: string) => role === "admin";
 const canRead = (role: string, userClientId: number | null | undefined, targetClientId: number) => {
@@ -81,10 +83,34 @@ export const billingRouter = router({
     .mutation(async ({ ctx, input }) => {
       if (!isAdmin(ctx.user.role)) throw new TRPCError({ code: "FORBIDDEN" });
       const { id, ...data } = input;
+      // Capture prior status to detect draft-to-sent transitions.
+      const before = data.status ? await getInvoice(id) : null;
       await updateInvoice(id, {
         ...data,
         dueDate: data.dueDate ? new Date(data.dueDate) : undefined,
       } as any);
+      // First time an invoice goes out: notify the customer (non-blocking).
+      if (data.status === "sent" && before && before.status !== "sent") {
+        const invoice = await getInvoice(id);
+        if (invoice) {
+          const client = await getClient(invoice.clientId);
+          const to = client?.billingEmail ?? client?.contactEmail;
+          if (to) {
+            const portalBase = (ENV.portalUrl ?? "https://www.layeronestaging.com").replace(/\/+$/, "");
+            sendInvoiceSentEmail({
+              to,
+              invoiceNumber: invoice.invoiceNumber,
+              amount: `$${parseFloat(String(invoice.total ?? "0")).toFixed(2)}`,
+              dueDate: invoice.dueDate
+                ? new Date(invoice.dueDate).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })
+                : "upon receipt",
+              portalUrl: portalBase,
+            }).catch((err) => {
+              console.warn(`[Billing] invoice-sent email failed for invoice ${id}:`, err);
+            });
+          }
+        }
+      }
       return { success: true };
     }),
 

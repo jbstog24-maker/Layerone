@@ -154,6 +154,25 @@ export const msaRouter = router({
         console.warn("[MSA] onboarding handoff check failed:", err);
       }
 
+      // Confirmation email to the signer (non-blocking).
+      {
+        const [inquiry] = await db
+          .select({ email: packageInquiries.email, name: packageInquiries.name })
+          .from(packageInquiries)
+          .where(eq(packageInquiries.id, doc.inquiryId))
+          .limit(1);
+        if (inquiry?.email) {
+          const { sendDocumentSignedEmail } = await import("../email");
+          sendDocumentSignedEmail({
+            to: inquiry.email,
+            signerName: input.name.trim() || inquiry.name || "there",
+            documentType: "Master Services Agreement",
+          }).catch((err) => {
+            console.warn(`[MSA] signed confirmation email failed for doc ${doc.id}:`, err);
+          });
+        }
+      }
+
       return { success: true };
     }),
 });

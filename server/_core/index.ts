@@ -17,6 +17,7 @@ import { registerScheduledCallRoutes } from "../scheduledCalls";
 import { registerCallLogRoutes } from "../callLog";
 import { registerVoiceRoutes } from "../voice";
 import { registerTrainingGuideRoutes } from "../trainingGuide";
+import { registerAutomationRoutes } from "../automation";
 import {
   handleMonthlyInvoices,
   handleDripAutoSend,
@@ -108,6 +109,9 @@ async function startServer() {
   registerVoiceRoutes(app);
   // Sadie training guide email (token-authenticated)
   registerTrainingGuideRoutes(app);
+  // Daily customer-notification automation: invoice overdue, doc expiry,
+  // quote follow-ups, onboarding stalls (token-authenticated)
+  registerAutomationRoutes(app);
   // tRPC API
   app.use(
     "/api/trpc",
