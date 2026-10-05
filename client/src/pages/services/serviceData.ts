@@ -19,6 +19,11 @@ export interface ServicePageData {
   processNote: string;
   audiences: ServiceIncluded[];
   faqs: ServiceFaq[];
+  /** Optional custom CTA (defaults to the standard quote-request CTA). */
+  ctaHeading?: string;
+  ctaBody?: string;
+  ctaLabel?: string;
+  ctaHref?: string;
 }
 
 export const SERVICE_PAGES: ServicePageData[] = [
@@ -538,3 +543,53 @@ SERVICE_PAGES.push(
 export function getServicePage(slug: string): ServicePageData | undefined {
   return SERVICE_PAGES.find((p) => p.slug === slug);
 }
+
+// ── Chunk 4: zero-touch enrollment ──
+SERVICE_PAGES.push(
+  {
+    slug: "zero-touch-enrollment",
+    title: "Zero-Touch Enrollment Services | Layer One Staging",
+    h1: "Zero-Touch Enrollment",
+    metaDescription:
+      "Zero-touch enrollment from Layer One Staging: Windows Autopilot and Apple Business Manager enrollment in staging, so devices arrive ready for users with no tech touch.",
+    intro: [
+      "The most expensive part of a device rollout is the part nobody budgets for: a technician touching every single device. Zero-touch enrollment eliminates it. Layer One Staging enrolls your devices into Windows Autopilot or Apple Business Manager during staging, so when the end user powers on, they sign in and everything configures itself - no desk-side visit, no imaging bench, no hands on the device after it leaves our dock.",
+      "We handle the full enrollment workflow: hardware hash capture and Intune registration for Windows devices, Apple Business Manager assignment verification for Macs and iPads, enrollment profile assignment, and a boot verification before reseal. Your deployment goes from 'ship and hope' to 'ship and done.'",
+    ],
+    included: [
+      { title: "Windows Autopilot registration", desc: "Hardware hashes captured in staging and registered to your Intune tenant with the correct deployment profile assigned." },
+      { title: "Apple Business Manager verification", desc: "Serials confirmed in your ABM with the right MDM server assigned; enrollment screen verified on boot." },
+      { title: "Enrollment profile assignment", desc: "Devices matched to your Autopilot or ABM enrollment profiles per your device matrix." },
+      { title: "Boot verification", desc: "Sample devices booted to confirm they land on the enrollment experience - not a bare desktop." },
+      { title: "Per-client runbook", desc: "Your tenant, profiles, and device matrix documented once and reused for every project." },
+      { title: "Reseal & ship", desc: "Devices resealed after enrollment and shipped direct to users or sites." },
+    ],
+    processTitle: "Enrollment in the staging flow",
+    processNote:
+      "Zero-touch enrollment slots into our standard staging workflow: devices are received, inventoried, and asset-tagged as usual, then move to the enrollment bench where hashes are captured and profiles assigned. After a verification boot, they're resealed, kitted if needed, and shipped. The whole process is documented per device in your portal.",
+    audiences: [
+      { title: "MSPs", desc: "Ship devices straight to end users - no tech dispatch for provisioning." },
+      { title: "IT teams", desc: "New-hire and refresh devices that configure themselves on first boot." },
+      { title: "Rollout managers", desc: "Hundreds of devices enrolled identically without scaling bench labor." },
+      { title: "Apple fleets", desc: "Macs and iPads verified against your ABM before they ship." },
+    ],
+    faqs: [
+      {
+        q: "What do you need from us to enroll devices?",
+        a: "Delegated access to your Intune tenant (via a standard partner admin relationship) or your Apple Business Manager, plus your enrollment profiles and device matrix. We document it all in a per-client runbook on the first project.",
+      },
+      {
+        q: "What if our devices were not purchased through Apple or an authorized reseller?",
+        a: "Windows Autopilot works regardless of purchase channel since we capture hardware hashes in staging. For Apple devices outside your ABM, we can add them manually with Apple Configurator - note this carries a 30-day provisional period.",
+      },
+      {
+        q: "How is this priced?",
+        a: "Per device, on top of staging - quoted by volume. The math usually works out to far less than a single desk-side provisioning visit.",
+      },
+    ],
+    ctaHeading: "Ready to stop touching every device?",
+    ctaBody: "Tell us which platforms and tenants to enroll into. The setup form takes about five minutes - we'll handle the rest.",
+    ctaLabel: "Start Zero-Touch Enrollment",
+    ctaHref: "/enrollment",
+  },
+);

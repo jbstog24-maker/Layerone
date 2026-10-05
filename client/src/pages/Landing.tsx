@@ -9,6 +9,7 @@ import {
   Thermometer, Video, MapPin, Layers,
   Tags, ClipboardCheck, Send, Network, Users, Store,
   Server, Repeat, Phone, Facebook, Linkedin, ChevronDown,
+  Smartphone, Sparkles,
 } from "lucide-react";
 import { ScheduleCallDialog } from "@/components/ScheduleCallDialog";
 
@@ -249,6 +250,13 @@ function Services() {
       desc: "Firmware updates and baseline device configuration completed to your spec sheet before anything ships.",
     },
     {
+      icon: Smartphone,
+      title: "Zero-Touch Enrollment",
+      desc: "Windows Autopilot and Apple Business Manager enrollment in staging. Devices arrive ready for users - no tech touch needed.",
+      badge: "NEW",
+      href: "/services/zero-touch-enrollment",
+    },
+    {
       icon: ClipboardCheck,
       title: "QA Verification",
       desc: "Deployment-readiness verification on every device - power-on checks, config review, and a signed QA checklist.",
@@ -298,16 +306,49 @@ function Services() {
             Every capability your rollout needs between procurement and installation - run by our warehouse team with full accountability and portal visibility.
           </p>
         </div>
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {services.map(s => (
-            <div key={s.title} className="rounded-2xl border border-white/10 bg-white/5 p-5 hover:border-[#0A84FF]/40 hover:bg-white/[0.07] transition-all group">
-              <div className="w-10 h-10 rounded-xl bg-[#0A84FF]/10 border border-[#0A84FF]/25 flex items-center justify-center mb-4">
-                <s.icon className="w-5 h-5 text-[#0A84FF]" />
-              </div>
-              <h3 className="text-base font-bold text-white mb-2">{s.title}</h3>
-              <p className="text-sm text-slate-400 leading-relaxed">{s.desc}</p>
+        {/* Featured: Zero-Touch Enrollment spotlight */}
+        <a
+          href="/services/zero-touch-enrollment"
+          className="block mb-6 rounded-2xl border border-[#0A84FF]/40 bg-gradient-to-r from-[#0A84FF]/15 via-[#0A84FF]/5 to-transparent p-6 hover:border-[#0A84FF]/70 transition-all group"
+        >
+          <div className="flex flex-col md:flex-row md:items-center gap-4">
+            <div className="w-12 h-12 rounded-xl bg-[#0A84FF]/20 border border-[#0A84FF]/40 flex items-center justify-center shrink-0">
+              <Sparkles className="w-6 h-6 text-[#0A84FF]" />
             </div>
-          ))}
+            <div className="flex-1">
+              <div className="flex items-center gap-2 mb-1">
+                <span className="text-[10px] font-bold tracking-widest uppercase px-2 py-0.5 rounded-full bg-[#0A84FF] text-[#06111f]">New</span>
+                <h3 className="text-xl font-bold text-white">Zero-Touch Enrollment</h3>
+              </div>
+              <p className="text-slate-300 text-sm leading-relaxed max-w-2xl">
+                Windows Autopilot and Apple Business Manager enrollment done in staging. Devices ship ready for users to sign in - no technician ever touches them. <span className="text-[#0A84FF] font-semibold">Learn more <ArrowRight className="inline w-4 h-4" /></span>
+              </p>
+            </div>
+          </div>
+        </a>
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {services.map(s => {
+            const CardInner = (
+              <>
+                <div className="w-10 h-10 rounded-xl bg-[#0A84FF]/10 border border-[#0A84FF]/25 flex items-center justify-center mb-4">
+                  <s.icon className="w-5 h-5 text-[#0A84FF]" />
+                </div>
+                <div className="flex items-center gap-2 mb-2">
+                  <h3 className="text-base font-bold text-white">{s.title}</h3>
+                  {(s as any).badge && (
+                    <span className="text-[10px] font-bold tracking-widest uppercase px-1.5 py-0.5 rounded-full bg-[#0A84FF] text-[#06111f]">{(s as any).badge}</span>
+                  )}
+                </div>
+                <p className="text-sm text-slate-400 leading-relaxed">{s.desc}</p>
+              </>
+            );
+            const cardClass = "rounded-2xl border border-white/10 bg-white/5 p-5 hover:border-[#0A84FF]/40 hover:bg-white/[0.07] transition-all group";
+            return (s as any).href ? (
+              <a key={s.title} href={(s as any).href} className={cardClass}>{CardInner}</a>
+            ) : (
+              <div key={s.title} className={cardClass}>{CardInner}</div>
+            );
+          })}
         </div>
       </div>
     </section>

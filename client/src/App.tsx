@@ -48,6 +48,7 @@ import Locations from "./pages/Locations";
 import OnboardingTour from "./components/OnboardingTour";
 import { PalletDetail } from "./pages/Pallets";
 import GetStarted from "./pages/GetStarted";
+import Enrollment from "./pages/Enrollment";
 import ServicePage from "./pages/services/ServicePage";
 import ServiceIndex from "./pages/services/ServiceIndex";
 import FaqPage from "./pages/FaqPage";
@@ -99,6 +100,7 @@ function Router() {
       <Route path="/about" component={About} />
       <Route path="/team" component={Team} />
       <Route path="/get-started" component={GetStarted} />
+      <Route path="/enrollment" component={Enrollment} />
       <Route path="/login" component={Login} />
       <Route path="/register" component={Register} />
       <Route path="/set-password" component={SetPassword} />

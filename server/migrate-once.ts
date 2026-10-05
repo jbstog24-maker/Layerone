@@ -403,6 +403,17 @@ export async function runOnceMigration(): Promise<void> {
     // 2026-10-01: followupEmailSent on call_logs (post-call quote follow-up
     // idempotency) and callLogId on package_inquiries (link quote requests to
     // the Alex call they came from).
+
+    // 2026-10-05: enrollmentDetails on package_inquiries (zero-touch enrollment
+    // intake stores platform/tenant/device-matrix answers as JSON).
+    await applyStep("add package_inquiries.enrollmentDetails", async () => {
+      if (await columnExists(db, "package_inquiries", "enrollmentDetails")) {
+        console.log("[Migration] package_inquiries.enrollmentDetails already exists - skipping");
+      } else {
+        await db.execute(sql.raw("ALTER TABLE `package_inquiries` ADD `enrollmentDetails` text NULL"));
+        console.log("[Migration] package_inquiries.enrollmentDetails added");
+      }
+    });
     await applyStep("add call_logs.followupEmailSent", async () => {
       if (await columnExists(db, "call_logs", "followupEmailSent")) {
         console.log("[Migration] call_logs.followupEmailSent already exists - skipping");

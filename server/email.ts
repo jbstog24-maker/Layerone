@@ -256,6 +256,144 @@ export async function sendWelcomeEmail(params: WelcomeEmailParams): Promise<bool
   }
 }
 
+export type EnrollmentWelcomeEmailParams = {
+  to: string;
+  name: string;
+  company: string;
+};
+
+function buildEnrollmentWelcomeHtml(params: EnrollmentWelcomeEmailParams): string {
+  const firstName = params.name.split(" ")[0] ?? params.name;
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Zero-Touch Enrollment - Next Steps</title>
+  <style>
+    body { margin: 0; padding: 0; background: #07111f; font-family: Inter, Arial, sans-serif; color: #e2e8f0; }
+    .wrapper { max-width: 600px; margin: 0 auto; padding: 32px 16px; }
+    .card { background: #0d1f35; border: 1px solid #1e3a5f; border-radius: 16px; overflow: hidden; }
+    .header { background: linear-gradient(135deg, #0d1f35 0%, #07111f 100%); border-bottom: 1px solid #1e3a5f; padding: 32px; text-align: center; }
+    .body { padding: 32px; }
+    h1 { font-size: 22px; font-weight: 700; color: #ffffff; margin: 0 0 8px; }
+    p { font-size: 15px; line-height: 1.6; color: #94a3b8; margin: 0 0 16px; }
+    .highlight { color: #39a7ff; font-weight: 600; }
+    .steps { margin: 24px 0; }
+    .step { display: flex; gap: 16px; margin-bottom: 20px; align-items: flex-start; }
+    .step-num { background: linear-gradient(135deg, #39a7ff, #6ee7b7); color: #07111f; font-weight: 800; font-size: 13px; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; min-width: 28px; }
+    .step-content { flex: 1; }
+    .step-title { font-size: 14px; font-weight: 700; color: #ffffff; margin: 0 0 4px; }
+    .step-desc { font-size: 13px; color: #64748b; margin: 0; line-height: 1.5; }
+    .contact-box { background: #07111f; border: 1px solid #1e3a5f; border-radius: 10px; padding: 16px 20px; margin: 20px 0; }
+    .contact-title { font-size: 13px; font-weight: 700; color: #ffffff; margin: 0 0 8px; text-transform: uppercase; letter-spacing: 1px; }
+    .contact-row { font-size: 13px; color: #94a3b8; margin: 4px 0; }
+    .contact-row a { color: #39a7ff; text-decoration: none; }
+    .footer { padding: 20px 32px; border-top: 1px solid #1e3a5f; text-align: center; }
+    .footer p { font-size: 12px; color: #475569; margin: 0; }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <div class="card">
+      <div class="header">
+        ${LAYER_ONE_LOGO_SVG}
+      </div>
+      <div class="body">
+        <h1>You're on the list, ${firstName}.</h1>
+        <p>
+          We've received your zero-touch enrollment request for <span class="highlight">${params.company}</span>.
+          Here's what happens next - most of it takes you under ten minutes.
+        </p>
+        <div class="steps">
+          <div class="step">
+            <div class="step-num">1</div>
+            <div class="step-content">
+              <p class="step-title">We review your enrollment details</p>
+              <p class="step-desc">A member of our team reviews your platforms, tenant info, and device matrix within 1 business day.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">2</div>
+            <div class="step-content">
+              <p class="step-title">Sign the one-page tenant access agreement</p>
+              <p class="step-desc">We'll send a short agreement granting us limited enrollment-only access to your Intune tenant or Apple Business Manager. No broad admin rights, and you can revoke it anytime.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">3</div>
+            <div class="step-content">
+              <p class="step-title">Grant delegated access</p>
+              <p class="step-desc">For Windows: accept our GDAP partner invitation or add us as an enrollment-only admin. For Apple: add our Apple ID to your ABM portal with device management rights.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">4</div>
+            <div class="step-content">
+              <p class="step-title">Ship devices, we handle the rest</p>
+              <p class="step-desc">Send devices to our DFW facility. We capture hardware hashes, register them, assign your enrollment profiles, verify, reseal, and ship. Every device tracked in your portal.</p>
+            </div>
+          </div>
+        </div>
+        <p>
+          Questions before then? Reply to this email or call us at <span class="highlight">${ENV.supportPhone}</span>.
+        </p>
+        <div class="contact-box">
+          <p class="contact-title">Need Help?</p>
+          <p class="contact-row">Our team is here to answer any questions about enrollment setup.</p>
+          <p class="contact-row">Email: <a href="mailto:${ENV.supportEmail}">${ENV.supportEmail}</a></p>
+          <p class="contact-row">Phone: ${ENV.supportPhone}</p>
+        </div>
+        <p style="font-size:13px;color:#475569;margin-top:24px;">
+          This email was sent because you submitted a zero-touch enrollment request on the Layer One Staging website. If you did not submit this request, please disregard this email.
+        </p>
+      </div>
+      <div class="footer">
+        <p>Copyright ${new Date().getFullYear()} Layer One Staging. All rights reserved.</p>
+        <p style="margin-top:4px;">Layer One Staging Solutions Portal - Warehouse &amp; Device Staging Management</p>
+      </div>
+    </div>
+  </div>
+</body>
+</html>`;
+}
+
+/**
+ * Sends a branded welcome / next-steps email to an MSP who just submitted a
+ * zero-touch enrollment intake. Returns true on success, false on failure
+ * (non-throwing).
+ */
+export async function sendEnrollmentWelcomeEmail(params: EnrollmentWelcomeEmailParams): Promise<boolean> {
+  if (!ENV.resendApiKey || !ENV.resendFromEmail) {
+    console.warn("[Email] RESEND_API_KEY or RESEND_FROM_EMAIL not configured - skipping enrollment welcome email");
+    return false;
+  }
+
+  try {
+    const resend = getResend();
+
+    const { error } = await sendHtmlEmail(resend, {
+      from: ENV.resendFromEmail,
+      cc: INFO_CC,
+      to: params.to,
+      subject: `Zero-Touch Enrollment - Next Steps for ${params.company}`,
+      html: buildEnrollmentWelcomeHtml(params),
+    });
+
+    if (error) {
+      console.warn("[Email] Resend error:", error);
+      return false;
+    }
+
+    console.log(`[Email] Enrollment welcome email sent to ${params.to}`);
+    return true;
+  } catch (err) {
+    console.warn("[Email] Failed to send enrollment welcome email:", err);
+    return false;
+  }
+}
+
 // ─── Inquiry Owner Notification Email ─────────────────────────────────────────
 // Sent to the Layer One owner inbox when a prospect submits a package inquiry.
 // (notifyOwner targets the Manus platform notification service, which is not

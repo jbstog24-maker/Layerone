@@ -2,7 +2,7 @@ import { z } from "zod";
 import { publicProcedure, protectedProcedure, router } from "../_core/trpc";
 import { notifyOwner } from "../_core/notification";
 import { ENV } from "../_core/env";
-import { sendWelcomeEmail, sendQuoteEmail, sendInquiryOwnerEmail } from "../email";
+import { sendWelcomeEmail, sendQuoteEmail, sendInquiryOwnerEmail, sendEnrollmentWelcomeEmail } from "../email";
 import {
   getDb,
   listInquiries,
@@ -54,9 +54,20 @@ export const inquiryRouter = router({
       company: z.string().min(1).max(200),
       email: z.string().email().max(320),
       phone: z.string().min(7, "Please enter a valid phone number.").max(30),
-      // Quote path: "project" (rollout scoping) or "pallet" (per-pallet pricing).
+      // Quote path: "project" (rollout scoping), "pallet" (per-pallet pricing),
+      // or "enrollment" (zero-touch enrollment intake).
       // Optional for backwards compatibility (PackageDetail posts a fixed tier).
-      quoteType: z.enum(["project", "pallet"]).optional(),
+      quoteType: z.enum(["project", "pallet", "enrollment"]).optional(),
+      // Zero-touch enrollment intake fields (quoteType = "enrollment")
+      enrollmentPlatforms: z.array(z.enum(["windows", "apple"])).optional(),
+      intuneTenant: z.string().max(200).optional(),
+      gdapStatus: z.string().max(50).optional(),
+      autopilotProfiles: z.string().max(500).optional(),
+      abmOrgId: z.string().max(100).optional(),
+      mdmServer: z.string().max(200).optional(),
+      enrollmentDeviceTypes: z.string().max(500).optional(),
+      enrollmentVolume: z.string().max(50).optional(),
+      enrollmentTimeline: z.string().max(100).optional(),
       tier: z.enum(["basic", "standard", "professional", "enterprise", "custom"]).optional(),
       deviceVolume: z.string().max(30).optional(),
       deviceCount: z.number().int().min(0).optional(),
@@ -78,6 +89,21 @@ export const inquiryRouter = router({
       const db = await getDb();
       const quoteType = input.quoteType ?? "project";
       const tier = input.tier ?? "custom";
+      const isEnrollment = quoteType === "enrollment";
+      // Build the enrollment details JSON for zero-touch enrollment intakes.
+      const enrollmentDetails = isEnrollment
+        ? JSON.stringify({
+            platforms: input.enrollmentPlatforms ?? [],
+            intuneTenant: input.intuneTenant ?? null,
+            gdapStatus: input.gdapStatus ?? null,
+            autopilotProfiles: input.autopilotProfiles ?? null,
+            abmOrgId: input.abmOrgId ?? null,
+            mdmServer: input.mdmServer ?? null,
+            deviceTypes: input.enrollmentDeviceTypes ?? null,
+            volume: input.enrollmentVolume ?? null,
+            timeline: input.enrollmentTimeline ?? null,
+          })
+        : null;
       let inquiryId: number | null = null;
       if (db) {
         const result = await db.insert(packageInquiries).values({
@@ -99,13 +125,15 @@ export const inquiryRouter = router({
           startDate: input.startDate ?? null,
           rolloutDuration: input.rolloutDuration ?? null,
           salesRepName: input.salesRepName || null,
+          enrollmentDetails,
         });
         inquiryId = (result[0] as any)?.insertId ?? null;
       }
 
       // Autonomous quoting pipeline: auto-build a draft quote for rep review.
-      // Wrapped so it can never fail the public submit.
-      if (db && inquiryId) {
+      // Wrapped so it can never fail the public submit. Skipped for
+      // zero-touch enrollment intakes (per-device pricing, not project quotes).
+      if (db && inquiryId && !isEnrollment) {
         try {
           const inquiryRow = await getInquiryById(inquiryId);
           if (inquiryRow) {
@@ -137,8 +165,35 @@ export const inquiryRouter = router({
         }
       }
 
-      const tierLabel = quoteType === "pallet" ? "Per-Pallet" : tier.charAt(0).toUpperCase() + tier.slice(1);
-      const quoteTypeLabel = quoteType === "pallet" ? "Per-Pallet Quote" : "Project Quote";
+      const tierLabel = isEnrollment
+        ? "Zero-Touch Enrollment"
+        : quoteType === "pallet"
+          ? "Per-Pallet"
+          : tier.charAt(0).toUpperCase() + tier.slice(1);
+      const quoteTypeLabel = isEnrollment
+        ? "Zero-Touch Enrollment"
+        : quoteType === "pallet"
+          ? "Per-Pallet Quote"
+          : "Project Quote";
+      const enrollmentSummary = isEnrollment && enrollmentDetails
+        ? (() => {
+            try {
+              const d = JSON.parse(enrollmentDetails);
+              const parts = [
+                d.platforms?.length ? `**Platforms:** ${d.platforms.join(", ")}` : null,
+                d.intuneTenant ? `**Intune Tenant:** ${d.intuneTenant}` : null,
+                d.gdapStatus ? `**GDAP Status:** ${d.gdapStatus}` : null,
+                d.autopilotProfiles ? `**Autopilot Profiles:** ${d.autopilotProfiles}` : null,
+                d.abmOrgId ? `**ABM Org ID:** ${d.abmOrgId}` : null,
+                d.mdmServer ? `**MDM Server:** ${d.mdmServer}` : null,
+                d.deviceTypes ? `**Device Types:** ${d.deviceTypes}` : null,
+                d.volume ? `**Volume:** ${d.volume}` : null,
+                d.timeline ? `**Timeline:** ${d.timeline}` : null,
+              ].filter(Boolean);
+              return parts.length ? parts.join("\n") : null;
+            } catch { return null; }
+          })()
+        : null;
       const content = [
         `**Name:** ${input.name}`,
         `**Company:** ${input.company}`,
@@ -157,6 +212,7 @@ export const inquiryRouter = router({
         input.salesRepName ? `**Sales Rep:** ${input.salesRepName}` : null,
         input.addons?.length ? `**Add-ons:** ${input.addons.join(", ")}` : null,
         input.message ? `**Message:** ${input.message}` : null,
+        enrollmentSummary,
       ].filter(Boolean).join("\n");
 
       await notifyOwner({
@@ -187,13 +243,22 @@ export const inquiryRouter = router({
         salesRepName: input.salesRepName || null,
       }).catch(() => {});
 
-      // Send branded welcome email to the prospect
-      await sendWelcomeEmail({
-        to: input.email,
-        name: input.name,
-        company: input.company,
-        tier,
-      }).catch(() => {});
+      // Send branded welcome email to the prospect (enrollment-specific for
+      // zero-touch enrollment intakes).
+      if (isEnrollment) {
+        await sendEnrollmentWelcomeEmail({
+          to: input.email,
+          name: input.name,
+          company: input.company,
+        }).catch(() => {});
+      } else {
+        await sendWelcomeEmail({
+          to: input.email,
+          name: input.name,
+          company: input.company,
+          tier,
+        }).catch(() => {});
+      }
 
       return { success: true };
     }),

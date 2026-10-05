@@ -108,10 +108,10 @@ export default function ServicePage() {
         ))}
         <div className="flex flex-wrap gap-4 mt-8">
           <Link
-            href="/get-started"
+            href={page.ctaHref ?? "/get-started"}
             className="inline-flex items-center gap-2 bg-[#0A84FF] hover:bg-[#0A84FF]/90 text-white font-semibold px-7 py-3.5 rounded-xl transition-colors"
           >
-            Request a Project Quote <ArrowRight className="w-4 h-4" />
+            {page.ctaLabel ?? "Request a Project Quote"} <ArrowRight className="w-4 h-4" />
           </Link>
           <Link
             href="/#services"
@@ -188,16 +188,17 @@ export default function ServicePage() {
       {/* CTA */}
       <section className="max-w-4xl mx-auto px-6 py-12">
         <div className="bg-[#0A84FF] rounded-3xl p-8 sm:p-10 text-center">
-          <h2 className="text-2xl sm:text-3xl font-extrabold mb-3">Planning a project that needs {page.h1.toLowerCase()}?</h2>
+          <h2 className="text-2xl sm:text-3xl font-extrabold mb-3">
+            {page.ctaHeading ?? `Planning a project that needs ${page.h1.toLowerCase()}?`}
+          </h2>
           <p className="text-white/85 mb-6 max-w-xl mx-auto">
-            Send us your equipment list, site count, and deployment schedule. We&apos;ll build a
-            staging and logistics plan around your rollout.
+            {page.ctaBody ?? "Send us your equipment list, site count, and deployment schedule. We'll build a staging and logistics plan around your rollout."}
           </p>
           <Link
-            href="/get-started"
+            href={page.ctaHref ?? "/get-started"}
             className="inline-flex items-center gap-2 bg-white text-[#0A84FF] font-bold px-8 py-4 rounded-xl hover:bg-white/90 transition-colors"
           >
-            Request Your Rollout Quote <ArrowRight className="w-4 h-4" />
+            {page.ctaLabel ?? "Request Your Rollout Quote"} <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
       </section>

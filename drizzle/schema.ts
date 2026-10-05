@@ -594,6 +594,9 @@ export const packageInquiries = mysqlTable("package_inquiries", {
   // Timestamp when the customer how-to guide welcome email was sent
   // (fired automatically on the paid+signed onboarding handoff).
   howToGuideSentAt: timestamp("howToGuideSentAt"),
+  // Zero-touch enrollment intake details (JSON): platforms, tenant/ABM info,
+  // device matrix, volume, timeline. Set when quoteType = "enrollment".
+  enrollmentDetails: text("enrollmentDetails"),
 });
 
 export type PackageInquiry = typeof packageInquiries.$inferSelect;
