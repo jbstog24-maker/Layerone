@@ -77,4 +77,23 @@ export const BLOG_POSTS: BlogPost[] = [
       "Asset tagging is not glamorous work, but it is the difference between an operation that can answer questions and one that cannot. When a client asks for a full asset report, or an auditor shows up, or a warranty claim needs documentation, the teams with a real chain of custody pull it up in minutes. Everyone else starts digging through emails.",
     ],
   },
+  {
+    slug: "qa-before-ship-catching-doa-gear-before-it-leaves",
+    title: "QA Before Ship: Catching DOA Gear Before It Leaves the Warehouse",
+    date: "2026-10-05",
+    excerpt: "Dead gear discovered on install day turns a scheduled deployment into an expensive troubleshooting trip. A bench check before shipping catches it when fixing it is still cheap.",
+    category: "Staging Best Practices",
+    readTime: 4,
+    content: [
+      "Every field tech has lived this one. You drive out to the site, sometimes an hour or more, rack the switch, plug it in, and nothing happens. No power light, no fan, dead. You try the second one in the box. Also dead. Now you are standing in a client's server room holding equipment that never should have left the warehouse, and the whole day's plan just changed.",
+      "That tech is now doing RMA work instead of deployment work. Somebody has to document the failure, open a support case, arrange a replacement, and reschedule the install. The client, who was told this was a routine upgrade, watches the schedule slip over hardware that was broken before the tech ever touched it. Trust takes a hit, and the second trip eats whatever margin was left in the project.",
+      "## Dead gear is a receiving problem, not a field problem",
+      "Hardware fails out of the box. It happens with every vendor: power supplies that never wake up, boards that boot-loop, units that took a hit in transit. The failure rate is small, but on a 50-site rollout, small percentages become real numbers. If gear ships direct to site with no bench check in between, that DOA device is guaranteed to be discovered at the worst possible moment, in front of the client, with a tech who has no spare on the shelf.",
+      "A warehouse bench catches this before it matters. Every device gets powered on, confirmed to boot, checked for obvious faults, and given a basic configuration sanity pass before it goes into a site kit. A unit that fails at the bench never leaves the building. The RMA starts from a warehouse with a returns process, not from a job site with a waiting client.",
+      "## What a bench check actually covers",
+      "This is not a full burn-in lab, and it does not need to be. Power on and confirm the device boots cleanly. Check that all ports respond. Verify the firmware version matches what the project requires, and flag anything outdated before it goes out. Do a visual pass for shipping damage: bent ears, cracked bezels, loose components. Capture the serial numbers and MAC addresses while the device is on the bench, so the asset record is built at the same time.",
+      "Twenty minutes on a bench versus half a day lost on site. That is the real trade. The bench check costs almost nothing when it is part of a staging workflow, and it turns install day into what it is supposed to be: a tech walking in with verified gear and walking out with a completed job.",
+      "The habit is simple. Nothing ships to a site without a power-on check first. Make that the rule and DOA gear becomes a warehouse inconvenience instead of a client-facing problem.",
+    ],
+  },
 ];
