@@ -9,7 +9,7 @@ import {
   Thermometer, Video, MapPin,
   Tags, ClipboardCheck, Send, Network, Users, Store,
   Server, Phone, Facebook, Linkedin, ChevronDown,
-  Smartphone, Sparkles, GraduationCap, Tent, Menu, X,
+  Smartphone, Sparkles, GraduationCap, Tent, Menu, X, Fence,
 } from "lucide-react";
 import { ScheduleCallDialog } from "@/components/ScheduleCallDialog";
 
@@ -193,8 +193,7 @@ function Hero() {
       </div>
 
       <div className="relative max-w-6xl mx-auto px-6">
-        <div className="grid md:grid-cols-2 gap-12 items-center">
-          {/* Left */}
+        <div className="max-w-3xl mx-auto text-center">
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/15 bg-white/5 text-slate-400 text-xs mb-6">
               <span className="w-2 h-2 rounded-full bg-[#0A84FF] shadow-[0_0_0_5px_rgba(10,132,255,0.15)]" />
@@ -205,10 +204,10 @@ function Hero() {
               <br />
               <span className="text-[#0A84FF]">&amp; Deployment-Ready.</span>
             </h1>
-            <p className="text-slate-400 text-lg leading-relaxed mb-8 max-w-lg">
+            <p className="text-slate-400 text-lg leading-relaxed mb-8 max-w-2xl mx-auto">
               Ship your equipment to us. We receive, inventory, configure, label, QA, kit by site or event, and ship to your locations or show venues - whether it's an IT rollout or a tradeshow.
             </p>
-            <div className="flex flex-wrap gap-3 mb-8">
+            <div className="flex flex-wrap justify-center gap-3 mb-8">
               {isAuthenticated ? (
                 <>
                   <a
@@ -250,38 +249,12 @@ function Hero() {
               )}
             </div>
             <ScheduleCallDialog open={scheduleOpen} onOpenChange={setScheduleOpen} />
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap justify-center gap-2">
               {["Received & inventoried", "Configured & labeled", "Kitted by site, shipped nationwide"].map(b => (
                 <span key={b} className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-white/10 bg-white/5 text-slate-400 text-xs">
                   <CheckCircle className="w-3.5 h-3.5 text-[#0A84FF]" />{b}
                 </span>
               ))}
-            </div>
-          </div>
-
-          {/* Right - facility photo card */}
-          <div className="relative hidden md:block">
-            <div className="relative rounded-2xl overflow-hidden border border-white/10 shadow-[0_24px_70px_rgba(0,0,0,0.5)]">
-              <img
-                src="/images/facility-corridor.jpg"
-                alt="Layer One Staging secure warehouse corridor with organized client equipment"
-                className="w-full h-[420px] object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#0B1320]/95 via-[#0B1320]/25 to-transparent" />
-              <div className="absolute bottom-0 left-0 right-0 p-6">
-                <p className="text-sm font-bold text-white mb-1">Carrollton, TX Staging Facility</p>
-                <p className="text-xs text-slate-300 leading-relaxed">
-                  Secure, camera-monitored units with dock access - your equipment received, organized, and staged under one roof.
-                </p>
-              </div>
-            </div>
-            {/* Floating badge */}
-            <div className="absolute -bottom-4 -left-4 rounded-xl border border-[#0A84FF]/30 bg-[#0B1320]/95 backdrop-blur px-4 py-3 shadow-lg">
-              <div className="flex items-center gap-2">
-                <Shield className="w-4 h-4 text-[#0A84FF]" />
-                <span className="text-xs font-semibold text-white">Chain-of-custody tracking</span>
-              </div>
-              <p className="text-xs text-slate-400 mt-0.5">Every item logged from receipt to dispatch</p>
             </div>
           </div>
         </div>
@@ -843,14 +816,14 @@ function About() {
           </div>
           <div className="relative rounded-2xl overflow-hidden border border-white/10 shadow-[0_12px_40px_rgba(0,0,0,0.4)]">
             <img
-              src="/images/facility-dock.jpg"
-              alt="Layer One Staging loading dock for palletized freight deliveries"
-              className="w-full h-80 object-cover"
+              src="/images/james-stogner.jpg"
+              alt="James Stogner, founder of Layer One Staging"
+              className="w-full h-80 object-cover object-top"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-[#0B1320]/90 via-[#0B1320]/20 to-transparent" />
             <div className="absolute bottom-0 left-0 right-0 p-5">
-              <h3 className="text-base font-bold text-white mb-1">Dock Access for Deliveries</h3>
-              <p className="text-xs text-slate-300 leading-relaxed">Roll-up dock doors accept palletized freight from any carrier - FedEx, UPS, LTL, and white-glove.</p>
+              <h3 className="text-base font-bold text-white mb-1">James Stogner, Founder</h3>
+              <p className="text-xs text-slate-300 leading-relaxed">U.S. Air Force veteran with 20+ years in the IT field, running the warehouse behind your rollout.</p>
             </div>
           </div>
         </div>
@@ -884,18 +857,23 @@ function FacilityGallery() {
   return (
     <section id="facility" className="py-16 border-t border-white/10">
       <div className="max-w-6xl mx-auto px-6">
-        <div className="mb-10">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/15 bg-white/5 text-slate-400 text-xs mb-6">
-            <MapPin className="w-3.5 h-3.5 text-[#0A84FF]" /> Dallas–Fort Worth, TX
-          </div>
-          <h2 className="text-4xl font-black tracking-[-1.5px] text-white mb-3">
-            Our facility, built for<br />
-            <span className="text-[#0A84FF]">professional-grade staging.</span>
-          </h2>
-          <p className="text-slate-400 text-lg max-w-2xl">
-            Purpose-built for receiving, staging, and shipping technology equipment - every device tracked from dock to dispatch.
-          </p>
-        </div>
+        <div className="rounded-3xl border border-[#0A84FF]/25 bg-gradient-to-br from-[#0A84FF]/[0.08] via-white/[0.02] to-transparent p-8 md:p-12 shadow-[0_24px_70px_rgba(0,0,0,0.35)] relative overflow-hidden">
+          {/* Accent glow */}
+          <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-[500px] h-[200px] rounded-full bg-[#0A84FF]/10 blur-[80px] pointer-events-none" />
+          <div className="relative">
+            <div className="mb-10">
+              <span className="inline-block text-xs font-semibold tracking-widest uppercase text-[#0A84FF] mb-3">Secure DFW Facility</span>
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/15 bg-white/5 text-slate-400 text-xs mb-6 ml-3">
+                <MapPin className="w-3.5 h-3.5 text-[#0A84FF]" /> Dallas–Fort Worth, TX
+              </div>
+              <h2 className="text-4xl font-black tracking-[-1.5px] text-white mb-3">
+                Our facility, built for<br />
+                <span className="text-[#0A84FF]">professional-grade staging.</span>
+              </h2>
+              <p className="text-slate-400 text-lg max-w-2xl">
+                Purpose-built for receiving, staging, and shipping technology equipment - every device tracked from dock to dispatch.
+              </p>
+            </div>
 
         {/* Feature badges row */}
         <div className="flex flex-wrap gap-3 mb-10">
@@ -905,6 +883,7 @@ function FacilityGallery() {
             { icon: Truck, label: "Dock Access" },
             { icon: Shield, label: "Keypad-Secured Units" },
             { icon: Lock, label: "Access-Controlled Entry" },
+            { icon: Fence, label: "Gated Facility" },
           ].map(b => (
             <div key={b.label} className="flex items-center gap-2 px-3.5 py-2 rounded-full border border-white/10 bg-white/5 text-slate-400 text-xs font-medium">
               <b.icon className="w-3.5 h-3.5 text-[#0A84FF]" />
@@ -944,6 +923,8 @@ function FacilityGallery() {
               </div>
             </div>
           ))}
+        </div>
+          </div>
         </div>
       </div>
     </section>
