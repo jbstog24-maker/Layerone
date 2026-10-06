@@ -198,15 +198,15 @@ function Hero() {
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/15 bg-white/5 text-slate-400 text-xs mb-6">
               <span className="w-2 h-2 rounded-full bg-[#0A84FF] shadow-[0_0_0_5px_rgba(10,132,255,0.15)]" />
-              IT Staging &amp; Rollout Logistics - Dallas–Fort Worth, TX
+              IT Staging, Event &amp; Rollout Logistics - Dallas–Fort Worth, TX
             </div>
             <h1 className="text-5xl md:text-6xl font-black leading-[1.02] tracking-[-2px] mb-6 text-white">
-              IT Equipment Staged, Kitted
+              Equipment Staged, Kitted
               <br />
               <span className="text-[#0A84FF]">&amp; Deployment-Ready.</span>
             </h1>
             <p className="text-slate-400 text-lg leading-relaxed mb-8 max-w-lg">
-              Ship your equipment to us. We receive, inventory, configure, label, QA, kit by location, and forward it to the field - ready for installation.
+              Ship your equipment to us. We receive, inventory, configure, label, QA, kit by site or event, and ship to your locations or show venues - whether it's an IT rollout or a tradeshow.
             </p>
             <div className="flex flex-wrap gap-3 mb-8">
               {isAuthenticated ? (
