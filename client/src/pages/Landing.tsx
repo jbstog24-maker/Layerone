@@ -79,6 +79,14 @@ export function NavBar() {
           <a href="/#contact" className="hover:text-white transition-colors">Contact</a>
         </nav>
         <div className="flex items-center gap-3">
+          <a
+            href="tel:+14695374378"
+            aria-label="Call Layer One Staging at (469) 537-4378"
+            className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold border border-white/20 text-white hover:border-[#0A84FF] hover:text-[#0A84FF] transition-colors"
+          >
+            <Phone className="w-4 h-4" />
+            <span className="hidden sm:inline">(469) 537-4378</span>
+          </a>
           {isAuthenticated ? (
             <button
               onClick={() => setLocation("/dashboard")}
