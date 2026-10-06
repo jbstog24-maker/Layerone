@@ -6,9 +6,9 @@ import {
   Shield, Truck, Package, Warehouse, Box,
   ArrowRight, CheckCircle, ChevronRight, Zap, Lock,
   BarChart3, FileText, Camera, Activity,
-  Thermometer, Video, MapPin, Layers,
+  Thermometer, Video, MapPin,
   Tags, ClipboardCheck, Send, Network, Users, Store,
-  Server, Repeat, Phone, Facebook, Linkedin, ChevronDown,
+  Server, Phone, Facebook, Linkedin, ChevronDown,
   Smartphone, Sparkles,
 } from "lucide-react";
 import { ScheduleCallDialog } from "@/components/ScheduleCallDialog";
@@ -225,44 +225,41 @@ function Hero() {
   );
 }
 
+function ServiceCard({ icon: Icon, title, desc, badge, href }: { icon: any; title: string; desc: string; badge?: string; href?: string }) {
+  const inner = (
+    <>
+      <div className="w-10 h-10 rounded-xl bg-[#0A84FF]/10 border border-[#0A84FF]/25 flex items-center justify-center mb-4">
+        <Icon className="w-5 h-5 text-[#0A84FF]" />
+      </div>
+      <div className="flex items-center gap-2 mb-2">
+        <h3 className="text-base font-bold text-white">{title}</h3>
+        {badge && (
+          <span className="text-[10px] font-bold tracking-widest uppercase px-1.5 py-0.5 rounded-full bg-[#0A84FF] text-[#06111f]">{badge}</span>
+        )}
+      </div>
+      <p className="text-sm text-slate-400 leading-relaxed">{desc}</p>
+    </>
+  );
+  const cardClass = "rounded-2xl border border-white/10 bg-white/5 p-5 hover:border-[#0A84FF]/40 hover:bg-white/[0.07] transition-all group";
+  return href ? (
+    <a href={href} className={cardClass}>{inner}</a>
+  ) : (
+    <div className={cardClass}>{inner}</div>
+  );
+}
+
 function Services() {
-  const services = [
+  const [showAll, setShowAll] = useState(false);
+  const topServices = [
+    {
+      icon: Package,
+      title: "Site-Specific Kitting",
+      desc: "Kits assembled per location: devices, patch cables, labels, packing lists, and install notes - ready to open and install.",
+    },
     {
       icon: Truck,
       title: "Receiving & Inventory Control",
       desc: "We accept inbound freight on your behalf - every pallet, box, and device counted, inspected, photographed, and logged. Damage is flagged immediately.",
-    },
-    {
-      icon: Warehouse,
-      title: "Warehousing as a Service",
-      desc: "Short-term or long-term warehouse space in DFW without the lease commitment. Secure, camera-monitored storage with on-demand labor, customized to your needs and operational within 14 days.",
-    },
-    {
-      icon: Warehouse,
-      title: "Secure Equipment Storage",
-      desc: "Access-controlled, camera-monitored storage. Your equipment is isolated per client and organized on industrial racking.",
-    },
-    {
-      icon: BarChart3,
-      title: "Serial Number / MAC Capture",
-      desc: "Model, serial number, and MAC address captured per device and recorded in your portal inventory.",
-    },
-    {
-      icon: Tags,
-      title: "Asset Tagging & Labeling",
-      desc: "Barcode and QR asset tags plus site labels applied to your specification - scannable from receiving to install.",
-    },
-    {
-      icon: Zap,
-      title: "Firmware & Device Configuration",
-      desc: "Firmware updates and baseline device configuration completed to your spec sheet before anything ships.",
-    },
-    {
-      icon: Smartphone,
-      title: "Zero-Touch Enrollment",
-      desc: "Windows Autopilot and Apple Business Manager enrollment in staging. Devices arrive ready for users - no tech touch needed.",
-      badge: "NEW",
-      href: "/services/zero-touch-enrollment",
     },
     {
       icon: ClipboardCheck,
@@ -270,24 +267,41 @@ function Services() {
       desc: "Deployment-readiness verification on every device - power-on checks, config review, and a signed QA checklist.",
     },
     {
+      icon: MapPin,
+      title: "Local DFW Delivery",
+      desc: "Palletized freight or loose-device delivery across the Dallas–Fort Worth metro, coordinated to your schedule.",
+    },
+    {
+      icon: Tags,
+      title: "Asset Tagging & Labeling",
+      desc: "Barcode and QR asset tags plus site labels applied to your specification - scannable from receiving to install.",
+    },
+    {
+      icon: Warehouse,
+      title: "Secure Equipment Storage",
+      desc: "Access-controlled, camera-monitored storage. Your equipment is isolated per client and organized on industrial racking.",
+    },
+  ];
+  const moreServices = [
+    {
+      icon: BarChart3,
+      title: "Serial Number / MAC Capture",
+      desc: "Model, serial number, and MAC address captured per device and recorded in your portal inventory.",
+    },
+    {
+      icon: Zap,
+      title: "Firmware & Device Configuration",
+      desc: "Firmware updates and baseline device configuration completed to your spec sheet before anything ships.",
+    },
+    {
       icon: Camera,
       title: "Photo Documentation",
       desc: "Every stage photographed - inbound condition, staging progress, outbound packing - visible in your customer portal.",
     },
     {
-      icon: Package,
-      title: "Site-Specific Kitting",
-      desc: "Kits assembled per location: devices, patch cables, labels, packing lists, and install notes - ready to open and install.",
-    },
-    {
       icon: Box,
       title: "Palletization & Shipping",
       desc: "Professional packing and palletizing with outbound dispatch to your sites nationwide, carrier-tracked.",
-    },
-    {
-      icon: MapPin,
-      title: "Local DFW Delivery",
-      desc: "Palletized freight or loose-device delivery across the Dallas–Fort Worth metro, coordinated to your schedule.",
     },
     {
       icon: Shield,
@@ -299,12 +313,25 @@ function Services() {
       title: "Dedicated Staging Support",
       desc: "Staging labor scoped to your rollout and approved by you - labeling, config, packing, and kit prep handled by our team.",
     },
+    {
+      icon: Warehouse,
+      title: "Warehousing as a Service",
+      desc: "Short-term or long-term warehouse space in DFW without the lease commitment. Secure, camera-monitored storage with on-demand labor.",
+      href: "/warehousing",
+    },
+    {
+      icon: Smartphone,
+      title: "Zero-Touch Enrollment",
+      desc: "Windows Autopilot and Apple Business Manager enrollment in staging. Devices arrive ready for users - no tech touch needed.",
+      badge: "NEW",
+      href: "/services/zero-touch-enrollment",
+    },
   ];
 
   return (
-    <section id="services" className="py-20 border-t border-white/10">
+    <section id="services" className="py-16 border-t border-white/10">
       <div className="max-w-6xl mx-auto px-6">
-        <div className="mb-12">
+        <div className="mb-10">
           <span className="inline-block text-xs font-semibold tracking-widest uppercase text-[#0A84FF] mb-3">What we do</span>
           <h2 className="text-4xl font-black tracking-[-1.5px] text-white mb-3">
             A complete staging operation,<br />
@@ -334,29 +361,20 @@ function Services() {
             </div>
           </div>
         </a>
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {services.map(s => {
-            const CardInner = (
-              <>
-                <div className="w-10 h-10 rounded-xl bg-[#0A84FF]/10 border border-[#0A84FF]/25 flex items-center justify-center mb-4">
-                  <s.icon className="w-5 h-5 text-[#0A84FF]" />
-                </div>
-                <div className="flex items-center gap-2 mb-2">
-                  <h3 className="text-base font-bold text-white">{s.title}</h3>
-                  {(s as any).badge && (
-                    <span className="text-[10px] font-bold tracking-widest uppercase px-1.5 py-0.5 rounded-full bg-[#0A84FF] text-[#06111f]">{(s as any).badge}</span>
-                  )}
-                </div>
-                <p className="text-sm text-slate-400 leading-relaxed">{s.desc}</p>
-              </>
-            );
-            const cardClass = "rounded-2xl border border-white/10 bg-white/5 p-5 hover:border-[#0A84FF]/40 hover:bg-white/[0.07] transition-all group";
-            return (s as any).href ? (
-              <a key={s.title} href={(s as any).href} className={cardClass}>{CardInner}</a>
-            ) : (
-              <div key={s.title} className={cardClass}>{CardInner}</div>
-            );
-          })}
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {(showAll ? [...topServices, ...moreServices] : topServices).map(s => (
+            <ServiceCard key={s.title} icon={s.icon} title={s.title} desc={s.desc} badge={(s as any).badge} href={(s as any).href} />
+          ))}
+        </div>
+        <div className="mt-8 text-center">
+          <button
+            type="button"
+            onClick={() => setShowAll(!showAll)}
+            className="inline-flex items-center gap-2 px-5 py-3 rounded-xl font-bold border border-white/15 bg-white/5 text-white hover:border-[#0A84FF]/50 transition-colors"
+          >
+            {showAll ? "Show fewer services" : `See all ${topServices.length + moreServices.length} services`}
+            <ChevronDown className={`w-4 h-4 transition-transform ${showAll ? "rotate-180" : ""}`} />
+          </button>
         </div>
       </div>
     </section>
@@ -371,7 +389,7 @@ function WarehousingAsAService() {
   ];
 
   return (
-    <section id="waas" className="py-20 border-t border-white/10">
+    <section id="waas" className="py-16 border-t border-white/10">
       <div className="max-w-6xl mx-auto px-6">
         <div className="mb-10">
           <span className="inline-block text-xs font-semibold tracking-widest uppercase text-[#0A84FF] mb-3">Warehousing as a Service</span>
@@ -409,13 +427,11 @@ function WhyLayerOne() {
     { title: "Fewer missing or wrong devices", desc: "Per-site kits are checked against the site list before they ship." },
     { title: "Standardized configurations", desc: "Every location gets the same baseline - no snowflake installs." },
     { title: "Documented QA", desc: "A signed readiness checklist and photos travel with every kit." },
-    { title: "Site-specific kits", desc: "Each location receives exactly what it needs - nothing more, nothing less." },
-    { title: "Centralized rollout inventory", desc: "One live inventory across all sites, visible in your portal." },
     { title: "One staging point for multi-site deployments", desc: "A single accountable partner between your vendors and your field teams." },
   ];
 
   return (
-    <section id="why-layer-one" className="py-20 border-t border-white/10 bg-[#1F2937]/30">
+    <section id="why-layer-one" className="py-16 border-t border-white/10 bg-[#1F2937]/30">
       <div className="max-w-6xl mx-auto px-6">
         <div className="grid md:grid-cols-2 gap-12 items-start">
           <div className="md:sticky md:top-24">
@@ -445,24 +461,21 @@ function WhyLayerOne() {
   );
 }
 
-function Rollouts() {
-  const useCases = [
-    { icon: Store, title: "Retail Rollouts", desc: "Identical kits for every store - POS, network, and peripherals staged to the planogram." },
-    { icon: Users, title: "Restaurant & Franchise Deployments", desc: "Repeatable site kits that make 10 locations feel like one." },
-    { icon: Network, title: "Network Refreshes", desc: "Switches and firewalls configured, labeled, and shipped per site cutover schedule." },
+function WhoWeServe() {
+  const groups = [
+    { icon: Network, title: "MSPs & IT Integrators", desc: "Offload receiving and staging so your engineers stay billable." },
+    { icon: Store, title: "Retail & Franchise Rollouts", desc: "Identical kits for every store - POS, network, and peripherals staged to plan." },
+    { icon: Zap, title: "Network Refreshes & SD-WAN", desc: "Switches and edge devices configured, labeled, and shipped per site schedule." },
     { icon: BarChart3, title: "POS Deployments", desc: "Terminals, printers, and payment hardware kitted complete with install guides." },
-    { icon: Zap, title: "Wi-Fi Upgrades", desc: "Access points pre-configured and labeled by mounting location." },
-    { icon: Repeat, title: "SD-WAN Deployments", desc: "Edge devices staged with site-specific configs, ready for zero-touch or assisted install." },
-    { icon: Box, title: "Kiosk Rollouts", desc: "Kiosks and displays assembled, tested, and packed for safe transit." },
-    { icon: Server, title: "Data Center Equipment", desc: "Rack-ready gear labeled and QA-verified for tight install windows." },
-    { icon: MapPin, title: "New Store Openings", desc: "Full technology packages delivered on opening-day timelines." },
+    { icon: Server, title: "Data Center Teams", desc: "Rack-ready gear labeled and QA-verified for tight install windows." },
+    { icon: MapPin, title: "Multi-Location Rollouts", desc: "Coordinated site-by-site preparation for national technology rollouts." },
   ];
 
   return (
-    <section id="rollouts" className="py-20 border-t border-white/10">
+    <section id="who-we-serve" className="py-16 border-t border-white/10">
       <div className="max-w-6xl mx-auto px-6">
-        <div className="text-center mb-12">
-          <span className="inline-block text-xs font-semibold tracking-widest uppercase text-[#0A84FF] mb-3">Multi-site rollouts</span>
+        <div className="text-center mb-10">
+          <span className="inline-block text-xs font-semibold tracking-widest uppercase text-[#0A84FF] mb-3">Who we serve</span>
           <h2 className="text-4xl font-black tracking-[-1.5px] text-white mb-4">
             Built for dozens, hundreds, or<br />
             <span className="text-[#0A84FF]">thousands of locations.</span>
@@ -472,13 +485,13 @@ function Rollouts() {
           </p>
         </div>
         <div className="grid md:grid-cols-3 gap-4">
-          {useCases.map(u => (
-            <div key={u.title} className="rounded-2xl border border-white/10 bg-white/5 p-6 hover:border-[#0A84FF]/40 transition-colors">
+          {groups.map(g => (
+            <div key={g.title} className="rounded-2xl border border-white/10 bg-white/5 p-6 hover:border-[#0A84FF]/40 transition-colors">
               <div className="w-10 h-10 rounded-xl bg-[#0A84FF]/10 border border-[#0A84FF]/25 flex items-center justify-center mb-4">
-                <u.icon className="w-5 h-5 text-[#0A84FF]" />
+                <g.icon className="w-5 h-5 text-[#0A84FF]" />
               </div>
-              <h3 className="text-base font-bold text-white mb-2">{u.title}</h3>
-              <p className="text-sm text-slate-400 leading-relaxed">{u.desc}</p>
+              <h3 className="text-base font-bold text-white mb-2">{g.title}</h3>
+              <p className="text-sm text-slate-400 leading-relaxed">{g.desc}</p>
             </div>
           ))}
         </div>
@@ -498,17 +511,17 @@ function Rollouts() {
 function HowItWorks() {
   const steps = [
     { n: "01", icon: Truck, title: "Receive", desc: "Inbound freight accepted on your behalf - every pallet, box, and device counted and inspected at the dock." },
-    { n: "02", icon: ClipboardCheck, title: "Inventory", desc: "Every item logged into your portal inventory with photos, quantities, and condition notes." },
-    { n: "03", icon: Zap, title: "Configure", desc: "Firmware updates and baseline device configuration completed to your spec sheet before anything ships." },
+    { n: "02", icon: ClipboardCheck, title: "Inventory", desc: "Every item logged into your portal with photos, quantities, and condition notes." },
+    { n: "03", icon: Zap, title: "Configure", desc: "Firmware updates and baseline configuration completed to your spec sheet before anything ships." },
     { n: "04", icon: Tags, title: "Asset Tag", desc: "Asset tags and labels applied; serial numbers and MAC addresses captured per device." },
-    { n: "05", icon: Shield, title: "QA", desc: "Deployment-readiness verification - power-on checks, config review, and a signed QA checklist." },
+    { n: "05", icon: Shield, title: "QA", desc: "Deployment-readiness checks - power-on tests, config review, and a signed QA checklist." },
     { n: "06", icon: Package, title: "Kit by Site", desc: "Site-specific kits assembled: devices, patch cables, labels, packing lists, and install notes per location." },
     { n: "07", icon: Camera, title: "Document", desc: "Photo documentation at every stage - inbound, staging, and outbound - visible in your portal." },
     { n: "08", icon: Send, title: "Ship / Deliver", desc: "Palletized or parcel outbound shipped nationwide with tracking - or local DFW delivery to your sites." },
   ];
 
   return (
-    <section id="how-it-works" className="py-20 border-t border-white/10">
+    <section id="how-it-works" className="py-16 border-t border-white/10">
       <div className="max-w-6xl mx-auto px-6">
         <div className="mb-10">
           <span className="inline-block text-xs font-semibold tracking-widest uppercase text-[#0A84FF] mb-3">How it works</span>
@@ -551,7 +564,7 @@ function PricingTeaser() {
   ];
 
   return (
-    <section id="packages" className="py-20 border-t border-white/10">
+    <section id="packages" className="py-16 border-t border-white/10">
       <div className="max-w-6xl mx-auto px-6">
         <div className="mb-10">
           <span className="inline-block text-xs font-semibold tracking-widest uppercase text-[#0A84FF] mb-3">Pricing</span>
@@ -593,7 +606,7 @@ function PortalSection() {
   ];
 
   return (
-    <section id="portal" className="py-20 border-t border-white/10">
+    <section id="portal" className="py-16 border-t border-white/10">
       <div className="max-w-6xl mx-auto px-6">
         <div className="grid md:grid-cols-2 gap-12 items-center">
           <div>
@@ -680,7 +693,7 @@ function DirectLine() {
     { icon: Phone, title: "Always Alex", desc: "Our AI receptionist knows your account and your history." },
   ];
   return (
-    <section id="direct-line" className="py-20 border-t border-white/10 bg-[#1F2937]/30">
+    <section id="direct-line" className="py-16 border-t border-white/10 bg-[#1F2937]/30">
       <div className="max-w-6xl mx-auto px-6">
         <div className="grid md:grid-cols-2 gap-12 items-center">
           <div>
@@ -720,45 +733,9 @@ function DirectLine() {
   );
 }
 
-function Industries() {
-  const industries = [
-    { icon: Network, title: "MSPs & Integrators", desc: "Offload receiving and staging so your engineers stay billable." },
-    { icon: Users, title: "Technology Integrators", desc: "A warehouse extension for project-based integration work." },
-    { icon: Store, title: "Retail & Franchise Deployments", desc: "Identical site kits, shipped to every location on schedule." },
-    { icon: Repeat, title: "IT Equipment Brokers", desc: "Secure intake, inventory, and forward logistics for brokered gear." },
-    { icon: Server, title: "Data Center Deployment Teams", desc: "Staged, labeled, and QA-verified equipment ready for install windows." },
-    { icon: MapPin, title: "Multi-Location Rollouts", desc: "Coordinated site-by-site preparation for national technology rollouts." },
-  ];
-
-  return (
-    <section id="industries" className="py-20 border-t border-white/10 bg-[#1F2937]/30">
-      <div className="max-w-6xl mx-auto px-6">
-        <div className="text-center mb-12">
-          <span className="inline-block text-xs font-semibold tracking-widest uppercase text-[#0A84FF] mb-3">Built for your business</span>
-          <h2 className="text-4xl font-black tracking-[-1.5px] text-white mb-3">Industries we support</h2>
-          <p className="text-slate-400 text-lg max-w-2xl mx-auto">
-            Layer One is purpose-built for the teams that move technology at scale - from single-site installs to multi-location rollouts.
-          </p>
-        </div>
-        <div className="grid md:grid-cols-3 gap-4">
-          {industries.map(ind => (
-            <div key={ind.title} className="rounded-2xl border border-white/10 bg-[#0B1320]/60 p-6 hover:border-[#0A84FF]/40 transition-colors">
-              <div className="w-10 h-10 rounded-xl bg-[#0A84FF]/10 border border-[#0A84FF]/25 flex items-center justify-center mb-4">
-                <ind.icon className="w-5 h-5 text-[#0A84FF]" />
-              </div>
-              <h3 className="text-base font-bold text-white mb-2">{ind.title}</h3>
-              <p className="text-sm text-slate-400 leading-relaxed">{ind.desc}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
 function About() {
   return (
-    <section id="about" className="py-20 border-t border-white/10">
+    <section id="about" className="py-16 border-t border-white/10">
       <div className="max-w-6xl mx-auto px-6">
         <div className="grid md:grid-cols-2 gap-12 items-center">
           <div>
@@ -832,9 +809,9 @@ const FACILITY_IMAGES = [
 
 function FacilityGallery() {
   return (
-    <section id="facility" className="py-20 border-t border-white/10">
+    <section id="facility" className="py-16 border-t border-white/10">
       <div className="max-w-6xl mx-auto px-6">
-        <div className="mb-12">
+        <div className="mb-10">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/15 bg-white/5 text-slate-400 text-xs mb-6">
             <MapPin className="w-3.5 h-3.5 text-[#0A84FF]" /> Dallas–Fort Worth, TX
           </div>
@@ -902,7 +879,7 @@ function FacilityGallery() {
 
 function FAQTeaser() {
   return (
-    <section id="faq" className="py-20 border-t border-white/10">
+    <section id="faq" className="py-16 border-t border-white/10">
       <div className="max-w-4xl mx-auto px-6 text-center">
         <span className="inline-block text-xs font-semibold tracking-widest uppercase text-[#0A84FF] mb-3">FAQ</span>
         <h2 className="text-3xl md:text-4xl font-bold mb-4 text-white">Frequently Asked Questions</h2>
@@ -922,7 +899,7 @@ function CTA() {
   const { isAuthenticated } = useAuth();
   const [scheduleOpen, setScheduleOpen] = useState(false);
   return (
-    <section id="contact" className="py-20 border-t border-white/10">
+    <section id="contact" className="py-16 border-t border-white/10">
       <div className="max-w-6xl mx-auto px-6">
         <div className="relative rounded-3xl border border-white/10 bg-gradient-to-br from-[#0A84FF]/10 to-white/[0.04] p-12 text-center overflow-hidden shadow-[0_24px_70px_rgba(0,0,0,0.4)]">
           <div className="absolute inset-0 pointer-events-none">
@@ -1019,7 +996,7 @@ export function Footer() {
               <li><a href="/team" className="text-sm text-slate-400 hover:text-white transition-colors">Meet the Team</a></li>
               <li><a href="/#how-it-works" className="text-sm text-slate-400 hover:text-white transition-colors">How It Works</a></li>
               <li><a href="/#why-layer-one" className="text-sm text-slate-400 hover:text-white transition-colors">Why Layer One</a></li>
-              <li><a href="/#rollouts" className="text-sm text-slate-400 hover:text-white transition-colors">Multi-Site Rollouts</a></li>
+              <li><a href="/#who-we-serve" className="text-sm text-slate-400 hover:text-white transition-colors">Who We Serve</a></li>
               <li><a href="/pricing" className="text-sm text-slate-400 hover:text-white transition-colors">Pricing</a></li>
               <li><a href="/faq" className="text-sm text-slate-400 hover:text-white transition-colors">FAQ</a></li>
               <li><a href="/blog" className="text-sm text-slate-400 hover:text-white transition-colors">Blog</a></li>
@@ -1109,11 +1086,10 @@ export default function Landing() {
         </section>
         <WarehousingAsAService />
         <WhyLayerOne />
-        <Rollouts />
+        <WhoWeServe />
         <PricingTeaser />
         <PortalSection />
         <DirectLine />
-        <Industries />
         <About />
         <FacilityGallery />
         <FAQTeaser />
