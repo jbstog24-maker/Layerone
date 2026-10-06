@@ -217,6 +217,52 @@ export function registerStripeRoutes(app: Express) {
             } catch (err) {
               console.error("[Stripe Webhook] Invoice payment flow failed:", err);
             }
+
+            // ── Delivery request payment flow (portal delivery requests) ──
+            // Marks the delivery request paid when a customer completes Checkout
+            // from the delivery request form. Wrapped in try/catch so the
+            // webhook still returns 200.
+            try {
+              const deliveryRequestId = session.metadata?.delivery_request_id
+                ? parseInt(session.metadata.delivery_request_id, 10)
+                : null;
+              if (deliveryRequestId) {
+                const db = await getDb();
+                if (db) {
+                  const { deliveryRequests } = await import("../drizzle/schema");
+                  const [dr] = await db
+                    .select()
+                    .from(deliveryRequests)
+                    .where(eq(deliveryRequests.id, deliveryRequestId));
+                  if (dr && dr.status === "pending_payment") {
+                    await db
+                      .update(deliveryRequests)
+                      .set({
+                        status: "paid",
+                        paidAt: new Date(),
+                        stripeCheckoutSessionId: session.id,
+                      })
+                      .where(eq(deliveryRequests.id, deliveryRequestId));
+                    await logActivity({
+                      clientId: dr.clientId,
+                      action: `Delivery request ${dr.trackingNumber} paid via Stripe Checkout (${session.id})`,
+                      entityType: "delivery_request",
+                      entityId: deliveryRequestId,
+                    });
+                    const amount =
+                      session.amount_total != null
+                        ? `$${(session.amount_total / 100).toFixed(2)}`
+                        : "N/A";
+                    await notifyOwner({
+                      title: `🚚 Delivery Request Paid: ${dr.trackingNumber}`,
+                      content: `Delivery request ${dr.trackingNumber} was paid via the customer portal.\n\nAmount: ${amount}\nDeliver to: ${dr.siteName}, ${dr.addressCity}, ${dr.addressState}\nDate: ${dr.deliveryDate ? new Date(dr.deliveryDate).toLocaleDateString("en-US") : "TBD"}\nStripe session: ${session.id}`,
+                    });
+                  }
+                }
+              }
+            } catch (err) {
+              console.error("[Stripe Webhook] Delivery request payment flow failed:", err);
+            }
             break;
           }
 

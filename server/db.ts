@@ -80,6 +80,9 @@ import {
   quotes,
   type Quote,
   type InsertQuote,
+  deliveryRequests,
+  type DeliveryRequest,
+  type InsertDeliveryRequest,
 } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 import { nanoid } from "nanoid";
@@ -499,6 +502,66 @@ export async function updateDelivery(
     .update(expectedDeliveries)
     .set(data)
     .where(eq(expectedDeliveries.id, id));
+}
+
+// ─── Delivery Requests (customer outbound delivery requests) ─────────────────
+export async function listDeliveryRequests(clientId?: number) {
+  const db = await getDb();
+  if (!db) return [];
+  if (clientId) {
+    return db
+      .select()
+      .from(deliveryRequests)
+      .where(eq(deliveryRequests.clientId, clientId))
+      .orderBy(desc(deliveryRequests.createdAt));
+  }
+  return db
+    .select()
+    .from(deliveryRequests)
+    .orderBy(desc(deliveryRequests.createdAt));
+}
+
+export async function getDeliveryRequest(id: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db
+    .select()
+    .from(deliveryRequests)
+    .where(eq(deliveryRequests.id, id))
+    .limit(1);
+  return result[0];
+}
+
+export async function getDeliveryRequestByTracking(trackingNumber: string) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db
+    .select()
+    .from(deliveryRequests)
+    .where(eq(deliveryRequests.trackingNumber, trackingNumber))
+    .limit(1);
+  return result[0];
+}
+
+export async function createDeliveryRequest(data: InsertDeliveryRequest) {
+  const db = await getDb();
+  if (!db) throw new Error("DB unavailable");
+  const result = await db.insert(deliveryRequests).values(data);
+  const insertId = Number((result[0] as any)?.insertId ?? 0);
+  if (!insertId) throw new Error("Failed to create delivery request");
+  return getDeliveryRequest(insertId);
+}
+
+export async function updateDeliveryRequest(
+  id: number,
+  data: Partial<InsertDeliveryRequest>
+) {
+  const db = await getDb();
+  if (!db) throw new Error("DB unavailable");
+  await db
+    .update(deliveryRequests)
+    .set(data)
+    .where(eq(deliveryRequests.id, id));
 }
 
 // ─── Receiving Logs ───────────────────────────────────────────────────────────

@@ -17,6 +17,7 @@ import { z } from "zod";
 import { clientsRouter } from "./routers/clients";
 import { packagesRouter } from "./routers/packages";
 import { deliveriesRouter } from "./routers/deliveries";
+import { deliveryRequestsRouter } from "./routers/delivery-requests";
 import {
   receivingRouter,
   palletsRouter,
@@ -246,6 +247,7 @@ export const appRouter = router({
   clients: clientsRouter,
   packages: packagesRouter,
   deliveries: deliveriesRouter,
+  deliveryRequests: deliveryRequestsRouter,
   receiving: receivingRouter,
   pallets: palletsRouter,
   boxes: boxesRouter,

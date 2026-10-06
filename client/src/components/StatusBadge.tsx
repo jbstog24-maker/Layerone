@@ -51,6 +51,10 @@ const STATUS_LABELS: Record<string, string> = {
   professional: "Professional",
   enterprise: "Enterprise",
   custom: "Custom",
+  // Delivery request statuses
+  pending_payment: "Awaiting Payment",
+  scheduled: "Scheduled",
+  failed: "Failed Delivery",
   // User roles
   admin: "Admin",
   staff: "Staff",

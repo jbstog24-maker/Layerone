@@ -124,6 +124,7 @@ const NAV_GROUPS: NavGroup[] = [
     items: [
       { icon: Archive, label: "Staging Tasks", path: "/staging" },
       { icon: Ship, label: "Outbound Shipments", path: "/shipments" },
+      { icon: Truck, label: "Delivery Requests", path: "/delivery-requests" },
     ],
   },
   {

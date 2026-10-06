@@ -15,6 +15,8 @@ import Terms from "./pages/Terms";
 import { ClientsList, ClientDetail } from "./pages/Clients";
 import Packages from "./pages/Packages";
 import { DeliveriesList, DeliveryDetail } from "./pages/Deliveries";
+import DeliveryRequest from "./pages/DeliveryRequest";
+import { DeliveryRequestsList, DeliveryRequestDetail } from "./pages/DeliveryRequests";
 import { ReceivingList, ReceivingDetail } from "./pages/Receiving";
 import Pallets from "./pages/Pallets";
 import Boxes from "./pages/Boxes";
@@ -137,6 +139,11 @@ function Router() {
       {/* Shipments */}
       <Route path="/shipments" component={ShipmentsList} />
       <Route path="/shipments/:id" component={ShipmentDetail} />
+
+      {/* Delivery Requests (customer outbound deliveries) */}
+      <Route path="/delivery-request" component={DeliveryRequest} />
+      <Route path="/delivery-requests" component={DeliveryRequestsList} />
+      <Route path="/delivery-requests/:id" component={DeliveryRequestDetail} />
 
       {/* Billing */}
       <Route path="/invoices" component={InvoicesList} />

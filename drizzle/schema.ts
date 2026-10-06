@@ -1281,6 +1281,68 @@ export const blockedNumbers = mysqlTable("blocked_numbers", {
 export type BlockedNumber = typeof blockedNumbers.$inferSelect;
 export type InsertBlockedNumber = typeof blockedNumbers.$inferInsert;
 
+// ─── Delivery Requests ──────────────────────────────────────────────────────
+// Customer-submitted outbound delivery requests. The customer fills in the
+// request form, sees the price estimate up front, and pays via Stripe Checkout
+// before the request is confirmed. Staff mark deliveries complete with proof
+// of delivery (receiver details + timestamp).
+export const deliveryRequests = mysqlTable("delivery_requests", {
+  id: int("id").autoincrement().primaryKey(),
+  clientId: int("clientId").notNull(),
+  createdBy: int("createdBy"),
+  // Scheduling
+  deliveryDate: timestamp("deliveryDate").notNull(),
+  timeWindow: mysqlEnum("timeWindow", ["morning", "afternoon", "custom"]).notNull().default("morning"),
+  customTimeWindow: varchar("customTimeWindow", { length: 128 }),
+  // Destination
+  siteName: varchar("siteName", { length: 256 }).notNull(),
+  addressStreet: varchar("addressStreet", { length: 256 }).notNull(),
+  addressCity: varchar("addressCity", { length: 128 }).notNull(),
+  addressState: varchar("addressState", { length: 8 }).notNull().default("TX"),
+  addressZip: varchar("addressZip", { length: 16 }).notNull(),
+  estimatedMiles: int("estimatedMiles").notNull().default(0),
+  // Quantities
+  packageCount: int("packageCount").notNull().default(0),
+  largeItemCount: int("largeItemCount").notNull().default(0),
+  palletCount: int("palletCount").notNull().default(0),
+  looseDeviceCount: int("looseDeviceCount").notNull().default(0),
+  specialInstructions: text("specialInstructions"),
+  disclaimerAccepted: boolean("disclaimerAccepted").notNull().default(false),
+  // Pricing breakdown (integer cents)
+  tripCents: int("tripCents").notNull().default(0),
+  packageCents: int("packageCents").notNull().default(0),
+  largeItemCents: int("largeItemCents").notNull().default(0),
+  palletCents: int("palletCents").notNull().default(0),
+  deviceCents: int("deviceCents").notNull().default(0),
+  totalCents: int("totalCents").notNull().default(0),
+  // Tracking + payment
+  trackingNumber: varchar("trackingNumber", { length: 32 }).unique(),
+  status: mysqlEnum("status", [
+    "pending_payment",
+    "paid",
+    "scheduled",
+    "in_transit",
+    "delivered",
+    "failed",
+    "cancelled",
+  ])
+    .default("pending_payment")
+    .notNull(),
+  stripeCheckoutSessionId: varchar("stripeCheckoutSessionId", { length: 256 }),
+  paidAt: timestamp("paidAt"),
+  // Proof of delivery (captured by staff when marking delivered)
+  receiverFirstName: varchar("receiverFirstName", { length: 128 }),
+  receiverLastName: varchar("receiverLastName", { length: 128 }),
+  receiverPhone: varchar("receiverPhone", { length: 32 }),
+  receiverEmail: varchar("receiverEmail", { length: 256 }),
+  deliveredAt: timestamp("deliveredAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type DeliveryRequest = typeof deliveryRequests.$inferSelect;
+export type InsertDeliveryRequest = typeof deliveryRequests.$inferInsert;
+
 // ─── Warehouse Locations ─────────────────────────────────────────────────────
 // Physical warehouse facilities around DFW. Staff manage the list; each client
 // account can be assigned one location, which customers see in their portal
