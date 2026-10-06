@@ -12,12 +12,12 @@ function Packages() {
       price: "$499",
       priceSuffix: "/project",
       desc: "First-time customers testing the service on a small deployment.",
-      features: ["One project, up to 14 days", "Up to 5 active devices", "Up to 5 boxes received", "No pallet storage included", "Intake photos & serial/MAC capture", "1 outbound shipment coordination", "Staging labor billed separately"],
+      features: ["One project, up to 14 days", "Up to 5 active devices", "Up to 5 boxes received, inspected & inventoried", "No pallet storage included", "Intake photos & serial/MAC capture", "1 outbound shipment coordination", "Staging labor billed separately"],
       featured: false,
       details: {
         billing: "One-time · $499 per project",
         devices: "Up to 5 active devices",
-        boxes: "Up to 5 boxes received",
+        boxes: "Up to 5 boxes received, inspected & inventoried",
         pallets: "Not included",
         storage: "14-day project window",
         shipments: "1 outbound shipment coordination",
@@ -28,7 +28,7 @@ function Packages() {
       price: "$750",
       priceSuffix: "/month starting",
       desc: "Light recurring receiving, organization, and short-term storage.",
-      features: ["Up to 10 active devices stored", "Up to 10 boxes/month", "Up to 1 pallet/month", "30-day storage per item", "3 outbound shipment coordinations/mo", "Monthly usage summary"],
+      features: ["Up to 10 active devices stored", "Up to 10 boxes/month received & inventoried", "Up to 1 pallet/month", "30-day storage per item", "3 outbound shipment coordinations/mo", "Monthly usage summary"],
       featured: false,
       details: {
         billing: "Monthly · $750/mo",
@@ -44,7 +44,7 @@ function Packages() {
       price: "$1,500",
       priceSuffix: "/month starting",
       desc: "Recurring deployment work with more receiving volume and organized staging capacity.",
-      features: ["Up to 25 active devices stored", "Up to 30 boxes/month", "Up to 3 pallets/month", "30-day storage per item", "8 outbound shipment coordinations/mo", "Dock/ramp coordination available"],
+      features: ["Up to 25 active devices stored", "Up to 30 boxes/month received & inventoried", "Up to 3 pallets/month", "30-day storage per item", "8 outbound shipment coordinations/mo", "Dock/ramp coordination available"],
       featured: true,
       details: {
         billing: "Monthly · $1,500/mo",
@@ -60,7 +60,7 @@ function Packages() {
       price: "$3,500",
       priceSuffix: "/month starting",
       desc: "Dedicated staging zone with higher volume and a dedicated LayerOne-managed workflow.",
-      features: ["Up to 75 active devices stored", "Up to 75 boxes/month", "Up to 6 pallets/month", "45-day storage per item", "20 outbound shipment coordinations/mo", "Weekly inventory report + 1 project call/mo"],
+      features: ["Up to 75 active devices stored", "Up to 75 boxes/month received & inventoried", "Up to 6 pallets/month", "45-day storage per item", "20 outbound shipment coordinations/mo", "Weekly inventory report + 1 project call/mo"],
       featured: false,
       details: {
         billing: "Monthly · $3,500/mo",
@@ -76,7 +76,7 @@ function Packages() {
       price: "Custom",
       priceSuffix: "/project or month",
       desc: "Multi-site deployments, national rollouts, POS, security, and franchise tech rollouts.",
-      features: ["Up to 150 active devices stored", "Up to 200 boxes/month", "Up to 20 pallets/month", "60-day storage per item", "50 outbound shipment coordinations/mo", "Chain-of-custody tracking & custom labor"],
+      features: ["Up to 150 active devices stored", "Up to 200 boxes/month received & inventoried", "Up to 20 pallets/month", "60-day storage per item", "50 outbound shipment coordinations/mo", "Chain-of-custody tracking & custom labor"],
       featured: false,
       details: {
         billing: "Monthly · $5,000/mo base (custom-quoted)",
