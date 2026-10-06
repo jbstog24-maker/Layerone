@@ -9,7 +9,7 @@ import {
   Thermometer, Video, MapPin,
   Tags, ClipboardCheck, Send, Network, Users, Store,
   Server, Phone, Facebook, Linkedin, ChevronDown,
-  Smartphone, Sparkles, GraduationCap,
+  Smartphone, Sparkles, GraduationCap, Tent,
 } from "lucide-react";
 import { ScheduleCallDialog } from "@/components/ScheduleCallDialog";
 
@@ -326,6 +326,13 @@ function Services() {
       badge: "NEW",
       href: "/services/zero-touch-enrollment",
     },
+    {
+      icon: Tent,
+      title: "Tradeshow & Event Storage",
+      desc: "Booth materials, displays, and signage stored securely between shows, kitted by event, and shipped to venues nationwide.",
+      badge: "NEW",
+      href: "/services/tradeshow-event-equipment-storage",
+    },
   ];
 
   return (
@@ -469,6 +476,7 @@ function WhoWeServe() {
     { icon: BarChart3, title: "POS Deployments", desc: "Terminals, printers, and payment hardware kitted complete with install guides." },
     { icon: GraduationCap, title: "Schools & Education", desc: "Chromebook and device rollouts staged, enrolled, and shipped ready for students." },
     { icon: MapPin, title: "Multi-Location Rollouts", desc: "Coordinated site-by-site preparation for national technology rollouts." },
+    { icon: Tent, title: "Tradeshows & Events", desc: "Booth gear stored between shows, kitted by event, and shipped to venues nationwide." },
   ];
 
   return (
@@ -966,6 +974,7 @@ const FOOTER_SERVICES = [
   { href: "/services/device-configuration-firmware-staging", label: "Device Configuration & Firmware" },
   { href: "/services/retail-technology-deployment", label: "Retail Technology Deployment" },
   { href: "/services/restaurant-franchise-technology-rollouts", label: "Restaurant & Franchise Rollouts" },
+  { href: "/services/tradeshow-event-equipment-storage", label: "Tradeshow & Event Storage" },
 ];
 
 export function Footer() {

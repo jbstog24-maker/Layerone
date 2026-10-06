@@ -593,3 +593,53 @@ SERVICE_PAGES.push(
     ctaHref: "/enrollment",
   },
 );
+
+// ── Chunk 5: tradeshow & event equipment storage ──
+SERVICE_PAGES.push(
+  {
+    slug: "tradeshow-event-equipment-storage",
+    title: "Tradeshow & Event Equipment Storage in DFW | Layer One Staging",
+    h1: "Tradeshow & Event Equipment Storage",
+    metaDescription:
+      "Tradeshow and event equipment storage in Dallas-Fort Worth: booth materials, displays, and signage received, stored between shows, inventoried, kitted by event, and shipped to venues nationwide.",
+    intro: [
+      "Tradeshow gear is expensive, bulky, and unforgiving. A cracked display panel or a missing banner discovered at setup turns into a crisis with a hard deadline. Layer One Staging gives event teams a home base in Dallas-Fort Worth for everything physical about their show calendar: booth materials, displays, signage, lighting, and demo equipment received from your vendors, stored securely between shows, and shipped to the next venue ready to set up.",
+      "Our Carrollton-area facility sits minutes from DFW freight corridors, so inbound shipments from fabricators and outbound freight to convention centers move fast. Between shows, your gear lives on industrial racking in an access-controlled, camera-monitored warehouse, inventoried per item and photographed on arrival. When the next show approaches, we kit by event, palletize to the venue's receiving requirements, and dispatch with tracking, so your team walks into setup with everything accounted for.",
+    ],
+    included: [
+      { title: "Booth material receiving", desc: "Displays, signage, banners, lighting, and demo gear received at our dock, counted, inspected, and photographed." },
+      { title: "Secure between-show storage", desc: "Access-controlled, camera-monitored storage on industrial racking. Your gear is isolated per client and protected between events." },
+      { title: "Item-level inventory", desc: "Every case, crate, and component logged into your portal with photos and condition notes." },
+      { title: "Kitting by event", desc: "Show-specific kits assembled: booth components, signage, collateral, and spares packed per event checklist." },
+      { title: "Venue outbound shipping", desc: "Palletized freight dispatched to convention centers and venues nationwide, timed to advance warehouse or direct-to-show windows." },
+      { title: "Rush turnaround", desc: "Back-to-back shows and last-minute changes handled on compressed timelines, coordinated with your event schedule." },
+    ],
+    processTitle: "How event logistics works",
+    processNote:
+      "Most event programs follow the same rhythm: your fabricators and vendors ship to our DFW facility, we inspect and store everything between shows, and when a show approaches we kit to your event checklist and ship to the venue's advance warehouse or direct to show site. After the show, gear comes back to us for inspection, repair triage, and storage until the next event.",
+    audiences: [
+      { title: "Event marketing teams", desc: "Stop storing booth gear in the office closet. One accountable home for your whole show calendar." },
+      { title: "Tradeshow exhibitors", desc: "Displays and signage stored, maintained, and shipped show-ready, every time." },
+      { title: "Event agencies", desc: "A logistics partner for client programs: receiving, storage, and venue shipping under one roof." },
+      { title: "Corporate marketing departments", desc: "Multi-show programs run from one DFW hub with full inventory visibility." },
+    ],
+    faqs: [
+      {
+        q: "Can you ship to venues outside Texas?",
+        a: "Yes. DFW is our home base, but we ship palletized freight to convention centers and venues nationwide, timed to each venue's advance warehouse or direct-to-show receiving windows.",
+      },
+      {
+        q: "What happens to our gear between shows?",
+        a: "It stays in our secure Carrollton, Texas facility on industrial racking, inventoried per item with photos. After each show, inbound returns are inspected and any damage is flagged so repairs happen before the next event, not during setup.",
+      },
+      {
+        q: "Can you handle back-to-back shows?",
+        a: "Yes. Tell us your show calendar and we plan receiving, kitting, and outbound freight around it. Rush turnarounds between close shows are quoted per event based on timeline and scope.",
+      },
+      {
+        q: "Do you store non-booth items too?",
+        a: "Yes. Demo equipment, collateral, giveaways, lighting, and AV gear all store alongside booth materials. If it goes to the show, it can live with us between shows.",
+      },
+    ],
+  },
+);
