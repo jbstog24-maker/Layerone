@@ -183,7 +183,20 @@ export default function Boxes() {
             </thead>
             <tbody>
               {isLoading ? <LoadingRows cols={8} /> : boxes?.length === 0 ? (
-                <tr><td colSpan={8}><EmptyState icon={Box} title="No boxes yet" /></td></tr>
+                <tr><td colSpan={8}>
+                  <EmptyState
+                    icon={Box}
+                    title="No boxes yet"
+                    description={isStaff
+                      ? "Create a box when equipment arrives at the dock."
+                      : "Boxes are created when we receive your equipment. Start by telling us what is headed our way."}
+                    action={isStaff ? (
+                      <Button onClick={() => setShowCreate(true)} size="sm"><Plus className="w-4 h-4 mr-1" /> New Box</Button>
+                    ) : (
+                      <Button onClick={() => setLocation("/deliveries")} size="sm"><Truck className="w-4 h-4 mr-1" /> Add a Delivery</Button>
+                    )}
+                  />
+                </td></tr>
               ) : pagedBoxes?.map((b) => {
                 const fwdSt = ((b as any).forwardingStatus ?? "pending") as keyof typeof FWD_STATUS_CONFIG;
                 const fwdCfg = FWD_STATUS_CONFIG[fwdSt];

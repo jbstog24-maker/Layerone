@@ -21,7 +21,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
-import { Warehouse, Plus, ChevronRight, PackageCheck } from "lucide-react";
+import { Warehouse, Plus, ChevronRight, PackageCheck, Truck } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -147,7 +147,20 @@ export default function Pallets() {
             </thead>
             <tbody>
               {isLoading ? <LoadingRows cols={6} /> : pallets?.length === 0 ? (
-                <tr><td colSpan={6}><EmptyState icon={Warehouse} title="No pallets yet" /></td></tr>
+                <tr><td colSpan={6}>
+                  <EmptyState
+                    icon={Warehouse}
+                    title="No pallets yet"
+                    description={isStaff
+                      ? "Create a pallet when equipment arrives at the dock."
+                      : "Pallets are created when we receive your equipment. Start by telling us what is headed our way."}
+                    action={isStaff ? (
+                      <Button onClick={() => setShowCreate(true)} size="sm"><Plus className="w-4 h-4 mr-1" /> New Pallet</Button>
+                    ) : (
+                      <Button onClick={() => setLocation("/deliveries")} size="sm"><Truck className="w-4 h-4 mr-1" /> Add a Delivery</Button>
+                    )}
+                  />
+                </td></tr>
               ) : pagedPallets?.map((p) => (
                 <tr key={p.id} className={`border-b border-border/50 hover:bg-muted/20 transition-colors cursor-pointer ${selectedIds.has(p.id) ? "bg-green-500/5" : ""}`} onClick={() => setLocation(`/pallets/${p.id}`)}>
                   {isStaff && (

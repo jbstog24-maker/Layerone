@@ -255,7 +255,20 @@ export function DevicesList() {
             </thead>
             <tbody>
               {isLoading ? <LoadingRows cols={6} /> : devices?.length === 0 ? (
-                <tr><td colSpan={6}><EmptyState icon={Server} title="No devices yet" /></td></tr>
+                <tr><td colSpan={6}>
+                  <EmptyState
+                    icon={Server}
+                    title="No devices yet"
+                    description={canCreate
+                      ? "Add a device or import a CSV to get started."
+                      : "Devices are added when your equipment arrives and is received. Tell us what is headed our way to get started."}
+                    action={canCreate ? (
+                      <Button onClick={() => setShowCreate(true)} size="sm"><Plus className="w-4 h-4 mr-1" /> Add Device</Button>
+                    ) : (
+                      <Button onClick={() => setLocation("/deliveries")} size="sm"><Truck className="w-4 h-4 mr-1" /> Add a Delivery</Button>
+                    )}
+                  />
+                </td></tr>
               ) : devices?.map((d) => (
                 <tr key={d.id} className="border-b border-border/50 hover:bg-muted/20 cursor-pointer transition-colors" onClick={() => setLocation(`/devices/${d.id}`)}>
                   <td className="px-4 py-3">
