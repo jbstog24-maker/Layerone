@@ -9,7 +9,7 @@ import {
   Thermometer, Video, MapPin,
   Tags, ClipboardCheck, Send, Network, Users, Store,
   Server, Phone, Facebook, Linkedin, ChevronDown,
-  Smartphone, Sparkles, GraduationCap, Tent,
+  Smartphone, Sparkles, GraduationCap, Tent, Menu, X,
 } from "lucide-react";
 import { ScheduleCallDialog } from "@/components/ScheduleCallDialog";
 
@@ -30,6 +30,8 @@ export function NavBar() {
   const { isAuthenticated } = useAuth();
   const [, setLocation] = useLocation();
   const [servicesOpen, setServicesOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [mobileServicesOpen, setMobileServicesOpen] = useState(false);
 
   const serviceLinks = [
     { href: "/#services", label: "IT Staging Services" },
@@ -79,6 +81,13 @@ export function NavBar() {
           <a href="/#contact" className="hover:text-white transition-colors">Contact</a>
         </nav>
         <div className="flex items-center gap-3">
+          <button
+            aria-label={mobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="md:hidden flex items-center justify-center w-10 h-10 rounded-xl text-white hover:bg-white/10 transition-colors"
+          >
+            {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          </button>
           <a
             href="tel:+14695374378"
             aria-label="Call Layer One Staging at (469) 537-4378"
@@ -112,6 +121,62 @@ export function NavBar() {
           )}
         </div>
       </div>
+      {mobileMenuOpen && (
+        <nav className="md:hidden border-t border-white/10 bg-[#0B1320]/95 backdrop-blur-xl">
+          <div className="max-w-6xl mx-auto px-6 py-4 flex flex-col text-sm">
+            <a
+              href="/"
+              className="py-3 text-white border-b border-white/5"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Home
+            </a>
+            <button
+              className="flex items-center justify-between py-3 text-white border-b border-white/5"
+              onClick={() => setMobileServicesOpen(!mobileServicesOpen)}
+              aria-expanded={mobileServicesOpen}
+            >
+              Services
+              <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${mobileServicesOpen ? "rotate-180" : ""}`} />
+            </button>
+            {mobileServicesOpen && (
+              <div className="border-b border-white/5 bg-white/[0.02]">
+                {serviceLinks.map(l => (
+                  <a
+                    key={l.href}
+                    href={l.href}
+                    className="block px-4 py-2.5 text-slate-400 hover:text-white transition-colors"
+                    onClick={() => { setMobileServicesOpen(false); setMobileMenuOpen(false); }}
+                  >
+                    {l.label}
+                  </a>
+                ))}
+              </div>
+            )}
+            <a
+              href="/about"
+              className="py-3 text-white border-b border-white/5"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              About
+            </a>
+            <a
+              href="/blog"
+              className="py-3 text-white border-b border-white/5"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Blog
+            </a>
+            <a
+              href="/#contact"
+              className="py-3 text-white"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Contact
+            </a>
+          </div>
+        </nav>
+      )}
     </header>
   );
 }
