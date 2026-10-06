@@ -96,4 +96,23 @@ export const BLOG_POSTS: BlogPost[] = [
       "The habit is simple. Nothing ships to a site without a power-on check first. Make that the rule and DOA gear becomes a warehouse inconvenience instead of a client-facing problem.",
     ],
   },
+  {
+    slug: "what-happens-when-freight-shows-up-with-nowhere-to-go",
+    title: "What Happens When Freight Shows Up With Nowhere to Go",
+    date: "2026-10-06",
+    excerpt: "A pallet of networking gear is on the way, the site cannot take it, and the carrier will not wait. Here is how to keep early freight from wrecking your rollout.",
+    category: "Staging Best Practices",
+    readTime: 4,
+    content: [
+      "Every rollout has a moment where the timing breaks. The vendor ships early because they want to close the quarter, or a site gets pushed back a week and nobody told the carrier. Now there is a pallet of switches and access points rolling toward a location that has no dock, no storage room, and a store manager who did not agree to become a warehouse. The driver calls the number on the bill of lading, and your tech is suddenly negotiating freight instead of installing gear.",
+      "This is one of the most common ways a deployment schedule falls apart, and it has nothing to do with the quality of the equipment or the skill of the tech. It is a receiving problem. The freight showed up before the site was ready, and there was nowhere for it to go.",
+      "## The scramble is where the damage happens",
+      "When freight arrives with nowhere to land, everything that follows is improvisation. The pallet gets stashed in a hallway, a back room, or the bed of someone's truck. Boxes get opened to check quantities because nobody did an intake when they arrived. Somebody signs for it without looking because the driver is in a hurry. By the time the tech actually gets to the install, nobody is sure everything is there, nothing got broken, or whose gear is whose.",
+      "This is also where equipment goes missing. A box gets set aside during the scramble and forgotten. Two sites' shipments get mixed together because they arrived on the same truck. Expensive gear sits unsecured in a location with foot traffic and no one responsible for it. You do not need a story about theft to justify better receiving. Loss by confusion is expensive enough.",
+      "## A receiving dock changes the whole equation",
+      "The fix is not better timing. Timing will always break on a real project. The fix is a place where freight can land whenever it arrives, handled by people whose job is receiving. A pallet shows up early, it gets accepted, inspected, and put into secure storage. The serial numbers get captured, the condition gets photographed, and it waits for the site to be ready. The project manager gets a notification, not a panic call.",
+      "This works for change orders too. When a site needs three more access points added late in the project, the gear lands at the dock, gets added to the site kit, and ships out with the rest. No emergency runs, no tech waiting on a FedEx truck.",
+      "The cost of receiving early freight properly is a fraction of what a scrambled delivery costs you. A missed delivery fee, a lost box, a stalled install day with a client watching: each one is worth more than the warehouse space would have been. Plan for freight to arrive at the wrong time, because it will. The projects that survive are the ones where wrong timing is a notification instead of a crisis.",
+    ],
+  },
 ];
