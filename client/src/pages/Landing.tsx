@@ -9,7 +9,7 @@ import {
   Thermometer, Video, MapPin,
   Tags, ClipboardCheck, Send, Network, Users, Store,
   Server, Phone, Facebook, Linkedin, ChevronDown,
-  Smartphone, Sparkles,
+  Smartphone, Sparkles, GraduationCap,
 } from "lucide-react";
 import { ScheduleCallDialog } from "@/components/ScheduleCallDialog";
 
@@ -467,7 +467,7 @@ function WhoWeServe() {
     { icon: Store, title: "Retail & Franchise Rollouts", desc: "Identical kits for every store - POS, network, and peripherals staged to plan." },
     { icon: Zap, title: "Network Refreshes & SD-WAN", desc: "Switches and edge devices configured, labeled, and shipped per site schedule." },
     { icon: BarChart3, title: "POS Deployments", desc: "Terminals, printers, and payment hardware kitted complete with install guides." },
-    { icon: Server, title: "Data Center Teams", desc: "Rack-ready gear labeled and QA-verified for tight install windows." },
+    { icon: GraduationCap, title: "Schools & Education", desc: "Chromebook and device rollouts staged, enrolled, and shipped ready for students." },
     { icon: MapPin, title: "Multi-Location Rollouts", desc: "Coordinated site-by-site preparation for national technology rollouts." },
   ];
 
