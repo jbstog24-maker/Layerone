@@ -13,7 +13,7 @@ const QUOTE_TYPES: { value: QuoteType; label: string; desc: string; price: strin
   {
     value: "project",
     label: "Project Quote",
-    desc: "Multi-site rollout - locations, devices, services & schedule scoped into one custom project price.",
+    desc: "Multi-site rollout or event - locations, devices, services & schedule scoped into one custom project price.",
     price: "Custom",
   },
   {
@@ -40,6 +40,9 @@ const EQUIPMENT_TYPES = [
   "Servers & Compute",
   "Kiosks & Displays",
   "Cabling & Infrastructure",
+  "Tradeshow Booths & Displays",
+  "Event Signage & Graphics",
+  "Event Equipment & AV",
   "Other",
 ];
 
@@ -62,7 +65,7 @@ const smallInputClass =
  * site-wide floating "Request a Quote" dialog so the branding, fields, and
  * behavior stay identical everywhere.
  *
- * Two quote paths: "project" (multi-site rollout scoping -> custom project
+ * Two quote paths: "project" (multi-site rollout or event scoping -> custom project
  * price) and "pallet" (per-pallet receiving + storage + chosen services).
  * Both flow into the same inquiry -> draft quote -> Approve & Send pipeline.
  */
@@ -289,11 +292,11 @@ export default function RequestForm({ onSubmitted }: { onSubmitted?: () => void 
           <h2 className="text-sm font-semibold text-[#b7c5d5] uppercase tracking-wider mb-1 flex items-center gap-2">
             <MapPin className="w-4 h-4" /> Rollout Details <span className="text-[#b7c5d5]/50 font-normal normal-case tracking-normal">(optional)</span>
           </h2>
-          <p className="text-xs text-[#b7c5d5]/60 mb-4">For multi-site projects - helps us scope staging, kitting, and scheduling.</p>
+          <p className="text-xs text-[#b7c5d5]/60 mb-4">For multi-site or multi-event projects - helps us scope staging, kitting, and scheduling.</p>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-5">
             <div>
               <label className="block text-xs font-medium text-[#b7c5d5] mb-1.5 flex items-center gap-1">
-                <MapPin className="w-3 h-3" /> Deployment Locations
+                <MapPin className="w-3 h-3" /> Locations / Venues
               </label>
               <input
                 type="number"
@@ -340,7 +343,7 @@ export default function RequestForm({ onSubmitted }: { onSubmitted?: () => void 
           <Cpu className="w-4 h-4" /> Equipment Types <span className="text-[#b7c5d5]/50 font-normal normal-case tracking-normal">(optional)</span>
         </label>
         <p className="text-xs text-[#b7c5d5]/60 mb-4">
-          {isPallet ? "What's on the pallets?" : "What are we staging for this rollout?"}
+          {isPallet ? "What's on the pallets?" : "What are we staging for you?"}
         </p>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
           {EQUIPMENT_TYPES.map(label => (
@@ -417,7 +420,7 @@ export default function RequestForm({ onSubmitted }: { onSubmitted?: () => void 
           value={form.message}
           onChange={set("message")}
           rows={4}
-          placeholder={isPallet ? "Pallet dimensions, stackability, delivery appointment needs…" : "Describe your deployment timeline, special requirements, or any questions…"}
+          placeholder={isPallet ? "Pallet dimensions, stackability, delivery appointment needs…" : "Describe your timeline, special requirements, or any questions…"}
           className={`${inputClass} resize-none`}
         />
       </section>
