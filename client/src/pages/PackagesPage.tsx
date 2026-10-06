@@ -12,7 +12,7 @@ function Packages() {
       price: "$499",
       priceSuffix: "/project",
       desc: "First-time customers testing the service on a small deployment.",
-      features: ["One project, up to 14 days", "Up to 5 active devices", "Up to 5 boxes received", "Intake photos & serial/MAC capture", "1 outbound shipment coordination", "Staging labor billed separately"],
+      features: ["One project, up to 14 days", "Up to 5 active devices", "Up to 5 boxes received", "No pallet storage included", "Intake photos & serial/MAC capture", "1 outbound shipment coordination", "Staging labor billed separately"],
       featured: false,
       details: {
         billing: "One-time · $499 per project",
