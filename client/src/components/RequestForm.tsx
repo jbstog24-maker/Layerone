@@ -75,6 +75,7 @@ export default function RequestForm({ onSubmitted }: { onSubmitted?: () => void 
   const [selectedAddons, setSelectedAddons] = useState<string[]>([]);
   const [selectedEquipment, setSelectedEquipment] = useState<string[]>([]);
   const [workingWithRep, setWorkingWithRep] = useState(false);
+  const [wasReferred, setWasReferred] = useState(false);
   const [form, setForm] = useState({
     name: "",
     company: "",
@@ -88,7 +89,9 @@ export default function RequestForm({ onSubmitted }: { onSubmitted?: () => void 
     startDate: "",
     rolloutDuration: "",
     salesRepName: "",
-    referredBy: "",
+    referrerName: "",
+    referrerEmail: "",
+    referrerPhone: "",
     message: "",
   });
   type FormField = keyof typeof form;
@@ -120,6 +123,18 @@ export default function RequestForm({ onSubmitted }: { onSubmitted?: () => void 
       toast.error("Please enter the number of pallets for a per-pallet quote.");
       return;
     }
+    // Referral validation: when the "I was referred" box is checked, the
+    // referrer's name and email are required so they can be reached and paid.
+    if (wasReferred) {
+      if (!form.referrerName.trim()) {
+        toast.error("Please enter your referrer's name so they get credit.");
+        return;
+      }
+      if (!form.referrerEmail.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.referrerEmail.trim())) {
+        toast.error("Please enter a valid email for your referrer.");
+        return;
+      }
+    }
     submitMutation.mutate({
       name: form.name,
       company: form.company,
@@ -142,9 +157,15 @@ export default function RequestForm({ onSubmitted }: { onSubmitted?: () => void 
       // working with a rep and names them.
       salesRepName:
         workingWithRep && form.salesRepName.trim() ? form.salesRepName.trim() : undefined,
-      // Referral attribution: who sent this prospect our way. They earn 10%
-      // of the customer's first paid invoice.
-      referredBy: form.referredBy.trim() ? form.referredBy.trim() : undefined,
+      // Referral attribution: only sent when the prospect says they were
+      // referred. The referrer earns 10% of the customer's first paid
+      // invoice, one-time payout.
+      referrerName:
+        wasReferred && form.referrerName.trim() ? form.referrerName.trim() : undefined,
+      referrerEmail:
+        wasReferred && form.referrerEmail.trim() ? form.referrerEmail.trim() : undefined,
+      referrerPhone:
+        wasReferred && form.referrerPhone.trim() ? form.referrerPhone.trim() : undefined,
     });
   };
 
@@ -205,13 +226,61 @@ export default function RequestForm({ onSubmitted }: { onSubmitted?: () => void 
             <input required type="tel" value={form.phone} onChange={set("phone")} placeholder="(214) 555-0100" className={inputClass} />
           </div>
           <div className="sm:col-span-2">
-            <label className="block text-sm font-medium text-[#b7c5d5] mb-1.5">
-              Who referred you? <span className="text-[#b7c5d5]/50">(optional)</span>
+            <label className="flex items-center gap-3 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={wasReferred}
+                onChange={e => setWasReferred(e.target.checked)}
+                className="w-5 h-5 rounded accent-[#0A84FF]"
+              />
+              <span className="text-sm font-medium text-[#b7c5d5]">
+                I was referred by someone{" "}
+                <span className="text-[#b7c5d5]/50">(optional)</span>
+              </span>
             </label>
-            <input type="text" value={form.referredBy} onChange={set("referredBy")} placeholder="Name of the person who sent you our way" className={inputClass} />
-            <p className="text-xs text-[#b7c5d5]/60 mt-1.5">
-              They earn 10% of your first invoice when you sign up. Make sure they get credit.
-            </p>
+            {wasReferred && (
+              <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-[#b7c5d5] mb-1.5">
+                    Referrer&apos;s Name <span className="text-red-400">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={form.referrerName}
+                    onChange={set("referrerName")}
+                    placeholder="Full name of the person who referred you"
+                    className={inputClass}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-[#b7c5d5] mb-1.5">
+                    <Mail className="inline w-3.5 h-3.5 mr-1 opacity-70" />Referrer&apos;s Email <span className="text-red-400">*</span>
+                  </label>
+                  <input
+                    type="email"
+                    value={form.referrerEmail}
+                    onChange={set("referrerEmail")}
+                    placeholder="their@email.com"
+                    className={inputClass}
+                  />
+                </div>
+                <div className="sm:col-span-2">
+                  <label className="block text-sm font-medium text-[#b7c5d5] mb-1.5">
+                    <Phone className="inline w-3.5 h-3.5 mr-1 opacity-70" />Referrer&apos;s Phone <span className="text-[#b7c5d5]/50">(optional)</span>
+                  </label>
+                  <input
+                    type="tel"
+                    value={form.referrerPhone}
+                    onChange={set("referrerPhone")}
+                    placeholder="(214) 555-0100"
+                    className={inputClass}
+                  />
+                </div>
+                <p className="text-xs text-[#b7c5d5]/60 sm:col-span-2">
+                  They&apos;ll earn 10% of your first paid invoice. Make sure we can reach them!
+                </p>
+              </div>
+            )}
           </div>
         </div>
       </section>

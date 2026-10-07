@@ -419,6 +419,9 @@ export type InquiryOwnerEmailParams = {
   rolloutDuration?: string | null;
   salesRepName?: string | null;
   referredBy?: string | null;
+  referrerName?: string | null;
+  referrerEmail?: string | null;
+  referrerPhone?: string | null;
 };
 
 export async function sendInquiryOwnerEmail(params: InquiryOwnerEmailParams): Promise<boolean> {
@@ -447,6 +450,9 @@ export async function sendInquiryOwnerEmail(params: InquiryOwnerEmailParams): Pr
     row("Rollout Duration", params.rolloutDuration) +
     row("Sales Rep", params.salesRepName) +
     row("Referred By", params.referredBy) +
+    row("Referrer Name", params.referrerName) +
+    row("Referrer Email", params.referrerEmail) +
+    row("Referrer Phone", params.referrerPhone) +
     row("Add-ons", params.addons?.length ? params.addons.join(", ") : null);
 
   const html = `<!DOCTYPE html>

@@ -87,6 +87,12 @@ export const inquiryRouter = router({
       // Optional referral attribution: the prospect names who referred them.
       // Referrers earn 10% of the referred customer's first paid invoice.
       referredBy: z.string().trim().max(120).optional(),
+      // Referrer contact details (expandable "I was referred by someone"
+      // section). Name and email required client-side when the checkbox is
+      // checked; phone optional. Validated here as optional strings.
+      referrerName: z.string().trim().max(120).optional(),
+      referrerEmail: z.string().trim().max(255).email().optional().or(z.literal("")),
+      referrerPhone: z.string().trim().max(40).optional(),
     }))
     .mutation(async ({ input }) => {
       const db = await getDb();
@@ -129,6 +135,9 @@ export const inquiryRouter = router({
           rolloutDuration: input.rolloutDuration ?? null,
           salesRepName: input.salesRepName || null,
           referredBy: input.referredBy || null,
+          referrerName: input.referrerName || null,
+          referrerEmail: input.referrerEmail || null,
+          referrerPhone: input.referrerPhone || null,
           enrollmentDetails,
         });
         inquiryId = (result[0] as any)?.insertId ?? null;
@@ -215,6 +224,7 @@ export const inquiryRouter = router({
         input.rolloutDuration ? `**Rollout Duration:** ${input.rolloutDuration}` : null,
         input.salesRepName ? `**Sales Rep:** ${input.salesRepName}` : null,
         input.referredBy ? `**Referred By:** ${input.referredBy}` : null,
+        input.referrerName ? `**Referrer:** ${input.referrerName}${input.referrerEmail ? ` <${input.referrerEmail}>` : ""}${input.referrerPhone ? ` (${input.referrerPhone})` : ""}` : null,
         input.addons?.length ? `**Add-ons:** ${input.addons.join(", ")}` : null,
         input.message ? `**Message:** ${input.message}` : null,
         enrollmentSummary,
@@ -247,6 +257,9 @@ export const inquiryRouter = router({
         rolloutDuration: input.rolloutDuration ?? null,
         salesRepName: input.salesRepName || null,
         referredBy: input.referredBy || null,
+        referrerName: input.referrerName || null,
+        referrerEmail: input.referrerEmail || null,
+        referrerPhone: input.referrerPhone || null,
       }).catch(() => {});
 
       // Send branded welcome email to the prospect (enrollment-specific for

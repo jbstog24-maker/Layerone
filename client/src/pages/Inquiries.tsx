@@ -110,6 +110,9 @@ type Inquiry = {
   rolloutDuration: string | null;
   salesRepName: string | null;
   referredBy: string | null;
+  referrerName: string | null;
+  referrerEmail: string | null;
+  referrerPhone: string | null;
   howToGuideSentAt: Date | null;
   status: InquiryStatus;
   createdAt: Date;
@@ -441,6 +444,13 @@ function QuoteBuilderDialog({
               {inquiry.referredBy && (
                 <span className="inline-flex items-center gap-1 text-xs bg-[#6ee7b7]/15 border border-[#6ee7b7]/40 px-2 py-0.5 rounded-full text-emerald-300 font-medium">
                   <User className="w-3 h-3" /> Referred By: {inquiry.referredBy}
+                </span>
+              )}
+              {inquiry.referrerName && (
+                <span className="inline-flex items-center gap-1 text-xs bg-[#6ee7b7]/15 border border-[#6ee7b7]/40 px-2 py-0.5 rounded-full text-emerald-300 font-medium" title={`Referrer: ${inquiry.referrerName}${inquiry.referrerEmail ? ` <${inquiry.referrerEmail}>` : ""}${inquiry.referrerPhone ? ` (${inquiry.referrerPhone})` : ""}`}>
+                  <User className="w-3 h-3" /> Referrer: {inquiry.referrerName}
+                  {inquiry.referrerEmail ? ` <${inquiry.referrerEmail}>` : ""}
+                  {inquiry.referrerPhone ? ` (${inquiry.referrerPhone})` : ""}
                 </span>
               )}
               {inquiry.howToGuideSentAt && (

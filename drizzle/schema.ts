@@ -595,6 +595,13 @@ export const packageInquiries = mysqlTable("package_inquiries", {
   // the quote request form ("Who referred you?"). Referrers earn 10% of the
   // referred customer's first paid invoice, one-time payout.
   referredBy: varchar("referredBy", { length: 120 }),
+  // Referrer contact details, collected via the expandable "I was referred by
+  // someone" section on the quote request form. Name and email are required
+  // when the checkbox is checked; phone is optional. Used to contact and pay
+  // the referrer their 10% of the customer's first paid invoice.
+  referrerName: varchar("referrerName", { length: 120 }),
+  referrerEmail: varchar("referrerEmail", { length: 255 }),
+  referrerPhone: varchar("referrerPhone", { length: 40 }),
   // Timestamp when the customer how-to guide welcome email was sent
   // (fired automatically on the paid+signed onboarding handoff).
   howToGuideSentAt: timestamp("howToGuideSentAt"),

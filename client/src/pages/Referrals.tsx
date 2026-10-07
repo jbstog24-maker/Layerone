@@ -50,7 +50,7 @@ const STEPS = [
   {
     icon: Mail,
     title: "They name you on the quote form",
-    desc: "When they request a quote, they put your name in the \"Who referred you?\" field. That is how we track it.",
+    desc: "When they request a quote, they check \"I was referred by someone\" and enter your name and email. That is how we track it.",
   },
   {
     icon: Handshake,
