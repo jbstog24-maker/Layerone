@@ -362,6 +362,24 @@ export async function runOnceMigration(): Promise<void> {
       });
     }
 
+    // 2026-10-07: referral attribution columns on package_inquiries
+    const REFERRAL_COLUMN_DEFS: Record<string, string> = {
+      referredBy: "varchar(120) NULL",
+      referrerName: "varchar(120) NULL",
+      referrerEmail: "varchar(255) NULL",
+      referrerPhone: "varchar(40) NULL",
+    };
+    for (const [col, def] of Object.entries(REFERRAL_COLUMN_DEFS)) {
+      await applyStep(`add package_inquiries.${col}`, async () => {
+        if (await columnExists(db, "package_inquiries", col)) {
+          console.log(`[Migration] package_inquiries.${col} already exists - skipping`);
+        } else {
+          await db.execute(sql.raw(`ALTER TABLE \`package_inquiries\` ADD \`${col}\` ${def}`));
+          console.log(`[Migration] package_inquiries.${col} added`);
+        }
+      });
+    }
+
     // 2026-09-30: rollout scoping columns on package_inquiries (project-quote form)
     const INQUIRY_COLUMN_DEFS: Record<string, string> = {
       locationCount: "int NULL",
