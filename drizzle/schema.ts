@@ -591,6 +591,10 @@ export const packageInquiries = mysqlTable("package_inquiries", {
   // Name of the commission sales rep the prospect is working with, if any.
   // Self-reported on the quote request form so the rep gets compensated.
   salesRepName: varchar("salesRepName", { length: 120 }),
+  // Name of the person who referred this prospect, if any. Self-reported on
+  // the quote request form ("Who referred you?"). Referrers earn 10% of the
+  // referred customer's first paid invoice, one-time payout.
+  referredBy: varchar("referredBy", { length: 120 }),
   // Timestamp when the customer how-to guide welcome email was sent
   // (fired automatically on the paid+signed onboarding handoff).
   howToGuideSentAt: timestamp("howToGuideSentAt"),

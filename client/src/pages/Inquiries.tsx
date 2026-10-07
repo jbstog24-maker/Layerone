@@ -109,6 +109,7 @@ type Inquiry = {
   startDate: string | null;
   rolloutDuration: string | null;
   salesRepName: string | null;
+  referredBy: string | null;
   howToGuideSentAt: Date | null;
   status: InquiryStatus;
   createdAt: Date;
@@ -435,6 +436,11 @@ function QuoteBuilderDialog({
               {inquiry.salesRepName && (
                 <span className="inline-flex items-center gap-1 text-xs bg-[#0A84FF]/15 border border-[#0A84FF]/40 px-2 py-0.5 rounded-full text-sky-300 font-medium">
                   <User className="w-3 h-3" /> Sales Rep: {inquiry.salesRepName}
+                </span>
+              )}
+              {inquiry.referredBy && (
+                <span className="inline-flex items-center gap-1 text-xs bg-[#6ee7b7]/15 border border-[#6ee7b7]/40 px-2 py-0.5 rounded-full text-emerald-300 font-medium">
+                  <User className="w-3 h-3" /> Referred By: {inquiry.referredBy}
                 </span>
               )}
               {inquiry.howToGuideSentAt && (

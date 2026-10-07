@@ -84,6 +84,9 @@ export const inquiryRouter = router({
       // Optional sales-rep attribution: the prospect names the Layer One
       // sales rep they are working with so the rep can be compensated.
       salesRepName: z.string().trim().max(120).optional(),
+      // Optional referral attribution: the prospect names who referred them.
+      // Referrers earn 10% of the referred customer's first paid invoice.
+      referredBy: z.string().trim().max(120).optional(),
     }))
     .mutation(async ({ input }) => {
       const db = await getDb();
@@ -125,6 +128,7 @@ export const inquiryRouter = router({
           startDate: input.startDate ?? null,
           rolloutDuration: input.rolloutDuration ?? null,
           salesRepName: input.salesRepName || null,
+          referredBy: input.referredBy || null,
           enrollmentDetails,
         });
         inquiryId = (result[0] as any)?.insertId ?? null;
@@ -210,6 +214,7 @@ export const inquiryRouter = router({
         input.startDate ? `**Start Date:** ${input.startDate}` : null,
         input.rolloutDuration ? `**Rollout Duration:** ${input.rolloutDuration}` : null,
         input.salesRepName ? `**Sales Rep:** ${input.salesRepName}` : null,
+        input.referredBy ? `**Referred By:** ${input.referredBy}` : null,
         input.addons?.length ? `**Add-ons:** ${input.addons.join(", ")}` : null,
         input.message ? `**Message:** ${input.message}` : null,
         enrollmentSummary,
@@ -241,6 +246,7 @@ export const inquiryRouter = router({
         startDate: input.startDate ?? null,
         rolloutDuration: input.rolloutDuration ?? null,
         salesRepName: input.salesRepName || null,
+        referredBy: input.referredBy || null,
       }).catch(() => {});
 
       // Send branded welcome email to the prospect (enrollment-specific for

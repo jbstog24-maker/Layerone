@@ -12,6 +12,7 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import About from "./pages/About";
 import Team from "./pages/Team";
 import Terms from "./pages/Terms";
+import Referrals from "./pages/Referrals";
 import { ClientsList, ClientDetail } from "./pages/Clients";
 import Packages from "./pages/Packages";
 import { DeliveriesList, DeliveryDetail } from "./pages/Deliveries";
@@ -99,6 +100,7 @@ function Router() {
       <Route path="/cancel-call" component={CancelCall} />
       <Route path="/privacy" component={PrivacyPolicy} />
       <Route path="/terms" component={Terms} />
+      <Route path="/referrals" component={Referrals} />
       <Route path="/about" component={About} />
       <Route path="/team" component={Team} />
       <Route path="/get-started" component={GetStarted} />

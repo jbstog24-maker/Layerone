@@ -88,6 +88,7 @@ export default function RequestForm({ onSubmitted }: { onSubmitted?: () => void 
     startDate: "",
     rolloutDuration: "",
     salesRepName: "",
+    referredBy: "",
     message: "",
   });
   type FormField = keyof typeof form;
@@ -141,6 +142,9 @@ export default function RequestForm({ onSubmitted }: { onSubmitted?: () => void 
       // working with a rep and names them.
       salesRepName:
         workingWithRep && form.salesRepName.trim() ? form.salesRepName.trim() : undefined,
+      // Referral attribution: who sent this prospect our way. They earn 10%
+      // of the customer's first paid invoice.
+      referredBy: form.referredBy.trim() ? form.referredBy.trim() : undefined,
     });
   };
 
@@ -199,6 +203,15 @@ export default function RequestForm({ onSubmitted }: { onSubmitted?: () => void 
               <Phone className="inline w-3.5 h-3.5 mr-1 opacity-70" />Phone <span className="text-red-400">*</span>
             </label>
             <input required type="tel" value={form.phone} onChange={set("phone")} placeholder="(214) 555-0100" className={inputClass} />
+          </div>
+          <div className="sm:col-span-2">
+            <label className="block text-sm font-medium text-[#b7c5d5] mb-1.5">
+              Who referred you? <span className="text-[#b7c5d5]/50">(optional)</span>
+            </label>
+            <input type="text" value={form.referredBy} onChange={set("referredBy")} placeholder="Name of the person who sent you our way" className={inputClass} />
+            <p className="text-xs text-[#b7c5d5]/60 mt-1.5">
+              They earn 10% of your first invoice when you sign up. Make sure they get credit.
+            </p>
           </div>
         </div>
       </section>
