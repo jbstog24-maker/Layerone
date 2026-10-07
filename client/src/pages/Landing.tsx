@@ -816,14 +816,14 @@ function About() {
           </div>
           <div className="relative rounded-2xl overflow-hidden border border-white/10 shadow-[0_12px_40px_rgba(0,0,0,0.4)]">
             <img
-              src="/images/james-stogner.jpg"
-              alt="James Stogner, founder of Layer One Staging"
-              className="w-full h-80 object-cover object-top"
+              src="/images/warehouse-team-home.png"
+              alt="Layer One Staging warehouse team preparing IT equipment for deployment"
+              className="w-full h-80 object-cover object-center"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-[#0B1320]/90 via-[#0B1320]/20 to-transparent" />
             <div className="absolute bottom-0 left-0 right-0 p-5">
-              <h3 className="text-base font-bold text-white mb-1">James Stogner, Founder</h3>
-              <p className="text-xs text-slate-300 leading-relaxed">U.S. Air Force veteran with 20+ years in the IT field, running the warehouse behind your rollout.</p>
+              <h3 className="text-base font-bold text-white mb-1">The Team Behind Your Rollout</h3>
+              <p className="text-xs text-slate-300 leading-relaxed">Background-checked, vetted technicians staging, kitting, and shipping your deployment hardware.</p>
             </div>
           </div>
         </div>
