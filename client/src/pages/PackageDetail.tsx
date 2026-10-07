@@ -440,7 +440,7 @@ export default function PackageDetail() {
             <LayerOneLogo />
           </button>
           <div className="flex items-center gap-3">
-            <a href="/#packages" className="text-sm text-[#b7c5d5] hover:text-white transition-colors px-3 py-2">
+            <a href="/#packages" className="hidden sm:block text-sm text-[#b7c5d5] hover:text-white transition-colors px-3 py-2">
               All Packages
             </a>
             {isAuthenticated ? (

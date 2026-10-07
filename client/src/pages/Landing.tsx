@@ -20,8 +20,7 @@ function LayerOneLogo({ className = "" }: { className?: string }) {
     <img
       src={LOGO_URL}
       alt="Layer One Staging"
-      className={className}
-      style={{ height: 44, width: "auto" }}
+      className={`h-9 w-auto md:h-11 ${className}`}
     />
   );
 }
@@ -81,18 +80,26 @@ export function NavBar() {
           <a href="/referrals" className="hover:text-white transition-colors">Referrals</a>
           <a href="/#contact" className="hover:text-white transition-colors">Contact</a>
         </nav>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 md:gap-3">
           <button
             aria-label={mobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden flex items-center justify-center w-10 h-10 rounded-xl text-white hover:bg-white/10 transition-colors"
+            className="md:hidden flex items-center justify-center w-10 h-10 rounded-xl text-white hover:bg-white/10 transition-colors shrink-0"
           >
             {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
+          {!isAuthenticated && (
+            <a
+              href="/get-started"
+              className="md:hidden flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-bold bg-[#0A84FF] text-white hover:bg-[#3d9dff] transition-colors whitespace-nowrap shrink-0"
+            >
+              Get a Quote <ArrowRight className="w-3.5 h-3.5" />
+            </a>
+          )}
           <a
             href="tel:+14695374378"
             aria-label="Call Layer One Staging at (469) 537-4378"
-            className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold border border-white/20 text-white hover:border-[#0A84FF] hover:text-[#0A84FF] transition-colors"
+            className="hidden md:flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold border border-white/20 text-white hover:border-[#0A84FF] hover:text-[#0A84FF] transition-colors"
           >
             <Phone className="w-4 h-4" />
             <span className="hidden sm:inline">(469) 537-4378</span>
@@ -100,7 +107,7 @@ export function NavBar() {
           {isAuthenticated ? (
             <button
               onClick={() => setLocation("/dashboard")}
-              className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold bg-[#0A84FF] text-white hover:bg-[#3d9dff] transition-colors"
+              className="hidden md:flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold bg-[#0A84FF] text-white hover:bg-[#3d9dff] transition-colors"
             >
               Go to Dashboard <ArrowRight className="w-3.5 h-3.5" />
             </button>
@@ -108,13 +115,13 @@ export function NavBar() {
             <>
               <a
                 href={getLoginUrl()}
-                className="text-sm text-slate-400 hover:text-white transition-colors px-3 py-2"
+                className="hidden md:block text-sm text-slate-400 hover:text-white transition-colors px-3 py-2"
               >
                 Sign In
               </a>
               <a
                 href="/get-started"
-                className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold bg-[#0A84FF] text-white hover:bg-[#3d9dff] transition-colors"
+                className="hidden md:flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold bg-[#0A84FF] text-white hover:bg-[#3d9dff] transition-colors"
               >
                 Request a Project Quote <ArrowRight className="w-3.5 h-3.5" />
               </a>
@@ -177,11 +184,45 @@ export function NavBar() {
             </a>
             <a
               href="/#contact"
-              className="py-3 text-white"
+              className="py-3 text-white border-b border-white/5"
               onClick={() => setMobileMenuOpen(false)}
             >
               Contact
             </a>
+            <div className="pt-4 pb-2 flex flex-col gap-1">
+              <a
+                href="tel:+14695374378"
+                className="flex items-center gap-2 py-2.5 text-sm text-slate-300 hover:text-white transition-colors"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                <Phone className="w-4 h-4" /> (469) 537-4378
+              </a>
+              {isAuthenticated ? (
+                <button
+                  onClick={() => { setMobileMenuOpen(false); setLocation("/dashboard"); }}
+                  className="flex items-center justify-center gap-2 px-4 py-3 mt-2 rounded-xl text-sm font-bold bg-[#0A84FF] text-white hover:bg-[#3d9dff] transition-colors"
+                >
+                  Go to Dashboard <ArrowRight className="w-3.5 h-3.5" />
+                </button>
+              ) : (
+                <>
+                  <a
+                    href={getLoginUrl()}
+                    className="py-2.5 text-sm text-slate-300 hover:text-white transition-colors"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    Sign In
+                  </a>
+                  <a
+                    href="/get-started"
+                    className="flex items-center justify-center gap-2 px-4 py-3 mt-2 rounded-xl text-sm font-bold bg-[#0A84FF] text-white hover:bg-[#3d9dff] transition-colors"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    Request a Project Quote <ArrowRight className="w-3.5 h-3.5" />
+                  </a>
+                </>
+              )}
+            </div>
           </div>
         </nav>
       )}
