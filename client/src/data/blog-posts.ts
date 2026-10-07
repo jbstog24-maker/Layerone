@@ -115,4 +115,20 @@ export const BLOG_POSTS: BlogPost[] = [
       "The cost of receiving early freight properly is a fraction of what a scrambled delivery costs you. A missed delivery fee, a lost box, a stalled install day with a client watching: each one is worth more than the warehouse space would have been. Plan for freight to arrive at the wrong time, because it will. The projects that survive are the ones where wrong timing is a notification instead of a crisis.",
     ],
   },
+  {
+    slug: "kitting-by-site-why-one-box-per-location-matters",
+    title: "Kitting by Site: Why One Box per Location Matters",
+    date: "2026-10-07",
+    excerpt: "When a rollout's gear arrives as one mixed batch, the tech spends install day sorting instead of installing. Here is why kitting by site, one labeled box per location, keeps projects on schedule.",
+    category: "Deployment Tips",
+    readTime: 4,
+    content: [
+      "Here is a scene every deployment tech knows. They walk into a site with a spreadsheet that says this location gets six switches, twelve access points, and a firewall. The gear is stacked in a hallway in the vendor's boxes, part numbers on the labels, nothing saying which site any of it belongs to, because the whole project shipped in one mixed batch. So before any installing happens, the tech becomes a sort operator: opening boxes, checking part numbers against the spreadsheet, piling devices into 'this site' and 'not this site' stacks while the client's employees step around the mess. The clock is running, and none of this is the work the client is paying for.",
+      "## The mixed-batch trap",
+      "Shipping a rollout's gear in bulk looks efficient on paper. Fewer shipments, one delivery, everything in one place. But the place it lands is never set up for sorting, and the person doing the sorting is your most expensive person on the project. Warehouse work done in a client hallway is slow and sloppy. Part numbers get misread. A box meant for one site ends up in another site's pile. The worst version is the one nobody catches on install day: the wrong device goes up at the wrong location, and it surfaces weeks later when the inventory numbers do not add up. Now you are scheduling a return trip to fix a mistake that was made standing in a hallway with a box cutter.",
+      "## What a real site kit looks like",
+      "A site kit moves the sorting to where it belongs. Everything for one location goes into its own box or set of boxes. Each box is labeled with the site name and carries a contents list on the outside. Inside, devices are tagged by where they go: the access point for the break room is labeled for the break room. Serial numbers and MAC addresses were captured when the kit was built, not at the job site. The tech opens the box, checks the contents against the list, and starts installing. No sorting, no cross-referencing part numbers against a spreadsheet, no guessing.",
+      "You do not need a big operation to do this. You need one rule: nothing ships to a site as part of a mixed batch. Sort once, on a bench, where a misread label costs a minute instead of a return trip. On a multi-site rollout, the hours you get back at every location add up fast, and the installs stop starting with a sorting session in front of the client. One box, one site, labeled on the outside. That is the whole discipline, and it is the difference between an install day and a sorting day.",
+    ],
+  },
 ];
