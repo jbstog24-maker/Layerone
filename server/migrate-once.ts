@@ -21,6 +21,8 @@
  *  - CREATE TABLE scheduled_calls (website "Schedule a Call" bookings w/ email verification)
  *  - CREATE TABLE call_logs (Bland post-call webhook transcript archive)
  *  - CREATE TABLE quote_terminations (early back-out calculator + refund record)
+ *  - CREATE TABLE referral_signups (referral program signups)
+ *  - CREATE TABLE hubspot_pending_syncs (HubSpot sync queue)
  */
 import { sql } from "drizzle-orm";
 import { getDb } from "./db";
@@ -577,6 +579,49 @@ export async function runOnceMigration(): Promise<void> {
       } else {
         await db.execute(sql.raw("ALTER TABLE `clients` ADD `locationId` int NULL"));
         console.log("[Migration] clients.locationId added");
+      }
+    });
+
+    // 2026-10-08: referral system tables. referral_signups holds people who
+    // signed up as referrers (/referrals); hubspot_pending_syncs queues
+    // HubSpot contact/deal syncs when no API key is configured or a sync
+    // attempt fails. Uses CREATE TABLE IF NOT EXISTS, never throws.
+    await applyStep("create referral_signups table", async () => {
+      if (await tableExists(db, "referral_signups")) {
+        console.log("[Migration] referral_signups table already exists - skipping");
+      } else {
+        await db.execute(sql.raw(`CREATE TABLE IF NOT EXISTS \`referral_signups\` (
+          \`id\` int AUTO_INCREMENT NOT NULL,
+          \`name\` varchar(120) NOT NULL,
+          \`email\` varchar(320) NOT NULL,
+          \`phone\` varchar(30),
+          \`company\` varchar(200),
+          \`plan\` text,
+          \`createdAt\` timestamp NOT NULL DEFAULT (now()),
+          CONSTRAINT \`referral_signups_id\` PRIMARY KEY(\`id\`),
+          INDEX \`referral_signups_createdAt_idx\` (\`createdAt\`)
+        )`));
+        console.log("[Migration] referral_signups table created");
+      }
+    });
+    await applyStep("create hubspot_pending_syncs table", async () => {
+      if (await tableExists(db, "hubspot_pending_syncs")) {
+        console.log("[Migration] hubspot_pending_syncs table already exists - skipping");
+      } else {
+        await db.execute(sql.raw(`CREATE TABLE IF NOT EXISTS \`hubspot_pending_syncs\` (
+          \`id\` int AUTO_INCREMENT NOT NULL,
+          \`kind\` varchar(20) NOT NULL,
+          \`payload\` text NOT NULL,
+          \`status\` varchar(20) NOT NULL DEFAULT 'pending',
+          \`attempts\` int DEFAULT 0,
+          \`lastError\` text,
+          \`createdAt\` timestamp NOT NULL DEFAULT (now()),
+          \`processedAt\` timestamp,
+          CONSTRAINT \`hubspot_pending_syncs_id\` PRIMARY KEY(\`id\`),
+          INDEX \`hubspot_pending_syncs_status_idx\` (\`status\`),
+          INDEX \`hubspot_pending_syncs_createdAt_idx\` (\`createdAt\`)
+        )`));
+        console.log("[Migration] hubspot_pending_syncs table created");
       }
     });
 

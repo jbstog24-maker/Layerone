@@ -1900,3 +1900,116 @@ export async function sendCustomerWelcomeEmail(params: CustomerWelcomeEmailParam
     html,
   });
 }
+
+// ─── Referral program emails ─────────────────────────────────────────────────
+// Confirmation when someone signs up as a referrer, a thank-you when a
+// referred lead comes in, and the outreach email to the referred lead
+// (pre-authorized by Branden as a high-quality sales-pipeline email).
+
+export type ReferralSignupConfirmationParams = {
+  to: string;
+  name: string;
+};
+
+export async function sendReferralSignupConfirmation(params: ReferralSignupConfirmationParams): Promise<boolean> {
+  const firstName = params.name.split(" ")[0] ?? params.name;
+  const html = customerEmailShell({
+    emoji: "🤝",
+    heading: "You are signed up as a Layer One referrer",
+    greeting: `Hi ${firstName},`,
+    bodyHtml: `
+      <p style="margin:0 0 16px;color:#cbd5e1;font-size:15px;">
+        Thanks for signing up. Here is how it works:
+      </p>
+      <ul style="margin:0 0 16px;color:#cbd5e1;font-size:15px;padding-left:20px;line-height:1.7;">
+        <li>Share your name and email with anyone you think could use staging or deployment logistics.</li>
+        <li>They enter your info in the referrer fields on the quote form at <a href="https://www.layeronestaging.com/get-started" style="color:#3b82f6;">layeronestaging.com/get-started</a>, or you can <a href="https://www.layeronestaging.com/referral-submit" style="color:#3b82f6;">submit a lead directly</a>.</li>
+        <li>You earn 10% of their first paid invoice after it clears. One-time payout per customer, no cap on how many people you refer.</li>
+      </ul>
+      <p style="margin:0;color:#cbd5e1;font-size:15px;">
+        We will keep you posted when your referrals come through.
+      </p>`,
+    cta: { label: "Referral Program Details", href: "https://www.layeronestaging.com/referrals" },
+    footerNote: "Questions? Reply to this email or call (469) 537-4378.",
+  });
+  return sendCustomerEmail({
+    to: params.to,
+    subject: "You're signed up as a Layer One referrer",
+    tag: "referral-signup-confirmation",
+    html,
+  });
+}
+
+export type ReferrerThanksEmailParams = {
+  to: string;
+  referrerName: string;
+  companyName: string;
+};
+
+export async function sendReferrerThanksEmail(params: ReferrerThanksEmailParams): Promise<boolean> {
+  const firstName = params.referrerName.split(" ")[0] ?? params.referrerName;
+  const html = customerEmailShell({
+    emoji: "🙏",
+    heading: "Thanks for the referral",
+    greeting: `Hi ${firstName},`,
+    bodyHtml: `
+      <p style="margin:0 0 16px;color:#cbd5e1;font-size:15px;">
+        Thanks for sending <strong style="color:#ffffff;">${params.companyName}</strong> our way. We just received their quote request and wanted to let you know your referral came through.
+      </p>
+      <p style="margin:0 0 8px;color:#cbd5e1;font-size:15px;font-weight:600;">Here is how it works from here:</p>
+      <ul style="margin:0 0 16px;color:#cbd5e1;font-size:15px;padding-left:20px;line-height:1.7;">
+        <li>We will work with ${params.companyName} on their staging and logistics needs.</li>
+        <li>If they sign up and pay their first invoice, you earn <strong style="color:#ffffff;">10% of that first invoice</strong>.</li>
+        <li>One-time payout, no cap on how many people you refer.</li>
+      </ul>
+      <p style="margin:0;color:#cbd5e1;font-size:15px;">
+        No action needed from you right now. We will reach out when there is an update.
+      </p>`,
+    footerNote: "James Stogner · Founder, Layer One Staging · (469) 537-4378",
+  });
+  return sendCustomerEmail({
+    to: params.to,
+    subject: `Thanks for referring ${params.companyName}`,
+    tag: "referrer-thanks",
+    html,
+  });
+}
+
+export type LeadOutreachEmailParams = {
+  to: string;
+  leadName: string;
+  companyName: string;
+  referrerName: string;
+};
+
+export async function sendLeadOutreachEmail(params: LeadOutreachEmailParams): Promise<boolean> {
+  const firstName = params.leadName.split(" ")[0] ?? params.leadName;
+  const html = customerEmailShell({
+    emoji: "👋",
+    heading: `Quick intro, ${params.referrerName} suggested we talk`,
+    greeting: `Hi ${firstName},`,
+    bodyHtml: `
+      <p style="margin:0 0 16px;color:#cbd5e1;font-size:15px;">
+        ${params.referrerName} mentioned you might be dealing with some gear staging or logistics headaches, and thought we should connect.
+      </p>
+      <p style="margin:0 0 16px;color:#cbd5e1;font-size:15px;">
+        I run Layer One Staging here in DFW. We handle receiving, staging, kitting, and deployment-ready logistics for IT teams, and we ship nationwide. The usual story is gear piling up with nowhere to land, or field techs burning billable hours unboxing instead of installing. That is the part we take off your plate.
+      </p>
+      <p style="margin:0 0 16px;color:#cbd5e1;font-size:15px;">
+        If any of that sounds familiar, happy to do a brief call, or you can start a quote at <a href="https://www.layeronestaging.com/get-started" style="color:#3b82f6;">layeronestaging.com/get-started</a> and mention ${params.referrerName} sent you.
+      </p>
+      <p style="margin:0;color:#cbd5e1;font-size:15px;">
+        James Stogner<br/>
+        Founder, Layer One Staging<br/>
+        (469) 537-4378
+      </p>`,
+    cta: { label: "Start a Quote", href: "https://www.layeronestaging.com/get-started" },
+    footerNote: `Referred by ${params.referrerName} · Reply directly to this email`,
+  });
+  return sendCustomerEmail({
+    to: params.to,
+    subject: `Quick intro, ${params.referrerName} suggested we talk`,
+    tag: "referral-lead-outreach",
+    html,
+  });
+}

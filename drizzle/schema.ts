@@ -1377,3 +1377,42 @@ export const locations = mysqlTable("locations", {
 
 export type Location = typeof locations.$inferSelect;
 export type InsertLocation = typeof locations.$inferInsert;
+
+// ─── Referral Signups ────────────────────────────────────────────────────────
+// People who signed up to refer customers to Layer One (via /referrals).
+// Referred leads arrive through /referral-submit and land in packageInquiries
+// with referrerName/referrerEmail set.
+export const referralSignups = mysqlTable("referral_signups", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 120 }).notNull(),
+  email: varchar("email", { length: 320 }).notNull(),
+  phone: varchar("phone", { length: 30 }),
+  company: varchar("company", { length: 200 }),
+  plan: text("plan"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type ReferralSignup = typeof referralSignups.$inferSelect;
+export type InsertReferralSignup = typeof referralSignups.$inferInsert;
+
+// ─── HubSpot Pending Syncs ───────────────────────────────────────────────────
+// Queue of HubSpot contact/deal syncs. Rows are queued when the
+// HUBSPOT_API_KEY env var is missing (or a sync attempt fails) and flushed
+// by referral.processPendingSyncs once the key is configured.
+// - kind "contact": payload is {firstName,lastName,email,phone,company}
+// - kind "deal": payload is {contact:{...same contact fields}, dealName,
+//   referrerName, referrerEmail, notes, inquiryId}; the contact is created or
+//   matched by email first, then the deal is created and associated.
+export const hubspotPendingSyncs = mysqlTable("hubspot_pending_syncs", {
+  id: int("id").autoincrement().primaryKey(),
+  kind: varchar("kind", { length: 20 }).notNull(),
+  payload: text("payload").notNull(),
+  status: varchar("status", { length: 20 }).notNull().default("pending"),
+  attempts: int("attempts").default(0),
+  lastError: text("lastError"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  processedAt: timestamp("processedAt"),
+});
+
+export type HubspotPendingSync = typeof hubspotPendingSyncs.$inferSelect;
+export type InsertHubspotPendingSync = typeof hubspotPendingSyncs.$inferInsert;

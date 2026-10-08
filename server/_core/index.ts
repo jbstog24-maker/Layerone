@@ -11,6 +11,7 @@ import { registerStripeRoutes } from "../stripe";
 import { runOnceMigration } from "../migrate-once";
 import { mintDemoDocOnce, mintDemoUserOnce } from "../demo-seed-once";
 import { registerProspectSyncRoute } from "../prospectSync";
+import { registerReferralSyncRoute } from "../referralSync";
 import { registerBackupExportRoute } from "../backupExport";
 import { registerMessageSyncRoutes } from "../messageSync";
 import { registerScheduledCallRoutes } from "../scheduledCalls";
@@ -97,6 +98,8 @@ async function startServer() {
   app.post("/api/scheduled/lead-score-decay", handleLeadScoreDecay);
   // Prospect tracking sheet sync (token-authenticated, read-only)
   registerProspectSyncRoute(app);
+  // Referral tracking sheet sync (token-authenticated, read-only)
+  registerReferralSyncRoute(app);
   // Nightly off-site backup export (token-authenticated, read-only)
   registerBackupExportRoute(app);
   // Client message monitoring + owner-approved replies (token-authenticated)

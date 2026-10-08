@@ -47,6 +47,7 @@ import { locationsRouter } from "./routers/locations";
 import { shipmentDocsRouter } from "./routers/shipmentDocs";
 import { stagingNotifyRouter } from "./routers/stagingNotify";
 import { leadsRouter } from "./routers/leads";
+import { referralRouter } from "./routers/referral";
 import { contentRouter } from "./routers/content";
 import { supportRouter } from "./routers/support";
 import { instructionsRouter } from "./routers/instructions";
@@ -273,6 +274,7 @@ export const appRouter = router({
   shipmentDocs: shipmentDocsRouter,
   stagingNotify: stagingNotifyRouter,
   leads: leadsRouter,
+  referral: referralRouter,
   content: contentRouter,
   support: supportRouter,
   instructions: instructionsRouter,
