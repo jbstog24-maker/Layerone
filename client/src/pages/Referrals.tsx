@@ -170,6 +170,43 @@ export default function Referrals() {
         </div>
       </section>
 
+      {/* Who to refer */}
+      <section className="py-16 border-b border-white/10">
+        <div className="max-w-4xl mx-auto px-6">
+          <h2 className="text-3xl font-black tracking-[-1px] text-white mb-3">
+            Who makes a great referral?
+          </h2>
+          <p className="text-slate-400 mb-8 max-w-2xl">
+            If you know anyone in these worlds dealing with IT equipment rollouts,
+            they are exactly who we help.
+          </p>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {[
+              "School districts and private schools",
+              "Hospitals and healthcare systems",
+              "MSPs and IT service providers",
+              "IT integrators and VARs",
+              "Retail chains and franchises",
+              "Restaurants and hospitality groups",
+              "Banks and credit unions",
+              "Government agencies and municipalities",
+              "Churches and nonprofits with multiple campuses",
+              "Property management companies",
+              "Construction firms outfitting new buildings",
+              "Event and trade show production companies",
+            ].map(item => (
+              <div
+                key={item}
+                className="flex items-start gap-3 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3"
+              >
+                <CheckCircle2 className="w-5 h-5 text-[#0A84FF] shrink-0 mt-0.5" />
+                <span className="text-sm text-slate-300">{item}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* CTA */}
       <section className="py-16">
         <div className="max-w-4xl mx-auto px-6 text-center">
