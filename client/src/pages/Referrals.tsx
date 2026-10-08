@@ -49,8 +49,8 @@ const STEPS = [
   },
   {
     icon: Mail,
-    title: "They name you on the quote form",
-    desc: "When they request a quote, they check \"I was referred by someone\" and enter your name and email. That is how we track it.",
+    title: "They name you, or you submit the lead",
+    desc: "When they request a quote, they name you as their referrer. Or submit the lead directly yourself from the /referral-submit form. Either way, sign up first so we know where the 10% goes.",
   },
   {
     icon: Handshake,
@@ -115,7 +115,8 @@ export default function Referrals() {
             How it works
           </h2>
           <p className="text-slate-400 mb-10 max-w-2xl">
-            Four steps. No sign-up, no referral codes, no dashboard to check.
+            Two ways to refer, four steps to your payout. No referral codes, no
+            dashboard to check.
           </p>
           <div className="grid sm:grid-cols-2 gap-5">
             {STEPS.map((s, i) => (
@@ -171,15 +172,21 @@ export default function Referrals() {
             Start referring today
           </h2>
           <p className="text-slate-400 mb-8 max-w-xl mx-auto">
-            Just tell them to mention your name when they request a quote.
+            Sign up as a referrer, then send someone our way.
             We handle the rest.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
-              href="/get-started"
+              href="/referral-signup"
               className="inline-flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-bold bg-[#0A84FF] text-white hover:bg-[#3d9dff] transition-colors"
             >
-              Send Someone Our Way <ArrowRight className="w-4 h-4" />
+              Sign Up as a Referrer <ArrowRight className="w-4 h-4" />
+            </Link>
+            <Link
+              href="/referral-submit"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-bold border border-white/20 text-white hover:border-[#0A84FF] hover:text-[#0A84FF] transition-colors"
+            >
+              Submit a Lead
             </Link>
             <a
               href="mailto:info@layeronestaging.com?subject=Referral%20Program%20Question"

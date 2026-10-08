@@ -13,6 +13,9 @@ import About from "./pages/About";
 import Team from "./pages/Team";
 import Terms from "./pages/Terms";
 import Referrals from "./pages/Referrals";
+import ReferralSignup from "./pages/ReferralSignup";
+import ReferralSubmit from "./pages/ReferralSubmit";
+import ReferralSignups from "./pages/ReferralSignups";
 import { ClientsList, ClientDetail } from "./pages/Clients";
 import Packages from "./pages/Packages";
 import { DeliveriesList, DeliveryDetail } from "./pages/Deliveries";
@@ -101,6 +104,9 @@ function Router() {
       <Route path="/privacy" component={PrivacyPolicy} />
       <Route path="/terms" component={Terms} />
       <Route path="/referrals" component={Referrals} />
+      <Route path="/referral-signup" component={ReferralSignup} />
+      <Route path="/referral-submit" component={ReferralSubmit} />
+      <Route path="/referral-signups" component={ReferralSignups} />
       <Route path="/about" component={About} />
       <Route path="/team" component={Team} />
       <Route path="/get-started" component={GetStarted} />
