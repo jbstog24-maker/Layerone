@@ -105,6 +105,11 @@ export default function Referrals() {
             unboxed gear, point them at Layer One. When they sign up and pay their
             first invoice, you get 10% of it. Simple as that.
           </p>
+          <img
+            src="/images/referral-program-hero.png"
+            alt="Refer a business, get rewarded when they sign"
+            className="mt-10 rounded-2xl border border-white/10 w-full"
+          />
         </div>
       </section>
 
