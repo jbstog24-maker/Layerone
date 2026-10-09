@@ -151,4 +151,23 @@ export const BLOG_POSTS: BlogPost[] = [
       "The discipline is simple. Nothing gets signed for blind, nothing goes into storage uncounted, and nothing leaves the dock without its serial numbers captured and logged. Do intake right and the rest of the project gets quieter: fewer surprises, fewer emergency orders, fewer second trips. The loading dock is not a detour from the real work. It is where the real work starts.",
     ],
   },
+  {
+    slug: "how-to-handle-last-minute-change-orders",
+    title: "How to Handle Last-Minute Change Orders Without Wrecking the Rollout",
+    date: "2026-10-09",
+    excerpt: "Change orders are not the exception, they are the job. Here is how to absorb late additions without stalled installs, emergency runs, or techs waiting on a delivery truck.",
+    category: "Deployment Tips",
+    readTime: 4,
+    content: [
+      "Change orders are not the exception on a rollout. They are the job. A site walk missed a conference room. The client decided they want coverage in the warehouse after all. The register count went from six to eight the week of the install. None of this is anybody's fault, and all of it has to be handled without derailing the project. The question is whether your operation can absorb a late change, or whether every change becomes an emergency.",
+      "When there is no staging step in the middle, a change order turns into a scramble. Somebody places a rush order. The vendor ships it wherever they can, sometimes to a site with nobody there to receive it. The tech finds out on install day that the extra gear is not in the kit, so now the project needs a second trip or a tech waiting on a delivery truck. The client asked for three access points and got a schedule slip, which is the fastest way to turn a reasonable request into a source of friction.",
+      "## Why late changes turn into emergencies",
+      "The real problem is that a change order touches every part of a project at once. The new gear has to be ordered, received, configured to match the rest of the site, and delivered on a timeline that was already tight. Without a central point where that gear lands and gets processed, each step becomes a separate improvisation. The order goes direct to the site, nobody does an intake, nobody checks it against the existing kit, and the tech is the one who discovers the mismatch.",
+      "This is also where mistakes multiply. A change order device that skips the staging process skips the bench check, skips the firmware match, skips the labeling, skips the serial capture. It is the one device that goes up different from all the others, and it is the one that causes trouble six months later when nobody can tell you what firmware it is running.",
+      "## The change order workflow that works",
+      "A staging dock absorbs change orders because it gives late gear a place to land. The order ships to the warehouse, where it gets the same treatment as the original kit: intake, count, inspection, bench check, firmware matched to the site standard, labeled, and serials captured. Then it gets added to the site's kit, either merged with the next scheduled shipment or sent out on its own if the install is already underway.",
+      "The discipline is simple. Nothing goes to a site outside of a kit, no matter how urgent it feels. The kit is where the labels, the bench check, the documentation, and the chain of custody live, and a change order device needs every one of those things just as much as the original gear. That rule is what keeps one late addition from becoming a second deployment with none of the process.",
+      "Plan for change orders the way you plan for freight arriving early: assume they will happen and have a place for them to land. The projects that handle late changes quietly are not the ones with better luck. They are the ones where the late gear goes through the same process as everything else.",
+    ],
+  },
 ];
