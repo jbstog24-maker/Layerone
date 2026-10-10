@@ -170,4 +170,21 @@ export const BLOG_POSTS: BlogPost[] = [
       "Plan for change orders the way you plan for freight arriving early: assume they will happen and have a place for them to land. The projects that handle late changes quietly are not the ones with better luck. They are the ones where the late gear goes through the same process as everything else.",
     ],
   },
+  {
+    slug: "how-to-survive-a-multi-site-rollout-without-chaos",
+    title: "How to Survive a Multi-Site Rollout Without Chaos",
+    date: "2026-10-10",
+    excerpt: "Rollouts go sideways when every site becomes its own project. Here is how to keep ten sites, or fifty, running on one process instead of ten improvisations.",
+    category: "Industry Insights",
+    readTime: 4,
+    content: [
+      "There is a moment on every multi-site rollout where it stops feeling like one project and starts feeling like ten separate problems. Site three is ready but the gear went to site four. The tech at site seven found two dead switches and nobody has a spare. Site two's manager never signed for the pallet, so nobody knows if it is even there. The project manager is living out of a spreadsheet that was accurate two days ago, and the client is asking questions you cannot answer with confidence. This is the chaos tax, and almost every rollout pays some of it.",
+      "## The chaos is not the sites. It is the process gap.",
+      "A rollout fails one handoff at a time. The vendor ships direct to each site because it seems faster, so nobody does intake and nobody owns receiving. The techs show up to unbox and sort because there is no staging step, so your most expensive people do your cheapest work. Serial numbers get captured in site notebooks, or not at all. Change orders bypass the process because there is no real process to bypass, just ten sites improvising independently. Each site works, more or less, but nothing matches across them. When the client asks for a full asset report at the end, the answer comes from memory instead of records.",
+      "## One process, run the same way everywhere",
+      "The fix is boring, which is why it works. Every device goes through the same pipeline: intake at the dock, bench check, configuration matched to the site standard, kitted by site, labeled, shipped on schedule. Site one and site fifty get gear prepared the same way, documented the same way, with the same chain of custody. A change order lands at the dock and goes through the same kit instead of becoming its own project. When the project manager opens the tracking sheet, it reflects reality instead of hopes.",
+      "What staging really gives you on a multi-site rollout is a control point between the vendor and the field. Instead of ten delivery addresses and ten improvisations, there is one place where gear is received, verified, prepared, and dispatched on your schedule. The techs walk into sites that are ready for them. The client gets consistent deployments instead of ten slightly different installs. And when the rollout is done, the asset report writes itself from the intake records instead of getting assembled from text messages.",
+      "Rollouts do not have to be chaotic. They just have to stop being ten projects and start being one process with a center.",
+    ],
+  },
 ];
