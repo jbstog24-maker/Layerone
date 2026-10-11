@@ -43,7 +43,7 @@ export const SERVICE_PAGES: ServicePageData[] = [
       { title: "Configuration & firmware", desc: "Baseline configs and firmware updates applied to your spec sheet before deployment." },
       { title: "Asset tagging", desc: "Barcode/QR asset tags and site labels applied and recorded per device." },
       { title: "QA verification", desc: "Power-on checks, config review, and a signed deployment-readiness checklist." },
-      { title: "Kitting & outbound", desc: "Site-specific kits packed and shipped nationwide - or delivered locally across DFW." },
+      { title: "Kitting & outbound", desc: "Site-specific kits packed and delivered across DFW." },
     ],
     processTitle: "How DFW staging works",
     processNote:
@@ -52,7 +52,7 @@ export const SERVICE_PAGES: ServicePageData[] = [
       { title: "DFW MSPs", desc: "Offload receiving and staging so your engineers stay billable and on schedule." },
       { title: "General contractors", desc: "A technology staging partner for office build-outs and tenant improvements." },
       { title: "Retail & restaurant groups", desc: "North Texas locations staged identically from one central point." },
-      { title: "National rollout teams", desc: "A central Texas staging hub with nationwide outbound shipping." },
+      { title: "DFW rollout teams", desc: "A central DFW staging hub with local outbound delivery." },
     ],
     faqs: [
       {
@@ -64,8 +64,8 @@ export const SERVICE_PAGES: ServicePageData[] = [
         a: "Yes. We offer local DFW delivery for palletized freight ($175/pallet) and loose devices ($30/device) within the metro area.",
       },
       {
-        q: "Can you stage equipment shipping outside Texas?",
-        a: "Absolutely. DFW is our staging point; finished kits ship nationwide via parcel and LTL carriers with tracking.",
+        q: "Do you deliver outside the DFW metro?",
+        a: "Our delivery service covers the Dallas-Fort Worth metro. Finished kits are delivered across the metro with tracking.",
       },
     ],
   },
@@ -133,9 +133,9 @@ export const SERVICE_PAGES: ServicePageData[] = [
     processNote:
       "Rollouts rarely go exactly to plan - sites slip, vendors split-ship, quantities change. Because all inventory sits in one staged operation, we can re-sequence kits, reallocate spares, and adjust ship dates without the chaos of gear scattered across vendor warehouses and techs' garages.",
     audiences: [
-      { title: "National rollout companies", desc: "A central staging and logistics point for multi-state deployments." },
+      { title: "Rollout companies", desc: "A central DFW staging point for your Texas sites." },
       { title: "MSPs", desc: "Deliver multi-site projects without turning your office into a warehouse." },
-      { title: "Franchise systems", desc: "Identical site kits for every location, shipped on the opening schedule." },
+      { title: "Franchise systems", desc: "Identical site kits for every DFW location, delivered on the opening schedule." },
       { title: "IT project managers", desc: "One throat to choke on hardware logistics - and one portal to watch it." },
     ],
     faqs: [
@@ -158,7 +158,7 @@ export const SERVICE_PAGES: ServicePageData[] = [
     title: "Technology Deployment Logistics | Layer One Staging",
     h1: "Technology Deployment Logistics",
     metaDescription:
-      "Technology deployment logistics from Layer One Staging: receive, configure, kit, and ship technology deployments with chain-of-custody tracking nationwide.",
+      "Technology deployment logistics from Layer One Staging: receive, configure, kit, and deliver technology deployments across DFW with chain-of-custody tracking.",
     intro: [
       "Between the purchase order and the go-live date sits a gap most organizations underestimate: the physical movement and preparation of technology. Layer One Staging fills that gap with a dedicated deployment logistics operation - receiving, staging, kitting, and forward logistics for technology projects of any size.",
       "Unlike general 3PL warehouses, we speak technology: serial and MAC capture, firmware baselines, asset tagging, configuration, and QA verification are standard parts of our workflow, not special requests. Your deployment arrives in the field as finished kits, not boxes of parts.",
@@ -168,7 +168,7 @@ export const SERVICE_PAGES: ServicePageData[] = [
       { title: "Configuration services", desc: "Firmware, baselines, and site-specific configs applied in staging." },
       { title: "Asset lifecycle records", desc: "Serial, MAC, asset tag, and photos captured into a per-device record." },
       { title: "Deployment kitting", desc: "Complete per-site packages with devices, accessories, and documentation." },
-      { title: "Forward logistics", desc: "Nationwide parcel, pallet, and LTL outbound with carrier tracking." },
+      { title: "Local DFW delivery", desc: "Parcel, pallet, and LTL outbound across the DFW metro with tracking." },
       { title: "Chain of custody", desc: "Every movement logged - receipt to dispatch - with a full audit trail." },
     ],
     processTitle: "Built for deployment teams",
@@ -601,7 +601,7 @@ SERVICE_PAGES.push(
     title: "Tradeshow & Event Equipment Storage in DFW | Layer One Staging",
     h1: "Tradeshow & Event Equipment Storage",
     metaDescription:
-      "Tradeshow and event equipment storage in Dallas-Fort Worth: booth materials, displays, and signage received, stored between shows, inventoried, kitted by event, and shipped to venues nationwide.",
+      "Tradeshow and event equipment storage in Dallas-Fort Worth: booth materials, displays, and signage received, stored between shows, inventoried, kitted by event, and delivered to DFW-area venues.",
     intro: [
       "Tradeshow gear is expensive, bulky, and unforgiving. A cracked display panel or a missing banner discovered at setup turns into a crisis with a hard deadline. Layer One Staging gives event teams a home base in Dallas-Fort Worth for everything physical about their show calendar: booth materials, displays, signage, lighting, and demo equipment received from your vendors, stored securely between shows, and shipped to the next venue ready to set up.",
       "Our Carrollton-area facility sits minutes from DFW freight corridors, so inbound shipments from fabricators and outbound freight to convention centers move fast. Between shows, your gear lives on industrial racking in an access-controlled, camera-monitored warehouse, inventoried per item and photographed on arrival. When the next show approaches, we kit by event, palletize to the venue's receiving requirements, and dispatch with tracking, so your team walks into setup with everything accounted for.",
@@ -611,7 +611,7 @@ SERVICE_PAGES.push(
       { title: "Secure between-show storage", desc: "Access-controlled, camera-monitored storage on industrial racking. Your gear is isolated per client and protected between events." },
       { title: "Item-level inventory", desc: "Every case, crate, and component logged into your portal with photos and condition notes." },
       { title: "Kitting by event", desc: "Show-specific kits assembled: booth components, signage, collateral, and spares packed per event checklist." },
-      { title: "Venue outbound shipping", desc: "Palletized freight dispatched to convention centers and venues nationwide, timed to advance warehouse or direct-to-show windows." },
+      { title: "Venue delivery", desc: "Palletized freight dispatched to DFW-area convention centers and venues, timed to advance warehouse or direct-to-show windows." },
       { title: "Rush turnaround", desc: "Back-to-back shows and last-minute changes handled on compressed timelines, coordinated with your event schedule." },
     ],
     processTitle: "How event logistics works",
@@ -625,8 +625,8 @@ SERVICE_PAGES.push(
     ],
     faqs: [
       {
-        q: "Can you ship to venues outside Texas?",
-        a: "Yes. DFW is our home base, but we ship palletized freight to convention centers and venues nationwide, timed to each venue's advance warehouse or direct-to-show receiving windows.",
+        q: "Do you deliver to venues outside the DFW metro?",
+        a: "Our delivery service covers the Dallas-Fort Worth metro. We deliver palletized freight to convention centers and venues across the metro, timed to each venue's advance warehouse or direct-to-show receiving windows.",
       },
       {
         q: "What happens to our gear between shows?",

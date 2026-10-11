@@ -12,7 +12,7 @@ const SECTIONS: { title: string; body: string[] }[] = [
   {
     title: "Services & Quotes",
     body: [
-      "Layer One Staging provides IT equipment staging, kitting, inventory, and deployment-logistics services for businesses in Dallas–Fort Worth and nationwide.",
+      "Layer One Staging provides IT equipment staging, kitting, inventory, and deployment-logistics services for businesses in Dallas–Fort Worth.",
       "Pricing shown on the Site (including per-pallet receiving and storage rates) is informational and may change. A quote request is not a booking - pricing becomes binding only in an accepted written proposal.",
       "Project quotes are scoped from the details you provide (locations, devices, services, schedule). Inaccurate information may change the final price.",
     ],

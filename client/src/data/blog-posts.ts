@@ -187,4 +187,23 @@ export const BLOG_POSTS: BlogPost[] = [
       "Rollouts do not have to be chaotic. They just have to stop being ten projects and start being one process with a center.",
     ],
   },
+  {
+    slug: "where-does-gear-live-between-rollout-phases",
+    title: "Where Does Gear Live Between Rollout Phases?",
+    date: "2026-10-11",
+    excerpt: "Phase one installs in October, phase two starts in January, and the vendor just shipped everything. Here is what to do with 200 access points you cannot install yet.",
+    category: "Staging Best Practices",
+    readTime: 4,
+    content: [
+      "Here is a problem that shows up on almost every phased rollout. Phase one installs this month. Phase two does not start until next quarter. The purchase order closed, the vendor shipped everything at once, and now you own two hundred access points and forty switches that have nowhere to go for three months. Your office closet holds maybe forty boxes. Somebody on the project team just volunteered their garage.",
+      "This is not a rare situation. Vendors ship early because they want the revenue on this quarter's books. Phases slip because the next batch of sites is not ready. Funding lands all at once for a project that installs over a year. End-of-life buys mean purchasing spares now for equipment that will not be needed until the second phase. Overflow is not a planning failure. It is what real projects do, and every rollout needs an answer for where gear lives in between.",
+      "## The garage is not a warehouse",
+      "When there is no storage plan, gear ends up scattered: a few pallets in the client's back room, boxes stacked in a tech's office, the rest wherever somebody found floor space. Nothing about that arrangement is secure, organized, or documented. Boxes get opened to 'check what's in them' and never resealed properly. Gear from phase one and phase two gets mixed together, so when phase two starts, nobody is sure which devices are staged and which are raw from the vendor. Some of it sits in heat, some of it gets moved by people who do not know what is inside the boxes, and at least one box gets forgotten entirely. You find it six months later during an office cleanup.",
+      "The cost shows up at the start of the next phase. Devices that were fine when they shipped arrive at install day with unknown condition and unrecorded serial numbers, so the tech starts phase two by doing intake on gear that should have been ready. Damaged or missing units get discovered at the site instead of at receiving. Everything the staging process was supposed to give you for phase one has to be rebuilt from scratch for phase two, because the chain of custody broke during the months the gear was sitting in random storage.",
+      "## What real interim storage looks like",
+      "Short-term warehousing is not just a place to stack boxes. The gear goes onto racked or palletized storage in a secure facility, labeled with the project and the phase it belongs to. Serial numbers and MAC addresses were captured at intake, so the inventory is real and the chain of custody stays intact through the whole storage period. When phase two approaches, the gear is already in the building where the staging happens: it gets the same bench check, firmware match, and kitting it would have gotten if it had shipped fresh, except none of it has been sitting in a hallway in the meantime.",
+      "This also gives you options while you wait. A spare unit that dies in phase one can come out of stored phase-two stock instead of triggering an emergency order. A last-minute site addition can pull from inventory that is already on a shelf instead of waiting on a vendor. The gear is not just stored, it is available.",
+      "The math is straightforward. A few months of pallet storage costs less than one stalled install day, less than one lost shipment, less than one batch of gear that arrives at phase two with unknown condition. Plan for overflow the way you plan for everything else on a rollout: assume it will happen, and give the gear a real place to live until the next phase is ready for it.",
+    ],
+  },
 ];

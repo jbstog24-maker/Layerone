@@ -163,7 +163,7 @@ export default function About() {
                 deployment-ready hardware without surprises.
               </p>
               <p className="text-sm text-slate-400 leading-relaxed mt-3">
-                Serving the Dallas–Fort Worth metro, shipping nationwide.
+                Serving the Dallas–Fort Worth metro.
               </p>
             </div>
           </div>

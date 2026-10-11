@@ -14,7 +14,7 @@ export default function ServiceIndex() {
     }
     el.setAttribute(
       "content",
-      "Layer One Staging services: IT equipment staging, network kitting, POS deployment, asset tagging, and multi-site rollout logistics in Dallas–Fort Worth and nationwide."
+      "Layer One Staging services: IT equipment staging, network kitting, POS deployment, asset tagging, and multi-site rollout logistics in Dallas–Fort Worth."
     );
     window.scrollTo(0, 0);
   }, []);

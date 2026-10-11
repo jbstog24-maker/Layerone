@@ -254,7 +254,7 @@ function Hero() {
               <span className="text-[#0A84FF]">&amp; Deployment-Ready.</span>
             </h1>
             <p className="text-slate-400 text-lg leading-relaxed mb-8 max-w-2xl mx-auto">
-              Ship your equipment to us. We receive, inventory, configure, label, QA, kit by site or event, and ship to your locations or show venues - whether it's an IT rollout or a tradeshow.
+              Ship your equipment to us. We receive, inventory, configure, label, QA, kit by site or event, and deliver to your DFW locations or show venues - whether it's an IT rollout or a tradeshow.
             </p>
             <div className="flex flex-wrap justify-center gap-3 mb-8">
               {isAuthenticated ? (
@@ -299,7 +299,7 @@ function Hero() {
             </div>
             <ScheduleCallDialog open={scheduleOpen} onOpenChange={setScheduleOpen} />
             <div className="flex flex-wrap justify-center gap-2">
-              {["Received & inventoried", "Configured & labeled", "Kitted by site, shipped nationwide"].map(b => (
+              {["Received & inventoried", "Configured & labeled", "Kitted by site, delivered across DFW"].map(b => (
                 <span key={b} className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-white/10 bg-white/5 text-slate-400 text-xs">
                   <CheckCircle className="w-3.5 h-3.5 text-[#0A84FF]" />{b}
                 </span>
@@ -387,8 +387,8 @@ function Services() {
     },
     {
       icon: Box,
-      title: "Palletization & Shipping",
-      desc: "Professional packing and palletizing with outbound dispatch to your sites nationwide, carrier-tracked.",
+      title: "Palletization & Delivery",
+      desc: "Professional packing and palletizing with outbound dispatch to your DFW sites, tracked.",
     },
     {
       icon: Shield,
@@ -416,7 +416,7 @@ function Services() {
     {
       icon: Tent,
       title: "Tradeshow & Event Storage",
-      desc: "Booth materials, displays, and signage stored securely between shows, kitted by event, and shipped to venues nationwide.",
+      desc: "Booth materials, displays, and signage stored securely between shows, kitted by event, and delivered to DFW-area venues.",
       badge: "NEW",
       href: "/services/tradeshow-event-equipment-storage",
     },
@@ -451,6 +451,26 @@ function Services() {
               </div>
               <p className="text-slate-300 text-sm leading-relaxed max-w-2xl">
                 Windows Autopilot and Apple Business Manager enrollment done in staging. Devices ship ready for users to sign in - no technician ever touches them. <span className="text-[#0A84FF] font-semibold">Learn more <ArrowRight className="inline w-4 h-4" /></span>
+              </p>
+            </div>
+          </div>
+        </a>
+        {/* Featured: Tradeshow & Event Storage spotlight */}
+        <a
+          href="/services/tradeshow-event-equipment-storage"
+          className="block mb-6 rounded-2xl border border-amber-400/40 bg-gradient-to-r from-amber-400/15 via-amber-400/5 to-transparent p-6 hover:border-amber-400/70 transition-all group"
+        >
+          <div className="flex flex-col md:flex-row md:items-center gap-4">
+            <div className="w-12 h-12 rounded-xl bg-amber-400/20 border border-amber-400/40 flex items-center justify-center shrink-0">
+              <Tent className="w-6 h-6 text-amber-400" />
+            </div>
+            <div className="flex-1">
+              <div className="flex items-center gap-2 mb-1">
+                <span className="text-[10px] font-bold tracking-widest uppercase px-2 py-0.5 rounded-full bg-amber-400 text-[#06111f]">For event teams</span>
+                <h3 className="text-xl font-bold text-white">Tradeshow &amp; Event Equipment Storage</h3>
+              </div>
+              <p className="text-slate-300 text-sm leading-relaxed max-w-2xl">
+                Booth gear, displays, and signage stored securely between shows, kitted by event, and delivered to DFW-area venues ready to set up. <span className="text-amber-400 font-semibold">Learn more <ArrowRight className="inline w-4 h-4" /></span>
               </p>
             </div>
           </div>
@@ -563,7 +583,7 @@ function WhoWeServe() {
     { icon: BarChart3, title: "POS Deployments", desc: "Terminals, printers, and payment hardware kitted complete with install guides." },
     { icon: GraduationCap, title: "Schools & Education", desc: "Chromebook and device rollouts staged, enrolled, and shipped ready for students." },
     { icon: MapPin, title: "Multi-Location Rollouts", desc: "Coordinated site-by-site preparation for national technology rollouts." },
-    { icon: Tent, title: "Tradeshows & Events", desc: "Booth gear stored between shows, kitted by event, and shipped to venues nationwide." },
+    { icon: Tent, title: "Tradeshows & Events", desc: "Booth gear stored between shows, kitted by event, and delivered to DFW-area venues." },
   ];
 
   return (
@@ -612,7 +632,7 @@ function HowItWorks() {
     { n: "05", icon: Shield, title: "QA", desc: "Deployment-readiness checks - power-on tests, config review, and a signed QA checklist." },
     { n: "06", icon: Package, title: "Kit by Site", desc: "Site-specific kits assembled: devices, patch cables, labels, packing lists, and install notes per location." },
     { n: "07", icon: Camera, title: "Document", desc: "Photo documentation at every stage - inbound, staging, and outbound - visible in your portal." },
-    { n: "08", icon: Send, title: "Ship / Deliver", desc: "Palletized or parcel outbound shipped nationwide with tracking - or local DFW delivery to your sites." },
+    { n: "08", icon: Send, title: "Deliver", desc: "Palletized or parcel outbound delivered across the DFW metro with tracking." },
   ];
 
   return (
@@ -1080,7 +1100,7 @@ export function Footer() {
           <div>
             <LayerOneLogo />
             <p className="text-slate-400 text-sm leading-relaxed mt-4 max-w-xs">
-              The operational layer between equipment procurement and field deployment - serving the Dallas–Fort Worth metro and shipping nationwide.
+              The operational layer between equipment procurement and field deployment - serving the Dallas–Fort Worth metro.
             </p>
           </div>
           <div>
@@ -1125,7 +1145,7 @@ export function Footer() {
             <a href="/privacy" className="text-slate-500 text-xs hover:text-white transition-colors">Privacy Policy</a>
             <a href="/terms" className="text-slate-500 text-xs hover:text-white transition-colors">Terms &amp; Conditions</a>
           </div>
-          <p className="text-slate-500 text-xs">Deployment staging &amp; rollout logistics · DFW &amp; nationwide</p>
+          <p className="text-slate-500 text-xs">Deployment staging &amp; rollout logistics · DFW</p>
         </div>
       </div>
     </footer>
@@ -1138,7 +1158,7 @@ const LOCAL_BUSINESS_SCHEMA = {
   "@id": "https://www.layeronestaging.com/#business",
   name: "Layer One Staging",
   description:
-    "IT equipment staging, kitting, and deployment logistics. We receive, inventory, configure, label, QA, kit by location, and ship technology equipment deployment-ready - serving Dallas–Fort Worth and shipping nationwide.",
+    "IT equipment staging, kitting, and deployment logistics. We receive, inventory, configure, label, QA, kit by location, and deliver technology equipment deployment-ready across Dallas–Fort Worth.",
   url: "https://www.layeronestaging.com",
   email: "info@layeronestaging.com",
   telephone: "+1-469-537-4378",

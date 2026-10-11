@@ -32,7 +32,7 @@ function usePageMeta(title: string, description: string, canonicalPath: string) 
 export default function GetStarted() {
   usePageMeta(
     "Get a Project Quote | Layer One Staging, DFW",
-    "Request a custom project quote or per-pallet pricing from Layer One Staging. IT hardware staging, kitting, and deployment logistics in Dallas-Fort Worth, shipped nationwide.",
+    "Request a custom project quote or per-pallet pricing from Layer One Staging. IT hardware staging, kitting, and deployment logistics in Dallas-Fort Worth.",
     "/get-started"
   );
 
