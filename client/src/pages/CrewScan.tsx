@@ -4,9 +4,33 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { StatusBadge } from "@/components/StatusBadge";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
-import { ScanLine, Search, ArrowLeft, Camera, Keyboard, Loader2 } from "lucide-react";
+import {
+  ScanLine,
+  Search,
+  ArrowLeft,
+  Camera,
+  Keyboard,
+  Loader2,
+  AlertTriangle,
+  Building2,
+  Repeat,
+} from "lucide-react";
 
 const STATUS_ACTIONS: { label: string; value: string }[] = [
   { label: "Received", value: "received" },
@@ -20,6 +44,7 @@ const STATUS_ACTIONS: { label: string; value: string }[] = [
 
 type Device = {
   id: number;
+  clientId?: number | null;
   deviceType?: string | null;
   model?: string | null;
   serialNumber?: string | null;
@@ -28,18 +53,32 @@ type Device = {
   siteName?: string | null;
 };
 
-type Phase = "scan" | "searching" | "pick" | "device" | "notfound";
+type Client = {
+  id: number;
+  companyName?: string | null;
+};
+
+type Phase = "setup" | "scan" | "searching" | "pick" | "device" | "notfound" | "wrongclient";
 
 export default function CrewScan() {
-  const [phase, setPhase] = useState<Phase>("scan");
+  const [phase, setPhase] = useState<Phase>("setup");
+  const [activeClient, setActiveClient] = useState<Client | null>(null);
+  const [pendingClientId, setPendingClientId] = useState("");
+  const [showSwitchDialog, setShowSwitchDialog] = useState(false);
   const [scannerOn, setScannerOn] = useState(false);
   const [manualEntry, setManualEntry] = useState(false);
   const [serialInput, setSerialInput] = useState("");
   const [searchTerm, setSearchTerm] = useState<string | null>(null);
   const [candidates, setCandidates] = useState<Device[]>([]);
   const [device, setDevice] = useState<Device | null>(null);
+  const [wrongDevice, setWrongDevice] = useState<Device | null>(null);
   const scannerRef = useRef<Html5Qrcode | null>(null);
   const utils = trpc.useUtils();
+
+  const { data: clients } = trpc.clients.list.useQuery({});
+  const clientList = (clients as Client[]) ?? [];
+  const clientNameOf = (id?: number | null) =>
+    clientList.find((c) => c.id === id)?.companyName ?? "another client";
 
   const { data: results, isLoading } = trpc.devices.list.useQuery(
     { search: searchTerm ?? undefined },
@@ -49,18 +88,24 @@ export default function CrewScan() {
   useEffect(() => {
     if (!isLoading && searchTerm !== null && results !== undefined) {
       const list = (results as Device[]) ?? [];
-      if (list.length === 0) {
+      const inClient = list.filter((d) => d.clientId === activeClient?.id);
+      const otherClient = list.filter((d) => d.clientId !== activeClient?.id);
+      if (inClient.length === 0 && otherClient.length > 0) {
+        // Scanned a device that belongs to a different client: hard stop.
+        setWrongDevice(otherClient[0]);
+        setPhase("wrongclient");
+      } else if (inClient.length === 0) {
         setPhase("notfound");
-      } else if (list.length === 1) {
-        setDevice(list[0]);
+      } else if (inClient.length === 1) {
+        setDevice(inClient[0]);
         setPhase("device");
       } else {
-        setCandidates(list);
+        setCandidates(inClient);
         setPhase("pick");
       }
       setSearchTerm(null);
     }
-  }, [isLoading, results, searchTerm]);
+  }, [isLoading, results, searchTerm, activeClient]);
 
   const stopScanner = async () => {
     try {
@@ -91,7 +136,7 @@ export default function CrewScan() {
         },
         () => {}
       );
-    } catch (e: any) {
+    } catch {
       setScannerOn(false);
       scannerRef.current = null;
       toast.error("Camera unavailable. Use manual entry instead.");
@@ -116,9 +161,28 @@ export default function CrewScan() {
   const resetToScan = () => {
     setDevice(null);
     setCandidates([]);
+    setWrongDevice(null);
     setSerialInput("");
     setManualEntry(false);
     setPhase("scan");
+  };
+
+  const startSession = () => {
+    const c = clientList.find((x) => x.id === Number(pendingClientId));
+    if (!c) return;
+    setActiveClient(c);
+    setPendingClientId("");
+    setPhase("scan");
+  };
+
+  const confirmSwitchClient = () => {
+    const c = clientList.find((x) => x.id === Number(pendingClientId));
+    if (!c) return;
+    setActiveClient(c);
+    setPendingClientId("");
+    setShowSwitchDialog(false);
+    resetToScan();
+    toast.success(`Now working on ${c.companyName ?? "client"}`);
   };
 
   const updateMutation = trpc.devices.update.useMutation({
@@ -131,9 +195,23 @@ export default function CrewScan() {
     onError: (e) => toast.error(e.message),
   });
 
+  const handleStatusUpdate = (d: Device, value: string) => {
+    // Failsafe: never fire the mutation for a device outside the active client.
+    if (!activeClient || d.clientId !== activeClient.id) {
+      setWrongDevice(d);
+      setPhase("wrongclient");
+      return;
+    }
+    updateMutation.mutate({ id: d.id, stagingStatus: value as any });
+  };
+
   const renderDeviceCard = (d: Device, onPick?: () => void) => (
     <Card className="w-full">
       <CardHeader className="pb-2">
+        <div className="flex items-center gap-2 text-sm font-semibold text-primary">
+          <Building2 className="h-4 w-4" />
+          <span>{clientNameOf(d.clientId)}</span>
+        </div>
         <CardTitle className="text-lg">
           {d.deviceType ?? "Device"}{d.model ? ` - ${d.model}` : ""}
         </CardTitle>
@@ -166,18 +244,96 @@ export default function CrewScan() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="sticky top-0 z-40 border-b bg-background/95 px-4 py-3 backdrop-blur">
-        <div className="mx-auto flex max-w-lg items-center gap-3">
-          {phase !== "scan" && (
+      <header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur">
+        <div className="mx-auto flex max-w-lg items-center gap-3 px-4 py-3">
+          {phase !== "scan" && phase !== "setup" && (
             <Button variant="ghost" size="icon" className="min-h-[44px] min-w-[44px]" onClick={resetToScan} aria-label="Back to scanner">
               <ArrowLeft className="h-5 w-5" />
             </Button>
           )}
           <h1 className="text-xl font-bold">Crew Scan</h1>
         </div>
+        {activeClient && (
+          <div className="border-t-2 border-amber-500 bg-amber-500/15 px-4 py-2.5">
+            <div className="mx-auto flex max-w-lg items-center justify-between gap-2">
+              <p className="text-sm font-bold text-amber-700 dark:text-amber-300">
+                Working on: {activeClient.companyName ?? `Client #${activeClient.id}`}
+              </p>
+              <Button
+                variant="outline"
+                size="sm"
+                className="min-h-[40px] shrink-0 border-amber-500/60"
+                onClick={() => { setPendingClientId(""); setShowSwitchDialog(true); }}
+              >
+                <Repeat className="mr-1 h-4 w-4" /> Change
+              </Button>
+            </div>
+          </div>
+        )}
       </header>
 
+      <Dialog open={showSwitchDialog} onOpenChange={setShowSwitchDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Switch active client?</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground">
+            Unscanned items in this session will be cleared. Pick the client to switch to:
+          </p>
+          <Select value={pendingClientId} onValueChange={setPendingClientId}>
+            <SelectTrigger className="min-h-[56px] text-base">
+              <SelectValue placeholder="Select client" />
+            </SelectTrigger>
+            <SelectContent>
+              {clientList
+                .filter((c) => c.id !== activeClient?.id)
+                .map((c) => (
+                  <SelectItem key={c.id} value={c.id.toString()}>
+                    {c.companyName ?? `Client #${c.id}`}
+                  </SelectItem>
+                ))}
+            </SelectContent>
+          </Select>
+          <DialogFooter className="gap-2">
+            <Button variant="outline" className="min-h-[52px] flex-1" onClick={() => setShowSwitchDialog(false)}>
+              Cancel
+            </Button>
+            <Button className="min-h-[52px] flex-1" disabled={!pendingClientId} onClick={confirmSwitchClient}>
+              Confirm switch
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <main className="mx-auto max-w-lg space-y-4 px-4 py-6">
+        {phase === "setup" && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Start a scanning session</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-sm text-muted-foreground">
+                Select the client you are working on. Every scan in this session is locked to that client.
+              </p>
+              <Select value={pendingClientId} onValueChange={setPendingClientId}>
+                <SelectTrigger className="min-h-[60px] text-lg">
+                  <SelectValue placeholder="Select client" />
+                </SelectTrigger>
+                <SelectContent>
+                  {clientList.map((c) => (
+                    <SelectItem key={c.id} value={c.id.toString()}>
+                      {c.companyName ?? `Client #${c.id}`}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Button className="min-h-[64px] w-full text-lg" disabled={!pendingClientId} onClick={startSession}>
+                Start session
+              </Button>
+            </CardContent>
+          </Card>
+        )}
+
         {phase === "scan" && (
           <>
             {!scannerOn && !manualEntry && (
@@ -243,10 +399,41 @@ export default function CrewScan() {
             <CardContent className="flex flex-col items-center gap-3 py-10 text-center">
               <ScanLine className="h-10 w-10 text-muted-foreground" />
               <p className="text-lg font-semibold">No device found</p>
-              <p className="text-sm text-muted-foreground">Nothing matched the scanned value. Try again or check the serial.</p>
+              <p className="text-sm text-muted-foreground">Nothing matched the scanned value for {activeClient?.companyName ?? "this client"}. Try again or check the serial.</p>
               <Button className="mt-2 min-h-[56px] w-full text-lg" onClick={resetToScan}>
                 Scan again
               </Button>
+            </CardContent>
+          </Card>
+        )}
+
+        {phase === "wrongclient" && wrongDevice && (
+          <Card className="border-2 border-red-500">
+            <CardContent className="flex flex-col items-center gap-4 py-10 text-center">
+              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-red-500/15">
+                <AlertTriangle className="h-9 w-9 text-red-500" />
+              </div>
+              <p className="text-2xl font-black tracking-wide text-red-500">WRONG CLIENT</p>
+              <p className="text-base">
+                This device belongs to{" "}
+                <span className="font-bold">{clientNameOf(wrongDevice.clientId)}</span>.
+                You are working on{" "}
+                <span className="font-bold">{activeClient?.companyName ?? "another client"}</span>.
+              </p>
+              <p className="font-mono text-sm text-muted-foreground">
+                {wrongDevice.serialNumber ?? wrongDevice.assetTag ?? ""}
+              </p>
+              <div className="grid w-full grid-cols-2 gap-2">
+                <Button variant="outline" className="min-h-[64px] text-lg" onClick={resetToScan}>
+                  Scan again
+                </Button>
+                <Button
+                  className="min-h-[64px] text-lg"
+                  onClick={() => { setPendingClientId(""); setShowSwitchDialog(true); }}
+                >
+                  Switch client
+                </Button>
+              </div>
             </CardContent>
           </Card>
         )}
@@ -279,7 +466,7 @@ export default function CrewScan() {
                       variant={isCurrent ? "default" : "outline"}
                       className="min-h-[64px] text-base"
                       disabled={updateMutation.isPending}
-                      onClick={() => updateMutation.mutate({ id: device.id, stagingStatus: value as any })}
+                      onClick={() => handleStatusUpdate(device, value)}
                     >
                       {updateMutation.isPending ? <Loader2 className="h-5 w-5 animate-spin" /> : label}
                     </Button>
