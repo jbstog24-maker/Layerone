@@ -340,20 +340,20 @@ export default function PortalDemo() {
         </div>
 
         <Tabs defaultValue="overview" className="w-full">
-          <TabsList className="mb-6 flex w-full flex-wrap justify-start gap-1">
-            <TabsTrigger value="overview" className="flex items-center gap-1.5">
+          <TabsList className="mb-6 flex w-full flex-nowrap justify-start gap-1 overflow-x-auto">
+            <TabsTrigger value="overview" className="flex shrink-0 items-center gap-1.5 whitespace-nowrap px-3 text-sm">
               <Package className="h-4 w-4" /> Pipeline
             </TabsTrigger>
-            <TabsTrigger value="sites" className="flex items-center gap-1.5">
+            <TabsTrigger value="sites" className="flex shrink-0 items-center gap-1.5 whitespace-nowrap px-3 text-sm">
               <MapPin className="h-4 w-4" /> Sites
             </TabsTrigger>
-            <TabsTrigger value="devices" className="flex items-center gap-1.5">
+            <TabsTrigger value="devices" className="flex shrink-0 items-center gap-1.5 whitespace-nowrap px-3 text-sm">
               <MonitorSmartphone className="h-4 w-4" /> Devices
             </TabsTrigger>
-            <TabsTrigger value="tasks" className="flex items-center gap-1.5">
+            <TabsTrigger value="tasks" className="flex shrink-0 items-center gap-1.5 whitespace-nowrap px-3 text-sm">
               <ClipboardList className="h-4 w-4" /> Staging tasks
             </TabsTrigger>
-            <TabsTrigger value="schedule" className="flex items-center gap-1.5">
+            <TabsTrigger value="schedule" className="flex shrink-0 items-center gap-1.5 whitespace-nowrap px-3 text-sm">
               <Truck className="h-4 w-4" /> Deliveries
             </TabsTrigger>
           </TabsList>
