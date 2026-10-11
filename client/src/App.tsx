@@ -65,6 +65,7 @@ import BlogPage from "./pages/BlogPage";
 import BlogPost from "./pages/BlogPost";
 import Login from "./pages/Login";
 import PortalDemo from "./pages/PortalDemo";
+import CrewScan from "./pages/CrewScan";
 import Register from "./pages/Register";
 import SetPassword from "./pages/SetPassword";
 import SignMsa from "./pages/SignMsa";
@@ -110,6 +111,15 @@ function Router() {
       <Route path="/referral-signups" component={ReferralSignups} />
       <Route path="/about" component={About} />
       <Route path="/demo" component={PortalDemo} />
+
+      {/* Crew scan (staff only) */}
+      <Route path="/scan">
+        {() => (
+          <RequireRole roles={["admin", "staff"]}>
+            <CrewScan />
+          </RequireRole>
+        )}
+      </Route>
       <Route path="/team" component={Team} />
       <Route path="/get-started" component={GetStarted} />
       <Route path="/enrollment" component={Enrollment} />
