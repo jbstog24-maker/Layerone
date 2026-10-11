@@ -3,7 +3,7 @@ import { Link } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { StatusBadge } from "@/components/StatusBadge";
 import {
   demoProject,
@@ -293,6 +293,7 @@ function DeliveriesView() {
 }
 
 export default function PortalDemo() {
+  const [activeTab, setActiveTab] = useState("overview");
   return (
     <div className="min-h-screen bg-background">
       {/* Persistent demo banner */}
@@ -339,24 +340,29 @@ export default function PortalDemo() {
           <StatCard icon={Truck} label="Deliveries booked" value="5" sub="Next: Mon, Oct 13" />
         </div>
 
-        <Tabs defaultValue="overview" className="w-full">
-          <TabsList className="mb-6 flex w-full flex-nowrap justify-start gap-1 overflow-x-auto">
-            <TabsTrigger value="overview" className="flex shrink-0 items-center gap-1.5 whitespace-nowrap px-3 text-sm">
-              <Package className="h-4 w-4" /> Pipeline
-            </TabsTrigger>
-            <TabsTrigger value="sites" className="flex shrink-0 items-center gap-1.5 whitespace-nowrap px-3 text-sm">
-              <MapPin className="h-4 w-4" /> Sites
-            </TabsTrigger>
-            <TabsTrigger value="devices" className="flex shrink-0 items-center gap-1.5 whitespace-nowrap px-3 text-sm">
-              <MonitorSmartphone className="h-4 w-4" /> Devices
-            </TabsTrigger>
-            <TabsTrigger value="tasks" className="flex shrink-0 items-center gap-1.5 whitespace-nowrap px-3 text-sm">
-              <ClipboardList className="h-4 w-4" /> Staging tasks
-            </TabsTrigger>
-            <TabsTrigger value="schedule" className="flex shrink-0 items-center gap-1.5 whitespace-nowrap px-3 text-sm">
-              <Truck className="h-4 w-4" /> Deliveries
-            </TabsTrigger>
-          </TabsList>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <div className="mb-6 flex gap-2 overflow-x-auto pb-1">
+            {[
+              { value: "overview", label: "Pipeline", Icon: Package },
+              { value: "sites", label: "Sites", Icon: MapPin },
+              { value: "devices", label: "Devices", Icon: MonitorSmartphone },
+              { value: "tasks", label: "Staging tasks", Icon: ClipboardList },
+              { value: "schedule", label: "Deliveries", Icon: Truck },
+            ].map(({ value, label, Icon }) => (
+              <button
+                key={value}
+                type="button"
+                onClick={() => setActiveTab(value)}
+                className={
+                  activeTab === value
+                    ? "flex shrink-0 items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-sm font-medium whitespace-nowrap text-primary-foreground"
+                    : "flex shrink-0 items-center gap-1.5 rounded-lg bg-muted px-4 py-2 text-sm font-medium whitespace-nowrap text-muted-foreground"
+                }
+              >
+                <Icon className="h-4 w-4" /> {label}
+              </button>
+            ))}
+          </div>
 
           <TabsContent value="overview" className="space-y-6">
             <PipelineView />
