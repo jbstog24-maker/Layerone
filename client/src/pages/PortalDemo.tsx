@@ -28,6 +28,8 @@ import {
   Clock,
   CalendarDays,
   Boxes,
+  Phone,
+  PhoneCall,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -421,14 +423,28 @@ export default function PortalDemo() {
             <div>
               <p className="text-lg font-bold">This could be your gear, tracked like this.</p>
               <p className="mt-1 text-sm text-muted-foreground">
-                Every rollout gets its own portal: live pipeline, per-site kits, device-level tracking, photo documentation, and delivery scheduling.
+                Every rollout gets its own portal: live pipeline, per-site kits, device-level tracking, photo documentation, and delivery scheduling. Start with a free 30-minute discovery call, or jump straight to a quote.
               </p>
+              <a href="tel:+14695374378" className="mt-2 inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline">
+                <Phone className="h-4 w-4" /> (469) 537-4378
+              </a>
             </div>
-            <Link href="/get-started">
-              <Button size="lg" className="shrink-0">
-                Get a quote <ArrowRight className="ml-1 h-4 w-4" />
-              </Button>
-            </Link>
+            <div className="flex shrink-0 flex-col gap-2 sm:flex-row">
+              <a
+                href="https://calendly.com/layeronestaging-info/discovery-call-layer-one-staging"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Button size="lg" variant="outline" className="w-full sm:w-auto">
+                  <PhoneCall className="mr-1 h-4 w-4" /> Book a discovery call
+                </Button>
+              </a>
+              <Link href="/get-started">
+                <Button size="lg" className="w-full sm:w-auto">
+                  Get a quote <ArrowRight className="ml-1 h-4 w-4" />
+                </Button>
+              </Link>
+            </div>
           </CardContent>
         </Card>
 
