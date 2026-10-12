@@ -206,4 +206,22 @@ export const BLOG_POSTS: BlogPost[] = [
       "The math is straightforward. A few months of pallet storage costs less than one stalled install day, less than one lost shipment, less than one batch of gear that arrives at phase two with unknown condition. Plan for overflow the way you plan for everything else on a rollout: assume it will happen, and give the gear a real place to live until the next phase is ready for it.",
     ],
   },
+  {
+    slug: "why-configuration-should-happen-at-the-bench",
+    title: "Why Configuration Should Happen at the Bench, Not at the Rack",
+    date: "2026-10-12",
+    excerpt: "When every tech builds configs by hand at the rack, every site ends up slightly different. Loading and verifying configurations at the staging bench gives you consistency you can actually troubleshoot.",
+    category: "Deployment Tips",
+    readTime: 4,
+    content: [
+      "Here is the quiet killer on multi-site rollouts. The gear all matches. The kits are clean. The tech racks the switch at site four, opens a laptop, and starts typing a configuration from memory, or from a screenshot somebody texted them. A VLAN number is off by one. A port description gets skipped. It works, so nobody checks. Site four now runs a config that is close to the standard but not quite, and it will stay that way until the day it matters.",
+      "## Hand-built configs drift",
+      "Every tech configures a little differently. One follows the full baseline template. One copies a config from a working site and tweaks it, carrying forward somebody else's old mistake. One skips the management VLAN because it is not needed yet. None of this breaks on install day, which is why nobody catches it. It breaks months later, when you are troubleshooting remotely and the config you are looking at does not match the config that is actually running, and you are trying to figure out why site four behaves differently from the other nine.",
+      "That drift is not the tech's fault. A tech working off memory in a noisy server room, under a schedule, will produce a slightly different config every time. Nobody can repeat a thirty-line configuration exactly the same way ten times in a row, standing at a rack with a client watching the clock.",
+      "## Configuration is bench work",
+      "Loading a baseline config belongs on the staging bench, right next to the power-on check and the firmware update. Before a device goes into a site kit, it gets its configuration loaded in a controlled environment: the same template, the same VLANs, the same management settings, verified against the site standard before it ships. The device boots on the bench, gets confirmed against the expected state, and goes into the kit labeled and documented. On install day, the tech racks it and it is already correct.",
+      "This also catches the mistakes that hand-configuring never catches. A template applied at the bench gets reviewed once, carefully, by someone who is not under install-day pressure. A typo in the template gets found on device one, not device forty. And when a site needs a change six months later, the tech is working from a known baseline instead of guessing what got typed into the running config on install day.",
+      "The rule is simple. Nothing ships to a site with a blank config that has to be built by hand at the rack. Load it, verify it, document it at the bench, where mistakes are cheap and easy to fix. The tech's time on site is too expensive to spend typing configurations, and the consistency you get from bench-built configs is the difference between a rollout you can support and one you have to re-audit.",
+    ],
+  },
 ];
