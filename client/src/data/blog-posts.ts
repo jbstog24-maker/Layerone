@@ -224,4 +224,22 @@ export const BLOG_POSTS: BlogPost[] = [
       "The rule is simple. Nothing ships to a site with a blank config that has to be built by hand at the rack. Load it, verify it, document it at the bench, where mistakes are cheap and easy to fix. The tech's time on site is too expensive to spend typing configurations, and the consistency you get from bench-built configs is the difference between a rollout you can support and one you have to re-audit.",
     ],
   },
+  {
+    slug: "do-not-ship-until-the-site-is-ready",
+    title: "Do Not Ship Until the Site Is Ready",
+    date: "2026-10-13",
+    excerpt: "A perfect kit shipped to a site that is not ready is a wasted trip waiting to happen. A short readiness check before anything leaves the dock keeps gear secure and installs on schedule.",
+    category: "Deployment Tips",
+    readTime: 3,
+    content: [
+      "The fastest way to burn a deployment day is to ship a perfect kit to a site that is not ready for it. The switch is configured, the kit is labeled, the tech shows up on time, and then discovers the circuit is not live, the rack has not been installed, or the room is still full of construction dust and ladders. The gear is ready. The site is not. Now everybody is standing around deciding what to do with equipment that should never have left the warehouse.",
+      "## Readiness is not a guess",
+      "A lot of rollouts treat readiness as a date on a spreadsheet. The site was supposed to be ready on Tuesday, so the kit ships on Monday. Nobody called to confirm. Nobody asked for a photo of the rack or checked whether the internet circuit actually passed its test. A date is a plan, not a confirmation, and the difference shows up on install day as a wasted trip, a second shipment, or gear left sitting in a room that is not secure yet.",
+      "The check itself is short, and it belongs before anything leaves the dock. Is power in place where the rack will live? Is the rack or wall mount actually installed, not just delivered? Has the carrier confirmed the circuit is live? Is there a site contact who knows the tech is coming, and what are the access hours and loading rules? Five questions, one short call or email, and you find out whether Tuesday is real.",
+      "## What to do when the answer is not yet",
+      "When a site is not ready, the right move is boring: hold the kit. It stays labeled, documented, and secure in storage, ready to go the day the site clears. That is a much better problem than gear sitting in a half finished room, getting moved by other trades, opened by curious hands, or sent back because there is nowhere safe to leave it. Holding a shipment is a schedule adjustment. Rescuing a shipment is a mess.",
+      "This also protects the chain you worked to build. A kit that ships, bounces, and comes back has extra handoffs, extra handling, and extra chances for damage or confusion. A kit that waits on the shelf keeps its contents list accurate, its labels intact, and its record clean. When it finally ships, it ships once, to a site that can take it, with a tech who can finish the job in one visit.",
+      "Build the readiness check into the same workflow as intake and bench checks, not as an extra favor somebody does when they remember. No confirmed site, no shipment. It sounds strict until you count what one failed trip costs: tech time, travel, rescheduling, and a client who now doubts the plan. A ten minute confirmation call is the cheapest insurance on the whole rollout.",
+    ],
+  },
 ];
