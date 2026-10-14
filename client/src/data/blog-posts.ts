@@ -242,4 +242,22 @@ export const BLOG_POSTS: BlogPost[] = [
       "Build the readiness check into the same workflow as intake and bench checks, not as an extra favor somebody does when they remember. No confirmed site, no shipment. It sounds strict until you count what one failed trip costs: tech time, travel, rescheduling, and a client who now doubts the plan. A ten minute confirmation call is the cheapest insurance on the whole rollout.",
     ],
   },
+  {
+    slug: "do-not-forget-the-gear-coming-out",
+    title: "Do Not Forget the Gear Coming Out",
+    date: "2026-10-14",
+    excerpt: "Every refresh pulls old gear out as fast as new gear goes in. Without a plan for returns, storage, and disposal, that old hardware becomes a pile nobody owns.",
+    category: "Industry Insights",
+    readTime: 4,
+    content: [
+      "Every refresh project has a second job hiding inside the first one. The new switches go in, the access points go up, and then the tech is standing in the server room holding the old gear that just came out. It has to go somewhere. In most projects, nobody planned for that part, so the old hardware ends up in a pile by the door, in the trunk of a vehicle, or in a corner of the client's office with a promise that somebody will deal with it later.",
+      "## Old gear is not trash until you prove it",
+      "Some of that hardware is headed for disposal, and some of it is not. A unit might be under warranty, leased, owned by the client, or marked for redeployment at another site. Old devices can also hold configurations, credentials, and network details that should not walk out the door unrecorded. Treating every removed device like junk risks throwing away gear the client still owns, and treating it like inventory without a record just moves the confusion to a different room.",
+      "That is why removal needs the same discipline as install. As gear comes out, capture the serial number, note the site it came from, and record its condition. Photograph it if there is damage. Keep removed gear separated by site and by decision: return to client, hold for redeployment, send for repair, or dispose through the client's approved process. One mixed pile makes all four of those outcomes harder.",
+      "## A return path built into the rollout",
+      "The clean way to handle it is to build the return path before the first site is touched. Decide where removed gear lands, who inventories it, and how long it stays before the next step. When the site kit ships out, the plan for what comes back ships with it, even if that is just labeled boxes and a simple return checklist for the tech. The gear returns to the dock, gets logged the same way new gear gets logged at intake, and waits in organized storage until the client makes the call on it.",
+      "This closes the loop that a lot of rollouts leave open. The asset record that started at receiving should not end at install. A device that was tracked on the way in and tracked on the way out gives the client a clean answer months later when they ask what happened to the old firewall from a given site. No digging, no guessing, and no pile in a hallway that everybody stopped seeing.",
+      "Plan for both directions. New gear in, old gear out, both documented, both with a place to land. It is not extra work added to a rollout. It is the part that keeps a finished project from leaving a mess behind.",
+    ],
+  },
 ];
