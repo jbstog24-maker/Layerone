@@ -9,7 +9,7 @@ import {
   Thermometer, Video, MapPin,
   Tags, ClipboardCheck, Send, Network, Users, Store,
   Server, Phone, Facebook, Linkedin, ChevronDown,
-  Smartphone, Sparkles, GraduationCap, Tent, Menu, X, Fence,
+  Smartphone, Sparkles, GraduationCap, Tent, Menu, X, Fence, Gift,
 } from "lucide-react";
 import { ScheduleCallDialog } from "@/components/ScheduleCallDialog";
 
@@ -234,7 +234,7 @@ function Hero() {
   const { isAuthenticated } = useAuth();
   const [scheduleOpen, setScheduleOpen] = useState(false);
   return (
-    <section id="top" className="relative pt-32 pb-24 overflow-hidden">
+    <section id="top" className="relative pt-24 md:pt-32 pb-24 overflow-hidden">
       {/* Background glows */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-0 left-1/4 w-[600px] h-[600px] rounded-full bg-[#0A84FF]/10 blur-[120px]" />
@@ -248,7 +248,7 @@ function Hero() {
               <span className="w-2 h-2 rounded-full bg-[#0A84FF] shadow-[0_0_0_5px_rgba(10,132,255,0.15)]" />
               IT Staging, Event &amp; Rollout Logistics - Dallas–Fort Worth, TX
             </div>
-            <h1 className="text-5xl md:text-6xl font-black leading-[1.02] tracking-[-2px] mb-6 text-white">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-black leading-[1.02] tracking-[-2px] mb-6 text-white">
               Equipment Staged, Kitted
               <br />
               <span className="text-[#0A84FF]">&amp; Deployment-Ready.</span>
@@ -306,6 +306,40 @@ function Hero() {
               ))}
             </div>
           </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function ReferralStrip() {
+  return (
+    <section className="border-t border-white/10 bg-[#6ee7b7]/5">
+      <div className="max-w-6xl mx-auto px-6 py-8 flex flex-col md:flex-row items-center gap-5 md:gap-8">
+        <div className="flex items-start gap-4 flex-1 text-center md:text-left">
+          <div className="hidden md:flex w-11 h-11 shrink-0 rounded-xl bg-[#6ee7b7]/10 border border-[#6ee7b7]/30 items-center justify-center">
+            <Gift className="w-5 h-5 text-[#6ee7b7]" />
+          </div>
+          <div>
+            <h2 className="text-lg font-bold text-white mb-1">Know a business planning a rollout?</h2>
+            <p className="text-sm text-slate-400 leading-relaxed">
+              Refer them to Layer One and earn 10% of their first paid invoice. No cap on referrals, no fine print.
+            </p>
+          </div>
+        </div>
+        <div className="flex items-center gap-3 shrink-0">
+          <a
+            href="/referrals"
+            className="flex items-center gap-2 px-5 py-3 rounded-xl font-bold bg-[#6ee7b7] text-[#06111f] hover:bg-[#a7f3d0] transition-colors"
+          >
+            Refer a Business <ArrowRight className="w-4 h-4" />
+          </a>
+          <a
+            href="/referrals"
+            className="hidden sm:flex items-center gap-2 px-4 py-3 rounded-xl font-bold border border-white/15 bg-white/5 text-white hover:border-white/30 transition-colors"
+          >
+            How It Works
+          </a>
         </div>
       </div>
     </section>
@@ -1198,6 +1232,7 @@ export default function Landing() {
       <NavBar />
       <main>
         <Hero />
+        <ReferralStrip />
         <HowItWorks />
         <Services />
         {/* Full-width warehouse image break */}
