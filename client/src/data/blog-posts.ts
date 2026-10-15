@@ -260,4 +260,22 @@ export const BLOG_POSTS: BlogPost[] = [
       "Plan for both directions. New gear in, old gear out, both documented, both with a place to land. It is not extra work added to a rollout. It is the part that keeps a finished project from leaving a mess behind.",
     ],
   },
+  {
+    slug: "the-small-parts-that-stall-big-installs",
+    title: "The Small Parts That Stall Big Installs",
+    date: "2026-10-15",
+    excerpt: "The switch can be perfect and the install can still stall over a missing bracket or power cord. Here is why complete kits count the small parts, not just the headline devices.",
+    category: "Staging Best Practices",
+    readTime: 4,
+    content: [
+      "You can do everything right on a rollout and still lose half a day to a missing bracket. The switch is there, configured, labeled, and tested. The access points are there. Then the tech opens the box and finds no mounting plate, no rack screws, or a power cord that is too short to reach. The install does not stall because the big gear failed. It stalls because the small parts never made the list.",
+      "## The parts nobody puts on the spreadsheet",
+      "Most project lists are built around the headline devices. Switches, firewalls, access points, and registers get counted, quoted, and tracked. The parts that hold those devices up and plug them in get treated as an afterthought. Rack screws live in a separate bag. Mounting brackets ship in a separate box. Patch cables, power supplies, and adapters come from a different order entirely. When gear ships direct to a site, those pieces arrive at different times, in different boxes, and nobody checks whether they actually match the devices they belong with.",
+      "So the tech ends up improvising on the clock. A run to a hardware store for screws that almost fit. A patch cable borrowed from another room. A mount that gets skipped for now, which means a return visit later to finish it properly. None of that shows up as a line item anywhere, but the client sees it, the schedule feels it, and the tech takes the frustration for a problem that started long before install day.",
+      "## A kit is complete only when the small parts are counted",
+      "Staging fixes this the same way it fixes everything else, by moving the check to the bench. When a site kit gets built, every device gets matched with what it needs to go live: its mount, its screws, its power supply, and its cables, counted for that specific site. Those parts get bagged or bundled with the device they belong to, not tossed loose into a shared box. If a bracket is missing, it gets found at the warehouse, where a replacement is a shelf away, not at the site, where it is a drive away.",
+      "It helps to keep a simple rule on the checklist. If a tech needs it to mount it, power it, or connect it, it goes in the kit and on the contents list. That includes the easy to forget items: rack hardware, wall anchors, cable ties, labels, spare patch cables, and the right power adapter for that location. A few spares in each kit cost very little. A second trip to bring one forgotten part costs a lot more, in time and in confidence.",
+      "Big gear gets the attention because big gear gets the budget. But installs finish on small parts. Build the kit around the whole job, not just the devices, and install day stops turning into a scavenger hunt. The tech opens one box, finds everything needed to finish, and leaves with the site done. That is what a complete kit is supposed to mean.",
+    ],
+  },
 ];
