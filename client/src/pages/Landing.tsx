@@ -329,16 +329,16 @@ function ReferralStrip() {
         </div>
         <div className="flex items-center gap-3 shrink-0">
           <a
-            href="/referrals"
+            href="/referral-signup"
             className="flex items-center gap-2 px-5 py-3 rounded-xl font-bold bg-[#6ee7b7] text-[#06111f] hover:bg-[#a7f3d0] transition-colors"
           >
             Refer a Business <ArrowRight className="w-4 h-4" />
           </a>
           <a
-            href="/referrals"
+            href="/referral-submit"
             className="hidden sm:flex items-center gap-2 px-4 py-3 rounded-xl font-bold border border-white/15 bg-white/5 text-white hover:border-white/30 transition-colors"
           >
-            How It Works
+            Submit a Lead
           </a>
         </div>
       </div>
