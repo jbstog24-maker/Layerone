@@ -278,4 +278,22 @@ export const BLOG_POSTS: BlogPost[] = [
       "Big gear gets the attention because big gear gets the budget. But installs finish on small parts. Build the kit around the whole job, not just the devices, and install day stops turning into a scavenger hunt. The tech opens one box, finds everything needed to finish, and leaves with the site done. That is what a complete kit is supposed to mean.",
     ],
   },
+  {
+    slug: "imaging-at-the-bench-why-devices-should-arrive-ready-to-log-in",
+    title: "Imaging at the Bench: Why Devices Should Arrive Ready to Log In",
+    date: "2026-10-16",
+    excerpt: "A laptop that still needs imaging on arrival turns start day into a progress bar watch. Imaging, patching, and testing at the bench means the device arrives ready to work.",
+    category: "Deployment Tips",
+    readTime: 4,
+    content: [
+      "There is a familiar first day scene in a lot of offices. A new laptop or desktop is sitting on a desk, still in the box, and the person who needs it is standing nearby watching a progress bar. The device has to be imaged, patched, joined to the network, loaded with the right applications, and set up for the right user before any real work can happen. That setup can eat half a day, and it is happening in the middle of a busy office instead of on a bench built for it.",
+      "## Setup at the desk always takes longer than planned",
+      "At a desk, everything fights the setup. The network drop may not be live yet, the user keeps needing the desk back, and the updates run at whatever speed the local connection allows. A missing application, a policy that did not apply, or a printer that will not map turns a routine handoff into troubleshooting in front of the user. The tech who came to install is now building the device from scratch, and the employee who was supposed to start work is idle.",
+      "Multiply that across a refresh of twenty or fifty machines and the pattern gets expensive. Every device gets built a little differently because every desk setup is a little different. One machine misses an update, another misses a standard application, and support inherits the differences for months. The project looks finished on the install report, but the inconsistencies are still waiting in the fleet.",
+      "## Imaging is bench work, start to finish",
+      "Bench imaging moves all of that work to a controlled setup. Devices get unboxed, inspected, and powered on in one place. The standard image gets loaded the same way every time, updates and patches get applied before the device leaves, and the required applications get installed and opened once to confirm they actually run. The user account, device name, and site assignment get set while the machine is on the bench, not while somebody is hovering over a desk.",
+      "The check at the end matters as much as the image itself. Log in the way the user will log in. Confirm the device can reach what it needs, confirm the basics work, and label the machine for the person and location it belongs to. Then it goes into a site kit with its power supply, cables, and documentation together. If a device fails imaging or will not hold the image cleanly, it gets caught at the bench, where a swap is simple, instead of at a desk on start day.",
+      "The rule is straightforward. A device should arrive at the desk ready to log in and ready to work, with only the final placement and a quick user handoff left to do on site. Bench imaging is not extra handling. It is the step that turns a long, unpredictable setup day into a short install, and it gives every user in the rollout the same working start.",
+    ],
+  },
 ];
