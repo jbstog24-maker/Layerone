@@ -296,4 +296,22 @@ export const BLOG_POSTS: BlogPost[] = [
       "The rule is straightforward. A device should arrive at the desk ready to log in and ready to work, with only the final placement and a quick user handoff left to do on site. Bench imaging is not extra handling. It is the step that turns a long, unpredictable setup day into a short install, and it gives every user in the rollout the same working start.",
     ],
   },
+  {
+    slug: "rack-and-stack-before-you-ship",
+    title: "Rack and Stack Before You Ship: Build the Rack Where Mistakes Are Cheap",
+    date: "2026-10-17",
+    excerpt: "Building a rack in a cramped server closet on install day is slow, messy work. Assembling, cabling, and testing it at the warehouse first means the site visit is just placement and power on.",
+    category: "Staging Best Practices",
+    readTime: 4,
+    content: [
+      "Picture a tech arriving at a site with an empty rack, a stack of loose switches, and a window that closes at five. Every unit has to be mounted, powered, cabled, and tested in a room that was not built for assembly work. One rail kit is stubborn, one cable is too short, and the labeling happens last, if it happens at all. The rack gets built under time pressure, and it looks like it.",
+      "## Assembly work does not belong on site",
+      "Mounting hardware, arranging units in order, routing power and patch cables neatly, and checking airflow are all careful, hands-on tasks. On site they compete with access rules, other trades, noise, and a client who needs the room back. Rushed cable work is the part that stays with you. Months later, a support tech tries to trace a connection in a rack where nothing is labeled the same way twice, and a simple swap turns into guesswork.",
+      "There is also a simple space problem. Building a rack takes floor space, tools, and room to lay out parts in order. Most server closets have none of that to spare. Parts end up balanced on boxes, screws roll under other equipment, and packaging piles up in the doorway. The work can be done that way, but it will never be done as cleanly as it would be on a bench with space to work.",
+      "## What rack and stack at the warehouse looks like",
+      "In a staging workflow, the rack gets built before it ships. Units are mounted in the planned order, rails checked, power supplies seated, and cables run and labeled at both ends. The full rack gets powered on as a unit, so a bad cable, a dead port, or a unit that will not boot gets caught while the spare shelf is a few steps away. Photos of the finished front and back of the rack go into the site record, along with serial numbers and port assignments.",
+      "When the rack arrives on site, the job shrinks to what only the site can do: place it, connect power and uplinks, verify the links come up, and hand it over. If the rack has to ship in sections, each section is still built, tested, and labeled the same way, so reassembly follows a plan instead of starting over. The tech is not inventing the layout on the clock.",
+      "The rule is the same one behind bench checks and kitting. Do the build work where time, space, and spares are on your side, and save site time for the work that has to happen there. A rack built calmly at the warehouse stays cleaner, documents better, and supports easier for years. A rack built in a hurry on site charges you for that hurry every time somebody has to work in it.",
+    ],
+  },
 ];
