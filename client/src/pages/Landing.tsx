@@ -12,6 +12,7 @@ import {
   Smartphone, Sparkles, GraduationCap, Tent, Menu, X, Fence, Gift,
 } from "lucide-react";
 import { ScheduleCallDialog } from "@/components/ScheduleCallDialog";
+import { BLOG_POSTS } from "@/data/blog-posts";
 
 const LOGO_URL = "/images/layerone-logo-on-dark.png";
 
@@ -340,6 +341,36 @@ function ReferralStrip() {
           >
             Submit a Lead
           </a>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function BlogFeature() {
+  const post = [...BLOG_POSTS].sort((a, b) => (a.date < b.date ? 1 : -1))[0];
+  if (!post) return null;
+  return (
+    <section className="py-16 border-t border-white/10">
+      <div className="max-w-6xl mx-auto px-6">
+        <p className="text-xs font-bold tracking-widest text-[#0A84FF] uppercase mb-3">From the blog</p>
+        <div className="flex flex-col md:flex-row md:items-center gap-6 md:gap-10">
+          <div className="flex-1">
+            <h2 className="text-2xl md:text-3xl font-bold text-white mb-3">{post.title}</h2>
+            <p className="text-slate-400 leading-relaxed mb-4">{post.excerpt}</p>
+            <p className="text-xs text-slate-500">{post.category} · {post.readTime} min read</p>
+          </div>
+          <div className="flex flex-col items-start gap-3 shrink-0">
+            <a
+              href={`/blog/${post.slug}`}
+              className="flex items-center gap-2 px-5 py-3 rounded-xl font-bold bg-[#0A84FF] text-white hover:bg-[#3d9dff] transition-colors"
+            >
+              Read the Article <ArrowRight className="w-4 h-4" />
+            </a>
+            <a href="/blog" className="text-sm font-bold text-slate-300 hover:text-white transition-colors">
+              Browse all articles
+            </a>
+          </div>
         </div>
       </div>
     </section>
@@ -1252,6 +1283,7 @@ export default function Landing() {
         <DirectLine />
         <About />
         <FacilityGallery />
+        <BlogFeature />
         <FAQTeaser />
         <CTA />
       </main>
