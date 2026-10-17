@@ -511,7 +511,7 @@ function Services() {
             </div>
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-1">
-                <span className="text-[10px] font-bold tracking-widest uppercase px-2 py-0.5 rounded-full bg-[#0A84FF] text-[#06111f]">New</span>
+                <span className="text-[10px] font-bold tracking-widest uppercase px-2 py-0.5 rounded-full bg-[#0A84FF] text-[#06111f] whitespace-nowrap shrink-0">New</span>
                 <h3 className="text-xl font-bold text-white">Zero-Touch Enrollment</h3>
               </div>
               <p className="text-slate-300 text-sm leading-relaxed max-w-2xl">
@@ -530,10 +530,8 @@ function Services() {
               <Tent className="w-6 h-6 text-amber-400" />
             </div>
             <div className="flex-1">
-              <div className="flex items-center gap-2 mb-1">
-                <span className="text-[10px] font-bold tracking-widest uppercase px-2 py-0.5 rounded-full bg-amber-400 text-[#06111f]">For event teams</span>
-                <h3 className="text-xl font-bold text-white">Tradeshow &amp; Event Equipment Storage</h3>
-              </div>
+              <span className="inline-block text-[10px] font-bold tracking-widest uppercase px-2 py-0.5 rounded-full bg-amber-400 text-[#06111f] whitespace-nowrap mb-2">For event teams</span>
+              <h3 className="text-xl font-bold text-white mb-1">Tradeshow &amp; Event Equipment Storage</h3>
               <p className="text-slate-300 text-sm leading-relaxed max-w-2xl">
                 Booth gear, displays, and signage stored securely between shows, kitted by event, and delivered to DFW-area venues ready to set up. <span className="text-amber-400 font-semibold">Learn more <ArrowRight className="inline w-4 h-4" /></span>
               </p>
