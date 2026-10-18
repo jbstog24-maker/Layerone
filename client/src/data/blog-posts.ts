@@ -314,4 +314,23 @@ export const BLOG_POSTS: BlogPost[] = [
       "The rule is the same one behind bench checks and kitting. Do the build work where time, space, and spares are on your side, and save site time for the work that has to happen there. A rack built calmly at the warehouse stays cleaner, documents better, and supports easier for years. A rack built in a hurry on site charges you for that hurry every time somebody has to work in it.",
     ],
   },
+  {
+    slug: "when-the-vendor-ships-half-your-order",
+    title: "When the Vendor Ships Half Your Order",
+    date: "2026-10-18",
+    excerpt: "The switches arrived, the access points are backordered, and the install dates are already set. Here is how to manage a partial shipment without turning one rollout into two.",
+    category: "Industry Insights",
+    readTime: 4,
+    content: [
+      "It rarely announces itself as a crisis. The first shipment lands and most of the order is there, so it feels close enough. Then somebody reads the packing list a second time. The switches and firewalls arrived. The access points are backordered with an estimated date that has already slipped once. A few mounting kits are coming in a separate box next week, maybe. Meanwhile the install dates are set, the techs are scheduled, and the client is expecting finished sites, not progress reports.",
+      "Partial shipments are normal on real projects. Vendors split orders across warehouses, manufacturers allocate stock, and one line item holds up the rest. The problem is not that half your order showed up. The problem is what happens next, because the decisions made in that first week decide whether the backorder is a delay you manage or a second rollout you pay for.",
+      "## The partial kit is a trap",
+      "The tempting move is to ship what you have and finish later. Get the switches racked, get the firewall online, and send somebody back when the rest lands. Sometimes that is the right call, but more often it doubles your site visits, splits your documentation, and leaves every location in a half finished state that nobody wants to support. The tech who returns three weeks later is working from somebody else's notes, the serial records are in two places, and the client has been looking at ceiling tiles with no access points on them the whole time.",
+      "Shipping partial kits also hides the real status of the project. On a spreadsheet, twelve sites show as started. In reality, zero are done. If the backordered gear slips again, you have a dozen open sites, a dozen sets of loose ends, and no clean way to tell the client what is actually complete.",
+      "## Track the order by line item, not by shipment",
+      "The fix starts at receiving. A partial shipment should never be logged as the order arriving. It gets logged line by line: what came in, what is still open, what the vendor says the new date is, and which sites those missing items belong to. That open items list is the document the whole project runs on until the order closes. Every time the vendor updates a date, the list gets updated, and the sites tied to that item get flagged before anyone promises an install date.",
+      "With that list in hand, the scheduling call gets honest. Sites with complete kits go first. Sites waiting on backordered gear get held as complete kits, not shipped in pieces, unless there is a real reason to split the work and the client agrees to the extra visit in writing. If a substitution would unblock a site, it gets approved before it ships, checked at the bench like everything else, and recorded so the asset list matches what is actually installed.",
+      "A vendor shipping half your order is not a disaster. It is a sorting problem with a paper trail. Keep the open items visible, hold kits whole, and let complete sites finish completely instead of starting everything and finishing nothing. The backorder will land eventually. What matters is whether your project is organized enough to absorb it in one clean pass when it does.",
+    ],
+  },
 ];
