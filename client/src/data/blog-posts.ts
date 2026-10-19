@@ -333,4 +333,22 @@ export const BLOG_POSTS: BlogPost[] = [
       "A vendor shipping half your order is not a disaster. It is a sorting problem with a paper trail. Keep the open items visible, hold kits whole, and let complete sites finish completely instead of starting everything and finishing nothing. The backorder will land eventually. What matters is whether your project is organized enough to absorb it in one clean pass when it does.",
     ],
   },
+  {
+    slug: "why-every-rollout-needs-a-spare-kit-ready-to-go",
+    title: "Why Every Rollout Needs a Spare Kit Ready to Go",
+    date: "2026-10-19",
+    excerpt: "One failed device on install day should not mean a second trip. A small, tested spare kit built into the rollout plan keeps a site finishing on schedule.",
+    category: "Deployment Tips",
+    readTime: 4,
+    content: [
+      "Every rollout plan quietly assumes everything in the kit will work, fit, and match the count on the sheet. Real sites do not cooperate. A power supply that passed its check fails an hour into the install. A switch gets damaged moving it into a tight closet. A site that was surveyed for eight ports turns out to need ten. Without a spare ready to go, any one of those small problems turns into the same outcome: the tech stops working, the client waits, and somebody pays for a second trip to finish a job that was almost done.",
+      "## A spare is cheaper than a return trip",
+      "The math is straightforward, even if nobody puts it on the project budget. A return trip costs tech time, travel, rescheduling, and a second round of coordination with the site. It also costs confidence, because the client remembers the install that did not finish more than the nine that did. A spare device sitting in the kit costs a fraction of that, and if it never gets used on this site, it rolls forward to the next one. It is not extra inventory. It is insurance you can hold in your hand.",
+      "This is especially true on multi-site work, where one stalled site throws off the sequence behind it. The tech who has to come back tomorrow is the same tech who was supposed to start the next location. One missing spare does not just delay one site, it pushes the whole wave, and the project manager ends up rebuilding a schedule that was fine the day before.",
+      "## What a useful spare kit actually holds",
+      "A good spare kit is small and deliberate, not a second copy of the whole order. It holds the items most likely to stop an install: one spare of the standard switch and access point for that project, extra power supplies and power cords, mounting brackets and rack hardware, and a handful of patch cables in the lengths the sites actually use. Everything in it gets the same treatment as the main kit. It is bench checked, loaded with the same firmware and baseline configuration, labeled, and logged by serial number before it leaves the warehouse.",
+      "That last part matters. A spare that gets swapped in without a record creates a quiet asset problem. The inventory still shows the original device at that site, and the failed unit has no clear path back. The rule is simple: swap the spare in, record the new serial number for that site the same day, and send the failed unit back to the dock where the return or repair process can start properly. The site record stays accurate, and the spare pool gets replenished before the next site goes out.",
+      "Build the spare kit into the plan at the start of the rollout, not after the first failure forces the conversation. Decide what goes in it based on the gear you are deploying most, keep it tested and documented like any other kit, and restock it every time it gets used. Rollouts will still throw surprises. The goal is for a surprise to be a five minute swap, not a second trip.",
+    ],
+  },
 ];
