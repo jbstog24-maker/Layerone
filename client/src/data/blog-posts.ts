@@ -351,4 +351,22 @@ export const BLOG_POSTS: BlogPost[] = [
       "Build the spare kit into the plan at the start of the rollout, not after the first failure forces the conversation. Decide what goes in it based on the gear you are deploying most, keep it tested and documented like any other kit, and restock it every time it gets used. Rollouts will still throw surprises. The goal is for a surprise to be a five minute swap, not a second trip.",
     ],
   },
+  {
+    slug: "a-good-site-survey-saves-the-whole-install",
+    title: "A Good Site Survey Saves the Whole Install",
+    date: "2026-10-20",
+    excerpt: "Staging can only build the kit the survey describes. When the survey misses the rack, the power, or the ceiling type, the install pays for it on site.",
+    category: "Deployment Tips",
+    readTime: 4,
+    content: [
+      "A staging team can build a perfect kit for the wrong site. The switch is configured, the access points are labeled, the cables are the right length on paper, and then the tech arrives to find there is no rack, the ceiling is nothing like the photos, and the one outlet near the equipment is already full. Nothing failed at the warehouse. The problem started earlier, with a site survey that described the plan instead of the place.",
+      "## A survey should record what is there, not what should be there",
+      "Too many surveys are filled out from an office or copied from the last location. They list the devices the site is supposed to get, but not the details the kit depends on: rack space actually available, power location and type, ceiling height and material for mounts, where the internet circuit lands, and whether there is a locked place to leave gear if the work runs long. One photo of the room from the doorway is worth more than a page of guesses, and a close photo of the rack and panel is worth more than both.",
+      "Those details decide real staging choices. Cable lengths, mount types, rail kits, power supplies, and even which spare parts go in the box all come from the survey. If the survey says wall mount and the site needs a rack shelf, that is not a small miss. It is a second trip, found at the worst time, with a client watching a tech improvise around missing hardware.",
+      "## Keep it short, specific, and photographed",
+      "A useful survey does not need to be long. It needs to be specific. Name a site contact and their hours. Note access rules, loading access, and any ladder or lift needs. Count the drops that are actually live, not just planned. Record the existing gear that is coming out, so the return path can be planned with the kit. And require photos for the rack area, the ceiling where devices will mount, and the spot where the circuit enters. If a field is unknown, mark it unknown instead of filling it in. An honest blank lets staging plan around it. A confident guess does not.",
+      "Before the kit is built, somebody should read the survey like a tech will use it: can I mount this, power this, and connect this with what is in the box? If the answer relies on hope, the survey is not done yet. A short follow up call or one more photo now costs minutes. The same question on install day costs hours.",
+      "Staging works best when it starts from real information. Give the bench a survey that matches the site, and the kit that leaves the warehouse will match it too. That is how install day stays an install, instead of turning into a second survey with tools in hand.",
+    ],
+  },
 ];
