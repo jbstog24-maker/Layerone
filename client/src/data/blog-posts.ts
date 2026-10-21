@@ -369,4 +369,22 @@ export const BLOG_POSTS: BlogPost[] = [
       "Staging works best when it starts from real information. Give the bench a survey that matches the site, and the kit that leaves the warehouse will match it too. That is how install day stays an install, instead of turning into a second survey with tools in hand.",
     ],
   },
+  {
+    slug: "labeling-that-still-makes-sense-a-year-later",
+    title: "Labeling That Still Makes Sense a Year Later",
+    date: "2026-10-21",
+    excerpt: "Install day is not when bad labeling hurts. It hurts a year later, when support is tracing a cable in a rack nobody recognizes. Here is how to label gear so the record still works long after the crew leaves.",
+    category: "Staging Best Practices",
+    readTime: 4,
+    content: [
+      "Bad labeling never hurts on install day. The tech who plugged everything in remembers where it all went, the site comes up clean, and everybody moves on. It hurts a year later, at night, when one access point stops reporting and a support tech who has never seen the site is standing in front of the rack trying to figure out which cable, which port, and which device they are actually looking at. The labels say AP-3, a strip of tape with marker that has faded to a smudge, and a cable tagged at one end only. The troubleshooting starts with guesswork.",
+      "## A label is a note to a stranger",
+      "That is the test every label has to pass. It will be read by somebody who was not there, probably under time pressure, probably while a client waits for an answer. A label that only makes sense to the person who wrote it is not documentation. It is a memory aid with an expiration date. Good labels use plain, consistent names that match the site record: the site name, the device role, and where the device actually lives in the building, like the front office, the stockroom, or the drive-through side. If the asset record says one name and the device says another, the record loses, because the person in the room trusts what is in front of them.",
+      "Consistency matters more than cleverness. Pick one naming pattern at the start of the rollout and use it at every site, on every device, on both ends of every cable. The tenth site should read exactly like the first one. When a support tech moves between locations, they should not have to learn a new dialect at each door. That consistency is hard to build at the rack, where every site has its own distractions. It is easy to build at the bench, where the labels get printed, applied, and checked as part of the kit.",
+      "## Print it, place it, and record it",
+      "Handwritten tape is where most labeling quietly fails. Marker fades, tape peels in a warm closet, and handwriting that was clear on a calm afternoon is a puzzle a year later. Printed labels, made for the job, stay readable. Place them where they can be seen without unplugging anything: on the front of the device where possible, and on cables close enough to the end that the reader does not have to pull slack out of a bundle to find them. A label hidden behind the device it describes might as well not exist.",
+      "Then record what you labeled. When a device gets its label at the bench, its serial number, its assigned name, its site, and its port assignment go into the same record at the same time. That is what turns a label into a chain you can follow from a support ticket to a physical port without sending somebody to trace cables by hand. If a device gets swapped later, the new one gets a label that matches the record, and the record gets updated the same day, not when somebody gets around to it.",
+      "Labeling feels like the smallest part of a deployment, and on install day it is. A year later it is the difference between a fifteen minute fix and a long night of pulling cables to see where they go. Do it at the bench, do it the same way at every site, and write every label for the stranger who will read it when something breaks. That person is counting on you.",
+    ],
+  },
 ];
