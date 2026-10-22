@@ -387,4 +387,23 @@ export const BLOG_POSTS: BlogPost[] = [
       "Labeling feels like the smallest part of a deployment, and on install day it is. A year later it is the difference between a fifteen minute fix and a long night of pulling cables to see where they go. Do it at the bench, do it the same way at every site, and write every label for the stranger who will read it when something breaks. That person is counting on you.",
     ],
   },
+  {
+    slug: "start-with-one-site-why-a-pilot-install-saves-the-rollout",
+    title: "Start With One Site: Why a Pilot Install Saves the Rest of the Rollout",
+    date: "2026-10-22",
+    excerpt: "Rolling a mistake out to twenty sites at once turns one small miss into twenty return trips. A pilot install finds the problems while the fix is still cheap.",
+    category: "Industry Insights",
+    readTime: 4,
+    content: [
+      "The fastest way to multiply a mistake is to roll it out to twenty sites at once. Teams do it because the schedule feels tight and starting everywhere looks like progress. Then the first techs find the same problem at different locations on the same morning: the cable in the kit is six feet too short, the mount does not fit the ceiling that most sites actually have, or the baseline config is missing one setting the network needs. One small miss, copied twenty times, is no longer a small miss. It is twenty return trips.",
+      "That is what a pilot install is for. Before the full rollout starts, pick one real site, run the whole process on it exactly the way every other site will run, and treat it as a test of the process, not just a first install. The survey, the intake, the bench work, the kit, the labels, and the closeout paperwork all get used for real. Anything that is unclear, missing, or harder than it should be shows up while the blast radius is still one location.",
+      "## The pilot is where the process gets honest",
+      "A good pilot site is not the easiest site you have. Pick one that looks like most of the others: similar layout, similar gear count, similar access rules. If the pilot only works because that location had extra space, a patient manager, and a tech who knew the building, it did not prove much. The point is to learn what a normal site will do to your plan, while you still have time to change the plan.",
+      "During that first install, slow down on purpose. Have the tech note every workaround, every missing small part, and every step where the instructions did not match the room. Photograph the finished rack and the mounted devices. Time the work honestly, including the parts that took longer than expected. Those notes are worth more than the install itself, because they are the list of fixes that keep the same problems out of the next nineteen sites.",
+      "## Lock the pattern before you scale it",
+      "After the pilot, fix the kit and the paperwork before anything else ships. Adjust cable lengths, change the mount in the standard kit, correct the config template, and update the survey questions that missed something real. Rebuild the contents list so the next kits match what the pilot actually needed, not what the original plan assumed. If the pilot took half a day longer than planned, update the schedule now instead of letting every site run late in the same way.",
+      "Then use that finished site as the reference for the rest of the rollout. Its photos show techs what done looks like. Its asset record shows how names, labels, and port assignments should read at every other location. When a later site is different, the difference stands out against a clear standard instead of blending into general confusion. Support inherits a pattern too, because site twelve was built the same way as site one.",
+      "One pilot site costs a little patience at the start. Skipping it costs that same lesson at every location, paid in return trips, rework, and inconsistent installs. Start with one, learn out loud, lock the pattern, and then scale it. That is how a rollout gets faster as it goes, instead of getting messier.",
+    ],
+  },
 ];
