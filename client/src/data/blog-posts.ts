@@ -406,4 +406,22 @@ export const BLOG_POSTS: BlogPost[] = [
       "One pilot site costs a little patience at the start. Skipping it costs that same lesson at every location, paid in return trips, rework, and inconsistent installs. Start with one, learn out loud, lock the pattern, and then scale it. That is how a rollout gets faster as it goes, instead of getting messier.",
     ],
   },
+  {
+    slug: "what-a-good-closeout-packet-actually-includes",
+    title: "What a Good Closeout Packet Actually Includes",
+    date: "2026-10-23",
+    excerpt: "The install is done, but the job is not finished until the client can prove what was installed, where it went, and that it worked. Here is what belongs in the packet they get.",
+    category: "Deployment Tips",
+    readTime: 4,
+    content: [
+      "The install went fine. The site is up, the tech has left, and then the client emails three days later with a simple request: can you send me the list of everything you installed, with serial numbers, and the photos from the day? Somebody on the project team opens their inbox and starts hunting. The serials are in one spreadsheet, the photos are on the tech's phone, and the test results were never written down at all. The work was good. The proof of the work is scattered.",
+      "This happens on clean installs as often as messy ones, because closeout usually gets treated as paperwork you do after the job instead of records you build during it. By the time anyone asks, the details that were obvious on install day are already fading. Which switch went in which rack, which access point covers the stockroom, which old unit came out and where it went: all of that was known for about a week, and then it was gone.",
+      "## Closeout is built during the job, not after it",
+      "A good packet pulls together records that should already exist if the staging process did its job. Serial numbers and MAC addresses were captured at receiving. Labels and site assignments were recorded when the kit was built. Bench check and configuration results were logged before anything shipped. Install day adds the last pieces: photos of the finished rack and mounted devices, the ports each device landed on, and a short note on anything that changed from the plan. None of that is extra work invented for the packet. It is the same paper trail, handed over in one place.",
+      "The packet itself should be short enough that a client will actually use it. One asset list for the site, with device names that match the labels on the gear. Photos that show the work as it was left, front and back of the rack, each mounted device where it lives. A simple pass record: what was tested, what came up clean, and what is still open, if anything. And the return record for the old gear that came out, so nothing that left the building goes unaccounted for. If a warranty claim or a support call comes up six months later, that packet is where the answers live.",
+      "## What the client should never have to chase",
+      "The client should never have to chase serial numbers, rebuild an inventory from invoices, or guess whether a site was finished. They paid for a working site and for a record they can hand to their own IT team, their auditor, or the next provider who touches that location. When the packet is missing or thin, every future question becomes a small research project, and the confidence from a good install drains away one unanswered email at a time.",
+      "Build the habit the other way around. Decide what the closeout packet will contain before the first kit ships, then make sure each step of the job produces its piece. Receiving produces the asset record. The bench produces the test record. Install day produces the photos and the as built notes. At the end, closeout is assembly, not archaeology. The site is done when it is working and when you can prove it on paper. Hand over both, and the project actually feels finished, because it is.",
+    ],
+  },
 ];
