@@ -72,11 +72,11 @@ Customers see these sections. Admin-only items are not visible to customers.
 
 **How to pay an invoice:** "Open the invoice in the portal to review it. Payment goes through the secure Stripe payment link we emailed you. Once it clears, the invoice shows as paid in the portal."
 
-**How to check a quote:** TODO: confirm the exact customer-facing quote page path. Quotes are created from the /get-started form; customers are notified by email.
+**How to check a quote:** "Your quote arrives by email as a proposal with every line item listed. There is no quotes page in the portal, so that email is your copy. If you can't find it, call or message us and we will resend it." (Verified 2026-10-23: quotes are delivered only through the proposal email; no customer-facing quotes route exists.)
 
-**How to approve a quote:** TODO: confirm the exact customer approval flow in the portal.
+**How to approve a quote:** "From the proposal email, complete two steps: sign the Master Services Agreement through the signing link, and pay through the secure payment link in the same email. Both steps are in that one email, and the signing link stays good for 30 days." (Verified 2026-10-23 against server/proposalEmail.ts and the /sign/:token flow.)
 
-**How to track a shipment:** "Log in and look for your shipments section. Each shipment shows its status and tracking details." TODO: confirm the exact customer-visible shipments path.
+**How to track a shipment:** "Log in and open Shipments, or go straight to layeronestaging.com/shipments. You will only see your own company's shipments, each with its carrier, tracking number, and status." (Verified 2026-10-23: the shipments list filters to the signed-in customer's own company for customer accounts.)
 
 **How to message the team:** "In the left sidebar under My Portal, click Messages. Open the thread and type your reply. We see it right away."
 

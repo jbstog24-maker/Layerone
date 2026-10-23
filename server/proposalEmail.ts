@@ -106,7 +106,8 @@ export function buildProposalHtml(params: ProposalEmailParams): string {
           </table>
           <p style="font-size:13px;color:#64748b;line-height:1.6;margin:0;">
             Both steps are needed before onboarding begins. The signing link expires in 30 days.
-            Questions? Reply to this email or contact us at ${esc(ENV.supportEmail)}.
+            Once both steps are complete, we will email your dock and scheduling details; setup typically runs about two weeks from your signed agreement and first payment.
+            Questions? Reply to this email, contact us at ${esc(ENV.supportEmail)}, or call us at (469) 537-4378.
           </p>
         </td></tr>
         <tr><td style="padding:16px 40px;border-top:1px solid rgba(255,255,255,0.1);text-align:center;">

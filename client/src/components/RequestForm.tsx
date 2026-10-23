@@ -557,7 +557,7 @@ export default function RequestForm({ onSubmitted }: { onSubmitted?: () => void 
         )}
       </button>
       <p className="text-center text-xs text-[#b7c5d5]/60">
-        No credit card required. A rep will review your requirements and send a custom quote.
+        No credit card required. A rep will review your requirements and send a custom quote. Our team typically responds within one business day.
       </p>
     </form>
   );
