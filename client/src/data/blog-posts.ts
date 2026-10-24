@@ -424,4 +424,23 @@ export const BLOG_POSTS: BlogPost[] = [
       "Build the habit the other way around. Decide what the closeout packet will contain before the first kit ships, then make sure each step of the job produces its piece. Receiving produces the asset record. The bench produces the test record. Install day produces the photos and the as built notes. At the end, closeout is assembly, not archaeology. The site is done when it is working and when you can prove it on paper. Hand over both, and the project actually feels finished, because it is.",
     ],
   },
+  {
+    slug: "pack-it-like-it-matters-how-a-kit-survives-the-trip",
+    title: "Pack It Like It Matters: How a Kit Survives the Trip to the Site",
+    date: "2026-10-24",
+    excerpt: "A kit can pass every bench check and still arrive damaged if it was packed in a hurry. Good packing is the last staging step, and it protects everything that came before it.",
+    category: "Staging Best Practices",
+    readTime: 4,
+    content: [
+      "A switch can pass every bench check, get the right config, get labeled perfectly, and still fail on install day because of how it rode in the truck. It slid around in a half empty box, took a corner hit when the load shifted, or arrived with a bent rack ear and a cracked bezel. The tech did nothing wrong. The bench did nothing wrong. The packing let the whole job down in the last few miles.",
+      "This happens more than people admit because packing feels like the end of the work instead of part of the work. The kit is built, everybody is ready to move on, and boxes get taped up fast with whatever padding is nearby. Original vendor boxes get reused even when the foam no longer fits after accessories were added. Heavy gear goes on top of light gear. The result looks closed and ready, but inside, everything is free to move.",
+      "## Movement is what breaks gear in transit",
+      "Most transit damage is not a dramatic drop. It is small movement repeated for hours. A device shifting an inch at a time, a power supply rattling against a switch, a stack of boxes leaning until the bottom one gives way. Vibration loosens what was snug. A sudden stop throws weight where it was never meant to land. By the time the box is opened at the site, the damage is done and nobody can point to one moment when it happened.",
+      "Good packing stops the movement first. Each device sits snug, with padding that fits the device, not just padding stuffed in to fill space. Heavy items ride low and never on top of screens, bezels, or smaller accessories. Power supplies, mounts, and cables get bagged and secured with the device they belong to, so they cannot batter it on the road and cannot get separated from it at the site. If a rack ships assembled, it gets braced and protected as a unit, with its doors and rails checked before it leaves.",
+      "## Pack for the person who opens it",
+      "The other job of packing is making the open easy. The contents list goes on the outside, where the tech can check it without tearing the box apart. The first items the tech needs come out first, not buried under everything else. Fragile points get marked where a handler will actually see the warning, and boxes stay at a weight one person can move safely, because a box that gets dragged or dropped is often a box that was too heavy to carry right in the first place.",
+      "Before any kit leaves, give it one last check that takes less than a minute. Lift it. Tilt it slightly. Listen for anything shifting. Read the label back against the site name and the contents list. Photograph the packed kit the same way you photograph a finished rack, so there is a record of how it left. If something moves, repack it now, while the bench and the padding are right there. On site, there is no fix for a bad pack except living with what it broke.",
+      "Staging earns its value by catching problems where they are cheap. Packing belongs on that same list. Pack the kit like the road is part of the job, because it is, and the gear that arrives in the same condition it was tested in is the only gear the install plan was ever counting on.",
+    ],
+  },
 ];
