@@ -443,4 +443,22 @@ export const BLOG_POSTS: BlogPost[] = [
       "Staging earns its value by catching problems where they are cheap. Packing belongs on that same list. Pack the kit like the road is part of the job, because it is, and the gear that arrives in the same condition it was tested in is the only gear the install plan was ever counting on.",
     ],
   },
+  {
+    slug: "when-you-only-get-one-night-to-get-it-right",
+    title: "When You Only Get One Night to Get It Right",
+    date: "2026-10-25",
+    excerpt: "Most retail and restaurant installs happen after close, in a window that ends whether you are done or not. Here is why that short window makes staging prep non-negotiable.",
+    category: "Deployment Tips",
+    readTime: 4,
+    content: [
+      "A lot of installs do not happen at nine in the morning. They happen after close, when the store goes dark, the restaurant locks up, or the office empties out. The tech gets a window, maybe four hours, maybe less, and that window ends whether the work is done or not. Staff have to leave, alarms have to be set, and the site has to open on time the next morning. There is no running long, and no easy return visit.",
+      "## A short window punishes small misses",
+      "In daylight, a small miss is an inconvenience. A missing bracket means a quick run to get one. A cable that is too short means borrowing one from the back. At night, those options are gone. The supply store is closed, the site contact went home, and the one person who knows where the spare keys are is not answering. A part that costs almost nothing can end the night with the rack half built and the old system already pulled out.",
+      "That in-between state is the real risk. A site left half finished still has to open in the morning. Registers, phones, or network gear that were supposed to be swapped are now in a temporary setup nobody planned to support. The tech leaves tired notes, the morning crew walks into confusion, and the project needs a second night visit to finish what should have taken one. The cost is not just the extra trip. It is the messy handoff in between.",
+      "## Prep is what makes a short window workable",
+      "Staging is built for exactly this problem. The kit for a night install has to be complete in a way a daytime kit sometimes gets away with not being. Every device is bench checked and configured ahead of time, so no one is building configs or waiting on updates at midnight. Mounts, screws, power supplies, and cables are counted and matched to that site, with spares for the small parts most likely to stop the work. Labels match the plan, so the tech is installing, not sorting.",
+      "The non-gear prep matters just as much. Access is confirmed before the night, not during it: who is letting the tech in, what door to use, where the rack and circuit actually are, and who to call if something is locked. The site survey photos ride with the kit, so the room looks familiar before the tech walks in. If a device fails, the spare in the kit is already tested and loaded the same way, ready for a quick swap instead of a failed night.",
+      "The rule for any tight window is simple. Nothing about the install should be figured out during the window itself. The figuring out happens at the bench, on the checklist, and on the confirmation call, while there is still time to fix a gap. A short window rewards a complete kit and punishes everything else, and it does so the same night. Do the prep in daylight, and the night work becomes what it should be: quiet, focused, and done before the window closes.",
+    ],
+  },
 ];
