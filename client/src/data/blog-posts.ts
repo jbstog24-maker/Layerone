@@ -461,4 +461,23 @@ export const BLOG_POSTS: BlogPost[] = [
       "The rule for any tight window is simple. Nothing about the install should be figured out during the window itself. The figuring out happens at the bench, on the checklist, and on the confirmation call, while there is still time to fix a gap. A short window rewards a complete kit and punishes everything else, and it does so the same night. Do the prep in daylight, and the night work becomes what it should be: quiet, focused, and done before the window closes.",
     ],
   },
+  {
+    slug: "getting-ahead-of-the-holiday-freeze",
+    title: "Getting Ahead of the Holiday Freeze: Why Late Fall Rollouts Cannot Wait",
+    date: "2026-10-26",
+    excerpt: "Many businesses freeze changes during their busiest weeks of the year. If your rollout is not finished before that window closes, it may not move again until January.",
+    category: "Industry Insights",
+    readTime: 4,
+    content: [
+      "Every fall, the same quiet deadline shows up on rollout calendars. It is not the install date and it is not the vendor ship date. It is the holiday freeze, the stretch of weeks when a business will not allow changes to its stores, restaurants, or offices because those weeks matter too much to risk. If your project is not finished before the freeze starts, it does not just pause for a few days. It can sit still until the new year.",
+      "That catches teams off guard because the freeze rarely appears on the original project plan. The plan counts ordering time, shipping time, and install time. It does not count the weeks when no site will accept a tech, no manager will approve downtime, and no one wants new gear going in while lines are long and staff are stretched thin. By the time someone names the freeze out loud, the schedule has already lost its slack.",
+      "## The freeze compresses everything in front of it",
+      "When a hard stop sits in the middle of a calendar, all the work in front of it gets squeezed. Sites that were spread out over two months suddenly need to finish in three weeks. Gear that was going to arrive in stages gets ordered all at once. Techs get booked back to back, so one stalled install pushes the next site, and the next, with no open day to recover. A project that felt comfortable in September feels frantic by late October.",
+      "This is also when the usual mistakes get more expensive. A dead device found on site, a kit missing its small parts, or a site that was never confirmed ready does not just cost a return trip. It can cost the last available slot before the freeze. Miss that slot and the site waits weeks with old gear, a half finished plan, and a client who remembers that the project was supposed to be done before their busiest season.",
+      "## Use the warehouse as your buffer",
+      "Staging gives a compressed schedule one thing it badly needs, which is work done ahead of time. Gear can be received as soon as it lands, even if the site is not ready yet. It gets inspected, bench checked, configured, labeled, and kitted by site while the install dates are still being sorted out. When a site opens up, even on short notice, its kit is already built and verified. The tech is not waiting on freight, and nobody is building a kit the night before an install.",
+      "The practical move is to work backwards from the freeze, not forwards from today. Pick the last day a site will accept work, then leave room in front of it for the sites most likely to slip. Get every kit built before that window gets tight, and hold finished kits in storage until each site clears. If a site slips past the freeze, its kit stays labeled and intact, ready to ship the first week work resumes, instead of sitting half packed while the project restarts from memory.",
+      "The holiday freeze is not a surprise. It happens every year, on roughly the same weeks, for reasons any operator can understand. The projects that beat it are not the ones that rush hardest at the end. They are the ones that treated the freeze as a real deadline early, built their kits ahead of it, and left themselves slack for the one site that always slips. Start that work now, while the calendar still has room in it.",
+    ],
+  },
 ];
