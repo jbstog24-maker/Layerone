@@ -480,4 +480,22 @@ export const BLOG_POSTS: BlogPost[] = [
       "The holiday freeze is not a surprise. It happens every year, on roughly the same weeks, for reasons any operator can understand. The projects that beat it are not the ones that rush hardest at the end. They are the ones that treated the freeze as a real deadline early, built their kits ahead of it, and left themselves slack for the one site that always slips. Start that work now, while the calendar still has room in it.",
     ],
   },
+  {
+    slug: "how-much-lead-time-does-staging-actually-need",
+    title: "How Much Lead Time Does Staging Actually Need?",
+    date: "2026-10-27",
+    excerpt: "A kit promised for Monday cannot be built properly on Monday morning. Here is what staging work actually takes, and how to plan lead time so the install date holds.",
+    category: "Staging Best Practices",
+    readTime: 4,
+    content: [
+      "Here is a call every staging team knows. The gear is supposed to arrive on Monday, the install is scheduled for Tuesday, and somebody asks if the kits can be ready by Monday night. That asks a whole chain of work to happen in a few hours, with no room for the one thing every real project produces: a surprise. When that surprise shows up, it shows up on install day, in front of the client, because staging never got the time it needed.",
+      "The problem is not that staging is slow. The problem is that it is invisible work. To a project manager looking at a calendar, staging looks like one line item between receiving and shipping. On the bench it is a sequence, and each step depends on the one before it. Intake has to confirm what actually arrived before anything gets assigned to a site. Bench checks have to happen before a device gets a configuration, because there is no point configuring a unit that will not boot. Labels and serial records have to be right before the kit closes, because fixing them later means opening a finished box.",
+      "## What the days actually go to",
+      "Good lead time is mostly waiting on the right things, not doing busywork. It gives a shipment time to be counted and inspected when it lands, instead of being rushed straight into kits with a shortage nobody has noticed yet. It gives a failed device time to be swapped or returned through a normal process, instead of becoming a last minute scramble for a spare. It gives a site readiness check time to come back with a real answer, instead of a kit shipping to a room that is not ready because the install date was already promised.",
+      "Lead time also protects the details that look small until they are missing. Firmware matched to the site standard. A mount that fits the ceiling the survey actually described. A power supply in the right box, not in the box for the next site. None of that takes long on its own, but all of it together takes longer than a single evening, especially when a rollout has more than a handful of sites. Rushing the work does not remove those steps. It just moves them to install day, where the tech does them under time pressure with no spare shelf nearby.",
+      "## Plan backwards, then add a buffer",
+      "The practical way to set lead time is to work backwards from the install, not forwards from the ship date. Start with the day the tech needs a complete, checked kit in hand. Before that comes shipping time. Before shipping comes the final kit check and packing. Before that comes configuration, bench testing, labeling, and intake. Each step gets its own space on the calendar, and the project gets a buffer at the end for the problem that always appears on at least one site: a backordered part, a damaged box, a site that slips a week.",
+      "That buffer is the part teams hate to defend, because it looks like empty time. It is not empty. It is the reason a backorder becomes a schedule adjustment instead of a missed install, and a failed device gets caught at the bench instead of at the rack. Hurrying staging only moves the risk to a worse place. Give staging its days, build the kit once, and let the install date be a date you can keep.",
+    ],
+  },
 ];
