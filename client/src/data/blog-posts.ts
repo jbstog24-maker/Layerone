@@ -551,4 +551,22 @@ export const BLOG_POSTS: BlogPost[] = [
       "This protects more than the warehouse. It protects the tech, who can show exactly what they installed and what condition the room was left in. It protects the site contact, who can show what actually arrived at their door. It protects the client, who gets a clear answer instead of a dispute between vendors. Most of the time, the photos are never looked at again, and that is fine. The one time they are needed, they end an argument in minutes that could have dragged on for weeks. Take the photo at every handoff, file it where the project lives, and let the record speak when memory cannot.",
     ],
   },
+  {
+    slug: "have-a-rollback-plan-before-you-touch-the-old-gear",
+    title: "Have a Rollback Plan Before You Touch the Old Gear",
+    date: "2026-10-31",
+    excerpt: "A cutover that goes sideways should end with the site back on the gear that worked that morning, not with a scramble to rebuild it. A simple rollback plan decided ahead of time keeps a failed install from becoming an outage.",
+    category: "Deployment Tips",
+    readTime: 4,
+    content: [
+      "Every cutover has a moment where the plan stops working. The new firewall comes up but will not pass traffic. The new switch takes the config but the registers cannot reach the network. The clock says the site opens in two hours, and the old gear that was working fine this morning is sitting in a pile by the door, half unplugged, with cables nobody labeled on the way out. That is the moment a rollout either recovers in twenty minutes or turns into a long day of rebuilding a system you just took apart.",
+      "Most teams plan the install in detail and the rollback not at all. The kit list, the labels, and the schedule all assume the new gear works. When it does not, the tech is left improvising a rescue with no notes on how the old setup was wired, no record of the old port assignments, and no clear call on who decides to stop and go back. Improvisation under time pressure is how a small failure becomes a site that opens late.",
+      "## Rollback is part of the install, not a failure of it",
+      "A rollback plan is not a sign that you expect to fail. It is the same kind of preparation as a spare kit or a bench check. Before any old device comes out, the existing setup gets documented as it is found: photos of the rack and cable connections, a list of which port feeds which device, and the old gear kept intact, labeled, and in the room until the new setup is proven. Nothing gets wiped, packed for return, or sent back to the warehouse until the site is running clean on the new equipment and somebody has called it done.",
+      "The plan also needs a clear stopping point decided ahead of time. Pick the time by which the new install has to be working, with enough room left to put the old setup back before the site opens or the work window closes. If that time arrives and the new gear is still not right, the decision is already made. The tech rolls back, the site opens on the system that was working yesterday, and the problem gets fixed at the bench instead of in a live room. A decision made calmly the day before beats a debate at midnight with a client waiting.",
+      "## Keep the old gear ready until the new gear earns it",
+      "That means the old equipment stays powered down but complete, with its cables, power supplies, and mounts kept together and labeled by site. If a rollback happens, the tech is reconnecting a known setup, not hunting for a power supply that went into a return box an hour ago. After the new install holds, the old gear follows the normal return path: serial numbers recorded, condition noted, and everything logged the same way as any other removal.",
+      "Cutovers will still have surprises. A rollback plan does not prevent them. It keeps a surprise from becoming an outage the client has to live with. Document what you found, keep the old setup whole until the new one proves itself, and decide your stopping point before the window starts. Do that, and a bad night ends with a working site and a problem to fix at the warehouse, which is exactly where problems are cheapest.",
+    ],
+  },
 ];
