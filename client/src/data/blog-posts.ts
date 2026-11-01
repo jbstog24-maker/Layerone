@@ -569,4 +569,22 @@ export const BLOG_POSTS: BlogPost[] = [
       "Cutovers will still have surprises. A rollback plan does not prevent them. It keeps a surprise from becoming an outage the client has to live with. Document what you found, keep the old setup whole until the new one proves itself, and decide your stopping point before the window starts. Do that, and a bad night ends with a working site and a problem to fix at the warehouse, which is exactly where problems are cheapest.",
     ],
   },
+  {
+    slug: "do-not-leave-until-you-test-it-like-they-will-use-it",
+    title: "Do Not Leave Until You Test It Like They Will Use It",
+    date: "2026-11-01",
+    excerpt: "Green link lights mean gear is installed, not that it works. Testing each device the way the site actually uses it, before the tech leaves, is what keeps a finished install from becoming a callback trip.",
+    category: "Deployment Tips",
+    readTime: 4,
+    content: [
+      "The install looks done. The new switch is racked, the access points are up, every link light is green, and the tech is already thinking about the drive to the next site. Then the first real transaction of the morning hits the register, the receipt printer stays silent, and the phone at the counter rings out to nowhere. The gear was installed. It was just never tested the way the people at that site actually use it, and now a finished job turns into a callback trip.",
+      "Callbacks like that rarely come from bad hardware. They come from the gap between installed and working. A port can show a link and still sit on the wrong network segment. An access point can broadcast and still leave the back corner uncovered, right where staff scan inventory. A device can power on, pass a quick glance, and fail the one task it was put there to do. None of that shows up until a real user tries real work, and by then your tech is an hour down the road.",
+      "## A green light is not a test",
+      "A real test uses the site the way the site uses itself. Run a transaction at the register and print the receipt. Make a call from the counter phone, and take one on it. Log in on a workstation with a normal user account, not an admin account that hides permission problems. Walk the floor with a phone or scanner and watch the wireless signal where the work actually happens, including the back room and the far aisle, not just standing under the access point. Open the applications the site depends on and confirm they reach what they need to reach.",
+      "Each check takes minutes, and each one maps to a failure that is cheap on site and expensive from the road. If a printer sits on the wrong segment, moving a cable or fixing a port assignment while the tools are still out is a small job. Finding the same problem the next morning means a second dispatch, a site working around broken gear during its busiest hours, and a client wondering what the first visit actually finished.",
+      "## Build the test into the kit, not into memory",
+      "The check holds up best when it does not depend on a tech remembering it at the end of a long day. The test list should ride with the site kit, built from the site survey and the gear in the box: every device that went in gets a named check, written in plain steps, with a place to mark the result. The results go into the site record before the tech leaves, alongside the photos and serial numbers, so the closeout shows not just what was installed but what was proven to work.",
+      "Leaving a site is easy. Leaving it finished takes one more pass, done from the user's side of the counter instead of the rack side. Test it like they will use it, fix what the test finds while you are still standing there, and write down what passed. That habit is the difference between an install that stays done and one that comes back as a callback, and it is the cheapest return trip you will ever avoid: the one you never have to make.",
+    ],
+  },
 ];
