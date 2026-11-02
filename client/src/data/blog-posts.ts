@@ -587,4 +587,23 @@ export const BLOG_POSTS: BlogPost[] = [
       "Leaving a site is easy. Leaving it finished takes one more pass, done from the user's side of the counter instead of the rack side. Test it like they will use it, fix what the test finds while you are still standing there, and write down what passed. That habit is the difference between an install that stays done and one that comes back as a callback, and it is the cheapest return trip you will ever avoid: the one you never have to make.",
     ],
   },
+  {
+    slug: "do-not-let-the-last-site-get-the-leftovers",
+    title: "Do Not Let the Last Site Get the Leftovers",
+    date: "2026-11-02",
+    excerpt: "Early sites in a rollout always seem to have plenty of gear. The last sites are where shortages hide. A running count after every wave keeps the final locations from paying for mistakes made weeks earlier.",
+    category: "Staging Best Practices",
+    readTime: 4,
+    content: [
+      "Nobody notices a rollout is short until it is almost over. The first sites go in clean, there is gear on the shelf, and every kit feels complete. Then the count gets thin near the end. A site that needs eight access points gets six. A spare that was supposed to be in reserve was used three sites back and never replaced. The last location, which waited the longest, ends up with leftovers, substitutions, and a second visit to finish work that should have been done in one pass.",
+      "The last site did nothing wrong. It is just where every small error in the project finally adds up. A damaged unit pulled from stock here, an extra device sent to cover a survey miss there, a box that was miscounted at receiving and never corrected. Each one looked minor on its own. Together, they quietly borrow from the sites that have not shipped yet, and those sites have no way to protect themselves.",
+      "## Shortages are built slowly, then found all at once",
+      "This rarely starts as a real shortage. The order was usually right on paper. It goes wrong in the small moves nobody records. A tech takes an extra switch for a site that might need it, just in case, and it never comes back to the shelf. A failed unit gets swapped from the general pool instead of from the spare kit, so the pool count on the sheet no longer matches the pool on the rack. A partial shipment gets logged as received in full, and the missing line item is only found when the last kit is being built.",
+      "Because early sites have buffer around them, none of this hurts right away. There is always another unit to grab. That is what makes the habit dangerous. The system feels fine while it is spending down the safety margin, and it only complains when the margin is gone, which is always at the end, on the tightest schedule, with the client asking when the project will finally close.",
+      "## Count after every wave, not just at the end",
+      "The fix is a running count, done while there is still time to act on it. After each wave of sites ships, count what is left against what the remaining sites still need, line by line, not just by total boxes. Devices, mounts, power supplies, and cables all get checked, because a site is not covered just because the headline gear is there. If the numbers do not line up, that is the moment to reorder, pull a substitute for approval, or tell the project team the last dates are at risk. All of those options are cheap in week two and expensive in the final week.",
+      "That count also has to include what left the shelf outside of a kit. Every loan, swap, and just in case pull gets written down the same day, with the site it went to and the serial number that moved. When a failed unit comes back, it goes into the return process, not back into usable stock until it is checked. Usable stock should mean gear that is counted, tested, and actually available, not gear somebody hopes is still in a box somewhere.",
+      "Treat the last sites like the first ones. They should get complete kits, tested gear, and the same care with labels and small parts, not whatever is left. Count after every wave, record every pull, and fix a thin count while reordering is still a normal phone call instead of an emergency. The end of a rollout should feel like a finish line, not like an apology.",
+    ],
+  },
 ];
