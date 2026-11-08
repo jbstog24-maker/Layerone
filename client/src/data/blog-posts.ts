@@ -696,4 +696,22 @@ export const BLOG_POSTS: BlogPost[] = [
       "Surveys are still worth doing well, they just should not be treated as frozen. A site is a living workplace, and it will keep changing between the walk and the install. Build a recheck into the staging window, keep it short and specific, and let the bench absorb the surprises. That is how a kit arrives matched to the site that exists today, not the one that existed six weeks ago.",
     ],
   },
+  {
+    slug: "the-morning-after-matters-day-one-support-after-an-install",
+    title: "The Morning After Matters: Day-One Support After an Install",
+    date: "2026-11-08",
+    excerpt: "An install is not proven when the tech leaves. It is proven the next morning, when the site opens and real work hits the new gear. A short day-one check catches small issues before they turn into tickets.",
+    category: "Deployment Tips",
+    readTime: 4,
+    content: [
+      "The most honest test of an install does not happen the night it goes in. It happens the next morning, when the doors open, the first customers walk in, and the staff start using the new gear for real work, all at once, at full speed. A register that worked for one test transaction at midnight gets fifty before nine. A printer that printed once gets a line of people waiting on receipts. That first morning is where small misses stop being quiet and start being urgent.",
+      "## The first morning finds what the night could not",
+      "Some problems only show up under real use. A wireless dead spot appears only when staff are moving through the back room with scanners in hand. A login that worked for the tech fails for a morning shift user whose account was never checked. A cable that was fine at low load drops when every device wakes up at the same time. None of these mean the install was careless. They mean a live workplace tests gear in ways a quiet, empty site cannot, no matter how careful the bench work and the on site checks were.",
+      "What turns those small finds into a bad day is silence. The site does not know who to call, so the issue goes into a general support queue, gets described three different ways, or waits until it has stacked up with two other problems. Staff work around it, the workaround becomes the habit, and by the time help arrives the site has already decided the new system is the problem. The gear may be fine. The confidence is gone.",
+      "## A short check in beats a long ticket chain",
+      "Day-one support does not need to be complicated. It needs to be planned before the install, not invented after it. Name one contact the site can reach directly on that first morning. Agree ahead of time when a short check in call or message will happen, early enough that anything found can still be fixed the same day. Keep the tech who did the install, or the staging record they left behind, within reach, so questions get answered from the site record and the closeout notes instead of from memory.",
+      "During that check, ask about the work, not just the gear. Did the registers run the first rush clean? Did every phone and workstation log in the way the morning crew expects? Is any device being avoided because it feels slow or unreliable? A device staff are quietly avoiding is a problem whether it shows an error or not. Write down everything that comes up, fix the small items on the spot where possible, and give the rest a clear owner and a clear time, in writing, before the call ends.",
+      "Then close the loop the same way the rollout handles everything else. Update the site record with what was found and what changed, so support a month from now is working from the truth. If a pattern shows up across the first few sites, feed it back into the staging checklist and the kit for the next wave, the same way a pilot install would. One site reporting a short cable is a fix. Three sites reporting it is a kit problem, and it should be solved at the bench, not at three more locations.",
+    ],
+  },
 ];
