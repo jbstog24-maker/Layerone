@@ -714,4 +714,22 @@ export const BLOG_POSTS: BlogPost[] = [
       "Then close the loop the same way the rollout handles everything else. Update the site record with what was found and what changed, so support a month from now is working from the truth. If a pattern shows up across the first few sites, feed it back into the staging checklist and the kit for the next wave, the same way a pilot install would. One site reporting a short cable is a fix. Three sites reporting it is a kit problem, and it should be solved at the bench, not at three more locations.",
     ],
   },
+  {
+    slug: "provision-phones-at-the-bench-so-install-day-is-just-plug-in",
+    title: "Provision Phones at the Bench So Install Day Is Just Plug In",
+    date: "2026-11-09",
+    excerpt: "A phone that still needs provisioning at the desk leaves a user without the tool they need to do business. Registering, testing, and labeling phones at the bench makes the swap a plug in job.",
+    category: "Staging Best Practices",
+    readTime: 4,
+    content: [
+      "There are few installs that look simpler than phones and go sideways faster. The tech sets a new phone on a desk, plugs in the cable, and instead of a ready extension there is a firmware update that takes twenty minutes, a registration screen asking for details nobody wrote down, and a user standing nearby asking when they can make calls again. Multiply that by twenty desks and a half day phone swap becomes a full day of watching screens reboot.",
+      "## A phone is not ready just because it powers on",
+      "A desk phone needs more than power and a network drop. It needs the right firmware, the right configuration, the correct extension, the user's name spelled right on the display, and a voice network it can actually reach. If any of that gets built at the desk, the tech is doing provisioning work in the middle of an office, one phone at a time, while the old phones are already off the desks and the site is trying to run a business without them.",
+      "The misses are small and they add up fast. One phone lands on the wrong extension, so the front desk rings in the back office. Another keeps an old firmware version and behaves differently from the rest of the fleet, which turns into a support puzzle months later. A handset cord or stand that never made the box means a phone that cannot be used comfortably even though the screen is lit. None of these are hard problems at a bench. All of them are irritating problems at a desk with a line forming.",
+      "## Provisioning belongs with the rest of staging",
+      "At the staging bench, phones get connected as a batch and provisioned the same way, start to finish. Each phone registers to the phone system, loads the standard firmware for the project, and receives its assigned extension and display name from the site plan. The person at the bench makes a test call out and takes a test call in, checks that voicemail and hold work the way the site expects, and confirms the phone reboots and comes back on the right extension without help.",
+      "Then the phone gets labeled for the exact desk it belongs to, not just the site it ships to. The handset, cord, stand, and power supply if that desk needs one are packed with it. Phones for a site are boxed in extension order, with a simple list on the outside that matches the labels inside. If a phone fails to register or will not hold its configuration, it stays at the warehouse for troubleshooting or replacement. It never becomes a dead desk on install day.",
+      "On site, the job becomes what it should have been all along. The tech places each phone, plugs in one cable, watches it come up on the right extension, and runs one quick test call before moving to the next desk. Users get their phones back in minutes instead of hours, and every phone at the site works the same way because every phone was built the same way. Phones are how a business talks to its customers, so the time a site spends without them matters. Provision at the bench, test before the kit closes, and label for the desk, not just the building.",
+    ],
+  },
 ];
