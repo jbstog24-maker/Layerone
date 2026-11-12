@@ -767,4 +767,23 @@ export const BLOG_POSTS: BlogPost[] = [
       "When the shipment does land, the log is not finished. The arrival gets marked, the count gets checked against what was expected, and any shortage goes back onto the open items for that project the same day. That record is what lets the next kit build start from fact instead of memory. Gear will still ship late sometimes. Weather happens, hubs back up, and vendors miss dates. A team that watches inbound gear every day meets those problems at the tracking page, where they are small, instead of at the dock on build day, where they are not.",
     ],
   },
+  {
+    slug: "schedule-the-dock-like-you-schedule-the-tech",
+    title: "Schedule the Dock Like You Schedule the Tech",
+    date: "2026-11-12",
+    excerpt: "When every carrier arrives in the same hour, intake gets rushed and errors hide in the kits. Giving deliveries a window, not just a date, keeps receiving calm and accurate.",
+    category: "Staging Best Practices",
+    readTime: 4,
+    content: [
+      "Monday morning can wreck a staging plan before the bench work even starts. Three carriers show up in the same hour, each with a pallet for a different project, each driver wanting a signature right now. The dock fills up, boxes stack wherever there is floor space, and the crew that was supposed to be building kits spends the morning unloading trucks instead. By noon, everyone is behind, and the intake shortcuts that seemed harmless at nine are already hiding in the kits.",
+      "That pileup is not bad luck. It happens because most teams schedule techs, installs, and shipments with care, and then let deliveries arrive whenever a carrier feels like showing up. A purchase order gets a ship date, but the dock never gets a delivery window. So five orders placed on different days can all land on the same morning, for sites that are weeks apart, and a warehouse that normally runs calm turns into a sorting yard.",
+      "## When every truck arrives at once, intake is the first thing to slip",
+      "Intake needs time and attention, and a crowded dock takes both away. Counting boxes against a bill of lading is rushed when the next driver is waiting at the door. Checking for damage gets skipped when pallets are stacked double deep just to clear space. Serial numbers that should be captured as each box opens get put off until later, which often means they get captured from a packing list instead of from the device itself. None of those shortcuts show up on Monday. They show up on install day, as a short count, a damaged unit, or a record nobody can trust.",
+      "The mix up risk grows the same way. When gear for three projects lands at once and sits in one tight space, a box can end up in the wrong project area without anyone meaning for it to move. A calm dock keeps projects separate. A flooded dock makes separation almost impossible, no matter how good the labels are.",
+      "## Give deliveries a window, not just a date",
+      "The fix is to treat the dock like any other scheduled resource. Each expected shipment gets a delivery window in the project plan, shared with the vendor or carrier when the order is placed. Large pallet deliveries get spaced through the week instead of stacked on one morning. When two big shipments have to land the same day, they land hours apart, so the first one can be counted, inspected, and put away before the second one reaches the door.",
+      "That schedule also helps the bench. If staging knows a shipment lands Tuesday morning, bench time can be planned for Tuesday afternoon, with the right person free to do intake properly. The inbound log gets updated when a carrier moves a window, so a delay changes the bench plan early, not at the last minute. And when a driver arrives outside the window, the team can still accept the freight, but the plan, not the truck, decides when it gets opened and processed.",
+      "A dock is not just a door where boxes appear. It is the first workstation on every rollout, and it deserves the same scheduling care as the tech in the field. Space the deliveries, protect the intake, and keep the morning calm enough to do the first job right. The kits that leave later that week will be cleaner for it, because the work started on time, in order, and without a pileup.",
+    ],
+  },
 ];
