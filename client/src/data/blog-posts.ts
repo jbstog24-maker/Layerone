@@ -786,4 +786,22 @@ export const BLOG_POSTS: BlogPost[] = [
       "A dock is not just a door where boxes appear. It is the first workstation on every rollout, and it deserves the same scheduling care as the tech in the field. Space the deliveries, protect the intake, and keep the morning calm enough to do the first job right. The kits that leave later that week will be cleaner for it, because the work started on time, in order, and without a pileup.",
     ],
   },
+  {
+    slug: "customer-supplied-gear-needs-staging-too",
+    title: "Customer-Supplied Gear Needs Staging Too",
+    date: "2026-11-13",
+    excerpt: "When the client buys the gear themselves, it often skips staging entirely and goes straight to the site. That is exactly the gear most likely to arrive wrong, unmatched, or untested.",
+    category: "Deployment Tips",
+    readTime: 4,
+    content: [
+      "It sounds reasonable at the start of a project. The client already bought the switches, or their corporate office shipped the access points, or a previous vendor left gear in a closet that should still be good. Since nobody on your team ordered it, nobody puts it through staging. It goes straight to the site, or it waits in that closet, and the first real look it gets is from the tech on install day. That is when the project finds out a unit is the wrong model, the firmware is years behind, or one of the devices in the pile does not power on at all.",
+      "Customer-supplied gear carries more unknowns than gear you ordered yourself, not fewer. You do not have the purchase order to check it against. You may not know where it was stored, how long it sat there, or whether the count the client gave you was ever verified by opening the boxes. Treating it like it is already ready, just because the client handed it over, is how an install inherits problems nobody created and everybody ends up paying for.",
+      "## Unknown gear needs the same intake, only more carefully",
+      "The fix is not to argue about who bought what. It is to run customer-supplied gear through the same front door as everything else. It lands at the dock, gets counted against the list the client provided, and gets opened and inspected like any other shipment. Serial numbers and MAC addresses get captured, condition gets noted with photos, and any shortage or mismatch gets reported back the same day, while there is still time to find a replacement or adjust the plan.",
+      "Then it gets the bench treatment it never had. Each device gets powered on and confirmed to boot. Firmware gets checked against the project standard and updated where it falls short. Power supplies, mounts, and cables get matched to each unit, because gear that came from a closet or a corporate shipment rarely arrives as a complete kit. If a unit fails, that conversation happens days before install day, with the client, in plain terms: this device does not work, here is the record, here is what the options are. That is a much better conversation than the same one from a server room with the old gear already pulled out.",
+      "## Put ownership in writing before the kit is built",
+      "One step matters more with supplied gear than with your own orders: agree in writing, before staging starts, who owns each decision. Who approves a substitute if a supplied unit is dead or the wrong model? Who pays for the replacement, and who orders it? What happens to gear that turns out to be surplus or unusable? Those answers are easy to settle at the start of a project and hard to settle in the middle of a stalled install, when the schedule is slipping and everyone remembers the arrangement differently.",
+      "Once those answers are clear, supplied gear stops being a special case. It gets labeled for its site, built into the same kits, tested with the rest of the system, and covered by the same chain of custody as gear your team ordered. The client keeps control of what they bought, and the project gets a record it can stand behind. Gear does not become ready because a client supplied it. It becomes ready the same way all gear does: received, checked, tested, and kitted on purpose, before a tech is standing at a site counting on it.",
+    ],
+  },
 ];
