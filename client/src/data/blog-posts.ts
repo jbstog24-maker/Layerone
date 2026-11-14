@@ -804,4 +804,22 @@ export const BLOG_POSTS: BlogPost[] = [
       "Once those answers are clear, supplied gear stops being a special case. It gets labeled for its site, built into the same kits, tested with the rest of the system, and covered by the same chain of custody as gear your team ordered. The client keeps control of what they bought, and the project gets a record it can stand behind. Gear does not become ready because a client supplied it. It becomes ready the same way all gear does: received, checked, tested, and kitted on purpose, before a tech is standing at a site counting on it.",
     ],
   },
+  {
+    slug: "load-the-truck-backwards-first-stop-goes-on-last",
+    title: "Load the Truck Backwards: First Stop Goes On Last",
+    date: "2026-11-14",
+    excerpt: "A perfect kit buried behind three other sites is not ready, it is stuck. Loading in reverse stop order keeps the first install first out and the whole day moving.",
+    category: "Staging Best Practices",
+    readTime: 4,
+    content: [
+      "The kits can be perfect and the day can still start wrong in the parking lot. The tech opens the back of the truck at the first site and stares at somebody else's gear. The kit for this stop is all the way at the front, behind two more sites worth of boxes, a spare rack, and a ladder that got loaded last because it was closest to the door. Now the first job of the day is unloading half a truck onto a sidewalk, sorting it, and loading most of it back in, while the site contact watches and the install window gets shorter.",
+      "This happens more than anyone wants to admit, because loading usually follows whatever order the boxes came off the shelf. The warehouse pulls kits in site number order, stacks them near the dock in that order, and loads them in that same order. It feels tidy. It is also backwards. The first kit loaded is the last kit you can reach, and on a multi-stop day that one mistake repeats at every stop.",
+      "## Load in reverse stop order",
+      "The rule is simple enough to say in one line: last stop goes on first, first stop goes on last. Before anything moves, the dock crew works from the actual route, not the site list. Which location is hit first, which is second, which is last, and what does the tech need at each one. Then the truck gets loaded in reverse, so the gear for the first stop sits at the doors, ready to come straight off without moving anything else.",
+      "That order gets written on the load sheet and checked before the doors close. Each kit is labeled on the outside with the site name and the stop number, big enough to read without climbing in. Heavy and fragile items still get placed with care, strapped so nothing shifts in transit, but the sequence stays the point. A short stop with two boxes should never require unloading a full rack meant for a stop three hours later. When a route changes, the load plan changes with it before the truck leaves, not after the tech discovers the problem at the curb.",
+      "## The stops in the middle matter too",
+      "Reverse loading also protects the middle of the day, where most of the quiet damage happens. Every extra unload and reload is another chance for a box to get left behind, set down in the wrong pile, or take a knock it did not need. Gear that stays strapped and untouched until its own stop arrives in the condition it left the bench in, with its contents list still matching what is inside. Gear that got moved three times before its install is gear somebody has to recount before they can trust it.",
+      "Load the shared items last too: the tool bag, spare kit, and cable tote, near the doors where the tech can reach them at any site. Old gear coming out goes into the space that kit just left, labeled and separate, so returns never mix with waiting kits. None of this takes longer at the dock. It takes a route sheet, a marker, and five minutes of thinking before the first box moves. Build the kit right, then load the truck backwards, so the day runs in the order the work actually happens.",
+    ],
+  },
 ];
