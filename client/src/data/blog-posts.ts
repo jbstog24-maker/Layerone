@@ -822,4 +822,22 @@ export const BLOG_POSTS: BlogPost[] = [
       "Load the shared items last too: the tool bag, spare kit, and cable tote, near the doors where the tech can reach them at any site. Old gear coming out goes into the space that kit just left, labeled and separate, so returns never mix with waiting kits. None of this takes longer at the dock. It takes a route sheet, a marker, and five minutes of thinking before the first box moves. Build the kit right, then load the truck backwards, so the day runs in the order the work actually happens.",
     ],
   },
-];
+  {
+    slug: "claim-the-device-before-you-ship-it",
+    title: "Claim the Device Before You Ship It",
+    date: "2026-11-15",
+    excerpt: "A switch can test perfect on the bench and still do nothing on site if nobody claimed it into the portal or assigned its license. That paperwork belongs in staging, not on install day.",
+    category: "Industry Insights",
+    readTime: 4,
+    content: [
+      "Here is an install that stalls without a single broken part. The switch is racked, the access points are up, the cables test clean, and nothing will come online. The gear is cloud managed, and nobody claimed it into the management portal. The license key is sitting in an email inbox belonging to somebody who is out today, and the device is still registered to a test account from a trial months ago. The tech did everything right at the site. The paperwork never happened anywhere.",
+      "This is getting more common, not less. More gear now needs an account, a license, and a claim step before it will do anything useful. A device can be brand new, fully tested, and correctly configured on paper, and still be a paperweight until somebody assigns it to the right organization, the right network, and the right site. If that step waits until install day, it waits on logins, password resets, and inboxes nobody on site can open.",
+      "## The claim is part of the build",
+      "Claiming and licensing belong on the staging bench, next to the power on check. When a device comes out of the box, its serial number gets captured, and that same serial is what gets entered into the portal. The device gets claimed into the correct account, assigned its license, named for its site and location, and confirmed online while it is still on the bench. If the portal shows an error, a duplicate claim, or a license shortage, it shows up days before the install, when fixing it is an email instead of an emergency.",
+      "This is also where ownership gets sorted out in plain terms. Whose account does the gear live in, the client's or the provider's? Who holds the admin login, and who else can get in if that person is unavailable? Which licenses expire, and when? Those answers should be written into the project record before the kit ships, not discovered during a support call a year later when nobody remembers who set the account up or which email address it sits under.",
+      "## Test it claimed, not just powered on",
+      "A bench check that stops at the power light misses this whole layer. The better test is to bring the device up the way it will run at the site: claimed, licensed, named, and reporting into the portal it will actually live in. Watch it check in. Confirm the license shows as active. Confirm the name and site assignment match the label on the outside of the device. Then note the account, the license status, and the device name in the same record that holds its serial number and MAC address.",
+      "None of this is hard, and none of it belongs on a ladder or in a server room on install day. Claim the device before you ship it, license it before you ship it, and prove it checks in before it goes into the kit. Hardware readiness gets a device out the door. Account readiness is what lets it actually work when it gets there.",
+  ],
+  },
+      ];
