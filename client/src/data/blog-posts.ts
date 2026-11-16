@@ -840,4 +840,21 @@ export const BLOG_POSTS: BlogPost[] = [
       "None of this is hard, and none of it belongs on a ladder or in a server room on install day. Claim the device before you ship it, license it before you ship it, and prove it checks in before it goes into the kit. Hardware readiness gets a device out the door. Account readiness is what lets it actually work when it gets there.",
   ],
   },
-      ];
+  {
+    slug: "when-one-device-runs-different-firmware-than-the-rest",
+    title: "When One Device Runs Different Firmware Than the Rest",
+    date: "2026-11-16",
+    excerpt: "A device can boot clean, pass a power check, and still be the odd one out because its firmware never matched the rest of the kit. Checking the version at the bench keeps that surprise off the job site.",
+    category: "Deployment Tips",
+    readTime: 4,
+    content: [
+      "Here is a fault that does not look like a fault. The switch powers on, the access points light up, and the site comes online. Then one device acts a little off. It will not take the same settings as the others, a feature that works everywhere else is missing here, or it drops off the management portal for no clear reason. The tech burns an hour checking cables and configs before somebody finally looks at the version number. This one unit is running firmware from well before the rest of the kit, because it came from a different batch and nobody checked.",
+      "## Firmware drift starts at the dock",
+      "Vendors do not ship one project in one neat batch. Gear comes from different warehouses, different purchase orders, and sometimes different suppliers, and each box can carry a different version than the one next to it. A unit that sat on a shelf for months will be behind. A replacement sent mid project will often be ahead. Straight out of the box, none of that is a defect, and a basic power on check will not catch it. The device boots fine. It just does not match, and mismatch is the kind of problem that hides until the site is live and the troubleshooting is happening in front of the client.",
+      "That mismatch follows the project home. Remote support opens a device expecting the menus and behavior they know from the other sites, and finds a different layout instead. A setting that was standard everywhere else is named something else here, or is not there at all. A bug that was fixed in a later version shows up at only one location, so the ticket reads like a site problem instead of a version problem. Every one of those support calls takes longer than it should, because the first step is always figuring out that this device was never the same as the others to begin with.",
+      "## Match the version at the bench, not at the site",
+      "The fix belongs in staging, right next to the power on check and the config load. Pick the version the project will run on, write it down as the standard, and check every device against it before it goes into a kit. Update what is behind, hold what is too far ahead until it has been tested, and reboot and confirm the device comes back up on the right version. Then record that version in the same place as the serial number and the site assignment, so the record says what the device is running, not just where it went.",
+      "Upgrading firmware on site is slow work done on the clock, with a download, a reboot, and a room full of people waiting to see if it comes back. Upgrading it at the bench is quiet work, done once, with a spare on the shelf if a unit fails mid update. The rule is simple. No device ships on an unconfirmed version, and no kit leaves with mixed firmware inside it. Match it at the bench, prove it after the reboot, and let install day be about installing, not about finding out which box was different.",
+    ],
+  },
+];
