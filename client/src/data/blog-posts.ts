@@ -857,4 +857,21 @@ export const BLOG_POSTS: BlogPost[] = [
       "Upgrading firmware on site is slow work done on the clock, with a download, a reboot, and a room full of people waiting to see if it comes back. Upgrading it at the bench is quiet work, done once, with a spare on the shelf if a unit fails mid update. The rule is simple. No device ships on an unconfirmed version, and no kit leaves with mixed firmware inside it. Match it at the bench, prove it after the reboot, and let install day be about installing, not about finding out which box was different.",
     ],
   },
+  {
+    slug: "stage-the-register-lane-not-just-the-register",
+    title: "Stage the Register Lane, Not Just the Register",
+    date: "2026-11-17",
+    excerpt: "A register is only one part of a checkout lane. If the scanner, printer, and payment terminal were never tested together, the lane is not ready, no matter how new the terminal looks.",
+    category: "Staging Best Practices",
+    readTime: 4,
+    content: [
+      "A store can survive a lot of things on opening morning, but a dead checkout lane is not one of them. The new register boots up fine, the screen looks right, and then the real work starts. The scanner will not read a barcode. The receipt printer sits silent. The payment terminal is asking to be paired with a system it has never met. A line forms, staff start calling customers over to the one lane that still works, and a simple hardware swap turns into a morning the whole store remembers.",
+      "## A lane is a system, not a single device",
+      "A checkout lane only works as a set. The register, scanner, printer, payment terminal, and cash drawer all have to agree with each other, and each one carries its own small setup. A scanner may need to be set for the barcode types the store actually uses. A printer needs the right connection and a drawer that opens when a sale completes. A payment terminal needs to be assigned to that lane, not just powered on. Tested one at a time, each part can look ready. Connected for the first time at the store, the set can still fail.",
+      "That is why point of sale gear should be built and tested by lane at the staging bench. Connect the exact terminal to the exact scanner, printer, payment terminal, and drawer it will run with at the store. Run a test sale from start to finish. Scan an item, take a test payment the way the store takes it, print the receipt, and confirm the drawer opens. If any part in that chain is wrong, it gets fixed or swapped at the bench, where the spare shelf and the setup tools are, not at a counter with customers watching.",
+      "## Kit by lane, label by lane",
+      "When the lane passes, keep it together. The peripherals that were tested with that terminal travel in the same kit, labeled with the lane number they belong to, not just the store name. Cables and power supplies get matched to that lane and counted on the contents list. If a part has to be swapped later, the replacement gets tested with the lane before the kit closes again. Mixing tested and untested parts at packing time quietly undoes the work the bench just did, and nobody finds out until the lane is live.",
+      "On install day, the job gets short again. The tech sets the lane from one kit, connects it in the order it was tested, and runs one real check before moving on: scan, sale, receipt, drawer. The store opens with lanes that work as lanes, not as a pile of parts that happen to share a counter. Stage the whole lane, test the whole sale, and ship it together. A register by itself was never the thing the store was counting on.",
+    ],
+  },
 ];
