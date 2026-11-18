@@ -874,4 +874,22 @@ export const BLOG_POSTS: BlogPost[] = [
       "On install day, the job gets short again. The tech sets the lane from one kit, connects it in the order it was tested, and runs one real check before moving on: scan, sale, receipt, drawer. The store opens with lanes that work as lanes, not as a pile of parts that happen to share a counter. Stage the whole lane, test the whole sale, and ship it together. A register by itself was never the thing the store was counting on.",
     ],
   },
+  {
+    slug: "dead-gear-needs-a-return-plan-not-a-corner",
+    title: "Dead Gear Needs a Return Plan, Not a Corner to Sit In",
+    date: "2026-11-18",
+    excerpt: "A failed device tossed in a corner can get reshipped, lose its warranty window, or vanish from the record. A clear return path at the dock keeps dead gear from haunting the next install.",
+    category: "Deployment Tips",
+    readTime: 4,
+    content: [
+      "Every shop has seen the corner. A switch that would not power on sits on top of a firewall that failed its bench check, next to an access point nobody remembers testing. There is no tag on any of it, no note about which project it came from, and no plan for sending it back. It just sits there, week after week, while the warranty window gets shorter and the story behind each failure gets harder to remember.",
+      "## A dead unit without a tag can ship again",
+      "Untagged failed gear does not stay put. Somebody cleaning up sees a device that looks new, puts it back on the good shelf, and it goes into the next kit as if nothing was wrong with it. The same fault that was found once gets found again, this time at a site, in front of a client. Or the unit never moves at all, the return window closes, and a device that should have been replaced under warranty becomes a loss the project quietly absorbs. Both outcomes start the same way, with a failed unit that was set down instead of logged.",
+      "The paperwork is part of the problem too. A vendor return usually needs the serial number, the date it failed, what it did when it was tested, and proof of purchase tied to that unit. If none of that was written down at the bench, somebody has to rebuild it from memory and inbox searches days later. Sometimes it cannot be rebuilt at all, and the return stalls while working gear waits on a replacement that was never actually ordered.",
+      "## Give failed gear its own path out",
+      "The fix is a separate path, handled the moment a device fails. Tag it as failed right at the bench or right when it comes back from a site. Record the serial number, the project and site it belonged to, the date, and the fault in plain words. Photograph any visible damage. Then put it in one marked place for returns only, apart from good stock and apart from customer gear waiting on a decision. Nothing leaves that spot except through the return process, and nothing goes back into a kit from that spot without a full bench check and a clean record.",
+      "From there, the return gets tracked like any other shipment. The return authorization number goes into the same project record as the serial number. The ship date and carrier get logged when it leaves. When the replacement arrives, it does not skip the line. It goes through normal intake, gets bench checked and firmware matched like any other device, and the asset record gets updated so the site shows the replacement serial, not the one that failed. The failed unit is closed out, not forgotten.",
+      "Dead gear is a normal part of deployment work. Hardware fails, and catching it early is exactly what staging is for. What turns a simple failure into a cost is letting that unit drift without a tag, a record, or a way back to the vendor. Tag it, separate it, track the return, and test the replacement when it lands. A return plan keeps one bad device from costing the project twice.",
+    ],
+  },
 ];
