@@ -892,4 +892,22 @@ export const BLOG_POSTS: BlogPost[] = [
       "Dead gear is a normal part of deployment work. Hardware fails, and catching it early is exactly what staging is for. What turns a simple failure into a cost is letting that unit drift without a tag, a record, or a way back to the vendor. Tag it, separate it, track the return, and test the replacement when it lands. A return plan keeps one bad device from costing the project twice.",
     ],
   },
+  {
+    slug: "stage-the-battery-backup-too",
+    title: "Stage the Battery Backup Too: Why a UPS Should Ship Charged and Tested",
+    date: "2026-11-19",
+    excerpt: "A battery backup that was never connected, charged, or tested under load is not protection, it is a hope. Bench time turns that hope into gear the site can count on when power drops.",
+    category: "Staging Best Practices",
+    readTime: 4,
+    content: [
+      "The first real test of a battery backup usually comes at the worst moment. Power flickers during business hours, the lights dip, and everyone looks at the rack to see what stayed up. If the switch and firewall drop anyway, the problem often is not the outage. It is that the backup unit arrived with its battery disconnected, never got a full charge, and was never tested with the gear it was supposed to protect. It sat in the rack looking ready, right up until it was needed.",
+      "Battery backups get skipped in staging more than almost any other device. They are heavy, they are treated like an accessory to the main gear, and a quick power light check makes them look done. Many units also ship with the battery disconnected on purpose for transport, which means somebody has to connect it correctly before it can do its job at all. If that step is left to a busy install day, it can be rushed or missed, and nobody finds out until the power event the unit was bought to handle.",
+      "## A backup needs bench time, not just a power light",
+      "At the staging bench, the backup gets the same care as the gear it protects. The battery gets connected the way the maker directs, the unit gets plugged in and left to charge, and any alarm or fault light gets dealt with while a replacement is still easy to get. Then it gets a real check: run its self test, confirm it reports cleanly, and pull the plug with a test load on it to see that it actually carries the load and does not drop it without warning.",
+      "That load check matters because a backup is only useful for the gear assigned to it. The switch, firewall, and other core pieces that need to ride out a short outage belong on battery power. Gear that does not need protection should not crowd those outlets and shorten the time the important pieces have. Testing the backup with the actual site kit, or a load that matches it, shows whether the plan on paper matches what the unit can hold in the room.",
+      "## Label what it protects before it ships",
+      "When the unit passes, it gets kitted with the site it belongs to, not shipped loose as an afterthought. The outlets or the power strip get labeled in plain words for what should plug into battery power and what should not. The serial number, the site assignment, and the charge and test result go into the same record as the rest of the kit. Any handling note the tech needs, such as reconnecting the battery after transport if the maker requires it disconnected for shipping, goes on the outside of the box and on the contents list, not in somebody's memory.",
+      "Power problems do not schedule themselves around quiet moments, and a backup unit cannot be sorted out during the outage it was meant to cover. Connect it, charge it, test it under load, and label what it protects before it leaves the warehouse. That is how a battery backup stops being a heavy box in the bottom of the rack and becomes the protection the site was promised.",
+    ],
+  },
 ];
