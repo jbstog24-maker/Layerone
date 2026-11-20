@@ -910,4 +910,21 @@ export const BLOG_POSTS: BlogPost[] = [
       "Power problems do not schedule themselves around quiet moments, and a backup unit cannot be sorted out during the outage it was meant to cover. Connect it, charge it, test it under load, and label what it protects before it leaves the warehouse. That is how a battery backup stops being a heavy box in the bottom of the rack and becomes the protection the site was promised.",
     ],
   },
+  {
+    slug: "configure-the-cameras-before-they-go-up-the-ladder",
+    title: "Configure the Cameras Before They Go Up the Ladder",
+    date: "2026-11-20",
+    excerpt: "Finding a camera on the network, setting its address, and proving the picture works should happen on the bench. Doing it from the top of a ladder turns a short mount into a long, unsafe balancing act.",
+    category: "Deployment Tips",
+    readTime: 4,
+    content: [
+      "Every camera job has a version of this moment. The tech is up a ladder with a camera mounted, a cable run, and a laptop balanced somewhere it should not be. Now the real setup starts: hunting for the camera on the network at its factory address, setting a password, changing the address to the one the site plan calls for, updating whatever it shipped with, and squinting at the picture to see if it even works. The mount took ten minutes. The setup on the ladder can take an hour, and none of it is work that needed to happen up there.",
+      "## Ladder time is the worst time to configure anything",
+      "Cameras come out of the box in a factory state, and factory state is not install state. The address is a default, the name is a model number, and the settings are whatever the maker ships to everyone. Turning that into a camera that belongs to one site, at one address, watching one door, takes patient bench work: logging in, setting it up, and checking the picture carefully. Doing that work while perched above a sales floor or a parking lot guarantees it gets rushed. Steps get skipped, settings get left at defaults, and the camera that goes live is not quite the camera the plan called for.",
+      "At the staging bench, each camera gets configured before it is kitted. It gets the address and name the site plan assigns to its location, the project settings applied the same way as every other camera on that site, and any firmware update it needs while a spare is still within reach. Then it gets watched. The stream comes up, the picture is clear in normal light and in its low light mode, and the lens is confirmed working. A camera that will not connect, will not hold its settings, or shows a bad picture fails at the bench, where the fix is a swap. The same failure found after it is mounted costs a second climb and a second trip.",
+      "## Label the view, not just the box",
+      "When a camera passes, it gets labeled with where it belongs in plain words: which site, and which view it covers, such as the front entrance or the loading dock. Its address, serial number, and location go into the site record with the rest of the kit. The cameras for one site travel together in that site kit, matched to the mounts and cables counted for those locations. That way the tech on site is not sorting identical cameras at the truck, guessing which one was set up for which door, and redoing bench work because the boxes got mixed.",
+      "None of this removes the one job only the site can do. The final aim still happens after the mount, with the real view in front of the tech, and the picture still gets checked from the recorder or the app before anyone leaves. What bench configuration removes is everything else: the hunting, the setup, the updates, and the surprises. Install day becomes mount it, plug it in, pull up the feed, aim it, and confirm it. The ladder is for mounting and aiming, the two things that truly need a ladder. Configure the cameras before they go up, and the climb stays short, safe, and boring, which is exactly what a good install should be.",
+    ],
+  },
 ];
