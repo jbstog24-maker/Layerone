@@ -85,6 +85,14 @@ async function startServer() {
   // Configure body parser with larger size limit for file uploads
   app.use(express.json({ limit: "50mb" }));
   app.use(express.urlencoded({ limit: "50mb", extended: true }));
+  // Framing protection (2026-11-27 security pass): the site must not be
+  // framed by other sites (clickjacking). Set on every response.
+  app.use((_req, res, next) => {
+    res.setHeader("X-Frame-Options", "SAMEORIGIN");
+    res.setHeader("Content-Security-Policy", "frame-ancestors 'self'");
+    res.setHeader("X-Content-Type-Options", "nosniff");
+    next();
+  });
   registerStorageProxy(app);
   // Apply rate limiting
   app.use("/api/trpc", apiLimiter);
